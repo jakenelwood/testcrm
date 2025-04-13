@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "regions": ["iad1"],
+  "env": {
+    "NEXT_PUBLIC_API_BASE_URL": "http://65.21.174.252:8000"
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
+} 
