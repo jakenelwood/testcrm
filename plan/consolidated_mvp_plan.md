@@ -30,11 +30,12 @@ The Quote Request Generator is a web application for generating insurance quote 
 - ✅ Document generation workflow UI components
 
 #### Deployment Configuration
-- ✅ Docker Compose configuration
+- ✅ Docker Compose configuration for backend
 - ✅ Dockerfile for Next.js frontend
 - ✅ Template setup script
-- ✅ Deployment script for Hetzner server
-- ✅ Environment variable configuration
+- ✅ Deployment script for Hetzner server (backend components)
+- ✅ Environment variable configuration for multi-environment support
+- ✅ Vercel deployment configuration for frontend
 
 ### Implementation Progress
 
@@ -49,31 +50,45 @@ The Quote Request Generator is a web application for generating insurance quote 
 
 ## Next Sprint Tasks
 
-### Priority 1: Deploy Base MVP to Hetzner Server
-1. **Server Setup and Deployment**
+### Priority 1: Deploy Split Architecture
+1. **Backend Deployment to Hetzner Server**
    - SSH into the server: `ssh -i ~/.ssh/id_ed25519 root@65.21.174.252`
    - Clone repository: `git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git`
-   - Run deployment script: `./deploy.sh`
-   - Set up environment variables
-   - Verify application is accessible at http://65.21.174.252:3000
+   - Run backend deployment script: `./deploy-backend.sh`
+   - Set up environment variables for backend services
+   - Verify backend API is accessible at http://65.21.174.252:8000
    - Create admin user: `docker exec -it quote-request-backend python create_admin.py`
 
-2. **Finalize Document Generation System**
+2. **Frontend Deployment to Vercel**
+   - Configure Vercel project settings
+   - Set up environment variables in Vercel dashboard
+   - Connect GitHub repository to Vercel
+   - Deploy frontend to Vercel
+   - Configure API endpoints to connect to Hetzner backend
+
+3. **Cross-Environment Integration**
+   - Configure CORS on backend to allow Vercel frontend
+   - Set up environment variables for API communication
+   - Test connectivity between Vercel frontend and Hetzner backend
+   - Implement secure API calling pattern
+
+4. **Finalize Document Generation System**
    - Test backend document generation service with auto form
    - Verify template placeholders are correctly replaced
    - Confirm PDF conversion works with LibreOffice 
-   - Test document download functionality
+   - Test document download functionality from Vercel frontend
    - Implement basic error handling for document generation
    - Add logging for document generation process
 
-3. **Complete Auto Insurance Form Integration**
+### Priority 2: Complete Auto Insurance Form Integration
    - Connect Auto Insurance Form to document generation API
    - Verify data transformation between form and API
    - Test full end-to-end flow from form to document
    - Add basic form validation feedback
    - Implement form state persistence for auto insurance
+   - Ensure responsive design works across devices
 
-4. **Core User Experience Features**
+### Priority 3: Core User Experience Features
    - Implement basic authentication system
    - Add document history display
    - Create simple client management interface
@@ -81,9 +96,9 @@ The Quote Request Generator is a web application for generating insurance quote 
    - Add progress indicators for multi-step forms
    - Display clear success/error messages
 
-### Priority 2: Testing and Stabilization
+### Priority 4: Testing and Stabilization
 1. **Test Functionality in Production Environment**
-   - Verify document generation works on Hetzner server
+   - Verify document generation works end-to-end
    - Test CORS configuration
    - Test form submissions with real data
    - Verify document download works
@@ -103,7 +118,7 @@ The Quote Request Generator is a web application for generating insurance quote 
    - Check for common security issues
    - Verify secure document access controls
 
-### Priority 3: Initial User Testing and Feedback Loop
+### Priority 5: Initial User Testing and Feedback Loop
 1. **Create User Testing Plan**
    - Identify initial test users
    - Create user testing script with key workflows
@@ -128,7 +143,7 @@ The Quote Request Generator is a web application for generating insurance quote 
 3. Enhance search with LanceDB vector capabilities
 4. Add reporting features
 5. Improve UI based on user feedback
-6. Prepare for migration to Cloudflare/Vercel
+6. Expand Vercel/Cloudflare features
 
 ## Database Architecture (LanceDB)
 
@@ -494,7 +509,7 @@ Implemented form state persistence with:
 Frontend services will connect to backend endpoints through a centralized configuration:
 
 ```typescript
-// API base URL configuration
+// API base URL configuration 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://65.21.174.252:8000';
 
 // Document API endpoints
@@ -532,63 +547,56 @@ The document generation process follows these steps:
 
 ### Deployment Architecture
 
-The application uses Docker and Docker Compose for containerization and deployment:
+The application uses a split architecture approach:
 
-1. **Frontend Container**: Next.js application
-   - Serves the React application
-   - Makes API calls to the backend
+1. **Frontend (Vercel)**:
+   - Next.js application deployed on Vercel
+   - Optimized for global edge delivery
+   - Connected to backend API on Hetzner
 
-2. **Backend Container**: FastAPI application
-   - Handles API requests
-   - Processes document generation
-   - Manages database operations
-
-3. **Traefik Container**: Reverse proxy
-   - Handles routing
-   - Manages SSL/TLS
-   - Provides service discovery
-
-4. **LanceDB Container**: Vector database
-   - Stores application data
-   - Provides vector search capabilities
+2. **Backend (Hetzner)**:
+   - Docker Compose for containerization
+   - FastAPI application serving API endpoints
+   - Document generation service
+   - LanceDB database for data storage
+   - Traefik for routing and SSL/TLS
 
 ### Deployment Process
 
-1. **Initial Deployment**
+1. **Backend Deployment**
    - SSH into Hetzner server: `ssh -i ~/.ssh/id_ed25519 root@65.21.174.252`
    - Clone repository: `git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git`
-   - Set up environment variables
-   - Run deployment script: `./deploy.sh`
+   - Run backend deployment script: `./deploy-backend.sh`
+   - Configure environment variables for backend services
 
-2. **Updates**
-   - Pull latest changes
-   - Rebuild containers if necessary
-   - Restart services with updated configuration
+2. **Frontend Deployment**
+   - Connect GitHub repository to Vercel
+   - Configure environment variables in Vercel dashboard
+   - Set API_BASE_URL to point to Hetzner server
+   - Deploy frontend to Vercel
 
-3. **Monitoring**
-   - Check container logs
-   - Monitor server resources
-   - Set up alerts for critical issues
+3. **Cross-Environment Setup**
+   - Configure CORS on backend to allow Vercel origin
+   - Set up secure communication between environments
+   - Create consistent environment variable schema
 
-### Platform Compatibility
+### Platform Integration
 
-The application is designed with multi-platform compatibility in mind:
+The application leverages a split architecture with:
 
-1. **Local Development Environment**: 
-   - Next.js development server with Docker-composed backend services
-   - Environment variables stored in .env.local
+1. **Frontend (Vercel)**:
+   - Globally distributed CDN
+   - Automatic HTTPS
+   - Edge functions for API routes
+   - Optimized image delivery
+   - Preview deployments for testing
 
-2. **Hetzner Initial Deployment (IP and Port)**:
-   - Traefik for routing (configured with IP-based rules)
-   - CORS properly configured for IP:port access
-   - All services running in Docker containers
-
-3. **Cloudflare/Vercel Future Compatibility**:
-   - Next.js application designed to avoid middleware (for Cloudflare compatibility)
-   - Static generation used where possible
-   - API routes designed to work with both platforms
-   - Authentication implemented without middleware
-   - Image handling compatible with both platforms
+2. **Backend (Hetzner)**:
+   - Full control over server environment
+   - Docker containerization for services
+   - Access to file system for document storage
+   - Database hosting
+   - Document processing services
 
 ## MVP Launch Checklist
 
@@ -601,10 +609,10 @@ The application is designed with multi-platform compatibility in mind:
    - Ensure documents include all required fields
 
 2. **Deployment Verification**
-   - SSH into Hetzner server: `ssh -i ~/.ssh/id_ed25519 root@65.21.174.252`
-   - Clone repository: `git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git`
-   - Run deployment script: `./deploy.sh`
-   - Verify application is accessible at http://65.21.174.252:3000
+   - Verify backend is accessible at http://65.21.174.252:8000
+   - Confirm frontend is deployed on Vercel
+   - Test connectivity between frontend and backend
+   - Verify CORS configuration works correctly
 
 3. **Frontend-Backend Integration**
    - Test cross-browser compatibility
@@ -635,7 +643,7 @@ The application is designed with multi-platform compatibility in mind:
 - Basic form functionality for auto insurance
 - Document generation with DOCX/PDF
 - Initial LanceDB implementation
-- Deployment to Hetzner server
+- Split deployment (Frontend on Vercel, Backend on Hetzner)
 
 ### Phase 2: Enhanced Features
 - Complete home insurance form implementation
@@ -650,8 +658,8 @@ The application is designed with multi-platform compatibility in mind:
 - Comprehensive reporting
 
 ### Phase 4: Platform Expansion
-- Migration to Cloudflare/Vercel
-- Domain name configuration
+- Enhanced Vercel-specific features
+- Advanced edge functions
 - Performance optimizations
 - Mobile responsiveness improvements
 
