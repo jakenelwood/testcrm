@@ -4,5 +4,4 @@ Hetzner
 ssh -i ~/.ssh/id_ed25519 root@65.21.174.252
 
 Github repository
-https://github.com/Brian-Berge-Agency/quote-request-generator72
-
+https://github.com/jakenelwood/twincitiescoverage
