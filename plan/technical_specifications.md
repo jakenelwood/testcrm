@@ -78,7 +78,42 @@ The frontend follows a hierarchical component structure:
     ├── Hooks
     ├── Utils
     └── Services
+        ├── API Configuration
+        ├── Document Service
+        └── Data Transformers
 ```
+
+### API Services
+
+The application implements a layered API service architecture:
+
+1. **API Configuration (`frontend-next/lib/api-config.ts`)**
+   - Centralized management of API endpoints
+   - Environment-aware base URL configuration
+   - Type-safe endpoint functions organized by resource
+   - Support for path parameters and query string generation
+
+2. **Service Modules**
+   - `document-service.ts`: Document generation and management
+   - Future services planned for quotes, clients, and authentication
+   - Each service includes TypeScript interfaces and error handling
+
+3. **React Query Hooks**
+   - Custom hooks that wrap API services with React Query
+   - Automatic caching, refetching, and invalidation
+   - Loading, error, and success states
+   - Mutation functions with optimistic updates
+
+4. **Data Flow Pattern**
+   ```
+   ┌─────────────┐     ┌────────────┐     ┌─────────────┐     ┌─────────────┐
+   │ React       │     │ React      │     │ API         │     │ Backend     │
+   │ Components  │────►│ Query Hooks│────►│ Services    │────►│ Endpoints   │
+   └─────────────┘     └────────────┘     └─────────────┘     └─────────────┘
+          ▲                  │                                        │
+          └──────────────────┴────────────────────────────────────────┘
+                      Data flows back to components
+   ```
 
 ### State Management
 
