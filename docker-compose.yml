@@ -4,43 +4,45 @@ services:
   # Backend service
   backend:
     build: ./backend
-    container_name: quote-request-backend
+    container_name: quote-request-backend-dev
     restart: unless-stopped
     volumes:
       - ./backend:/app
       - documents:/app/documents
+      - lancedb-data:/app/lancedb-data
       - ./auto-request-form.docx:/app/auto-request-form.docx
       - ./home-quote-request-form.docx:/app/home-quote-request-form.docx
       - ./specialty-quote-request-form.docx:/app/specialty-quote-request-form.docx
     environment:
       - DATABASE_URL=sqlite:///./quoterequest.db
-      - SECRET_KEY=${SECRET_KEY:-your_secret_key_here}
+      - SECRET_KEY=dev_secret_key_not_for_production
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
-      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:80,http://localhost,http://${SERVER_IP:-localhost}:80,http://${SERVER_IP:-localhost}:3000,http://${SERVER_IP:-65.21.174.252}:3000
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:80,http://localhost
+      - LANCEDB_URI=/app/lancedb-data
     ports:
       - "8000:8000"
+    command: python run.py
 
-  # Frontend service using Next.js
+  # Frontend service for development (uses React's development server)
   frontend:
-    build: ./frontend-next
-    container_name: quote-request-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: quote-request-frontend-dev
     restart: unless-stopped
-    environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://${SERVER_IP:-65.21.174.252}:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
     depends_on:
       - backend
-
-  # Watchtower for automatic updates
-  watchtower:
-    image: containrrr/watchtower
-    container_name: quote-request-watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 --cleanup
-    restart: unless-stopped
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+      - CHOKIDAR_USEPOLLING=true
+    command: npm start
 
 volumes:
-  documents: # Volume for storing generated documents 
+  documents: # Volume for storing generated documents
+  lancedb-data: # Volume for LanceDB data

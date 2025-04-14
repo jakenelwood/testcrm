@@ -1,0 +1,140 @@
+version: '3.8'
+
+# Common networks
+networks:
+  traefik-network:
+    name: traefik-network
+  backend-network:
+    name: backend-network
+
+services:
+  # Traefik reverse proxy
+  traefik:
+    image: traefik:v2.10
+    container_name: quote-request-traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./docker/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./docker/traefik/config:/etc/traefik/config:ro
+      - ./docker/traefik/certs:/certs
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Backend service
+  backend:
+    build: ./backend
+    container_name: quote-request-backend
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - documents:/app/documents
+      - lancedb-data:/app/lancedb-data
+      - ./auto-request-form.docx:/app/auto-request-form.docx
+      - ./home-quote-request-form.docx:/app/home-quote-request-form.docx
+      - ./specialty-quote-request-form.docx:/app/specialty-quote-request-form.docx
+    environment:
+      - DATABASE_URL=sqlite:///./quoterequest.db
+      - SECRET_KEY=${SECRET_KEY:-your_production_secret_key_here}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - ALLOWED_ORIGINS=https://${DOMAIN:-65.21.174.252}
+      - LANCEDB_URI=/app/lancedb-data
+      - HOST=0.0.0.0
+    networks:
+      - traefik-network
+      - backend-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`${DOMAIN:-65.21.174.252}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=api-auth@file"
+    command: python run.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health-check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Frontend service using Next.js
+  frontend:
+    build: ./frontend-next
+    container_name: quote-request-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=https://${DOMAIN:-65.21.174.252}/api
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-65.21.174.252}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.frontend.middlewares=frontend-mw@file"
+      - "traefik.http.routers.frontend.priority=1"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # LanceDB service
+  lancedb:
+    image: lancedb/lancedb:latest
+    container_name: quote-request-lancedb
+    restart: unless-stopped
+    volumes:
+      - lancedb-data:/data
+    networks:
+      - backend-network
+    environment:
+      - LANCEDB_PORT=9520
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9520/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Watchtower for automatic updates
+  watchtower:
+    image: containrrr/watchtower
+    container_name: quote-request-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 86400 --cleanup
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+volumes:
+  documents:
+    driver: local
+  lancedb-data:
+    driver: local
+  traefik-certs:
+    driver: local 

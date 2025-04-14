@@ -1,0 +1,39 @@
+http:
+  middlewares:
+    # Security headers middleware
+    security-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+
+    # Compression middleware
+    compress:
+      compress: {}
+
+    # Rate limiting middleware to prevent abuse
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+
+    # API-specific middleware
+    api-auth:
+      chain:
+        middlewares:
+          - security-headers
+          - rate-limit
+
+    # Frontend middleware
+    frontend-mw:
+      chain:
+        middlewares:
+          - security-headers
+          - compress 

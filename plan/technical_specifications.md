@@ -467,6 +467,71 @@ The application is designed for future platform migration:
    - API communication between platforms
    - Consistent environment variables
 
+## Reverse Proxy and Security Infrastructure
+
+### Traefik Configuration
+
+The application uses Traefik as a reverse proxy with the following key features:
+
+1. **Routing Configuration**
+   - HTTP to HTTPS redirection (port 80 to 443)
+   - Path-based routing (`/api` routes to backend, all others to frontend)
+   - Priority-based rule matching
+   - Health check integration for services
+
+2. **SSL/TLS Configuration**
+   - Automatic SSL certificate provisioning via Let's Encrypt
+   - TLS 1.2+ with strong cipher suites
+   - ACME challenge handling (TLS challenge)
+   - Certificate renewal management
+
+3. **Security Middleware**
+   - HTTP security headers (HSTS, XSS protection, content type sniffing prevention)
+   - Rate limiting for API endpoints
+   - Compression for frontend assets
+   - Basic authentication for dashboard access
+
+4. **Service Discovery**
+   - Docker provider integration
+   - Automatic detection of containers
+   - Dynamic updates on container changes
+   - Label-based configuration
+
+### Network Segmentation
+
+The application implements network segmentation through Docker networks:
+
+1. **External-Facing Network**
+   - `traefik-network` connects Traefik with frontend and backend
+   - Exposes only necessary services to the internet
+   - Controlled access through Traefik
+
+2. **Internal Network**
+   - `backend-network` connects backend to database
+   - Isolates database from direct external access
+   - Restricts communication to authorized services
+
+### Security Measures
+
+The implementation includes several security measures:
+
+1. **Containerization**
+   - Services run in isolated Docker containers
+   - `no-new-privileges` security option for Traefik
+   - Volume access restrictions
+   - Environment variable separation
+
+2. **Firewall Configuration**
+   - UFW configuration restricts access to ports 22, 80, 443
+   - All other ports closed by default
+   - SSH key-based authentication
+
+3. **Infrastructure as Code**
+   - All configuration managed in version control
+   - Deployment scripts for consistent setup
+   - Environment-specific configurations via .env files
+   - Secret management via environment variables
+
 ## UI Design System
 
 ### Component Framework

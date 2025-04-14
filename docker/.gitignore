@@ -1,0 +1,21 @@
+# Docker environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Docker volumes data
+data/
+volumes/
+
+# Docker logs
+logs/
+
+# Build files
+*.tar
+
+# LanceDB data
+lancedb/data/
+
+# Traefik certificates
+acme.json 
