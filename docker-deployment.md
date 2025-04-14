@@ -22,7 +22,7 @@ The easiest way to deploy is using the automated script:
 
 ```bash
 # Clone the repository if not already done
-git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git
+git clone https://github.com/jakenelwood/quote-request-fresh.git
 cd quote-request-generator72
 
 # Run the deployment script
@@ -46,7 +46,7 @@ If you prefer to deploy manually, follow these steps:
 cd /root
 
 # Clone the repository
-git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git
+git clone https://github.com/jakenelwood/quote-request-fresh.git
 
 # Navigate to the repository
 cd quote-request-generator72

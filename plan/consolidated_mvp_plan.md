@@ -59,7 +59,7 @@ The Quote Request Generator is a web application for generating insurance quote 
 ### Priority 1: Complete Production Deployment
 1. **Secure Production Deployment to Hetzner Server**
    - SSH into the server: `ssh -i ~/.ssh/id_ed25519 root@65.21.174.252`
-   - Clone repository: `git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git`
+   - Clone repository: `git clone https://github.com/jakenelwood/quote-request-fresh.git`
    - Run deployment script: `./deploy-traefik.sh`
    - Verify deployed services: `docker-compose -f docker-compose.prod.yml ps`
    - Verify HTTPS access at https://65.21.174.252
@@ -570,7 +570,7 @@ The application uses a split architecture approach:
 
 1. **Backend Deployment**
    - SSH into Hetzner server: `ssh -i ~/.ssh/id_ed25519 root@65.21.174.252`
-   - Clone repository: `git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git`
+   - Clone repository: `git clone https://github.com/jakenelwood/quote-request-fresh.git`
    - Run backend deployment script: `./deploy-backend.sh`
    - Configure environment variables for backend services
 

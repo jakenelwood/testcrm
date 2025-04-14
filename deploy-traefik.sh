@@ -44,7 +44,7 @@ else
         echo "Directory not empty and not a git repository. Cleaning..."
         rm -rf ./*
     fi
-    git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git .
+    git clone https://github.com/jakenelwood/quote-request-fresh.git .
 fi
 
 # Create Traefik directories

@@ -5,7 +5,7 @@
 ### Priority 1: Secure Production Deployment
 1. **Deploy to Hetzner Server with Traefik**
    - SSH into the server: `ssh -i ~/.ssh/id_ed25519 root@65.21.174.252`
-   - Clone repository: `git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git`
+   - Clone repository: `git clone https://github.com/jakenelwood/quote-request-fresh.git`
    - Run deployment script: `./deploy-traefik.sh`
    - Verify application is accessible via HTTPS at https://65.21.174.252
    - Verify Traefik dashboard at https://65.21.174.252/dashboard/

@@ -142,7 +142,7 @@ Our immediate focus is on delivering a functional MVP centered on the Auto Insur
 
 2. **Clone the repository**:
    ```bash
-   git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git
+   git clone https://github.com/jakenelwood/quote-request-fresh.git
    cd quote-request-generator72
    ```
 
@@ -246,7 +246,7 @@ ssh -i ~/.ssh/id_ed25519 root@65.21.174.252
 2. **Clone the repository:**
 
 ```bash
-git clone https://github.com/Brian-Berge-Agency/quote-request-generator72.git
+git clone https://github.com/jakenelwood/quote-request-fresh.git
 cd quote-request-generator72
 ```
 
