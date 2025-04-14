@@ -143,7 +143,7 @@ Our immediate focus is on delivering a functional MVP centered on the Auto Insur
 2. **Clone the repository**:
    ```bash
    git clone https://github.com/jakenelwood/quote-request-fresh.git
-   cd quote-request-generator72
+   cd quote-request-fresh
    ```
 
 3. **Run the deployment script**:
@@ -247,91 +247,9 @@ ssh -i ~/.ssh/id_ed25519 root@65.21.174.252
 
 ```bash
 git clone https://github.com/jakenelwood/quote-request-fresh.git
-cd quote-request-generator72
+cd quote-request-fresh
 ```
 
 3. **Run the deployment script:**
 
-```bash
-chmod +x deploy.sh
-./deploy.sh
 ```
-
-This script will:
-- Pull the latest changes
-- Set up document templates
-- Build and start Docker containers
-- Display the URLs for accessing the application
-
-4. **Access the application:**
-
-- Frontend: http://65.21.174.252:3000
-- Backend API: http://65.21.174.252:8000
-
-### Manual Deployment
-
-If you prefer to deploy manually:
-
-1. **Set up document templates:**
-
-```bash
-chmod +x setup-templates.sh
-./setup-templates.sh
-```
-
-2. **Build and start Docker containers:**
-
-```bash
-export SERVER_IP=65.21.174.252
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
-```
-
-## Development Setup
-
-### Frontend
-
-```bash
-cd frontend-next
-npm install
-npm run dev
-```
-
-### Backend
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-
-## Testing
-
-### Frontend Tests
-
-```bash
-cd frontend-next
-npm test
-```
-
-### Backend Tests
-
-```bash
-cd backend
-pytest
-```
-
-## Document Templates
-
-The application uses DOCX templates with placeholders:
-
-- `auto-request-form.docx`: Template for auto insurance quotes
-- `home-quote-request-form.docx`: Template for home insurance quotes
-- `specialty-quote-request-form.docx`: Template for specialty insurance quotes
-
-## Contributors
-
-- Brian Berge Agency Team

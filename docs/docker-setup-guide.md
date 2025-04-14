@@ -108,7 +108,7 @@ Run the following commands to build and start the containers:
 ssh -i ~/.ssh/id_ed25519 root@65.21.174.252
 
 # Navigate to the project directory
-cd quote-request-generator72
+cd quote-request-fresh
 
 # Build and start the containers
 docker-compose up -d --build

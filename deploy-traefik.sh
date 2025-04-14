@@ -18,7 +18,7 @@ fi
 # Server configuration
 SERVER_IP=${SERVER_IP:-65.21.174.252}
 DOMAIN=${DOMAIN:-$SERVER_IP}
-PROJECT_DIR=${PROJECT_DIR:-/root/quote-request-generator72}
+PROJECT_DIR=${PROJECT_DIR:-/root/quote-request-fresh}
 
 echo "Using server IP: $SERVER_IP"
 echo "Using domain: $DOMAIN"

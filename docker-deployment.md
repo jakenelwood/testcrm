@@ -23,7 +23,7 @@ The easiest way to deploy is using the automated script:
 ```bash
 # Clone the repository if not already done
 git clone https://github.com/jakenelwood/quote-request-fresh.git
-cd quote-request-generator72
+cd quote-request-fresh
 
 # Run the deployment script
 ./deploy-traefik.sh
@@ -49,7 +49,7 @@ cd /root
 git clone https://github.com/jakenelwood/quote-request-fresh.git
 
 # Navigate to the repository
-cd quote-request-generator72
+cd quote-request-fresh
 ```
 
 #### B. Set Up Traefik
