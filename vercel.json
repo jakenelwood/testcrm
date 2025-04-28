@@ -1,9 +1,17 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend-next-files && npm install && npm run build",
-  "outputDirectory": "frontend-next-files/.next",
-  "installCommand": "cd frontend-next-files && npm install",
-  "framework": "nextjs",
+  "builds": [
+    {
+      "src": "frontend-next-files/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/frontend-next-files/$1"
+    }
+  ],
   "regions": ["iad1"],
   "env": {
     "NEXT_PUBLIC_API_BASE_URL": "http://65.21.174.252:8000"
