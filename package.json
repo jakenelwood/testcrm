@@ -1,0 +1,13 @@
+{
+  "name": "crm-root",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend-next-files"
+  ],
+  "scripts": {
+    "dev": "cd frontend-next-files && npm run dev",
+    "build": "cd frontend-next-files && npm run build",
+    "start": "cd frontend-next-files && npm run start"
+  }
+}

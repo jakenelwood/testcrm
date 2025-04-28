@@ -1,0 +1,26 @@
+# Ignore backend files
+backend/
+backend-minimal/
+docker/
+minimal-cors-test/
+testing/
+templates/
+docs/
+plan/
+boilerplate-shadcn-pro-main/
+
+# Ignore deployment scripts
+deploy.sh
+deploy-traefik.sh
+push-to-github.sh
+setup-nextjs.sh
+setup-templates.sh
+
+# Ignore Docker files
+docker-compose*.yml
+
+# Ignore document templates
+*.docx
+
+# Keep frontend-next-files
+!frontend-next-files/
