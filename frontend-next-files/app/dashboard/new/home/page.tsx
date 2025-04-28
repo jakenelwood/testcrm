@@ -13,15 +13,15 @@ export default function HomeQuotePage() {
   const [isMultiSelection, setIsMultiSelection] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [currentTypeIndex, setCurrentTypeIndex] = useState(0);
-  
+
   useEffect(() => {
     // Check if this page is part of a multi-selection flow
-    const typesParam = searchParams.get('types');
+    const typesParam = searchParams?.get('types');
     if (typesParam) {
       const types = typesParam.split(',');
       setSelectedTypes(types);
       setIsMultiSelection(types.length > 1);
-      
+
       // Find the index of 'home' in the types array
       const homeIndex = types.indexOf('home');
       if (homeIndex >= 0) {
@@ -29,41 +29,43 @@ export default function HomeQuotePage() {
       }
     } else {
       // Try to get from sessionStorage if not in query params
-      const storedTypes = sessionStorage.getItem('selectedInsuranceTypes');
-      if (storedTypes) {
-        try {
-          const types = JSON.parse(storedTypes);
-          if (Array.isArray(types) && types.length > 1) {
-            setSelectedTypes(types);
-            setIsMultiSelection(true);
-            const homeIndex = types.indexOf('home');
-            if (homeIndex >= 0) {
-              setCurrentTypeIndex(homeIndex);
+      if (typeof window !== 'undefined') {
+        const storedTypes = sessionStorage.getItem('selectedInsuranceTypes');
+        if (storedTypes) {
+          try {
+            const types = JSON.parse(storedTypes);
+            if (Array.isArray(types) && types.length > 1) {
+              setSelectedTypes(types);
+              setIsMultiSelection(true);
+              const homeIndex = types.indexOf('home');
+              if (homeIndex >= 0) {
+                setCurrentTypeIndex(homeIndex);
+              }
             }
+          } catch (e) {
+            console.error('Error parsing stored insurance types', e);
           }
-        } catch (e) {
-          console.error('Error parsing stored insurance types', e);
         }
       }
     }
   }, [searchParams]);
-  
+
   const handleHomeFormSubmit = (values: any) => {
     // In a real implementation, you would save the form data
     console.log('Home form values:', values);
-    
+
     if (isMultiSelection) {
       // Find the next form to navigate to
       const nextTypeIndex = selectedTypes.findIndex(
         (type, index) => index > currentTypeIndex && type !== 'home'
       );
-      
+
       if (nextTypeIndex >= 0) {
         const nextType = selectedTypes[nextTypeIndex];
         const typesParam = new URLSearchParams({
           types: selectedTypes.join(',')
         }).toString();
-        
+
         // Navigate to the next form with the same query parameters
         router.push(`/dashboard/new/${nextType}?${typesParam}`);
       } else {
@@ -75,12 +77,12 @@ export default function HomeQuotePage() {
       router.push('/dashboard');
     }
   };
-  
+
   return (
     <>
       <div className="flex items-center mb-6">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="sm"
           onClick={() => router.back()}
           className="mr-2"
@@ -90,7 +92,7 @@ export default function HomeQuotePage() {
         </Button>
         <h1 className="text-3xl font-bold tracking-tight">Home Insurance Quote</h1>
       </div>
-      
+
       {isMultiSelection && (
         <Alert className="mb-6">
           <AlertTitle className="flex items-center">
@@ -102,8 +104,8 @@ export default function HomeQuotePage() {
           </AlertDescription>
         </Alert>
       )}
-      
+
       <HomeInsuranceForm onSubmitForm={handleHomeFormSubmit} />
     </>
   );
-} 
+}
