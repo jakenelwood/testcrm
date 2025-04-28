@@ -1,6 +1,9 @@
 {
   "version": 2,
   "framework": "nextjs",
+  "installCommand": "cd frontend-next-files && npm install",
+  "buildCommand": "cd frontend-next-files && npm run build",
+  "outputDirectory": "frontend-next-files/.next",
   "regions": ["iad1"],
   "env": {
     "NEXT_PUBLIC_API_BASE_URL": "http://65.21.174.252:8000"
