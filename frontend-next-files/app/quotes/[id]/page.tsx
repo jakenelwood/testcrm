@@ -16,7 +16,7 @@ export default function QuoteDetails() {
   const params = useParams();
   // Safe type assertion for the id parameter
   const quoteId = typeof params?.id === 'string' ? params.id : '';
-  
+
   // Fetch quote details
   const { data: quote, isLoading, error } = useQuery({
     queryKey: ['quote', quoteId],
@@ -128,7 +128,7 @@ export default function QuoteDetails() {
                     </div>
                   </div>
                 )}
-                
+
                 {quote.has_home && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-2">Home Insurance</h3>
@@ -139,7 +139,7 @@ export default function QuoteDetails() {
                     </div>
                   </div>
                 )}
-                
+
                 {quote.has_specialty && (
                   <div>
                     <h3 className="text-lg font-medium mb-2">Specialty Insurance</h3>
@@ -160,9 +160,9 @@ export default function QuoteDetails() {
 }
 
 function getQuoteTypes(quote: any): string {
-  const types = [];
+  const types: string[] = [];
   if (quote.has_auto) types.push('Auto');
   if (quote.has_home) types.push('Home');
   if (quote.has_specialty) types.push('Specialty');
   return types.length ? types.join(', ') : 'None';
-} 
+}
