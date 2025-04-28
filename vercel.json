@@ -1,6 +1,8 @@
 {
   "version": 2,
-  "rootDirectory": "frontend-next-files",
+  "buildCommand": "cd frontend-next-files && npm install && npm run build",
+  "outputDirectory": "frontend-next-files/.next",
+  "installCommand": "cd frontend-next-files && npm install",
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
