@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend-next-fresh && npm install && npm run build",
-  "outputDirectory": "frontend-next-fresh/.next",
-  "installCommand": "cd frontend-next-fresh && npm install",
+  "buildCommand": "cd frontend-next-files && npm install && npm run build",
+  "outputDirectory": "frontend-next-files/.next",
+  "installCommand": "cd frontend-next-files && npm install",
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
@@ -12,5 +12,11 @@
     "deploymentEnabled": {
       "main": true
     }
-  }
-} 
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/frontend-next-files/$1"
+    }
+  ]
+}
