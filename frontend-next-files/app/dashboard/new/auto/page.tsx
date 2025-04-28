@@ -13,15 +13,15 @@ export default function AutoQuotePage() {
   const [isMultiSelection, setIsMultiSelection] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [currentTypeIndex, setCurrentTypeIndex] = useState(0);
-  
+
   useEffect(() => {
     // Check if this page is part of a multi-selection flow
-    const typesParam = searchParams.get('types');
+    const typesParam = searchParams?.get('types');
     if (typesParam) {
       const types = typesParam.split(',');
       setSelectedTypes(types);
       setIsMultiSelection(types.length > 1);
-      
+
       // Find the index of 'auto' in the types array
       const autoIndex = types.indexOf('auto');
       if (autoIndex >= 0) {
@@ -29,38 +29,40 @@ export default function AutoQuotePage() {
       }
     } else {
       // Try to get from sessionStorage if not in query params
-      const storedTypes = sessionStorage.getItem('selectedInsuranceTypes');
-      if (storedTypes) {
-        try {
-          const types = JSON.parse(storedTypes);
-          if (Array.isArray(types) && types.length > 1) {
-            setSelectedTypes(types);
-            setIsMultiSelection(true);
-            const autoIndex = types.indexOf('auto');
-            if (autoIndex >= 0) {
-              setCurrentTypeIndex(autoIndex);
+      if (typeof window !== 'undefined') {
+        const storedTypes = sessionStorage.getItem('selectedInsuranceTypes');
+        if (storedTypes) {
+          try {
+            const types = JSON.parse(storedTypes);
+            if (Array.isArray(types) && types.length > 1) {
+              setSelectedTypes(types);
+              setIsMultiSelection(true);
+              const autoIndex = types.indexOf('auto');
+              if (autoIndex >= 0) {
+                setCurrentTypeIndex(autoIndex);
+              }
             }
+          } catch (e) {
+            console.error('Error parsing stored insurance types', e);
           }
-        } catch (e) {
-          console.error('Error parsing stored insurance types', e);
         }
       }
     }
   }, [searchParams]);
-  
+
   const handleSubmit = () => {
     if (isMultiSelection) {
       // Find the next form to navigate to
       const nextTypeIndex = selectedTypes.findIndex(
         (type, index) => index > currentTypeIndex && type !== 'auto'
       );
-      
+
       if (nextTypeIndex >= 0) {
         const nextType = selectedTypes[nextTypeIndex];
         const typesParam = new URLSearchParams({
           types: selectedTypes.join(',')
         }).toString();
-        
+
         // Navigate to the next form with the same query parameters
         router.push(`/dashboard/new/${nextType}?${typesParam}`);
       } else {
@@ -72,12 +74,12 @@ export default function AutoQuotePage() {
       router.push('/dashboard');
     }
   };
-  
+
   return (
     <>
       <div className="flex items-center mb-6">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="sm"
           onClick={() => router.back()}
           className="mr-2"
@@ -87,7 +89,7 @@ export default function AutoQuotePage() {
         </Button>
         <h1 className="text-3xl font-bold tracking-tight">Auto Insurance Quote</h1>
       </div>
-      
+
       {isMultiSelection && (
         <Alert className="mb-6">
           <AlertTitle className="flex items-center">
@@ -99,19 +101,19 @@ export default function AutoQuotePage() {
           </AlertDescription>
         </Alert>
       )}
-      
+
       <Card>
         <CardContent className="pt-6">
           <p className="text-muted-foreground mb-6">
             Fill out this form to request an auto insurance quote.
           </p>
-          
+
           <div className="grid gap-6">
             <div className="p-6 border rounded-md bg-muted/50">
               <p className="text-center">Auto insurance form fields will be implemented here.</p>
               <p className="text-center text-muted-foreground mt-2">According to your implementation checklist, these fields have already been implemented in your original React frontend.</p>
             </div>
-            
+
             <Button onClick={handleSubmit}>
               {isMultiSelection ? "Continue to Next Form" : "Submit"}
             </Button>
@@ -120,4 +122,4 @@ export default function AutoQuotePage() {
       </Card>
     </>
   );
-} 
+}
