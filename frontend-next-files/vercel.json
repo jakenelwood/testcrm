@@ -3,7 +3,9 @@
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_API_BASE_URL": "http://65.21.174.252:8000"
+    "NEXT_PUBLIC_API_BASE_URL": "http://65.21.174.252:8000",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://vpwvdfrxvvuxojejnegm.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3ZkZnJ4dnZ1eG9qZWpuZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTcxOTIsImV4cCI6MjA2MTQ3MzE5Mn0.hyIFaAyppndjilhPXaaWf7GJoOsJfRRDp7LubigyB3Q"
   },
   "git": {
     "deploymentEnabled": {
