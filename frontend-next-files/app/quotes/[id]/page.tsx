@@ -11,6 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDate } from '@/lib/utils';
 import { Loader2, ArrowLeft, Edit } from 'lucide-react';
 
+// Note: generateStaticParams is imported from a separate file
+// to avoid conflicts with 'use client' directive
+
 export default function QuoteDetails() {
   const router = useRouter();
   const params = useParams();

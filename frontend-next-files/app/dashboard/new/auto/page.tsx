@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function AutoQuotePage() {
+// Component that uses searchParams
+function AutoQuoteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isMultiSelection, setIsMultiSelection] = useState(false);
@@ -121,5 +122,14 @@ export default function AutoQuotePage() {
         </CardContent>
       </Card>
     </>
+  );
+}
+
+// Wrap the component that uses searchParams in a Suspense boundary
+export default function AutoQuotePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AutoQuoteContent />
+    </Suspense>
   );
 }

@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { HomeInsuranceForm } from "@/components/home-insurance-form";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function HomeQuotePage() {
+// Create a component that uses searchParams
+function HomeQuoteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isMultiSelection, setIsMultiSelection] = useState(false);
@@ -107,5 +108,14 @@ export default function HomeQuotePage() {
 
       <HomeInsuranceForm onSubmitForm={handleHomeFormSubmit} />
     </>
+  );
+}
+
+// Wrap the component that uses searchParams in a Suspense boundary
+export default function HomeQuotePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeQuoteContent />
+    </Suspense>
   );
 }

@@ -29,7 +29,7 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
         <Menu className="h-5 w-5" />
         <span className="sr-only">Toggle menu</span>
       </Button>
-      
+
       <div className="w-full flex-1 md:max-w-sm">
         <form>
           <div className="relative">
@@ -42,7 +42,7 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
           </div>
         </form>
       </div>
-      
+
       <div className="ml-auto flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -80,7 +80,7 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
                     <p className="text-xs text-muted-foreground">1 hour ago</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Emma Johnson's home quote has been approved
+                    Emma Johnson&apos;s home quote has been approved
                   </p>
                 </div>
               </DropdownMenuItem>
@@ -105,4 +105,4 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
       </div>
     </header>
   );
-} 
+}

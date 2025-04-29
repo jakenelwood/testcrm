@@ -4,18 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { 
-  FileText, 
-  Home as HomeIcon, 
-  LayoutDashboard, 
-  Plus, 
-  Settings, 
-  Users 
+import {
+  FileText,
+  LayoutDashboard,
+  Settings,
+  Users
 } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname() || '';
-  
+
   const routes = [
     {
       label: "Dashboard",
@@ -42,7 +40,7 @@ export function Sidebar() {
       variant: undefined
     }
   ];
-  
+
   const secondaryRoutes = [
     {
       label: "Settings",
@@ -53,7 +51,7 @@ export function Sidebar() {
       variant: undefined
     },
   ];
-  
+
   return (
     <div className="flex h-full w-64 flex-col border-r bg-white">
       <div className="flex h-14 items-center border-b px-4">
@@ -66,9 +64,9 @@ export function Sidebar() {
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid gap-1 px-2">
           {routes.map((route, i) => (
-            <Button 
-              key={i} 
-              asChild 
+            <Button
+              key={i}
+              asChild
               variant={route.variant || (route.active ? "secondary" : "ghost")}
               className="justify-start"
               size="sm"
@@ -82,9 +80,9 @@ export function Sidebar() {
         </nav>
         <nav className="grid gap-1 px-2 mt-4 pt-4 border-t">
           {secondaryRoutes.map((route, i) => (
-            <Button 
-              key={i} 
-              asChild 
+            <Button
+              key={i}
+              asChild
               variant={route.active ? "secondary" : "ghost"}
               className="justify-start"
               size="sm"
@@ -108,4 +106,4 @@ export function Sidebar() {
       </div>
     </div>
   );
-} 
+}
