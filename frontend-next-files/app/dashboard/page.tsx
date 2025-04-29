@@ -13,26 +13,26 @@ const recentQuotes = [
 ];
 
 const stats = [
-  { 
-    title: "Total Quotes", 
-    value: "254", 
-    description: "All time quotes created", 
+  {
+    title: "Total Quotes",
+    value: "254",
+    description: "All time quotes created",
     change: "+12% from last month",
     icon: FileText,
     positive: true
   },
-  { 
-    title: "Active Clients", 
-    value: "128", 
-    description: "Clients with active quotes", 
+  {
+    title: "Active Clients",
+    value: "128",
+    description: "Clients with active quotes",
     change: "+4% from last month",
     icon: Users,
     positive: true
   },
-  { 
-    title: "Quotes This Month", 
-    value: "32", 
-    description: "New quotes created in October", 
+  {
+    title: "Quotes This Month",
+    value: "32",
+    description: "New quotes created in October",
     change: "-5% from last month",
     icon: BarChart3,
     positive: false
@@ -45,17 +45,17 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <div className="flex gap-2">
-          <Button 
-            asChild 
+          <Button
+            asChild
             className="bg-[#2182E0] hover:bg-[#045AC3] text-white"
           >
             <Link href="/dashboard/new">
-              New Quote
+              New Lead
             </Link>
           </Button>
         </div>
       </div>
-      
+
       <div className="grid gap-6 md:grid-cols-3 mb-6">
         {stats.map((stat, i) => (
           <Card key={i}>
@@ -75,7 +75,7 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Recent Quote Requests</CardTitle>
@@ -102,9 +102,9 @@ export default function Dashboard() {
                     <td className="py-3 px-4">{quote.type}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${
-                        quote.status === 'Completed' 
-                          ? 'bg-green-50 text-green-700' 
-                          : quote.status === 'Pending' 
+                        quote.status === 'Completed'
+                          ? 'bg-green-50 text-green-700'
+                          : quote.status === 'Pending'
                             ? 'bg-yellow-50 text-yellow-700'
                             : 'bg-blue-50 text-blue-700'
                       }`}>
@@ -134,4 +134,4 @@ export default function Dashboard() {
       </Card>
     </>
   );
-} 
+}

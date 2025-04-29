@@ -1,7 +1,0 @@
-Access Info
-
-Hetzner
-ssh -i ~/.ssh/id_ed25519 root@65.21.174.252
-
-Github repository
-https://github.com/jakenelwood/quote-request-fresh

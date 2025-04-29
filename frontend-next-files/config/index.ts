@@ -1,6 +1,6 @@
 /**
  * Configuration Module
- * 
+ *
  * This module provides centralized access to configuration settings and environment variables.
  * It handles different deployment scenarios (development, Hetzner IP:port, Vercel, Cloudflare)
  * and provides sensible defaults.
@@ -13,7 +13,7 @@ const getDeploymentTarget = (): 'development' | 'hetzner-initial' | 'hetzner' | 
   if (process.env.CLOUDFLARE_ACCOUNT_ID) return 'cloudflare';
   if (process.env.NEXT_PUBLIC_DEPLOYMENT_TARGET === 'hetzner') return 'hetzner';
   if (process.env.NEXT_PUBLIC_DEPLOYMENT_TARGET === 'hetzner-initial') return 'hetzner-initial';
-  
+
   // Default to development if no specific markers are found
   return 'development';
 };
@@ -21,7 +21,7 @@ const getDeploymentTarget = (): 'development' | 'hetzner-initial' | 'hetzner' | 
 // Get API base URL based on deployment target
 const getApiBaseUrl = (): string => {
   const deploymentTarget = getDeploymentTarget();
-  
+
   switch (deploymentTarget) {
     case 'development':
       return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
@@ -46,20 +46,20 @@ export const config = {
     version: process.env.NEXT_PUBLIC_API_VERSION || 'v1',
     timeout: 30000,
   },
-  
+
   // Application information
   app: {
-    name: process.env.NEXT_PUBLIC_APP_NAME || 'Quote Request Generator',
+    name: process.env.NEXT_PUBLIC_APP_NAME || 'AICRM',
     environment: process.env.NODE_ENV || 'development',
     isProduction: process.env.NODE_ENV === 'production',
   },
-  
+
   // Feature flags
   features: {
     sampleData: process.env.NEXT_PUBLIC_ENABLE_SAMPLE_DATA === 'true',
     pdfExport: process.env.NEXT_PUBLIC_ENABLE_PDF_EXPORT === 'true',
   },
-  
+
   // Deployment information
   deployment: {
     target: getDeploymentTarget(),
@@ -79,4 +79,4 @@ export const featureConfig = config.features;
 export const deploymentConfig = config.deployment;
 
 // Export default config
-export default config; 
+export default config;

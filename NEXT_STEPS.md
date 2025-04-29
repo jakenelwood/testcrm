@@ -1,1 +1,0 @@
-# Next Steps\n\n1. Deploy Docker setup to Hetzner server\n2. Implement CRUD operations for LanceDB\n3. Develop document generation functionality\n\nSee docs/ directory for detailed implementation guides.

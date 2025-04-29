@@ -1,0 +1,302 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+  Active
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+import { Plus, Search } from "lucide-react";
+import { KanbanBoard } from "@/components/kanban/KanbanBoard";
+import { AddLeadModal } from "@/components/kanban/AddLeadModal";
+import { LeadDetailsModal } from "@/components/kanban/LeadDetailsModal";
+import { Lead, LeadStatus } from "@/types/lead";
+import supabase from '@/utils/supabase/client';
+
+export default function LeadsPage() {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [isLeadDetailsModalOpen, setIsLeadDetailsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeLead, setActiveLead] = useState<Lead | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Fetch leads from Supabase
+  useEffect(() => {
+    const fetchLeads = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching leads:', error);
+      } else {
+        setLeads(data || []);
+        setFilteredLeads(data || []);
+      }
+      setIsLoading(false);
+    };
+
+    fetchLeads();
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('leads-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
+        // Refresh leads when changes occur
+        fetchLeads();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Filter leads based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredLeads(leads);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = leads.filter(
+        (lead) =>
+          lead.first_name?.toLowerCase().includes(query) ||
+          lead.last_name?.toLowerCase().includes(query) ||
+          lead.email?.toLowerCase().includes(query) ||
+          lead.phone_number?.toLowerCase().includes(query)
+      );
+      setFilteredLeads(filtered);
+    }
+  }, [searchQuery, leads]);
+
+  // Handle drag start event
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const draggedLead = leads.find(lead => lead.id === active.id);
+    if (draggedLead) {
+      setActiveLead(draggedLead);
+    }
+  };
+
+  // Handle drag end event
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    // Reset active lead regardless of outcome
+    setActiveLead(null);
+
+    if (over && active.id !== over.id) {
+      const leadId = active.id as string;
+
+      // Get the status from the column ID, ensuring it matches the database constraint
+      // The database constraint is case-sensitive and expects 'New', 'Contacted', etc.
+      let newStatus: LeadStatus;
+
+      // Map the column ID to the exact status string expected by the database
+      switch (over.id) {
+        case 'New':
+          newStatus = 'New';
+          break;
+        case 'Contacted':
+          newStatus = 'Contacted';
+          break;
+        case 'Quoted':
+          newStatus = 'Quoted';
+          break;
+        case 'Sold':
+          newStatus = 'Sold';
+          break;
+        case 'Lost':
+          newStatus = 'Lost';
+          break;
+        default:
+          console.error('Unknown status:', over.id);
+          return; // Exit if status is unknown
+      }
+
+      // Log for debugging
+      console.log('Dragging lead', leadId, 'to status:', newStatus);
+
+      // Update lead status in state
+      setLeads((prevLeads) =>
+        prevLeads.map((lead) =>
+          lead.id === leadId ? { ...lead, status: newStatus } : lead
+        )
+      );
+
+      // Update lead status in Supabase
+      const { error } = await supabase
+        .from('leads')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', leadId);
+
+      if (error) {
+        console.error('Error updating lead status:', error.message, error.details, error.hint);
+        // Revert the state change if the update fails
+        try {
+          const { data, error: selectError } = await supabase
+            .from('leads')
+            .select('*')
+            .eq('id', leadId)
+            .single();
+
+          if (selectError) {
+            console.error('Error fetching original lead status:', selectError.message);
+          } else if (data) {
+            setLeads((prevLeads) =>
+              prevLeads.map((lead) =>
+                lead.id === leadId ? { ...lead, status: data.status } : lead
+              )
+            );
+          }
+        } catch (fetchError) {
+          console.error('Error reverting lead status:', fetchError);
+        }
+      }
+    }
+  };
+
+  // Handle lead creation
+  const handleLeadCreated = (newLead: Lead) => {
+    setLeads((prevLeads) => [newLead, ...prevLeads]);
+    setIsAddLeadModalOpen(false);
+  };
+
+  // Handle lead selection for details view
+  const handleLeadSelect = (lead: Lead) => {
+    setSelectedLead(lead);
+    setIsLeadDetailsModalOpen(true);
+  };
+
+  // Handle lead update
+  const handleLeadUpdated = (updatedLead: Lead) => {
+    setLeads((prevLeads) =>
+      prevLeads.map((lead) =>
+        lead.id === updatedLead.id ? updatedLead : lead
+      )
+    );
+    setSelectedLead(updatedLead);
+  };
+
+  return (
+    <div className="container mx-auto py-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Leads</h1>
+        <Button onClick={() => setIsAddLeadModalOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Add Lead
+        </Button>
+      </div>
+
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search leads..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <KanbanBoard
+          leads={filteredLeads}
+          isLoading={isLoading}
+          onLeadSelect={handleLeadSelect}
+        />
+
+        <DragOverlay>
+          {activeLead ? (
+            <div className="bg-white dark:bg-zinc-800 rounded-md shadow-lg p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500">
+              <div className="font-medium text-foreground dark:text-white">
+                {activeLead.first_name} {activeLead.last_name}
+              </div>
+
+              <div className="text-sm text-muted-foreground mt-1">
+                Entered on: {new Date(activeLead.created_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </div>
+
+              <div className="flex justify-between items-center mt-3">
+                <span className={`px-2 py-1 rounded-full text-xs ${
+                  !activeLead.current_carrier ? "bg-black text-white" :
+                  activeLead.current_carrier.toLowerCase() === 'state farm' ? "bg-red-500 text-white" :
+                  "bg-gray-500 text-white"
+                }`}>
+                  {activeLead.current_carrier || "No Prior"}
+                </span>
+
+                <span className="font-medium">
+                  ${activeLead.premium
+                    ? activeLead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : "0.00"}
+                </span>
+              </div>
+
+              {activeLead.assigned_to && (
+                <div className="mt-2 flex justify-end">
+                  <span className="text-xs px-2 py-1 rounded-md border border-blue-500 text-blue-500">
+                    {activeLead.assigned_to}
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      <AddLeadModal
+        isOpen={isAddLeadModalOpen}
+        onClose={() => setIsAddLeadModalOpen(false)}
+        onLeadCreated={handleLeadCreated}
+      />
+
+      {selectedLead && (
+        <LeadDetailsModal
+          isOpen={isLeadDetailsModalOpen}
+          onClose={() => setIsLeadDetailsModalOpen(false)}
+          lead={selectedLead}
+          onLeadUpdated={handleLeadUpdated}
+        />
+      )}
+    </div>
+  );
+}

@@ -24,10 +24,10 @@ export function Sidebar() {
       variant: undefined
     },
     {
-      label: "Quotes",
+      label: "Leads",
       icon: FileText,
-      href: "/dashboard/quotes",
-      active: pathname.startsWith("/dashboard/quotes"),
+      href: "/dashboard/leads",
+      active: pathname.startsWith("/dashboard/leads"),
       iconColor: "text-[#24605E]",
       variant: undefined
     },
@@ -57,7 +57,7 @@ export function Sidebar() {
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           <span className="text-xl font-bold">
-            Quote Generator
+            AICRM
           </span>
         </Link>
       </div>

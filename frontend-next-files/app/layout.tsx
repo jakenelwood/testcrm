@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import React from "react";
 
 export const metadata = {
-  title: "Quote Request Generator",
-  description: "Create, manage, and export insurance quote requests",
+  title: "AICRM",
+  description: "AI-powered CRM for insurance lead management",
 };
 
 interface RootLayoutProps {

@@ -32,10 +32,10 @@ export function QuoteFormContainer() {
 
   // Toggle insurance type selection
   const toggleInsuranceType = (type: InsuranceType, isChecked: boolean) => {
-    setActiveInsuranceTypes(prev => 
+    setActiveInsuranceTypes(prev =>
       isChecked
         ? [...prev, type]
-        : prev.filter(t => t !== type) 
+        : prev.filter(t => t !== type)
     );
   };
 
@@ -46,10 +46,10 @@ export function QuoteFormContainer() {
     if (clientData.includeAuto) newActiveTypes.push('auto');
     if (clientData.includeHome) newActiveTypes.push('home');
     if (clientData.includeSpecialty) newActiveTypes.push('specialty');
-    
+
     setActiveInsuranceTypes(newActiveTypes);
     setFormData(prev => ({ ...prev, client: clientData }));
-    
+
     // If no insurance types selected, show error
     if (newActiveTypes.length === 0) {
       toast({
@@ -59,7 +59,7 @@ export function QuoteFormContainer() {
       });
       return;
     }
-    
+
     // Navigate to first selected insurance type tab
     setActiveTab(newActiveTypes[0]);
   };
@@ -67,7 +67,7 @@ export function QuoteFormContainer() {
   // Handle auto form submission
   const handleAutoFormSubmit = (autoData: any) => {
     setFormData(prev => ({ ...prev, auto: autoData }));
-    
+
     // Find next tab to navigate to
     const currentIndex = activeInsuranceTypes.indexOf('auto');
     if (currentIndex < activeInsuranceTypes.length - 1) {
@@ -80,7 +80,7 @@ export function QuoteFormContainer() {
   // Handle home form submission
   const handleHomeFormSubmit = (homeData: any) => {
     setFormData(prev => ({ ...prev, home: homeData }));
-    
+
     // Find next tab to navigate to
     const currentIndex = activeInsuranceTypes.indexOf('home');
     if (currentIndex < activeInsuranceTypes.length - 1) {
@@ -99,7 +99,7 @@ export function QuoteFormContainer() {
   // Handle final form submission to API
   const handleFinalSubmit = async () => {
     setIsSubmitting(true);
-    
+
     try {
       // Prepare the final data with only selected insurance types
       const finalData = prepareQuoteDataForSubmission({
@@ -111,7 +111,7 @@ export function QuoteFormContainer() {
         home: activeInsuranceTypes.includes('home') ? formData.home : undefined,
         specialty: activeInsuranceTypes.includes('specialty') ? formData.specialty : undefined,
       });
-      
+
       // Submit to API
       const response = await fetch('/api/quotes', {
         method: 'POST',
@@ -120,17 +120,17 @@ export function QuoteFormContainer() {
         },
         body: JSON.stringify(finalData),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to submit quote request');
       }
-      
+
       // Show success message
       toast({
         title: "Quote request submitted",
         description: "Your quote request has been submitted successfully.",
       });
-      
+
       // Navigate to dashboard
       router.push('/dashboard');
     } catch (error) {
@@ -149,9 +149,9 @@ export function QuoteFormContainer() {
     <div className="container mx-auto py-6">
       <Card>
         <CardHeader>
-          <CardTitle>New Quote Request</CardTitle>
+          <CardTitle>New Lead</CardTitle>
           <CardDescription>
-            Create a new insurance quote request.
+            Create a new insurance lead.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -168,23 +168,23 @@ export function QuoteFormContainer() {
                 <TabsTrigger value="specialty">Specialty</TabsTrigger>
               )}
             </TabsList>
-            
+
             <TabsContent value="client">
               <ClientInfoForm onSubmit={handleClientFormSubmit} />
             </TabsContent>
-            
+
             {activeInsuranceTypes.includes('auto') && (
               <TabsContent value="auto">
                 <AutoInsuranceForm onSubmit={handleAutoFormSubmit} />
               </TabsContent>
             )}
-            
+
             {activeInsuranceTypes.includes('home') && (
               <TabsContent value="home">
                 <HomeInsuranceForm onSubmitForm={handleHomeFormSubmit} />
               </TabsContent>
             )}
-            
+
             {activeInsuranceTypes.includes('specialty') && (
               <TabsContent value="specialty">
                 <SpecialtyInsuranceForm onSubmit={handleSpecialtyFormSubmit} />
@@ -203,4 +203,4 @@ export function QuoteFormContainer() {
       </Card>
     </div>
   );
-} 
+}

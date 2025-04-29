@@ -1,105 +1,175 @@
-# Quote Request Generator - Next Steps
+# CRM System - Next Steps
 
-## Immediate Actions for MVP Launch
+## Phase 1: Lead Management Foundation
 
-### Priority 1: Secure Production Deployment
-1. **Deploy to Hetzner Server with Traefik**
-   - SSH into the server: `ssh -i ~/.ssh/id_ed25519 root@65.21.174.252`
-   - Clone repository: `git clone https://github.com/jakenelwood/quote-request-fresh.git`
-   - Run deployment script: `./deploy-traefik.sh`
-   - Verify application is accessible via HTTPS at https://65.21.174.252
-   - Verify Traefik dashboard at https://65.21.174.252/dashboard/
-   - Create admin user: `docker exec -it quote-request-backend python create_admin.py`
+### Priority 1: Supabase Database Setup
+1. **Create Lead Management Tables in Supabase**
+   - Create `leads` table with all fields from placeholders.txt
+   - Create `lead_notes` table for versioned notes
+   - Create `lead_communications` table for tracking all interactions
+   - Create `lead_marketing_settings` table for campaign controls
+   - Set up appropriate indexes and relationships
+   - Configure Supabase RLS (Row Level Security) policies
 
-2. **Finalize Document Generation with Secure Access**
-   - Test backend document generation with auto form data
-   - Configure document API routes with proper authorization
-   - Verify PDF conversion works correctly with proper file permissions
-   - Ensure all placeholders are correctly replaced
-   - Implement error handling for document generation
+2. **Data Migration Strategy**
+   - Map existing quote request data to the new leads structure
+   - Create migration scripts if needed
+   - Ensure all form fields from auto, home, and specialty insurance forms are preserved
 
-3. **Complete Secure Frontend-Backend Integration**
-   - Update frontend API calls to use HTTPS endpoints
-   - Implement JWT authentication for API access
-   - Test document generation from frontend
-   - Verify document history display
-   - Test secure document download functionality
+### Priority 2: Kanban Board Implementation
+1. **Create Kanban Board UI**
+   - Build the main Kanban board page at `/dashboard/leads`
+   - Implement columns for each status (New, Contacted, Quoted, Sold, Lost)
+   - Create lead cards showing:
+     - Lead name
+     - Entry date
+     - Current insurance carrier (with color coding)
+     - Premium amount
+     - Assigned agent
+   - Add sorting and filtering controls
+   - Implement search functionality
 
-### Priority 2: Testing and User Experience
-1. **Test Application in Production Environment**
-   - Verify SSL certificate validity and security headers
-   - Create test clients with realistic data
-   - Generate sample quote requests
-   - Test form submissions with real data through HTTPS
-   - Test application on multiple browsers and devices
+2. **Implement Drag-and-Drop Functionality**
+   - Install and configure @dnd-kit/core
+   - Implement drag-and-drop between status columns
+   - Add visual feedback during dragging
+   - Update lead status in Supabase when moved
 
-2. **Enhance User Experience**
-   - Add progress indicators for multi-step forms
-   - Improve form validation feedback
-   - Add auto-save indicators with network status
-   - Display clear success/error messages
-   - Implement basic search functionality
+### Priority 3: Lead Detail View
+1. **Create Tabbed Interface**
+   - Implement a three-tab interface for lead details:
+     - Tab 1: All lead data (from placeholders.txt)
+     - Tab 2: Communication history (chronological)
+     - Tab 3: Marketing automation controls
+   - Create modal or slide-over panel for displaying lead details
 
-### Priority 3: User Testing Preparation
-1. **Create User Testing Plan**
-   - Identify initial test users
-   - Create user testing script with key workflows
-   - Prepare feedback collection form
-   - Schedule initial testing sessions
+2. **Lead Data Tab**
+   - Display all collected lead information organized by sections
+   - Show insurance-specific data based on type (Auto, Home, Specialty)
+   - Add edit functionality for updating lead information
+   - Ensure all placeholders.txt fields are displayed appropriately
 
-2. **Prepare Documentation**
-   - Document common workflows
-   - Create basic user guide
-   - Document known limitations
-   - Prepare troubleshooting guide
-   - Create security best practices guide for users
+3. **Communication History Tab**
+   - Create chronological timeline of all communications
+   - Include marketing automation messages (email, SMS)
+   - Show phone call records
+   - Display manual notes with timestamps
+   - Add ability to create new notes
+   - Implement filtering by communication type
+
+4. **Marketing Automation Tab**
+   - Display available marketing campaigns
+   - Add toggle controls to enable/disable campaigns
+   - Show campaign performance metrics (if available)
+   - Allow configuration of campaign settings
+
+### Priority 4: Lead Creation and Management
+1. **Create Lead Forms**
+   - Build multi-step form for creating new leads
+   - Include all fields from placeholders.txt
+   - Implement validation and error handling
+   - Add "Quick Add" functionality for minimal lead creation
+
+2. **Lead Management Features**
+   - Implement lead assignment to agents
+   - Add lead status change history
+   - Create lead filtering and sorting options
+   - Implement lead export functionality
+
+### Priority 5: Real-time Updates and Integration
+1. **Implement Real-time Updates**
+   - Set up Supabase subscriptions for real-time data
+   - Update UI automatically when data changes
+   - Add notifications for important events
+
+2. **API Integration**
+   - Create utility functions for Supabase API calls
+   - Implement error handling and retry logic
+   - Add data transformation functions
 
 ## Required Resources
 
-1. **Document Templates**
-   - Ensure all templates are correctly formatted
-   - Verify placeholders match expected format
+1. **Supabase Account and Configuration**
+   - Set up Supabase project
+   - Configure authentication
+   - Set up database tables and relationships
 
-2. **Test Data**
-   - Create a set of test quotes for validation
-   - Include edge cases (long text fields, special characters)
+2. **Frontend Dependencies**
+   - @dnd-kit/core for drag-and-drop
+   - ShadCN UI components
+   - React Hook Form for form handling
+   - Zod for validation
 
-3. **Development Tools**
-   - Docker and Docker Compose for deployment
-   - LibreOffice for PDF conversion
-   - Git for version control
-   - SSL testing tools (e.g., SSL Labs)
+3. **Design Assets**
+   - Icons for different insurance types
+   - Status indicators
+   - UI components for Kanban board
 
 ## Success Metrics
 
-We'll measure the success of our MVP with the following metrics:
+We'll measure the success of Phase 1 with the following metrics:
 
-1. **Document Generation Success Rate**: Goal > 95%
-2. **Document Accuracy**: Placeholders correctly replaced > 99%
-3. **System Uptime**: Goal > 99%
-4. **User Satisfaction**: Goal > 7/10 in initial feedback
-5. **Security Posture**: SSL Lab Score of A+ or A
+1. **Lead Management Efficiency**: Reduction in time spent managing leads
+2. **Lead Conversion Rate**: Improvement in lead-to-customer conversion
+3. **User Satisfaction**: Goal > 8/10 in initial feedback
+4. **System Performance**: Page load times < 2 seconds
+5. **Data Accuracy**: All lead data correctly stored and displayed
 
-## Completed Features
+## Implementation Timeline
 
-1. ✅ **Traefik Configuration for Routing and SSL**
-   - HTTP to HTTPS redirection
-   - Let's Encrypt SSL certificates
-   - Security headers and middleware
-   - Service discovery and health checks
+1. **Week 1: Database Setup and Initial UI**
+   - Create Supabase tables
+   - Implement basic Kanban board UI
+   - Set up project structure
 
-2. ✅ **Docker Containerization**
-   - Production-ready Docker Compose setup
-   - Network segmentation
-   - Container health monitoring
-   - Volume management for persistent data
+2. **Week 2: Kanban Functionality and Lead Detail View**
+   - Implement drag-and-drop
+   - Create lead detail view with tabs
+   - Build lead data display components
 
-## Post-MVP Enhancements
+3. **Week 3: Communication History and Marketing Automation**
+   - Implement communication history tab
+   - Create marketing automation controls
+   - Add note creation functionality
 
-1. Complete Home Insurance Form (currently at ~20% completion)
-2. Develop Specialty Insurance Form
-3. Enhance search with LanceDB vector capabilities
-4. Add reporting features
-5. Improve UI based on user feedback
-6. Implement proper domain name (replacing IP address)
-7. Set up monitoring and alerts 
+4. **Week 4: Lead Forms and Testing**
+   - Build lead creation forms
+   - Implement lead editing
+   - Test all functionality
+   - Fix bugs and optimize performance
+
+## Future Enhancements (Phase 2)
+
+1. **Twilio Dialer Integration**
+   - Set up Hetzner CCX33 server for the dialer component
+   - Deploy dialer in Docker container for isolation and scalability
+   - Implement Twilio Voice API integration
+   - Create unified dialer UI within the CRM
+   - Add call outcome tracking and automatic note creation
+
+2. **Vector Search with Supabase pgvector**
+   - Implement vector embeddings for lead notes and communications
+   - Set up semantic search capabilities using pgvector in Supabase
+   - Create embeddings for unstructured data to enable AI memory
+   - Implement search interface for finding leads by semantic meaning
+
+3. **AI-Powered Lead Prioritization**
+   - Implement lead scoring based on conversion likelihood
+   - Add AI-suggested next actions
+   - Create automated follow-up recommendations
+
+4. **SMS and Email Marketing Automation**
+   - Implement automated SMS follow-ups via Twilio
+   - Add email drip sequences tied to lead status
+   - Create campaign management interface
+   - Track engagement metrics
+
+5. **Advanced Analytics**
+   - Add lead source tracking and analytics
+   - Create conversion funnel visualization
+   - Implement performance dashboards
+
+6. **Mobile Optimization**
+   - Create responsive mobile views
+   - Add mobile-specific interactions
+   - Implement push notifications

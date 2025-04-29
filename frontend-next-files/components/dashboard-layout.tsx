@@ -33,7 +33,7 @@ const sidebarNavItems = [
     icon: FileText,
   },
   {
-    title: "New Quote",
+    title: "New Lead",
     href: "/dashboard/new",
     icon: FilePlus,
   },
