@@ -21,10 +21,11 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-white px-4 lg:px-6">
       <Button
-        className="lg:hidden"
+        className="mobile-menu-button"
         variant="ghost"
         size="icon"
         onClick={onMobileMenuToggle}
+        aria-label="Toggle mobile menu"
       >
         <Menu className="h-5 w-5" />
         <span className="sr-only">Toggle menu</span>

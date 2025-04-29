@@ -53,7 +53,7 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-white">
+    <div className="flex h-full w-64 flex-col border-r bg-white overflow-hidden">
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           <span className="text-xl font-bold">
