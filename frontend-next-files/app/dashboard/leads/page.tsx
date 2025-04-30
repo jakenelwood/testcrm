@@ -1,5 +1,39 @@
 'use client';
 
+/**
+ * LEADS PAGE
+ *
+ * This page implements the lead management interface with a Kanban board.
+ * It's one of the core features of the CRM system, allowing users to visualize
+ * and manage leads across different stages of the sales pipeline.
+ *
+ * Written in React (TSX) with Next.js App Router, this page:
+ * - Fetches leads from Supabase
+ * - Implements real-time updates with Supabase subscriptions
+ * - Provides search functionality for leads
+ * - Implements drag-and-drop for moving leads between statuses
+ * - Displays lead details in a modal
+ *
+ * ARCHITECTURE ROLE:
+ * This is a page component in the presentation layer of the application.
+ * It serves as the container for the lead management interface and coordinates
+ * the interactions between the Kanban board, lead cards, and the database.
+ *
+ * DEPENDENCIES:
+ * - React hooks for state management
+ * - dnd-kit for drag-and-drop functionality
+ * - Supabase client for database operations
+ * - UI components from shadcn/ui
+ * - Custom components: KanbanBoard, LeadDetailsModal
+ *
+ * DATA FLOW:
+ * 1. Fetches leads from Supabase on initial load
+ * 2. Sets up real-time subscription for lead updates
+ * 3. Handles search filtering of leads
+ * 4. Manages drag-and-drop operations to update lead statuses
+ * 5. Opens lead details modal when a lead is clicked
+ */
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,14 +67,35 @@ import { LeadDetailsModal } from "@/components/kanban/LeadDetailsModal";
 import { Lead, LeadStatus } from "@/types/lead";
 import supabase from '@/utils/supabase/client';
 
+/**
+ * LeadsPage Component
+ *
+ * The main page component for lead management. This component orchestrates
+ * the entire lead management interface, including the Kanban board, search,
+ * and lead details modal.
+ *
+ * @returns The rendered leads page with Kanban board and related functionality
+ */
 export default function LeadsPage() {
+  // State for all leads fetched from the database
   const [leads, setLeads] = useState<Lead[]>([]);
+
+  // State for leads after search filtering is applied
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
+
+  // State for the current search query
   const [searchQuery, setSearchQuery] = useState('');
-  // Add Lead modal removed in favor of direct navigation
+
+  // State for the currently selected lead (for details view)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  // State for controlling the visibility of the lead details modal
   const [isLeadDetailsModalOpen, setIsLeadDetailsModalOpen] = useState(false);
+
+  // State for tracking loading status during data fetching
   const [isLoading, setIsLoading] = useState(true);
+
+  // State for the lead currently being dragged (for drag overlay)
   const [activeLead, setActiveLead] = useState<Lead | null>(null);
 
   const sensors = useSensors(
