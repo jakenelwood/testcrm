@@ -288,6 +288,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           // Prevent clicks outside from propagating to elements underneath
           e.preventDefault();
         }}
+      >
         <DialogHeader>
           <DialogTitle className="text-xl">
             {lead.first_name} {lead.last_name}
