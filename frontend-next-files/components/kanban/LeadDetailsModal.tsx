@@ -273,8 +273,21 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        // Only call onClose when the dialog is being closed
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
+      <DialogContent
+        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto"
+        onPointerDownOutside={(e) => {
+          // Prevent clicks outside from propagating to elements underneath
+          e.preventDefault();
+        }}
         <DialogHeader>
           <DialogTitle className="text-xl">
             {lead.first_name} {lead.last_name}
