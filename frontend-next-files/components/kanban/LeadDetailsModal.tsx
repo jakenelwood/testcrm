@@ -284,10 +284,6 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     >
       <DialogContent
         className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto"
-        onPointerDownOutside={(e) => {
-          // Prevent clicks outside from propagating to elements underneath
-          e.preventDefault();
-        }}
       >
         <DialogHeader>
           <DialogTitle className="text-xl">

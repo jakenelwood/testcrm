@@ -67,6 +67,11 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
   // Integration with dnd-kit for drag-and-drop functionality
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
+    // Ensure the card is always draggable
+    data: {
+      type: 'lead',
+      lead
+    }
   });
 
   // Apply the transform from dnd-kit to enable smooth dragging
@@ -88,14 +93,14 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
 
     // Start a timer to detect click-and-hold
     timerRef.current = setTimeout(() => {
-      // After holding for 200ms, enable dragging
+      // After holding for 150ms, enable dragging (reduced from 200ms for better responsiveness)
       setIsDragReady(true);
 
       // Provide haptic feedback on mobile devices if available
       if (window.navigator && window.navigator.vibrate) {
         window.navigator.vibrate(50); // Short vibration to indicate drag is ready
       }
-    }, 200);
+    }, 150);
   };
 
   /**
@@ -110,7 +115,8 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       const dy = Math.abs(e.clientY - initialPositionRef.current.y);
 
       // If the user has moved the mouse a bit, start dragging
-      if (dx > 5 || dy > 5) {
+      // Using a smaller threshold (3px instead of 5px) to make it easier to start dragging
+      if (dx > 3 || dy > 3) {
         dragStartedRef.current = true;
       }
     }
@@ -154,14 +160,14 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
 
     // Start a timer to detect touch-and-hold
     timerRef.current = setTimeout(() => {
-      // After holding for 200ms, enable dragging
+      // After holding for 150ms, enable dragging (reduced from 200ms for better responsiveness)
       setIsDragReady(true);
 
       // Provide haptic feedback on mobile devices if available
       if (window.navigator && window.navigator.vibrate) {
         window.navigator.vibrate(50); // Short vibration to indicate drag is ready
       }
-    }, 200);
+    }, 150);
   };
 
   /**
@@ -175,7 +181,8 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       const dy = Math.abs(e.touches[0].clientY - initialPositionRef.current.y);
 
       // If the user has moved their finger a bit, start dragging
-      if (dx > 5 || dy > 5) {
+      // Using a smaller threshold (3px instead of 5px) to make it easier to start dragging
+      if (dx > 3 || dy > 3) {
         dragStartedRef.current = true;
       }
     }

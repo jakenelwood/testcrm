@@ -104,10 +104,10 @@ export default function LeadsPage() {
       activationConstraint: {
         // No delay - we're handling the delay in the LeadCard component
         delay: 0,
-        // No tolerance - we want dragging to start immediately once initiated
-        tolerance: 0,
-        // No distance constraint - we want dragging to start immediately
-        distance: 0,
+        // Small tolerance to make it easier to start dragging
+        tolerance: 5,
+        // Small distance constraint to make it easier to start dragging
+        distance: 3,
       }
     }),
     useSensor(KeyboardSensor, {
@@ -410,13 +410,13 @@ export default function LeadsPage() {
           }
         }}
         modifiers={[
-          // Add a modifier to restrict movement to horizontal axis only
-          // This helps users focus on moving between columns rather than precise positioning
+          // Add a modifier to allow more vertical movement while still guiding horizontally
+          // This makes it easier to drag cards between columns
           (args) => {
             if (args.draggingRect && args.transform) {
-              // Allow full horizontal movement but limit vertical movement
-              // This creates a more guided experience when moving between columns
-              args.transform.y = Math.min(Math.max(args.transform.y, -50), 50);
+              // Allow full horizontal movement and more vertical movement
+              // This creates a more forgiving experience when moving between columns
+              args.transform.y = Math.min(Math.max(args.transform.y, -100), 100);
               return args;
             }
             return args;
