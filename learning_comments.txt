@@ -1,0 +1,16 @@
+Please add intelligent, high-level comments to this code.
+For each section or function: What does it do? Why is it here (what purpose does it serve)? How does it connect to the rest of the app or system (especially external files, APIs, or AI memory)? What language or framework is it written in (e.g. JSX, TypeScript, Tailwind, etc.)?
+
+If relevant, explain its role within the overall architecture (e.g. middleware, controller, UI, database sync, vector search, etc.).
+
+Write as if you're leaving notes for a future developer who needs to quickly understand this file, its intent, and how it fits into the larger system. Keep it clear, concise, and friendly.
+
+Also, please write a high-level introduction, as code comments to each file, that explains: what the file is responsible for, what role it plays in the overall architecture (e.g. UI, middleware, API, state, memory, etc.), and any key dependencies or external components it interacts with.
+
+Note: we will remove these comments before moving to production, which I will advise about.
+
+Then generate a table of contents, as a md file, for the file that lists each major section (e.g., functions, classes, exports) along with: a short description of what each one does, what language its written in, why it's included (its purpose in the broader system), and what other files or components it typically connects with.
+
+Think of this like onboarding documentation for someone reading this file for the first time.
+
+

@@ -1,0 +1,98 @@
+## Dialer Lead Prioritization System
+
+### Scoring System
+The `calculate_lead_score()` function determines priority with a base score of 100, modified by:
+
+1. **Hot Lead Status**:
+   - Hot leads: +2000 points
+
+2. **Follow-up Date Handling**:
+   - Today/overdue follow-ups: +3000 points (highest priority)
+   - Follow-ups within 2 days: +2500 points (higher than hot leads)
+   - Future follow-ups: -5000 points (don't call yet)
+
+3. **Upload Date Priority** (days since added):
+   - 0-7 days: +1500 to +800 points (decreases by 100 each day)
+   - 8-14 days: +700 points
+   - 15-30 days: +500 points
+   - 31-90 days: +300 points
+   - 90+ days: +100 points
+
+4. **Call Attempt History**:
+   - Never called (0 attempts): +1000 points
+   - 1-3 attempts: +400 to +200 points (decreases by 100 per attempt)
+   - 10+ attempts: -300 points
+
+5. **Same-Day Call Throttling**:
+   - Already called today: -800 points (except first-day sequence)
+
+6. **Manual Importance**:
+   - High importance: +300 points
+   - Low importance: -100 points
+
+7. **Previous Call Results**:
+   - "Interested" result: +500 points
+   - "Callback requested": +400 points
+   - Voicemail left: +100 points
+
+8. **Do Not Call**:
+   - Do not call flag: -9999 points (lowest possible)
+
+### Calling Sequence Rules
+
+The `determine_next_call_time()` function implements these sequences:
+
+1. **Day 0 (First Day) Sequence**:
+   - After first call: Try again in 5 minutes
+   - After second call: Try again in 2 hours
+   - After third call: Move to next day's schedule
+
+2. **Week 1 (Days 1-7) Sequence**:
+   - Two calls daily, 3 hours apart
+   - First call at 9 AM if not already called
+   - No calls after 5 PM (rolls to next day)
+
+3. **Week 2 (Days 8-14) Sequence**:
+   - One call per day at 10 AM
+   - No calls after 5 PM (rolls to next day)
+
+4. **Weeks 3-4 (Days 15-28) Sequence**:
+   - Call every 3 days at 11 AM
+
+5. **Weeks 5-12 (Days 29-90) Sequence**:
+   - Call weekly at 2 PM
+
+6. **After 90 Days**:
+   - Move to inactive status
+   - No further automated calls
+
+### Number Rotation Rules
+
+The `get_unused_twilio_number()` function ensures:
+
+1. **First Day (Day 0) Special Pattern**:
+   - Use a different number for each of the first 3 calls
+   - Never reuse a number that was used earlier that day
+
+2. **Standard Rotation**:
+   - Avoid using the most recently used number for this lead
+   - If all numbers have been used, select randomly
+
+### Business Hours Enforcement
+
+The scheduler only places calls during business hours (8 AM - 8 PM) and checks for eligible leads every 30 seconds.
+
+### Lead Status Management
+
+- New leads start with status "new"
+- After first call, status changes to "in_progress"
+- Scheduled follow-ups get status "scheduled"
+- Leads marked do-not-call get status "do_not_call"
+- Leads older than 90 days move to "inactive" status
+
+This comprehensive prioritization system ensures:
+1. Hot leads and scheduled follow-ups get top priority
+2. New leads (0-7 days) get progressively decreasing priority
+3. Call frequency automatically reduces over time 
+4. Call patterns avoid number reuse
+5. The system respects business hours and follow-up dates
