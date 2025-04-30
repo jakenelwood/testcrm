@@ -8,6 +8,8 @@ import Link from "next/link";
 import {
   DndContext,
   closestCenter,
+  pointerWithin,
+  rectIntersection,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -15,7 +17,10 @@ import {
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
-  Active
+  Active,
+  CollisionDetection,
+  DroppableContainer,
+  UniqueIdentifier
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -39,11 +44,58 @@ export default function LeadsPage() {
   const [activeLead, setActiveLead] = useState<Lead | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      // Increase the activation distance to make it easier to start dragging
+      activationConstraint: {
+        distance: 5, // Small distance to differentiate between click and drag
+      }
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Custom collision detection that combines multiple strategies for a more forgiving UI
+  const customCollisionDetection: CollisionDetection = ({
+    droppableContainers,
+    droppableRects,
+    collisionRect,
+    ...args
+  }) => {
+    // First try pointerWithin which is more forgiving
+    const pointerCollisions = pointerWithin({
+      droppableContainers,
+      droppableRects,
+      collisionRect,
+      ...args
+    });
+
+    // If we have pointerCollisions, return those
+    if (pointerCollisions.length > 0) {
+      return pointerCollisions;
+    }
+
+    // Otherwise, try rectIntersection which is also forgiving
+    const rectCollisions = rectIntersection({
+      droppableContainers,
+      droppableRects,
+      collisionRect,
+      ...args
+    });
+
+    // If we have rectCollisions, return those
+    if (rectCollisions.length > 0) {
+      return rectCollisions;
+    }
+
+    // Finally, fall back to closestCenter which is the most precise
+    return closestCenter({
+      droppableContainers,
+      droppableRects,
+      collisionRect,
+      ...args
+    });
+  };
 
   // Fetch leads from Supabase
   useEffect(() => {
@@ -231,9 +283,15 @@ export default function LeadsPage() {
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={customCollisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        // Add a small delay before starting to drag to differentiate between click and drag
+        measuring={{
+          droppable: {
+            strategy: 'always' // Always measure to ensure accurate collision detection
+          }
+        }}
       >
         <KanbanBoard
           leads={filteredLeads}

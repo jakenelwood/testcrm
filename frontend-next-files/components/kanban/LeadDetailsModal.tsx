@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Tabs,
@@ -14,11 +15,20 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Lead, LeadNote } from "@/types/lead";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Lead, LeadNote, InsuranceType, LeadStatus } from "@/types/lead";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
 import supabase from '@/utils/supabase/client';
 
 interface LeadDetailsModalProps {
@@ -34,6 +44,63 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   const [newNote, setNewNote] = useState('');
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
   const [communications, setCommunications] = useState<any[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
+
+  // Create a form state for the lead data
+  const [formData, setFormData] = useState({
+    first_name: lead?.first_name || '',
+    last_name: lead?.last_name || '',
+    email: lead?.email || '',
+    phone_number: lead?.phone_number || '',
+    insurance_type: lead?.insurance_type || 'Auto' as InsuranceType,
+    current_carrier: lead?.current_carrier || '',
+    premium: lead?.premium ? lead.premium.toString() : '',
+    notes: lead?.notes || '',
+    status: lead?.status || 'New' as LeadStatus,
+    assigned_to: lead?.assigned_to || '',
+    // Additional fields from ClientInfoForm
+    street_address: lead?.street_address || '',
+    city: lead?.city || '',
+    state: lead?.state || '',
+    zip_code: lead?.zip_code || '',
+    date_of_birth: lead?.date_of_birth || '',
+    gender: lead?.gender || '',
+    marital_status: lead?.marital_status || '',
+    drivers_license: lead?.drivers_license || '',
+    license_state: lead?.license_state || '',
+    referred_by: lead?.referred_by || '',
+  });
+
+  // Update form data when lead changes
+  useEffect(() => {
+    if (lead) {
+      setFormData({
+        first_name: lead.first_name || '',
+        last_name: lead.last_name || '',
+        email: lead.email || '',
+        phone_number: lead.phone_number || '',
+        insurance_type: lead.insurance_type || 'Auto' as InsuranceType,
+        current_carrier: lead.current_carrier || '',
+        premium: lead.premium ? lead.premium.toString() : '',
+        notes: lead.notes || '',
+        status: lead.status || 'New' as LeadStatus,
+        assigned_to: lead.assigned_to || '',
+        // Additional fields from ClientInfoForm
+        street_address: lead.street_address || '',
+        city: lead.city || '',
+        state: lead.state || '',
+        zip_code: lead.zip_code || '',
+        date_of_birth: lead.date_of_birth || '',
+        gender: lead.gender || '',
+        marital_status: lead.marital_status || '',
+        drivers_license: lead.drivers_license || '',
+        license_state: lead.license_state || '',
+        referred_by: lead.referred_by || '',
+      });
+    }
+  }, [lead]);
 
   // Fetch lead notes
   useEffect(() => {
@@ -116,6 +183,83 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     }
   };
 
+  // Handle input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle select changes
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle save changes
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    try {
+      // Convert premium to number if provided
+      const premium = formData.premium ? parseFloat(formData.premium) : null;
+
+      // Update lead in Supabase
+      const { data, error } = await supabase
+        .from('leads')
+        .update({
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email || null,
+          phone_number: formData.phone_number || null,
+          insurance_type: formData.insurance_type,
+          status: formData.status,
+          current_carrier: formData.current_carrier || null,
+          premium: premium,
+          notes: formData.notes || null,
+          assigned_to: formData.assigned_to || null,
+          // Additional fields
+          street_address: formData.street_address || null,
+          city: formData.city || null,
+          state: formData.state || null,
+          zip_code: formData.zip_code || null,
+          date_of_birth: formData.date_of_birth || null,
+          gender: formData.gender || null,
+          marital_status: formData.marital_status || null,
+          drivers_license: formData.drivers_license || null,
+          license_state: formData.license_state || null,
+          referred_by: formData.referred_by || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', lead.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating lead:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update lead. Please try again.",
+          variant: "destructive"
+        });
+      } else if (data) {
+        // Update the lead in the parent component
+        onLeadUpdated(data as Lead);
+        setIsEditing(false);
+        toast({
+          title: "Success",
+          description: "Lead updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('en-US', {
@@ -147,51 +291,343 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           {/* Lead Data Tab */}
           <TabsContent value="data" className="space-y-4 mt-4">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Basic Information</CardTitle>
+                <Button
+                  variant={isEditing ? "default" : "outline"}
+                  onClick={() => setIsEditing(!isEditing)}
+                  disabled={isSaving}
+                >
+                  {isEditing ? "Cancel" : "Edit"}
+                </Button>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Name</Label>
-                  <div className="font-medium">{lead.first_name} {lead.last_name}</div>
-                </div>
-                <div>
-                  <Label>Email</Label>
-                  <div className="font-medium">{lead.email || 'N/A'}</div>
-                </div>
-                <div>
-                  <Label>Phone</Label>
-                  <div className="font-medium">{lead.phone_number || 'N/A'}</div>
-                </div>
-                <div>
-                  <Label>Insurance Type</Label>
-                  <div className="font-medium">{lead.insurance_type}</div>
-                </div>
-                <div>
-                  <Label>Current Carrier</Label>
-                  <div className="font-medium">{lead.current_carrier || 'None'}</div>
-                </div>
-                <div>
-                  <Label>Premium</Label>
-                  <div className="font-medium">
-                    ${lead.premium
-                      ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      : '0.00'}
-                  </div>
-                </div>
-                <div>
-                  <Label>Status</Label>
-                  <div className="font-medium">{lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}</div>
-                </div>
-                <div>
-                  <Label>Assigned To</Label>
-                  <div className="font-medium">{lead.assigned_to || 'Unassigned'}</div>
-                </div>
-                <div className="col-span-2">
-                  <Label>Notes</Label>
-                  <div className="font-medium">{lead.notes || 'No notes'}</div>
-                </div>
-              </CardContent>
+              <ScrollArea className="h-[500px]">
+                <CardContent className="grid grid-cols-2 gap-4">
+                  {isEditing ? (
+                    // Editable form
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="first_name">First Name</Label>
+                        <Input
+                          id="first_name"
+                          name="first_name"
+                          value={formData.first_name}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="last_name">Last Name</Label>
+                        <Input
+                          id="last_name"
+                          name="last_name"
+                          value={formData.last_name}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone_number">Phone</Label>
+                        <Input
+                          id="phone_number"
+                          name="phone_number"
+                          value={formData.phone_number}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="insurance_type">Insurance Type</Label>
+                        <Select
+                          value={formData.insurance_type}
+                          onValueChange={(value) => handleSelectChange('insurance_type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select insurance type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Auto">Auto</SelectItem>
+                            <SelectItem value="Home">Home</SelectItem>
+                            <SelectItem value="Specialty">Specialty</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="current_carrier">Current Carrier</Label>
+                        <Input
+                          id="current_carrier"
+                          name="current_carrier"
+                          value={formData.current_carrier}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="premium">Premium</Label>
+                        <Input
+                          id="premium"
+                          name="premium"
+                          type="number"
+                          step="0.01"
+                          value={formData.premium}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="status">Status</Label>
+                        <Select
+                          value={formData.status}
+                          onValueChange={(value) => handleSelectChange('status', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="New">New</SelectItem>
+                            <SelectItem value="Contacted">Contacted</SelectItem>
+                            <SelectItem value="Quoted">Quoted</SelectItem>
+                            <SelectItem value="Sold">Sold</SelectItem>
+                            <SelectItem value="Lost">Lost</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="assigned_to">Assigned To</Label>
+                        <Input
+                          id="assigned_to"
+                          name="assigned_to"
+                          value={formData.assigned_to}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      {/* Address Information */}
+                      <div className="col-span-2 space-y-2">
+                        <Label htmlFor="street_address">Street Address</Label>
+                        <Input
+                          id="street_address"
+                          name="street_address"
+                          value={formData.street_address}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="city">City</Label>
+                        <Input
+                          id="city"
+                          name="city"
+                          value={formData.city}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="state">State</Label>
+                        <Input
+                          id="state"
+                          name="state"
+                          value={formData.state}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="zip_code">ZIP Code</Label>
+                        <Input
+                          id="zip_code"
+                          name="zip_code"
+                          value={formData.zip_code}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="date_of_birth">Date of Birth</Label>
+                        <Input
+                          id="date_of_birth"
+                          name="date_of_birth"
+                          type="date"
+                          value={formData.date_of_birth}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gender">Gender</Label>
+                        <Select
+                          value={formData.gender || ''}
+                          onValueChange={(value) => handleSelectChange('gender', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                            <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="marital_status">Marital Status</Label>
+                        <Select
+                          value={formData.marital_status || ''}
+                          onValueChange={(value) => handleSelectChange('marital_status', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select marital status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Single">Single</SelectItem>
+                            <SelectItem value="Married">Married</SelectItem>
+                            <SelectItem value="Divorced">Divorced</SelectItem>
+                            <SelectItem value="Widowed">Widowed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="drivers_license">Driver's License</Label>
+                        <Input
+                          id="drivers_license"
+                          name="drivers_license"
+                          value={formData.drivers_license}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="license_state">License State</Label>
+                        <Input
+                          id="license_state"
+                          name="license_state"
+                          value={formData.license_state}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="referred_by">Referred By</Label>
+                        <Input
+                          id="referred_by"
+                          name="referred_by"
+                          value={formData.referred_by}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="col-span-2 space-y-2">
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea
+                          id="notes"
+                          name="notes"
+                          value={formData.notes}
+                          onChange={handleInputChange}
+                          rows={4}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    // Read-only view
+                    <>
+                      <div>
+                        <Label>Name</Label>
+                        <div className="font-medium">{lead.first_name} {lead.last_name}</div>
+                      </div>
+                      <div>
+                        <Label>Email</Label>
+                        <div className="font-medium">{lead.email || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label>Phone</Label>
+                        <div className="font-medium">{lead.phone_number || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label>Insurance Type</Label>
+                        <div className="font-medium">{lead.insurance_type}</div>
+                      </div>
+                      <div>
+                        <Label>Current Carrier</Label>
+                        <div className="font-medium">{lead.current_carrier || 'None'}</div>
+                      </div>
+                      <div>
+                        <Label>Premium</Label>
+                        <div className="font-medium">
+                          ${lead.premium
+                            ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                            : '0.00'}
+                        </div>
+                      </div>
+                      <div>
+                        <Label>Status</Label>
+                        <div className="font-medium">{lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}</div>
+                      </div>
+                      <div>
+                        <Label>Assigned To</Label>
+                        <div className="font-medium">{lead.assigned_to || 'Unassigned'}</div>
+                      </div>
+                      <div className="col-span-2">
+                        <Label>Address</Label>
+                        <div className="font-medium">
+                          {lead.street_address ? (
+                            <>
+                              {lead.street_address}<br />
+                              {lead.city}{lead.city && lead.state ? ', ' : ''}{lead.state} {lead.zip_code}
+                            </>
+                          ) : (
+                            'No address'
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <Label>Date of Birth</Label>
+                        <div className="font-medium">{lead.date_of_birth || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label>Gender</Label>
+                        <div className="font-medium">{lead.gender || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label>Marital Status</Label>
+                        <div className="font-medium">{lead.marital_status || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label>Driver's License</Label>
+                        <div className="font-medium">{lead.drivers_license || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label>License State</Label>
+                        <div className="font-medium">{lead.license_state || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label>Referred By</Label>
+                        <div className="font-medium">{lead.referred_by || 'N/A'}</div>
+                      </div>
+                      <div className="col-span-2">
+                        <Label>Notes</Label>
+                        <div className="font-medium">{lead.notes || 'No notes'}</div>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </ScrollArea>
+              {isEditing && (
+                <CardFooter className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditing(false)}
+                    disabled={isSaving}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveChanges}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? "Saving..." : "Save Changes"}
+                  </Button>
+                </CardFooter>
+              )}
             </Card>
 
             {lead.insurance_type === 'Auto' && lead.auto_data && (

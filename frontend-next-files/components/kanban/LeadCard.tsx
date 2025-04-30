@@ -3,6 +3,7 @@
 import { Lead } from "@/types/lead";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useRef, useState } from "react";
 
 interface LeadCardProps {
   lead: Lead;
@@ -10,13 +11,43 @@ interface LeadCardProps {
 }
 
 export function LeadCard({ lead, onClick }: LeadCardProps) {
+  const [mouseDownTime, setMouseDownTime] = useState<number | null>(null);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressThreshold = 200; // milliseconds to consider a press as a "long press" for dragging
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
+    disabled: !mouseDownTime, // Disable drag until mouse is held down
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  };
+
+  // Handle mouse down - start timer to enable dragging
+  const handleMouseDown = () => {
+    const time = Date.now();
+    setMouseDownTime(time);
+  };
+
+  // Handle mouse up - if quick click, trigger onClick
+  const handleMouseUp = () => {
+    if (mouseDownTime && (Date.now() - mouseDownTime < longPressThreshold)) {
+      // This was a quick click, not a drag attempt
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+
+      // Small delay to ensure we're not in the middle of a drag operation
+      clickTimeoutRef.current = setTimeout(() => {
+        if (!isDragging) {
+          onClick();
+        }
+      }, 50);
+    }
+
+    setMouseDownTime(null);
   };
 
   // Format date to "Apr 28, 2025" format
@@ -55,7 +86,10 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
           ? 'opacity-50 shadow-none'
           : 'opacity-100 hover:shadow-md shadow-sm'
       }`}
-      onClick={onClick}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onTouchStart={handleMouseDown}
+      onTouchEnd={handleMouseUp}
     >
       <div className="font-medium text-foreground dark:text-white">
         {lead.first_name} {lead.last_name}
