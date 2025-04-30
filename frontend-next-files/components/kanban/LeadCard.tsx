@@ -41,7 +41,7 @@
 import { Lead } from "@/types/lead";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useRef, useState } from "react";
+import React from "react";
 
 /**
  * Props interface for the LeadCard component
@@ -52,19 +52,10 @@ interface LeadCardProps {
 }
 
 export function LeadCard({ lead, onClick }: LeadCardProps) {
-  // State to track when the mouse button was pressed down (for distinguishing click vs. drag)
-  const [mouseDownTime, setMouseDownTime] = useState<number | null>(null);
-
-  // Reference to the timeout that handles click detection
-  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Time threshold to distinguish between a click and a drag attempt (in milliseconds)
-  const longPressThreshold = 200;
-
   // Integration with dnd-kit for drag-and-drop functionality
+  // No disabled state - dragging is always enabled
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
-    disabled: !mouseDownTime, // Only enable dragging after mouse down is detected
   });
 
   // Apply the transform from dnd-kit to enable smooth dragging
@@ -74,48 +65,17 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
   };
 
   /**
-   * Handles the mouse down event
-   * Records the timestamp when the mouse button was pressed down
-   * This is used to determine if the user is clicking or attempting to drag
+   * Handle click on the card
+   * We need to distinguish between clicks and drag operations
    */
-  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
-    // Prevent default browser behavior that might interfere with dragging
-    // This helps prevent text selection during drag operations
-    if (e.type === 'mousedown') {
-      const mouseEvent = e as React.MouseEvent;
-      if (mouseEvent.button === 0) { // Left mouse button
-        // Only prevent default for left mouse button to allow context menu with right click
-        e.preventDefault();
-      }
+  const handleClick = (e: React.MouseEvent) => {
+    // Only trigger click if we're not dragging
+    if (!isDragging) {
+      onClick();
     }
 
-    const time = Date.now();
-    setMouseDownTime(time);
-  };
-
-  /**
-   * Handles the mouse up event
-   * If the mouse was pressed for less than the threshold time, treats it as a click
-   * Otherwise, it's considered a drag attempt
-   */
-  const handleMouseUp = () => {
-    if (mouseDownTime && (Date.now() - mouseDownTime < longPressThreshold)) {
-      // This was a quick click, not a drag attempt
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-      }
-
-      // Small delay to ensure we're not in the middle of a drag operation
-      // This prevents accidental clicks during drag operations
-      clickTimeoutRef.current = setTimeout(() => {
-        if (!isDragging) {
-          onClick(); // Call the click handler to open the lead details
-        }
-      }, 50);
-    }
-
-    // Reset the mouse down time regardless of whether it was a click or drag
-    setMouseDownTime(null);
+    // Prevent default to avoid text selection
+    e.preventDefault();
   };
 
   /**
@@ -165,10 +125,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
           ? 'opacity-50 shadow-none'   // Visual feedback when card is being dragged
           : 'opacity-100 hover:shadow-md shadow-sm'  // Normal state with hover effect
       }`}
-      onMouseDown={handleMouseDown}    // Track when mouse is pressed down
-      onMouseUp={handleMouseUp}        // Handle click vs. drag detection on mouse up
-      onTouchStart={handleMouseDown}   // Support for touch devices
-      onTouchEnd={handleMouseUp}       // Support for touch devices
+      onClick={handleClick}           // Handle click to open lead details
     >
       {/* Lead name - prominently displayed at the top */}
       <div className="font-medium text-foreground dark:text-white">

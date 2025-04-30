@@ -100,9 +100,10 @@ export default function LeadsPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Increase the activation distance to make it easier to start dragging
+      // Make dragging more responsive with minimal delay
       activationConstraint: {
-        distance: 5, // Small distance to differentiate between click and drag
+        delay: 0, // No delay before starting drag
+        tolerance: 0, // No movement required before starting drag
       }
     }),
     useSensor(KeyboardSensor, {
