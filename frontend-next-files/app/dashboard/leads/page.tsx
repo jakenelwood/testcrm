@@ -100,14 +100,14 @@ export default function LeadsPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Configure the sensor to be very responsive once dragging is initiated
+      // Configure the sensor with a delay to differentiate between clicks and drags
       activationConstraint: {
-        // No delay - we're handling the delay in the LeadCard component
-        delay: 0,
-        // Small tolerance to make it easier to start dragging
+        // Add a small delay to allow for clicks
+        delay: 250,
+        // Add some tolerance for small movements during clicks
         tolerance: 5,
-        // Small distance constraint to make it easier to start dragging
-        distance: 3,
+        // Add a small distance constraint to prevent accidental drags
+        distance: 8,
       }
     }),
     useSensor(KeyboardSensor, {
@@ -310,8 +310,7 @@ export default function LeadsPage() {
           return; // Exit if status is unknown
       }
 
-      // Log for debugging
-      console.log('Dragging lead', leadId, 'to status:', newStatus);
+      console.log('Moving lead', leadId, 'to status:', newStatus);
 
       // Update lead status in state
       setLeads((prevLeads) =>
@@ -403,25 +402,13 @@ export default function LeadsPage() {
         collisionDetection={customCollisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        // Add a small delay before starting to drag to differentiate between click and drag
+        // Ensure accurate measurements for better drag positioning
         measuring={{
           droppable: {
             strategy: 'always' // Always measure to ensure accurate collision detection
           }
         }}
-        modifiers={[
-          // Add a modifier to allow more vertical movement while still guiding horizontally
-          // This makes it easier to drag cards between columns
-          (args) => {
-            if (args.draggingRect && args.transform) {
-              // Allow full horizontal movement and more vertical movement
-              // This creates a more forgiving experience when moving between columns
-              args.transform.y = Math.min(Math.max(args.transform.y, -100), 100);
-              return args;
-            }
-            return args;
-          }
-        ]}
+        // No modifiers - allow full freedom of movement
       >
         <KanbanBoard
           leads={filteredLeads}
