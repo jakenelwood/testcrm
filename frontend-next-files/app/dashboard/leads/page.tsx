@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import {
   DndContext,
   closestCenter,
@@ -21,9 +22,8 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { KanbanBoard } from "@/components/kanban/KanbanBoard";
-import { AddLeadModal } from "@/components/kanban/AddLeadModal";
 import { LeadDetailsModal } from "@/components/kanban/LeadDetailsModal";
 import { Lead, LeadStatus } from "@/types/lead";
 import supabase from '@/utils/supabase/client';
@@ -32,7 +32,7 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
+  // Add Lead modal removed in favor of direct navigation
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isLeadDetailsModalOpen, setIsLeadDetailsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -183,11 +183,7 @@ export default function LeadsPage() {
     }
   };
 
-  // Handle lead creation
-  const handleLeadCreated = (newLead: Lead) => {
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
-    setIsAddLeadModalOpen(false);
-  };
+  // Lead creation now handled by the New Lead page
 
   // Handle lead selection for details view
   const handleLeadSelect = (lead: Lead) => {
@@ -209,8 +205,13 @@ export default function LeadsPage() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Leads</h1>
-        <Button onClick={() => setIsAddLeadModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Lead
+        <Button
+          asChild
+          className="bg-[#2182E0] hover:bg-[#045AC3] text-white"
+        >
+          <Link href="/dashboard/new">
+            New Lead
+          </Link>
         </Button>
       </div>
 
@@ -283,11 +284,7 @@ export default function LeadsPage() {
         </DragOverlay>
       </DndContext>
 
-      <AddLeadModal
-        isOpen={isAddLeadModalOpen}
-        onClose={() => setIsAddLeadModalOpen(false)}
-        onLeadCreated={handleLeadCreated}
-      />
+      {/* Add Lead modal removed in favor of direct navigation */}
 
       {selectedLead && (
         <LeadDetailsModal
