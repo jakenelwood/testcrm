@@ -52,10 +52,17 @@ interface LeadCardProps {
 }
 
 export function LeadCard({ lead, onClick }: LeadCardProps) {
+  // State to track if we're in a potential drag operation
+  const [isDragReady, setIsDragReady] = React.useState(false);
+
+  // Reference to the timer that detects click-and-hold
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+
   // Integration with dnd-kit for drag-and-drop functionality
-  // No disabled state - dragging is always enabled
+  // Only enable dragging when isDragReady is true (after holding for a moment)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
+    disabled: !isDragReady, // Only enable dragging after holding for a moment
   });
 
   // Apply the transform from dnd-kit to enable smooth dragging
@@ -65,18 +72,65 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
   };
 
   /**
-   * Handle click on the card
-   * We need to distinguish between clicks and drag operations
+   * Handle mouse/touch down on the card
+   * Start a timer to detect if this is a click-and-hold action
    */
-  const handleClick = (e: React.MouseEvent) => {
-    // Only trigger click if we're not dragging
-    if (!isDragging) {
+  const handlePointerDown = (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent default to avoid text selection
+    e.preventDefault();
+
+    // Start a timer to detect click-and-hold
+    timerRef.current = setTimeout(() => {
+      // After holding for 200ms, enable dragging
+      setIsDragReady(true);
+    }, 200);
+  };
+
+  /**
+   * Handle mouse/touch up on the card
+   * If the pointer is released quickly, treat it as a click
+   */
+  const handlePointerUp = (e: React.MouseEvent | React.TouchEvent) => {
+    // If we haven't enabled dragging yet, this was a quick click
+    if (!isDragReady && !isDragging) {
+      // Clear the timer
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+
+      // Trigger the click handler
       onClick();
     }
 
-    // Prevent default to avoid text selection
-    e.preventDefault();
+    // Reset drag ready state
+    setIsDragReady(false);
   };
+
+  /**
+   * Handle pointer cancel/leave events
+   * Clear the timer to prevent unexpected behavior
+   */
+  const handlePointerCancel = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Reset drag ready state
+    setIsDragReady(false);
+  };
+
+  /**
+   * Clean up the timer when the component unmounts
+   */
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Format the lead creation date into a human-readable format
@@ -125,7 +179,12 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
           ? 'opacity-50 shadow-none'   // Visual feedback when card is being dragged
           : 'opacity-100 hover:shadow-md shadow-sm'  // Normal state with hover effect
       }`}
-      onClick={handleClick}           // Handle click to open lead details
+      onMouseDown={handlePointerDown}   // Start timer to detect click-and-hold (mouse)
+      onMouseUp={handlePointerUp}       // Handle quick click to open lead details (mouse)
+      onMouseLeave={handlePointerCancel} // Clear timer if mouse leaves the card
+      onTouchStart={handlePointerDown}  // Start timer to detect click-and-hold (touch)
+      onTouchEnd={handlePointerUp}      // Handle quick tap to open lead details (touch)
+      onTouchCancel={handlePointerCancel} // Clear timer if touch is cancelled
     >
       {/* Lead name - prominently displayed at the top */}
       <div className="font-medium text-foreground dark:text-white">
