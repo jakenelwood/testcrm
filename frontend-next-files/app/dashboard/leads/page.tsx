@@ -110,13 +110,63 @@ export default function LeadsPage() {
     })
   );
 
-  // Custom collision detection that combines multiple strategies for a more forgiving UI
+  // Enhanced collision detection that makes it much easier to drop cards into columns
   const customCollisionDetection: CollisionDetection = ({
     droppableContainers,
     droppableRects,
     collisionRect,
+    active,
     ...args
   }) => {
+    // Filter containers to only include status columns (not other cards)
+    // This ensures we prioritize dropping into columns over other elements
+    const statusContainers = droppableContainers.filter(container => {
+      // Check if the container's id is one of our status values
+      const statusValues = ['New', 'Contacted', 'Quoted', 'Sold', 'Lost'];
+      return statusValues.includes(String(container.id));
+    });
+
+    // If we're not over any column, find the closest column
+    // This creates a "magnetic" effect where cards snap to the nearest column
+    if (statusContainers.length > 0) {
+      // First check if we're directly over any column with a more forgiving threshold
+      // This uses pointerWithin which is already forgiving
+      const pointerCollisions = pointerWithin({
+        droppableContainers: statusContainers,
+        droppableRects,
+        collisionRect,
+        ...args
+      });
+
+      if (pointerCollisions.length > 0) {
+        return pointerCollisions;
+      }
+
+      // If not directly over, check for any intersection with a column
+      // This is even more forgiving than pointerWithin
+      const rectCollisions = rectIntersection({
+        droppableContainers: statusContainers,
+        droppableRects,
+        collisionRect,
+        ...args
+      });
+
+      if (rectCollisions.length > 0) {
+        return rectCollisions;
+      }
+
+      // If still no collision, find the closest column
+      // This makes it so the card will always find a home in the nearest column
+      // even if it's not directly over any column
+      return closestCenter({
+        droppableContainers: statusContainers,
+        droppableRects,
+        collisionRect,
+        ...args
+      });
+    }
+
+    // If no status containers are available, fall back to standard detection
     // First try pointerWithin which is more forgiving
     const pointerCollisions = pointerWithin({
       droppableContainers,
@@ -125,7 +175,6 @@ export default function LeadsPage() {
       ...args
     });
 
-    // If we have pointerCollisions, return those
     if (pointerCollisions.length > 0) {
       return pointerCollisions;
     }
@@ -138,7 +187,6 @@ export default function LeadsPage() {
       ...args
     });
 
-    // If we have rectCollisions, return those
     if (rectCollisions.length > 0) {
       return rectCollisions;
     }
@@ -182,7 +230,11 @@ export default function LeadsPage() {
       .subscribe();
 
     return () => {
+      // Clean up subscription
       subscription.unsubscribe();
+
+      // Ensure dragging class is removed if component unmounts during drag
+      document.body.classList.remove('dragging');
     };
   }, []);
 
@@ -209,6 +261,8 @@ export default function LeadsPage() {
     const draggedLead = leads.find(lead => lead.id === active.id);
     if (draggedLead) {
       setActiveLead(draggedLead);
+      // Add a class to the body to prevent text selection during dragging
+      document.body.classList.add('dragging');
     }
   };
 
@@ -218,6 +272,9 @@ export default function LeadsPage() {
 
     // Reset active lead regardless of outcome
     setActiveLead(null);
+
+    // Remove the dragging class from the body
+    document.body.classList.remove('dragging');
 
     if (over && active.id !== over.id) {
       const leadId = active.id as string;
@@ -347,6 +404,19 @@ export default function LeadsPage() {
             strategy: 'always' // Always measure to ensure accurate collision detection
           }
         }}
+        modifiers={[
+          // Add a modifier to restrict movement to horizontal axis only
+          // This helps users focus on moving between columns rather than precise positioning
+          (args) => {
+            if (args.draggingRect && args.transform) {
+              // Allow full horizontal movement but limit vertical movement
+              // This creates a more guided experience when moving between columns
+              args.transform.y = Math.min(Math.max(args.transform.y, -50), 50);
+              return args;
+            }
+            return args;
+          }
+        ]}
       >
         <KanbanBoard
           leads={filteredLeads}
@@ -354,9 +424,18 @@ export default function LeadsPage() {
           onLeadSelect={handleLeadSelect}
         />
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={{
+          duration: 300,
+          easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)', // Bouncy animation for better feedback
+          scale: 0.98, // Slightly scale down when dropping for better visual feedback
+        }}>
           {activeLead ? (
-            <div className="bg-white dark:bg-zinc-800 rounded-md shadow-lg p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500">
+            <div className="bg-white dark:bg-zinc-800 rounded-md shadow-xl p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500 rotate-1 scale-105 select-none">
+              {/* Add a "moving" indicator to show the card is being moved */}
+              <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                Moving
+              </div>
+
               <div className="font-medium text-foreground dark:text-white">
                 {activeLead.first_name} {activeLead.last_name}
               </div>

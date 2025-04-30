@@ -51,7 +51,7 @@ export function KanbanColumn({ status, leads, onLeadSelect }: KanbanColumnProps)
         className={`rounded-lg p-4 min-h-[500px] transition-all duration-200 ${
           isOver
             ? 'bg-blue-100/50 dark:bg-blue-900/20 border-2 border-dashed border-blue-500 shadow-lg scale-[1.02]'
-            : 'bg-muted/30 border border-transparent'
+            : 'bg-muted/30 border border-transparent hover:border-blue-300 hover:border-dashed hover:border'
         }`}
       >
         <SortableContext

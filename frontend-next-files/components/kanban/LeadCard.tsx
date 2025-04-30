@@ -78,7 +78,17 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
    * Records the timestamp when the mouse button was pressed down
    * This is used to determine if the user is clicking or attempting to drag
    */
-  const handleMouseDown = () => {
+  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent default browser behavior that might interfere with dragging
+    // This helps prevent text selection during drag operations
+    if (e.type === 'mousedown') {
+      const mouseEvent = e as React.MouseEvent;
+      if (mouseEvent.button === 0) { // Left mouse button
+        // Only prevent default for left mouse button to allow context menu with right click
+        e.preventDefault();
+      }
+    }
+
     const time = Date.now();
     setMouseDownTime(time);
   };
@@ -150,7 +160,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       style={style}                    // Apply transform styles from dnd-kit
       {...attributes}                  // Spread dnd-kit attributes
       {...listeners}                   // Spread dnd-kit event listeners
-      className={`bg-white dark:bg-zinc-800 rounded-md p-4 mb-3 cursor-pointer transition-all ${
+      className={`bg-white dark:bg-zinc-800 rounded-md p-4 mb-3 cursor-pointer transition-all select-none ${
         isDragging
           ? 'opacity-50 shadow-none'   // Visual feedback when card is being dragged
           : 'opacity-100 hover:shadow-md shadow-sm'  // Normal state with hover effect
