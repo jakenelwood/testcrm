@@ -59,10 +59,9 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Integration with dnd-kit for drag-and-drop functionality
-  // Only enable dragging when isDragReady is true (after holding for a moment)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
-    disabled: !isDragReady, // Only enable dragging after holding for a moment
+    // We don't disable the sortable - we'll manually control when to apply the listeners
   });
 
   // Apply the transform from dnd-kit to enable smooth dragging
@@ -83,6 +82,25 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
     timerRef.current = setTimeout(() => {
       // After holding for 200ms, enable dragging
       setIsDragReady(true);
+
+      // Provide haptic feedback on mobile devices if available
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(50); // Short vibration to indicate drag is ready
+      }
+
+      // Simulate the pointer event to start dragging immediately
+      // This is necessary because dnd-kit needs a pointer event to start dragging
+      const element = document.getElementById(`lead-card-${lead.id}`);
+      if (element) {
+        // Create and dispatch a new pointer event to start the drag
+        const event = new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          clientX: e instanceof MouseEvent ? e.clientX : e.touches[0].clientX,
+          clientY: e instanceof MouseEvent ? e.clientY : e.touches[0].clientY,
+        });
+        element.dispatchEvent(event);
+      }
     }, 200);
   };
 
@@ -170,14 +188,17 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
   // Render the lead card with all its information and interactive behavior
   return (
     <div
+      id={`lead-card-${lead.id}`}      // Add an ID for targeting with simulated events
       ref={setNodeRef}                 // Connect to dnd-kit for drag functionality
       style={style}                    // Apply transform styles from dnd-kit
       {...attributes}                  // Spread dnd-kit attributes
-      {...listeners}                   // Spread dnd-kit event listeners
+      {...(isDragReady ? listeners : {})}  // Only apply listeners when ready to drag
       className={`bg-white dark:bg-zinc-800 rounded-md p-4 mb-3 cursor-pointer transition-all select-none ${
         isDragging
           ? 'opacity-50 shadow-none'   // Visual feedback when card is being dragged
-          : 'opacity-100 hover:shadow-md shadow-sm'  // Normal state with hover effect
+          : isDragReady
+            ? 'opacity-90 shadow-lg scale-[1.02] border border-blue-500' // Ready to drag state
+            : 'opacity-100 hover:shadow-md shadow-sm'  // Normal state with hover effect
       }`}
       onMouseDown={handlePointerDown}   // Start timer to detect click-and-hold (mouse)
       onMouseUp={handlePointerUp}       // Handle quick click to open lead details (mouse)

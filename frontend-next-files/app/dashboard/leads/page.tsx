@@ -100,12 +100,14 @@ export default function LeadsPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Configure the sensor to work well with our click-and-hold approach
+      // Configure the sensor to be very responsive once dragging is initiated
       activationConstraint: {
-        // No delay here - we're handling the delay in the LeadCard component
+        // No delay - we're handling the delay in the LeadCard component
         delay: 0,
-        // Require a small movement to confirm drag intent
-        tolerance: 5,
+        // No tolerance - we want dragging to start immediately once initiated
+        tolerance: 0,
+        // No distance constraint - we want dragging to start immediately
+        distance: 0,
       }
     }),
     useSensor(KeyboardSensor, {
