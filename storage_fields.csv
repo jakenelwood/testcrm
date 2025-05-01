@@ -1,0 +1,123 @@
+Field Name,Storage Recommendation
+additional_insured_dl_number,JSON Field
+additional_insured_dob,JSON Field
+additional_insured_education_occupation,JSON Field
+additional_insured_gender,JSON Field
+additional_insured_license_state,JSON Field
+additional_insured_marital_status,JSON Field
+additional_insured_name,JSON Field
+additional_insured_relation_to_primary_insured,JSON Field
+auto_additional_notes,JSON Field
+auto_current_insurance_carrier_auto,Column
+auto_current_limits,JSON Field
+auto_expiration_date,JSON Field
+auto_months_with_current_carrier_auto,Column
+auto_premium,Column
+auto_quoting_limits,JSON Field
+auto_vehicle_collision,JSON Field
+auto_vehicle_comp,JSON Field
+auto_vehicle_driver,JSON Field
+auto_vehicle_financed,JSON Field
+auto_vehicle_gap,JSON Field
+auto_vehicle_glass,JSON Field
+auto_vehicle_make,JSON Field
+auto_vehicle_miles,JSON Field
+auto_vehicle_model,JSON Field
+auto_vehicle_rental_car_reimbursement,JSON Field
+auto_vehicle_tow,JSON Field
+auto_vehicle_usage,JSON Field
+auto_vehicle_vin,JSON Field
+auto_vehicle_year,JSON Field
+home_additional_notes,JSON Field
+home_alarm,JSON Field
+home_attached_structures,JSON Field
+home_bankruptcy_foreclosure,JSON Field
+home_biting_pets,JSON Field
+home_business_type,JSON Field
+home_coverage_type_owner_renter,JSON Field
+home_current_insurance_carrier,JSON Field
+home_deck_size,JSON Field
+home_deck_type,JSON Field
+home_deductible,JSON Field
+home_detached_structures,JSON Field
+home_e_bikes_detail_type,JSON Field
+home_e_bikes_value,JSON Field
+home_electrical_type_amps,JSON Field
+home_electrical_year,JSON Field
+home_expiration_date,JSON Field
+home_fence_height,JSON Field
+home_fence_type,JSON Field
+home_fire_hydrant_distance,JSON Field
+home_fire_place,JSON Field
+home_flood_insurance,JSON Field
+home_form_type,JSON Field
+home_full_bath,JSON Field
+home_garage,JSON Field
+home_half_bath,JSON Field
+home_heating_system_type,JSON Field
+home_heating_system_year,JSON Field
+home_miles_from_fd,JSON Field
+home_months_with_current_carrier,JSON Field
+home_mortgage,JSON Field
+home_number_household_members,JSON Field
+home_percentage_finished_basement,JSON Field
+home_personal_property_value,JSON Field
+home_pets,JSON Field
+home_plumbing_material_type,JSON Field
+home_plumbing_year,JSON Field
+home_pool,JSON Field
+home_porch_size,JSON Field
+home_porch_type,JSON Field
+home_premium,Column
+home_reconstruction_cost,JSON Field
+home_responding_fd,JSON Field
+home_roof_type,JSON Field
+home_roof_year_replaced,JSON Field
+home_scheduled_items_type,JSON Field
+home_scheduled_items_value,JSON Field
+home_septic_sewer,JSON Field
+home_service_line_limit,JSON Field
+home_siding_type,JSON Field
+home_sprinkled,JSON Field
+home_sq_ft_above_ground,JSON Field
+home_stories_style,JSON Field
+home_sump_pump_limit,JSON Field
+home_three_qtr_bath,JSON Field
+home_trampoline,JSON Field
+home_umbrella_uninsured_underinsured,Column
+home_umbrella_value,Column
+home_usage,JSON Field
+home_walk_out_basement,JSON Field
+home_wind_hail,JSON Field
+home_woodstove,JSON Field
+home_year_built,JSON Field
+primary_named_insured_address,Column
+primary_named_insured_current_date,Column
+primary_named_insured_dl_number,Column
+primary_named_insured_dob,Column
+primary_named_insured_education_occupation,Column
+primary_named_insured_effective_date,Column
+primary_named_insured_email_address,Column
+primary_named_insured_gender,Column
+primary_named_insured_license_state,Column
+primary_named_insured_mailing_address,Column
+primary_named_insured_marital_status,Column
+primary_named_insured_name,Column
+primary_named_insured_phone_number,Column
+primary_named_insured_prior_address,Column
+primary_named_insured_referred_by,Column
+primary_named_insured_relation_to_primary_insured,Column
+specialty_additional_information,Column
+specialty_cc_size,Column
+specialty_collision_deductible,Column
+specialty_comprehensive_deductible,Column
+specialty_comprehensive_location_stored,Column
+specialty_make,Column
+specialty_market_value,Column
+specialty_max_speed,Column
+specialty_model,Column
+specialty_premium,Column
+specialty_total_hp,Column
+specialty_type_toy,Column
+specialty_vin,Column
+specialty_year,Column

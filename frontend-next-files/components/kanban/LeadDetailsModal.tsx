@@ -15,7 +15,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Lead, LeadNote, InsuranceType, LeadStatus } from "@/types/lead";
+import { Lead, LeadNote, LeadCommunication, InsuranceType, LeadStatus, Client, Address } from "@/types/lead";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,60 +48,68 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  // Create a form state for the lead data - only include fields that exist in the database
+  // Create a form state for the lead data based on the normalized schema
   const [formData, setFormData] = useState({
-    first_name: lead?.first_name || '',
-    last_name: lead?.last_name || '',
-    email: lead?.email || '',
-    phone_number: lead?.phone_number || '',
-    insurance_type: lead?.insurance_type || 'Auto' as InsuranceType,
+    // Lead fields
+    status: lead?.status || lead?.status_legacy || 'New' as LeadStatus,
+    insurance_type: lead?.insurance_type || lead?.insurance_type_legacy || 'Auto' as InsuranceType,
     current_carrier: lead?.current_carrier || '',
     premium: lead?.premium ? lead.premium.toString() : '',
     notes: lead?.notes || '',
-    status: lead?.status || 'New' as LeadStatus,
     assigned_to: lead?.assigned_to || '',
 
-    // These fields are kept in the form for UI purposes but won't be sent to the database
-    // They're not actually stored in the database schema
-    street_address: '',
-    city: '',
-    state: '',
-    zip_code: '',
-    date_of_birth: '',
-    gender: '',
-    marital_status: '',
-    drivers_license: '',
-    license_state: '',
-    referred_by: '',
+    // Client fields (from joined client or legacy fields)
+    client_name: lead?.client?.name || `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim(),
+    email: lead?.client?.email || lead?.email || '',
+    phone_number: lead?.client?.phone_number || lead?.phone_number || '',
+
+    // Address fields (from joined address or empty)
+    street_address: lead?.client?.address?.street || '',
+    city: lead?.client?.address?.city || '',
+    state: lead?.client?.address?.state || '',
+    zip_code: lead?.client?.address?.zip_code || '',
+
+    // Individual-specific fields
+    date_of_birth: lead?.client?.date_of_birth || '',
+    gender: lead?.client?.gender || '',
+    marital_status: lead?.client?.marital_status || '',
+    drivers_license: lead?.client?.drivers_license || '',
+    license_state: lead?.client?.license_state || '',
+    education_occupation: lead?.client?.education_occupation || '',
+    referred_by: lead?.client?.referred_by || '',
   });
 
-  // Update form data when lead changes - only include fields that exist in the database
+  // Update form data when lead changes based on the normalized schema
   useEffect(() => {
     if (lead) {
       setFormData({
-        first_name: lead.first_name || '',
-        last_name: lead.last_name || '',
-        email: lead.email || '',
-        phone_number: lead.phone_number || '',
-        insurance_type: lead.insurance_type || 'Auto' as InsuranceType,
-        current_carrier: lead.current_carrier || '',
-        premium: lead.premium ? lead.premium.toString() : '',
-        notes: lead.notes || '',
-        status: lead.status || 'New' as LeadStatus,
-        assigned_to: lead.assigned_to || '',
+        // Lead fields
+        status: lead?.status || lead?.status_legacy || 'New' as LeadStatus,
+        insurance_type: lead?.insurance_type || lead?.insurance_type_legacy || 'Auto' as InsuranceType,
+        current_carrier: lead?.current_carrier || '',
+        premium: lead?.premium ? lead.premium.toString() : '',
+        notes: lead?.notes || '',
+        assigned_to: lead?.assigned_to || '',
 
-        // These fields are kept in the form for UI purposes but won't be sent to the database
-        // Default to empty strings since they don't exist in the database
-        street_address: '',
-        city: '',
-        state: '',
-        zip_code: '',
-        date_of_birth: '',
-        gender: '',
-        marital_status: '',
-        drivers_license: '',
-        license_state: '',
-        referred_by: '',
+        // Client fields (from joined client or legacy fields)
+        client_name: lead?.client?.name || `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim(),
+        email: lead?.client?.email || lead?.email || '',
+        phone_number: lead?.client?.phone_number || lead?.phone_number || '',
+
+        // Address fields (from joined address or empty)
+        street_address: lead?.client?.address?.street || '',
+        city: lead?.client?.address?.city || '',
+        state: lead?.client?.address?.state || '',
+        zip_code: lead?.client?.address?.zip_code || '',
+
+        // Individual-specific fields
+        date_of_birth: lead?.client?.date_of_birth || '',
+        gender: lead?.client?.gender || '',
+        marital_status: lead?.client?.marital_status || '',
+        drivers_license: lead?.client?.drivers_license || '',
+        license_state: lead?.client?.license_state || '',
+        education_occupation: lead?.client?.education_occupation || '',
+        referred_by: lead?.client?.referred_by || '',
       });
     }
   }, [lead]);
