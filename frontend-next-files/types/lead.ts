@@ -5,27 +5,11 @@
  * It serves as the central type definition that's used throughout the application
  * for type safety and consistency when working with lead data.
  *
- * Written in TypeScript, these types ensure data integrity across the frontend
- * and provide clear interfaces for components that handle lead information.
- *
- * These types directly map to the Supabase database schema and are used in:
+ * These types directly map to the normalized database schema and are used in:
  * - API requests/responses
  * - Form handling
  * - State management
  * - UI components (especially in the kanban board)
- *
- * ARCHITECTURE ROLE:
- * This file is part of the data model layer of the application.
- * It defines the core business entities that are used throughout the system.
- *
- * DEPENDENCIES:
- * - No external dependencies
- *
- * USED BY:
- * - Kanban board components
- * - Lead forms
- * - API calls to Supabase
- * - State management in lead-related pages
  */
 
 // Using uppercase to match database constraint
@@ -33,49 +17,158 @@
 export type LeadStatus = 'New' | 'Contacted' | 'Quoted' | 'Sold' | 'Lost';
 
 // Insurance product types offered by the agency
-export type InsuranceType = 'Auto' | 'Home' | 'Specialty';
+export type InsuranceType = 'Auto' | 'Home' | 'Specialty' | 'Commercial' | 'Liability';
+
+// Client type (Individual or Business)
+export type ClientType = 'Individual' | 'Business';
+
+// Address interface
+export interface Address {
+  id: string;
+  street: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  type: 'Physical' | 'Mailing' | 'Business' | 'Location';
+  created_at: string;
+}
+
+// Client interface
+export interface Client {
+  id: string;
+  client_type: ClientType;
+  name: string;
+  email: string;
+  phone_number: string;
+  address_id?: string;
+  mailing_address_id?: string;
+  referred_by?: string;
+  date_of_birth?: string;
+  gender?: string;
+  marital_status?: string;
+  drivers_license?: string;
+  license_state?: string;
+  education_occupation?: string;
+  business_type?: string;
+  industry?: string;
+  tax_id?: string;
+  year_established?: string;
+  annual_revenue?: number;
+  number_of_employees?: number;
+  created_at: string;
+  updated_at: string;
+
+  // Joined fields
+  address?: Address;
+  mailing_address?: Address;
+}
 
 /**
- * Core Lead interface that maps directly to the 'leads' table in Supabase
+ * Core Lead interface that maps directly to the 'leads' table in the normalized schema
  * Contains all essential information about a lead in the CRM system
  */
 export interface Lead {
-  id: string;                    // Unique identifier (UUID from Supabase)
-  first_name: string;            // Lead's first name
-  last_name: string;             // Lead's last name
-  email: string;                 // Contact email
-  phone_number: string;          // Contact phone number
-  insurance_type: InsuranceType; // Type of insurance product they're interested in
+  id: string;                    // Unique identifier (UUID)
+  client_id: string;             // Reference to client
+  status_id: number;             // Reference to lead status
+  insurance_type_id: number;     // Reference to insurance type
+  assigned_to?: string;          // Who the lead is assigned to
   notes?: string;                // Optional notes about the lead
-  status: LeadStatus;            // Current status in the sales pipeline
-  created_at: string;            // ISO timestamp of when the lead was created
-  updated_at: string;            // ISO timestamp of when the lead was last updated
+  current_carrier?: string;      // Current insurance carrier
+
+  // Premium fields
+  premium?: number;              // Overall premium
+  auto_premium?: number;         // Auto premium
+  home_premium?: number;         // Home premium
+  specialty_premium?: number;    // Specialty premium
+  commercial_premium?: number;   // Commercial premium
+
+  // Umbrella fields
+  umbrella_value?: number;       // Umbrella value
+  umbrella_uninsured_underinsured?: string; // Umbrella uninsured/underinsured
+
+  // Auto specific columns
+  auto_current_insurance_carrier?: string; // Current auto insurance carrier
+  auto_months_with_current_carrier?: number; // Months with current auto carrier
+
+  // Specialty specific columns
+  specialty_type?: string;       // Specialty type
+  specialty_make?: string;       // Specialty make
+  specialty_model?: string;      // Specialty model
+  specialty_year?: number;       // Specialty year
+
+  // Commercial specific columns
+  commercial_coverage_type?: string; // Commercial coverage type
+  commercial_industry?: string;  // Commercial industry
+
+  // JSON data fields
+  auto_data?: any;               // Auto insurance data (JSON)
+  home_data?: any;               // Home insurance data (JSON)
+  specialty_data?: any;          // Specialty insurance data (JSON)
+  commercial_data?: any;         // Commercial insurance data (JSON)
+  liability_data?: any;          // Liability insurance data (JSON)
+  additional_insureds?: any[];   // Additional insureds (JSON array)
+  additional_locations?: any[];  // Additional locations (JSON array)
+
+  // Timestamps
+  created_at: string;            // When the lead was created
+  updated_at: string;            // When the lead was last updated
+
+  // Joined fields (not in the database, but populated by joins)
+  client?: Client;               // Client information (joined)
+  status?: string;               // Status value (joined from lead_statuses)
+  insurance_type?: string;       // Insurance type name (joined from insurance_types)
+
+  // Legacy fields for backward compatibility during migration
+  first_name?: string;           // Client's first name (for backward compatibility)
+  last_name?: string;            // Client's last name (for backward compatibility)
+  email?: string;                // Client's email (for backward compatibility)
+  phone_number?: string;         // Client's phone number (for backward compatibility)
+  status_legacy?: LeadStatus;    // Status (for backward compatibility)
+  insurance_type_legacy?: InsuranceType; // Insurance type (for backward compatibility)
 }
 
 /**
  * Interface for lead notes that are associated with a lead
- * Maps to the 'lead_notes' table in Supabase
- * Used for tracking communication history and important information
+ * Maps to the 'lead_notes' table
  */
 export interface LeadNote {
   id: string;                // Unique identifier for the note
   lead_id: string;           // Foreign key reference to the lead
   note_content: string;      // The actual note text
+  created_by?: string;       // Who created the note
   created_at: string;        // When the note was created
+}
+
+/**
+ * Interface for lead communications
+ * Maps to the 'lead_communications' table
+ */
+export interface LeadCommunication {
+  id: string;                // Unique identifier
+  lead_id: string;           // Reference to lead
+  contact_id?: string;       // Reference to contact (for B2B)
+  type_id: number;           // Reference to communication type
+  direction?: 'Inbound' | 'Outbound'; // Direction of communication
+  content?: string;          // Content of communication
+  status?: string;           // Status of communication
+  created_by?: string;       // Who created the communication
+  created_at: string;        // When the communication was created
+
+  // Joined fields
+  type?: string;             // Communication type name (joined)
 }
 
 /**
  * Form values interface used specifically for collecting lead information
  * in forms throughout the application
- *
- * This is a subset of the full Lead interface, containing only the fields
- * that are collected during initial lead creation
  */
 export interface LeadFormValues {
-  first_name: string;            // Lead's first name
-  last_name: string;             // Lead's last name
-  email: string;                 // Contact email
-  phone_number: string;          // Contact phone number
-  insurance_type: InsuranceType; // Type of insurance product they're interested in
+  client_id: string;             // Reference to client
+  status_id: number;             // Reference to lead status
+  insurance_type_id: number;     // Reference to insurance type
+  assigned_to?: string;          // Who the lead is assigned to
   notes?: string;                // Optional notes about the lead
+  current_carrier?: string;      // Current insurance carrier
+  premium?: string;              // Overall premium (string for form input)
 }
