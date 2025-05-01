@@ -427,8 +427,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                   variant={isEditing ? "default" : "outline"}
                   onClick={() => setIsEditing(!isEditing)}
                   disabled={isSaving}
+                  className={isEditing ? "" : "bg-black hover:bg-gray-800 text-white"}
                 >
-                  {isEditing ? "Cancel" : "Edit"}
+                  {isEditing ? "Cancel" : <span className="font-bold">Edit</span>}
                 </Button>
               </CardHeader>
               <ScrollArea className="h-[500px]">

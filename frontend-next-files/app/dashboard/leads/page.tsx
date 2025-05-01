@@ -383,10 +383,10 @@ export default function LeadsPage() {
         <h1 className="text-3xl font-bold">Leads</h1>
         <Button
           asChild
-          className="bg-[#2182E0] hover:bg-[#045AC3] text-white"
+          className="bg-black hover:bg-gray-800 text-white"
         >
           <Link href="/dashboard/new">
-            New Lead
+            <span className="font-bold">New Lead</span>
           </Link>
         </Button>
       </div>

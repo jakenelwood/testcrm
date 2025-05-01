@@ -47,10 +47,10 @@ export default function Dashboard() {
         <div className="flex gap-2">
           <Button
             asChild
-            className="bg-[#2182E0] hover:bg-[#045AC3] text-white"
+            className="bg-black hover:bg-gray-800 text-white"
           >
             <Link href="/dashboard/new">
-              New Lead
+              <span className="font-bold">New Lead</span>
             </Link>
           </Button>
         </div>
