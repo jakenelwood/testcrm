@@ -61,12 +61,14 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Search } from "lucide-react";
+import { Search, LayoutGrid, List } from "lucide-react";
 import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { LeadDetailsModal } from "@/components/kanban/LeadDetailsModal";
 import { Lead, LeadStatus } from "@/types/lead";
 import supabase from '@/utils/supabase/client';
 import { fetchLeadsWithRelations, updateLeadStatus } from '@/utils/lead-api';
+import { LeadListView } from "@/components/leads/LeadListView";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 /**
  * LeadsPage Component
@@ -98,6 +100,9 @@ export default function LeadsPage() {
 
   // State for the lead currently being dragged (for drag overlay)
   const [activeLead, setActiveLead] = useState<Lead | null>(null);
+
+  // State for the current view (kanban or list)
+  const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -386,87 +391,142 @@ export default function LeadsPage() {
         </Button>
       </div>
 
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search leads..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
+        <Card className="w-full">
+          <CardContent className="pt-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search leads..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={customCollisionDetection}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        // Ensure accurate measurements for better drag positioning
-        measuring={{
-          droppable: {
-            strategy: 'always' // Always measure to ensure accurate collision detection
-          }
-        }}
-        // No modifiers - allow full freedom of movement
-      >
-        <KanbanBoard
+        <div className="flex-shrink-0">
+          <ToggleGroup type="single" value={currentView} onValueChange={(value) => value && setCurrentView(value as 'kanban' | 'list')}>
+            <ToggleGroupItem value="kanban" aria-label="Toggle Kanban view">
+              <LayoutGrid className="h-4 w-4 mr-2" />
+              Kanban
+            </ToggleGroupItem>
+            <ToggleGroupItem value="list" aria-label="Toggle List view">
+              <List className="h-4 w-4 mr-2" />
+              List
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      </div>
+
+      {currentView === 'kanban' ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={customCollisionDetection}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          measuring={{
+            droppable: {
+              strategy: 'always'
+            }
+          }}
+        >
+          <KanbanBoard
+            leads={filteredLeads}
+            isLoading={isLoading}
+            onLeadSelect={handleLeadSelect}
+          />
+
+          <DragOverlay dropAnimation={{
+            duration: 300,
+            easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+            scale: 0.98,
+          }}>
+            {activeLead ? (
+              <div className="bg-white dark:bg-zinc-800 rounded-md shadow-xl p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500 rotate-1 scale-105 select-none">
+                <div className="font-medium text-foreground dark:text-white">
+                  {typeof activeLead.first_name === 'string' ? activeLead.first_name : ''} {typeof activeLead.last_name === 'string' ? activeLead.last_name : ''}
+                </div>
+
+                <div className="text-sm text-muted-foreground mt-1">
+                  Entered on: {new Date(activeLead.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </div>
+
+                <div className="flex justify-between items-center mt-3">
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    !activeLead.current_carrier ? "bg-black text-white" :
+                    activeLead.current_carrier.toLowerCase() === 'state farm' ? "bg-red-500 text-white" :
+                    "bg-gray-500 text-white"
+                  }`}>
+                    {activeLead.current_carrier || "No Prior"}
+                  </span>
+
+                  <span className="font-medium">
+                    ${activeLead.premium
+                      ? activeLead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      : "0.00"}
+                  </span>
+                </div>
+
+                {activeLead.assigned_to && (
+                  <div className="mt-2 flex justify-end">
+                    <span className="text-xs px-2 py-1 rounded-md border border-blue-500 text-blue-500">
+                      {activeLead.assigned_to}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      ) : (
+        <LeadListView
           leads={filteredLeads}
           isLoading={isLoading}
           onLeadSelect={handleLeadSelect}
+          onStatusChange={(leadId, newStatus) => {
+            // Update lead status in state
+            setLeads((prevLeads) =>
+              prevLeads.map((lead) =>
+                lead.id === leadId ? { ...lead, status: newStatus } : lead
+              )
+            );
+
+            // Get the status ID based on the status name
+            let statusId = 1; // Default to "New" (ID: 1)
+            switch (newStatus) {
+              case 'New': statusId = 1; break;
+              case 'Contacted': statusId = 2; break;
+              case 'Quoted': statusId = 3; break;
+              case 'Sold': statusId = 4; break;
+              case 'Lost': statusId = 5; break;
+            }
+
+            // Update lead status in database
+            updateLeadStatus(leadId, statusId).catch(error => {
+              console.error('Error updating lead status:', error);
+              // Revert the state change if the update fails
+              fetchLeadsWithRelations().then(leadsData => {
+                const updatedLead = leadsData.find(l => l.id === leadId);
+                if (updatedLead) {
+                  setLeads((prevLeads) =>
+                    prevLeads.map((lead) =>
+                      lead.id === leadId ? updatedLead : lead
+                    )
+                  );
+                }
+              }).catch(fetchError => {
+                console.error('Error reverting lead status:', fetchError);
+              });
+            });
+          }}
         />
-
-        <DragOverlay dropAnimation={{
-          duration: 300,
-          easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)', // Bouncy animation for better feedback
-          scale: 0.98, // Slightly scale down when dropping for better visual feedback
-        }}>
-          {activeLead ? (
-            <div className="bg-white dark:bg-zinc-800 rounded-md shadow-xl p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500 rotate-1 scale-105 select-none">
-              <div className="font-medium text-foreground dark:text-white">
-                {typeof activeLead.first_name === 'string' ? activeLead.first_name : ''} {typeof activeLead.last_name === 'string' ? activeLead.last_name : ''}
-              </div>
-
-              <div className="text-sm text-muted-foreground mt-1">
-                Entered on: {new Date(activeLead.created_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </div>
-
-              <div className="flex justify-between items-center mt-3">
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  !activeLead.current_carrier ? "bg-black text-white" :
-                  activeLead.current_carrier.toLowerCase() === 'state farm' ? "bg-red-500 text-white" :
-                  "bg-gray-500 text-white"
-                }`}>
-                  {activeLead.current_carrier || "No Prior"}
-                </span>
-
-                <span className="font-medium">
-                  ${activeLead.premium
-                    ? activeLead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                    : "0.00"}
-                </span>
-              </div>
-
-              {activeLead.assigned_to && (
-                <div className="mt-2 flex justify-end">
-                  <span className="text-xs px-2 py-1 rounded-md border border-blue-500 text-blue-500">
-                    {activeLead.assigned_to}
-                  </span>
-                </div>
-              )}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
-
-      {/* Add Lead modal removed in favor of direct navigation */}
+      )}
 
       {selectedLead && (
         <LeadDetailsModal
