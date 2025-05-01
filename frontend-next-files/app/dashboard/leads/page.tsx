@@ -423,11 +423,6 @@ export default function LeadsPage() {
         }}>
           {activeLead ? (
             <div className="bg-white dark:bg-zinc-800 rounded-md shadow-xl p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500 rotate-1 scale-105 select-none">
-              {/* Add a "moving" indicator to show the card is being moved */}
-              <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                Moving
-              </div>
-
               <div className="font-medium text-foreground dark:text-white">
                 {activeLead.first_name} {activeLead.last_name}
               </div>
