@@ -386,7 +386,7 @@ export default function LeadsPage() {
           className="bg-black hover:bg-gray-800 text-white"
         >
           <Link href="/dashboard/new">
-            <span className="font-bold">New Lead</span>
+            New Lead
           </Link>
         </Button>
       </div>
