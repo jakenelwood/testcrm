@@ -48,7 +48,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  // Create a form state for the lead data
+  // Create a form state for the lead data - only include fields that exist in the database
   const [formData, setFormData] = useState({
     first_name: lead?.first_name || '',
     last_name: lead?.last_name || '',
@@ -60,20 +60,22 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     notes: lead?.notes || '',
     status: lead?.status || 'New' as LeadStatus,
     assigned_to: lead?.assigned_to || '',
-    // Additional fields from ClientInfoForm
-    street_address: lead?.street_address || '',
-    city: lead?.city || '',
-    state: lead?.state || '',
-    zip_code: lead?.zip_code || '',
-    date_of_birth: lead?.date_of_birth || '',
-    gender: lead?.gender || '',
-    marital_status: lead?.marital_status || '',
-    drivers_license: lead?.drivers_license || '',
-    license_state: lead?.license_state || '',
-    referred_by: lead?.referred_by || '',
+
+    // These fields are kept in the form for UI purposes but won't be sent to the database
+    // They're not actually stored in the database schema
+    street_address: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    date_of_birth: '',
+    gender: '',
+    marital_status: '',
+    drivers_license: '',
+    license_state: '',
+    referred_by: '',
   });
 
-  // Update form data when lead changes
+  // Update form data when lead changes - only include fields that exist in the database
   useEffect(() => {
     if (lead) {
       setFormData({
@@ -87,17 +89,19 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         notes: lead.notes || '',
         status: lead.status || 'New' as LeadStatus,
         assigned_to: lead.assigned_to || '',
-        // Additional fields from ClientInfoForm
-        street_address: lead.street_address || '',
-        city: lead.city || '',
-        state: lead.state || '',
-        zip_code: lead.zip_code || '',
-        date_of_birth: lead.date_of_birth || '',
-        gender: lead.gender || '',
-        marital_status: lead.marital_status || '',
-        drivers_license: lead.drivers_license || '',
-        license_state: lead.license_state || '',
-        referred_by: lead.referred_by || '',
+
+        // These fields are kept in the form for UI purposes but won't be sent to the database
+        // Default to empty strings since they don't exist in the database
+        street_address: '',
+        city: '',
+        state: '',
+        zip_code: '',
+        date_of_birth: '',
+        gender: '',
+        marital_status: '',
+        drivers_license: '',
+        license_state: '',
+        referred_by: '',
       });
     }
   }, [lead]);
@@ -231,7 +235,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       // Convert premium to number if provided
       const premium = formData.premium ? parseFloat(formData.premium) : null;
 
-      // Update lead in Supabase
+      // Update lead in Supabase - only include fields that exist in the database
       const { data, error } = await supabase
         .from('leads')
         .update({
@@ -245,18 +249,11 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           premium: premium,
           notes: formData.notes || null,
           assigned_to: formData.assigned_to || null,
-          // Additional fields
-          street_address: formData.street_address || null,
-          city: formData.city || null,
-          state: formData.state || null,
-          zip_code: formData.zip_code || null,
-          date_of_birth: formData.date_of_birth || null,
-          gender: formData.gender || null,
-          marital_status: formData.marital_status || null,
-          drivers_license: formData.drivers_license || null,
-          license_state: formData.license_state || null,
-          referred_by: formData.referred_by || null,
           updated_at: new Date().toISOString(),
+
+          // Removed fields that don't exist in the database:
+          // street_address, city, state, zip_code, date_of_birth, gender,
+          // marital_status, drivers_license, license_state, referred_by
         })
         .eq('id', lead.id)
         .select()
