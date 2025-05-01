@@ -96,7 +96,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       }}
     >
       <div className="font-medium text-foreground dark:text-white">
-        {lead.first_name} {lead.last_name}
+        {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
       </div>
 
       <div className="text-sm text-muted-foreground mt-1">

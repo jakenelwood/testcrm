@@ -60,6 +60,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
     // Client fields (from joined client or legacy fields)
     client_name: lead?.client?.name || `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim(),
+    first_name: lead?.first_name || lead?.client?.name?.split(' ')[0] || '',
+    last_name: lead?.last_name || (lead?.client?.name?.split(' ').slice(1).join(' ') || ''),
     email: lead?.client?.email || lead?.email || '',
     phone_number: lead?.client?.phone_number || lead?.phone_number || '',
 
@@ -93,6 +95,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
         // Client fields (from joined client or legacy fields)
         client_name: lead?.client?.name || `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim(),
+        first_name: lead?.first_name || lead?.client?.name?.split(' ')[0] || '',
+        last_name: lead?.last_name || (lead?.client?.name?.split(' ').slice(1).join(' ') || ''),
         email: lead?.client?.email || lead?.email || '',
         phone_number: lead?.client?.phone_number || lead?.phone_number || '',
 
@@ -209,13 +213,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   // Check if we have permission to update leads
   const checkPermissions = async () => {
     try {
-      // Try to get the current user
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      console.log('Current user:', userData);
-
-      if (userError) {
-        console.error('Error getting user:', userError);
-      }
+      // Skip auth check in development environment
+      // In a production environment, you would want to properly handle authentication
+      console.log('Skipping auth check in development environment');
 
       // Try to get the RLS policies
       const { data: policyData, error: policyError } = await supabase
@@ -243,28 +243,82 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       // Convert premium to number if provided
       const premium = formData.premium ? parseFloat(formData.premium) : null;
 
-      // Update lead in Supabase - only include fields that exist in the database
+      // Get the status ID based on the status name
+      let statusId = 1; // Default to "New" (ID: 1)
+      switch (formData.status) {
+        case 'New': statusId = 1; break;
+        case 'Contacted': statusId = 2; break;
+        case 'Quoted': statusId = 3; break;
+        case 'Sold': statusId = 4; break;
+        case 'Lost': statusId = 5; break;
+      }
+
+      // Get the insurance type ID based on the insurance type name
+      let insuranceTypeId = 1; // Default to "Auto" (ID: 1)
+      switch (formData.insurance_type) {
+        case 'Auto': insuranceTypeId = 1; break;
+        case 'Home': insuranceTypeId = 2; break;
+        case 'Specialty': insuranceTypeId = 3; break;
+        case 'Commercial': insuranceTypeId = 4; break;
+        case 'Liability': insuranceTypeId = 5; break;
+      }
+
+      // First, update the client record with the new name and contact information
+      const clientName = `${formData.first_name} ${formData.last_name}`.trim();
+
+      // Make sure we have a client_id before trying to update
+      if (!lead.client_id && lead.client?.id) {
+        lead.client_id = lead.client.id;
+      }
+
+      if (!lead.client_id) {
+        console.error('No client_id found for lead:', lead.id);
+        throw new Error('No client_id found for lead');
+      }
+
+      console.log('Updating client record:', {
+        client_id: lead.client_id,
+        name: clientName,
+        email: formData.email,
+        phone_number: formData.phone_number
+      });
+
+      const { error: clientError } = await supabase
+        .from('clients')
+        .update({
+          name: clientName,
+          email: formData.email || null,
+          phone_number: formData.phone_number || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', lead.client_id);
+
+      if (clientError) {
+        console.error('Error updating client:', clientError);
+        throw clientError;
+      }
+
+      console.log('Client record updated successfully');
+
+      // Then update lead in Supabase - only include fields that exist in the database
       const { data, error } = await supabase
         .from('leads')
         .update({
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          email: formData.email || null,
-          phone_number: formData.phone_number || null,
-          insurance_type: formData.insurance_type,
-          status: formData.status,
+          status_id: statusId,
+          insurance_type_id: insuranceTypeId,
           current_carrier: formData.current_carrier || null,
           premium: premium,
           notes: formData.notes || null,
           assigned_to: formData.assigned_to || null,
           updated_at: new Date().toISOString(),
-
-          // Removed fields that don't exist in the database:
-          // street_address, city, state, zip_code, date_of_birth, gender,
-          // marital_status, drivers_license, license_state, referred_by
         })
         .eq('id', lead.id)
-        .select()
+        .select(`
+          *,
+          client:client_id(*),
+          status:lead_statuses!inner(value),
+          insurance_type:insurance_types!inner(name)
+        `)
         .single();
 
       if (error) {
@@ -274,15 +328,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         console.error('Error hint:', error.hint);
         console.error('Error code:', error.code);
         console.error('Update payload:', {
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          email: formData.email || null,
-          phone_number: formData.phone_number || null,
-          insurance_type: formData.insurance_type,
-          status: formData.status,
+          status_id: statusId,
+          insurance_type_id: insuranceTypeId,
           current_carrier: formData.current_carrier || null,
           premium: premium,
-          // ... other fields
+          notes: formData.notes || null,
+          assigned_to: formData.assigned_to || null,
         });
 
         toast({
@@ -291,12 +342,30 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           variant: "destructive"
         });
       } else if (data) {
+        // Process the data before passing it to the parent component
+        const processedLead: Lead = {
+          ...data,
+          // Map joined fields to their expected properties
+          status: typeof data.status === 'object' && data.status?.value ? data.status.value : 'New',
+          insurance_type: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name : 'Auto',
+
+          // Add legacy fields from client data for backward compatibility
+          first_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ')[0] : '',
+          last_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ').slice(1).join(' ') : '',
+          email: typeof data.client === 'object' ? data.client?.email || '' : '',
+          phone_number: typeof data.client === 'object' ? data.client?.phone_number || '' : '',
+
+          // Ensure we have status_legacy and insurance_type_legacy for compatibility
+          status_legacy: typeof data.status === 'object' && data.status?.value ? data.status.value as LeadStatus : 'New',
+          insurance_type_legacy: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name as InsuranceType : 'Auto'
+        };
+
         // Update the lead in the parent component
-        onLeadUpdated(data as Lead);
+        onLeadUpdated(processedLead);
         setIsEditing(false);
         toast({
           title: "Success",
-          description: "Lead updated successfully.",
+          description: `Lead and client information updated successfully. Name changed to ${clientName}.`,
         });
       }
     } catch (error) {
@@ -338,7 +407,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       >
         <DialogHeader>
           <DialogTitle className="text-xl">
-            {lead.first_name} {lead.last_name}
+            {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
           </DialogTitle>
         </DialogHeader>
 
@@ -593,7 +662,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                     <>
                       <div>
                         <Label>Name</Label>
-                        <div className="font-medium">{lead.first_name} {lead.last_name}</div>
+                        <div className="font-medium">{typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}</div>
                       </div>
                       <div>
                         <Label>Email</Label>
@@ -605,7 +674,11 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       </div>
                       <div>
                         <Label>Insurance Type</Label>
-                        <div className="font-medium">{lead.insurance_type}</div>
+                        <div className="font-medium">
+                          {typeof lead.insurance_type === 'string'
+                            ? lead.insurance_type
+                            : (lead.insurance_type as any)?.name || 'Auto'}
+                        </div>
                       </div>
                       <div>
                         <Label>Current Carrier</Label>
@@ -621,7 +694,11 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       </div>
                       <div>
                         <Label>Status</Label>
-                        <div className="font-medium">{lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}</div>
+                        <div className="font-medium">
+                          {typeof lead.status === 'string'
+                            ? lead.status.charAt(0).toUpperCase() + lead.status.slice(1)
+                            : (lead.status as any)?.value || 'New'}
+                        </div>
                       </div>
                       <div>
                         <Label>Assigned To</Label>
@@ -630,10 +707,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       <div className="col-span-2">
                         <Label>Address</Label>
                         <div className="font-medium">
-                          {lead.street_address ? (
+                          {lead.client?.address?.street ? (
                             <>
-                              {lead.street_address}<br />
-                              {lead.city}{lead.city && lead.state ? ', ' : ''}{lead.state} {lead.zip_code}
+                              {lead.client.address.street}<br />
+                              {lead.client.address.city}{lead.client.address.city && lead.client.address.state ? ', ' : ''}{lead.client.address.state} {lead.client.address.zip_code}
                             </>
                           ) : (
                             'No address'
@@ -642,27 +719,27 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       </div>
                       <div>
                         <Label>Date of Birth</Label>
-                        <div className="font-medium">{lead.date_of_birth || 'N/A'}</div>
+                        <div className="font-medium">{lead.client?.date_of_birth || 'N/A'}</div>
                       </div>
                       <div>
                         <Label>Gender</Label>
-                        <div className="font-medium">{lead.gender || 'N/A'}</div>
+                        <div className="font-medium">{lead.client?.gender || 'N/A'}</div>
                       </div>
                       <div>
                         <Label>Marital Status</Label>
-                        <div className="font-medium">{lead.marital_status || 'N/A'}</div>
+                        <div className="font-medium">{lead.client?.marital_status || 'N/A'}</div>
                       </div>
                       <div>
                         <Label>Driver's License</Label>
-                        <div className="font-medium">{lead.drivers_license || 'N/A'}</div>
+                        <div className="font-medium">{lead.client?.drivers_license || 'N/A'}</div>
                       </div>
                       <div>
                         <Label>License State</Label>
-                        <div className="font-medium">{lead.license_state || 'N/A'}</div>
+                        <div className="font-medium">{lead.client?.license_state || 'N/A'}</div>
                       </div>
                       <div>
                         <Label>Referred By</Label>
-                        <div className="font-medium">{lead.referred_by || 'N/A'}</div>
+                        <div className="font-medium">{lead.client?.referred_by || 'N/A'}</div>
                       </div>
                       <div className="col-span-2">
                         <Label>Notes</Label>

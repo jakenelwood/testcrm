@@ -1,6 +1,6 @@
 /**
  * LEAD API UTILITIES
- * 
+ *
  * This file contains functions for interacting with the leads API.
  * It handles the fetching and transformation of lead data from the new normalized schema.
  */
@@ -36,20 +36,20 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
       const processedLead: Lead = {
         ...lead,
         // Map joined fields to their expected properties
-        status: lead.status?.value || 'New',
-        insurance_type: lead.insurance_type?.name || 'Auto',
-        
+        status: typeof lead.status === 'object' && lead.status?.value ? lead.status.value : 'New',
+        insurance_type: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name : 'Auto',
+
         // Add legacy fields from client data for backward compatibility
-        first_name: lead.client?.name?.split(' ')[0] || '',
-        last_name: lead.client?.name?.split(' ').slice(1).join(' ') || '',
-        email: lead.client?.email || '',
-        phone_number: lead.client?.phone_number || '',
-        
+        first_name: typeof lead.client === 'object' && lead.client?.name ? lead.client.name.split(' ')[0] : '',
+        last_name: typeof lead.client === 'object' && lead.client?.name ? lead.client.name.split(' ').slice(1).join(' ') : '',
+        email: typeof lead.client === 'object' ? lead.client?.email || '' : '',
+        phone_number: typeof lead.client === 'object' ? lead.client?.phone_number || '' : '',
+
         // Ensure we have status_legacy and insurance_type_legacy for compatibility
-        status_legacy: lead.status?.value as LeadStatus || 'New',
-        insurance_type_legacy: lead.insurance_type?.name as InsuranceType || 'Auto'
+        status_legacy: typeof lead.status === 'object' && lead.status?.value ? lead.status.value as LeadStatus : 'New',
+        insurance_type_legacy: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name as InsuranceType : 'Auto'
       };
-      
+
       return processedLead;
     }) || [];
 
@@ -67,8 +67,8 @@ export async function updateLeadStatus(leadId: string, statusId: number): Promis
   try {
     const { error } = await supabase
       .from('leads')
-      .update({ 
-        status_id: statusId, 
+      .update({
+        status_id: statusId,
         updated_at: new Date().toISOString(),
         status_changed_at: new Date().toISOString()
       })
@@ -140,18 +140,18 @@ export async function createLead(leadData: any): Promise<Lead> {
     const processedLead: Lead = {
       ...leadData,
       // Map joined fields to their expected properties
-      status: leadData.status?.value || 'New',
-      insurance_type: leadData.insurance_type?.name || 'Auto',
-      
+      status: typeof leadData.status === 'object' && leadData.status?.value ? leadData.status.value : 'New',
+      insurance_type: typeof leadData.insurance_type === 'object' && leadData.insurance_type?.name ? leadData.insurance_type.name : 'Auto',
+
       // Add legacy fields from client data for backward compatibility
-      first_name: leadData.client?.name?.split(' ')[0] || '',
-      last_name: leadData.client?.name?.split(' ').slice(1).join(' ') || '',
-      email: leadData.client?.email || '',
-      phone_number: leadData.client?.phone_number || '',
-      
+      first_name: typeof leadData.client === 'object' && leadData.client?.name ? leadData.client.name.split(' ')[0] : '',
+      last_name: typeof leadData.client === 'object' && leadData.client?.name ? leadData.client.name.split(' ').slice(1).join(' ') : '',
+      email: typeof leadData.client === 'object' ? leadData.client?.email || '' : '',
+      phone_number: typeof leadData.client === 'object' ? leadData.client?.phone_number || '' : '',
+
       // Ensure we have status_legacy and insurance_type_legacy for compatibility
-      status_legacy: leadData.status?.value as LeadStatus || 'New',
-      insurance_type_legacy: leadData.insurance_type?.name as InsuranceType || 'Auto'
+      status_legacy: typeof leadData.status === 'object' && leadData.status?.value ? leadData.status.value as LeadStatus : 'New',
+      insurance_type_legacy: typeof leadData.insurance_type === 'object' && leadData.insurance_type?.name ? leadData.insurance_type.name as InsuranceType : 'Auto'
     };
 
     return processedLead;
@@ -172,6 +172,6 @@ function getInsuranceTypeId(insuranceType: string): number {
     'Commercial': 4,
     'Liability': 5
   };
-  
+
   return insuranceTypeMap[insuranceType] || 1; // Default to Auto if not found
 }
