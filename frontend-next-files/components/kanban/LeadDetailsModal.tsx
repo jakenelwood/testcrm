@@ -194,10 +194,40 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Check if we have permission to update leads
+  const checkPermissions = async () => {
+    try {
+      // Try to get the current user
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      console.log('Current user:', userData);
+
+      if (userError) {
+        console.error('Error getting user:', userError);
+      }
+
+      // Try to get the RLS policies
+      const { data: policyData, error: policyError } = await supabase
+        .from('leads')
+        .select('*')
+        .limit(1);
+
+      console.log('Policy test result:', policyData, policyError);
+
+      return !policyError;
+    } catch (error) {
+      console.error('Error checking permissions:', error);
+      return false;
+    }
+  };
+
   // Handle save changes
   const handleSaveChanges = async () => {
     setIsSaving(true);
     try {
+      // Check permissions first
+      const hasPermission = await checkPermissions();
+      console.log('Has permission to update leads:', hasPermission);
+
       // Convert premium to number if provided
       const premium = formData.premium ? parseFloat(formData.premium) : null;
 
@@ -234,9 +264,25 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
       if (error) {
         console.error('Error updating lead:', error);
+        console.error('Error details:', error.details);
+        console.error('Error message:', error.message);
+        console.error('Error hint:', error.hint);
+        console.error('Error code:', error.code);
+        console.error('Update payload:', {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email || null,
+          phone_number: formData.phone_number || null,
+          insurance_type: formData.insurance_type,
+          status: formData.status,
+          current_carrier: formData.current_carrier || null,
+          premium: premium,
+          // ... other fields
+        });
+
         toast({
           title: "Error",
-          description: "Failed to update lead. Please try again.",
+          description: `Failed to update lead: ${error.message || 'Unknown error'}`,
           variant: "destructive"
         });
       } else if (data) {
