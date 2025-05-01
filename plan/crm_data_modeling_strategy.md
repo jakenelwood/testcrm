@@ -130,6 +130,49 @@ The system is designed to optimize for:
 
 ---
 
+### 9. **AI Interactions**
+**Storage**: Relational table (`ai_interactions`)
+
+**Why**:
+- Captures all prompt + response data between users and AI
+- Enables memory-aware retrieval, audit trails, and learning
+- Includes metadata: model name, temperature, source
+- Supports timeline-based AI summaries, follow-ups, and insights
+
+---
+
+### 10. **Support Tickets**
+**Storage**: Relational table (`support_tickets`)
+
+**Why**:
+- Tracks issues and resolutions tied to a client or lead
+- Enables AI to classify, triage, and summarize support cases
+- Supports lifecycle metrics like time to resolution, escalation rate
+- Integrates with AI memory to inform future interactions
+
+---
+
+### 11. **Tags and Custom Fields**
+**Storage**: JSONB fields in `leads`, `clients`, etc.
+
+**Why**:
+- Supports user-defined fields without schema migrations
+- Tags enable flexible categorization
+- Custom fields enable arbitrary metadata capture
+- GIN-indexed for fast filtering and search
+- Frequently used fields can be promoted to dedicated columns
+
+**Example:**
+```json
+"custom_fields": {
+  "referral_source": "Realtor - Jane",
+  "account_level": "Gold"
+},
+"tags": ["Bundle Lead", "VIP", "ADHD Support"]
+```
+
+---
+
 ## AI Integration Benefits
 
 ### ✅ Clean Context for AI:
@@ -156,6 +199,7 @@ The system is designed to optimize for:
 - AI priority scores enable intelligent work queuing
 - AI next action suggestions guide user workflows
 - AI risk assessment informs business decisions
+- AI support ticket summaries and prompt-response audits enable transparent customer support
 
 ---
 
@@ -168,6 +212,7 @@ This enhanced CRM schema:
 - Provides comprehensive temporal tracking for event-based analysis
 - Includes schema versioning for JSON fields to support evolution
 - Optimizes for both human and AI-driven workflows
+- Includes support for user-defined tags, custom fields, AI interactions, and customer service records
 
 By combining clean structure with flexibility and AI-readiness, it empowers a system that is:
 - Fast and efficient for queries and reporting

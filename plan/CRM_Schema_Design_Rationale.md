@@ -2,6 +2,8 @@
 
 This document provides an overview of the data architecture strategy behind the AI-centric CRM schema designed for both B2C (individual) and B2B (business) clients. It follows modern best practices including normalization, hybrid data storage, DRY compliance, and is optimized for AI-based retrieval, summarization, interaction, and intelligent workflow automation.
 
+> This strategy extends the baseline Supabase schema and adapts it for high-flexibility, AI-native CRM development.
+
 ---
 
 ## ✅ Goals
@@ -20,7 +22,7 @@ This document provides an overview of the data architecture strategy behind the 
 
 ### 1. **Hybrid Storage Model**
 - **Columns** for core, filterable, indexed fields (e.g., client type, lead status)
-- **JSONB fields** for variable, deeply nested, or optional fields (e.g., vehicle lists, specialty items)
+- **JSONB fields** for variable, deeply nested, or optional fields (e.g., vehicle lists, specialty items, tags, custom fields)
 - **Schema versioning** for JSONB fields to track evolution and ensure compatibility
 
 ### 2. **DRY Compliance Through Table Decomposition**
@@ -57,6 +59,7 @@ This document provides an overview of the data architecture strategy behind the 
 - Flexible coverage-specific details stored in JSONB fields: `auto_data`, `home_data`, `specialty_data`, etc.
 - Includes schema version tracking for each JSON data field
 - Supports multi-party (e.g., drivers) and multi-location (e.g., commercial locations) quoting via JSON arrays
+- Stores tags and user-defined custom fields in JSONB with GIN indexing
 - Contains AI annotation fields for lead summaries, next actions, and follow-up priorities
 - Comprehensive timestamp tracking for the full lead lifecycle
 
@@ -66,6 +69,17 @@ This document provides an overview of the data architecture strategy behind the 
 - Includes professional networking information and preferred contact methods
 - Contains AI annotation fields for relationship strength and contact summaries
 - Tracks temporal data for contact scheduling and follow-up
+
+### `ai_interactions`
+- Stores inference conversations between the AI assistant and users or leads
+- Includes prompt, response, model metadata, temperature, and summary fields
+- Useful for audit trails, training, and summarization
+- Supports filtering by `type` (e.g., chat, follow-up, insight)
+
+### `support_tickets`
+- Stores customer service issues and resolutions
+- Tracks status, assigned agents, issue types, and AI-generated summaries
+- Allows AI to triage, summarize, or escalate based on history
 
 ### `lead_statuses`, `insurance_types`, `communication_types`, `campaigns`
 - Avoids scattering enums throughout your schema
@@ -102,6 +116,8 @@ This document provides an overview of the data architecture strategy behind the 
 - Risk assessment and opportunity scoring for prioritization
 - Automated workflow suggestions based on lead status and history
 - Personalized communication templates based on client preferences
+- Conversation history auditing and RAG-powered insight generation using `ai_interactions`
+- AI-assisted resolution generation and tagging in `support_tickets`
 
 ---
 
@@ -113,9 +129,8 @@ This document provides an overview of the data architecture strategy behind the 
 - Metadata fields allow for flexible extension without schema changes
 - Tag arrays enable dynamic categorization without fixed taxonomies
 - Expand `addresses` and `contacts` tables to support larger businesses with multiple sites and departments
+- Monitor JSON field usage and promote high-frequency fields to columns as needed
 
 ---
 
-This enhanced schema is designed to act as the backbone for a modern, AI-powered CRM platform where performance, clarity, AI utility, and intelligent workflow automation are all first-class priorities. By incorporating AI annotations, temporal tracking, schema versioning, and flexible metadata directly into the database structure, it provides a solid foundation for both current needs and future evolution.
-
-
+This enhanced schema is designed to act as the backbone for a modern, AI-powered CRM platform where performance, clarity, AI utility, and intelligent workflow automation are all first-class priorities. By incorporating AI annotations, temporal tracking, schema versioning, custom field flexibility, and conversational inference history directly into the database structure, it provides a solid foundation for both current needs and future evolution.

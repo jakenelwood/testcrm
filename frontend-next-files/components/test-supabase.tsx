@@ -4,7 +4,20 @@ import { useState, useEffect } from 'react';
 import supabase from '@/utils/supabase/client';
 import { Database } from '@/types/database.types';
 
-type Lead = Database['public']['Tables']['leads']['Row'];
+// Define a type for the lead with joined data
+type Lead = Database['public']['Tables']['leads']['Row'] & {
+  client?: {
+    name: string;
+    email: string | null;
+    phone_number: string | null;
+  } | null;
+  status?: {
+    value: string;
+  } | null;
+  insurance_type?: {
+    name: string;
+  } | null;
+};
 
 export default function TestSupabase() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -25,17 +38,23 @@ export default function TestSupabase() {
       try {
         setLoading(true);
 
-        // Safely attempt to query Supabase
+        // Safely attempt to query Supabase with proper joins
         try {
           const { data, error } = await supabase
             .from('leads')
-            .select('*')
+            .select(`
+              *,
+              client:client_id(*),
+              status:lead_statuses!inner(value),
+              insurance_type:insurance_types!inner(name)
+            `)
             .order('created_at', { ascending: false });
 
           if (error) {
             throw error;
           }
 
+          console.log('Fetched leads with joins:', data);
           setLeads(data || []);
         } catch (err) {
           console.error('Error fetching leads:', err);
@@ -88,12 +107,12 @@ export default function TestSupabase() {
               <tbody>
                 {leads.map((lead) => (
                   <tr key={lead.id}>
-                    <td className="px-4 py-2 border">{lead.first_name} {lead.last_name}</td>
-                    <td className="px-4 py-2 border">{lead.insurance_type}</td>
-                    <td className="px-4 py-2 border">{lead.status}</td>
+                    <td className="px-4 py-2 border">{lead.client?.name || 'Unknown'}</td>
+                    <td className="px-4 py-2 border">{lead.insurance_type?.name || 'Unknown'}</td>
+                    <td className="px-4 py-2 border">{lead.status?.value || 'Unknown'}</td>
                     <td className="px-4 py-2 border">{lead.current_carrier || 'None'}</td>
                     <td className="px-4 py-2 border">${lead.premium?.toFixed(2) || '0.00'}</td>
-                    <td className="px-4 py-2 border">{new Date(lead.created_at).toLocaleString()}</td>
+                    <td className="px-4 py-2 border">{lead.created_at ? new Date(lead.created_at).toLocaleString() : 'Unknown'}</td>
                   </tr>
                 ))}
               </tbody>

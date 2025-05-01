@@ -22,6 +22,41 @@ export type InsuranceType = 'Auto' | 'Home' | 'Specialty' | 'Commercial' | 'Liab
 // Client type (Individual or Business)
 export type ClientType = 'Individual' | 'Business';
 
+/**
+ * Pipeline interface that maps to the 'pipelines' table
+ * Represents a sales pipeline with its own set of statuses
+ */
+export interface Pipeline {
+  id: number;                // Unique identifier
+  name: string;              // Pipeline name
+  description?: string;      // Optional description
+  is_default: boolean;       // Whether this is the default pipeline
+  display_order?: number;    // Order for display in UI
+  created_at: string;        // When the pipeline was created
+  updated_at: string;        // When the pipeline was last updated
+
+  // Joined fields
+  statuses?: PipelineStatus[]; // Pipeline statuses (joined)
+}
+
+/**
+ * PipelineStatus interface that maps to the 'pipeline_statuses' table
+ * Represents a status within a specific pipeline
+ */
+export interface PipelineStatus {
+  id: number;                // Unique identifier
+  pipeline_id: number;       // Reference to pipeline
+  name: string;              // Status name
+  description?: string;      // Optional description
+  is_final?: boolean;        // Whether this is a final status
+  display_order: number;     // Order for display in UI
+  color_hex?: string;        // Color for UI display
+  icon_name?: string;        // Icon for UI display
+  ai_action_template?: string; // Template for AI-suggested actions
+  created_at: string;        // When the status was created
+  updated_at: string;        // When the status was last updated
+}
+
 // Address interface
 export interface Address {
   id: string;
@@ -70,7 +105,8 @@ export interface Client {
 export interface Lead {
   id: string;                    // Unique identifier (UUID)
   client_id: string;             // Reference to client
-  status_id: number;             // Reference to lead status
+  pipeline_id: number;           // Reference to pipeline
+  status_id: number;             // Reference to pipeline status
   insurance_type_id: number;     // Reference to insurance type
   assigned_to?: string;          // Who the lead is assigned to
   notes?: string;                // Optional notes about the lead
@@ -116,7 +152,8 @@ export interface Lead {
 
   // Joined fields (not in the database, but populated by joins)
   client?: Client;               // Client information (joined)
-  status?: string;               // Status value (joined from lead_statuses)
+  pipeline?: Pipeline;           // Pipeline information (joined)
+  status?: string;               // Status value (joined from pipeline_statuses)
   insurance_type?: string;       // Insurance type name (joined from insurance_types)
 
   // Legacy fields for backward compatibility during migration
@@ -165,7 +202,8 @@ export interface LeadCommunication {
  */
 export interface LeadFormValues {
   client_id: string;             // Reference to client
-  status_id: number;             // Reference to lead status
+  pipeline_id: number;           // Reference to pipeline
+  status_id: number;             // Reference to pipeline status
   insurance_type_id: number;     // Reference to insurance type
   assigned_to?: string;          // Who the lead is assigned to
   notes?: string;                // Optional notes about the lead
