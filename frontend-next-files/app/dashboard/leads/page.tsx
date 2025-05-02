@@ -69,7 +69,7 @@ import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { LeadDetailsModal } from "@/components/kanban/LeadDetailsModal";
 import { Lead, LeadStatus, Pipeline, PipelineStatus } from "@/types/lead";
 import supabase from '@/utils/supabase/client';
-import { fetchLeadsWithRelations, updateLeadStatus } from '@/utils/lead-api';
+import { fetchLeadsWithRelations, fetchLeadsByPipeline, updateLeadStatus } from '@/utils/lead-api';
 import { fetchPipelines, fetchPipelineById, fetchDefaultPipeline, updateLeadPipelineAndStatus } from '@/utils/pipeline-api';
 import { LeadListView } from "@/components/leads/LeadListView";
 import { PipelineSelector } from "@/components/pipelines/PipelineSelector";
@@ -265,28 +265,25 @@ function LeadsPageContent() {
     const fetchLeads = async () => {
       setIsLoading(true);
       try {
-        // Fetch all leads
-        const leadsData = await fetchLeadsWithRelations();
-
-        console.log('Fetched leads:', leadsData);
         console.log('Selected pipeline:', selectedPipeline);
 
-        let filteredLeadsData;
+        // Use server-side filtering to get leads for this pipeline
+        const isDefaultPipeline = selectedPipeline.name === 'Alpha' || selectedPipeline.is_default;
+        const leadsData = await fetchLeadsByPipeline(
+          selectedPipeline.id,
+          isDefaultPipeline // Include null pipeline_id leads for default pipeline
+        );
 
-        // If this is the Alpha pipeline (default), show all leads that don't have a pipeline_id
-        // as well as leads explicitly assigned to this pipeline
-        if (selectedPipeline.name === 'Alpha' || selectedPipeline.is_default) {
-          filteredLeadsData = leadsData.filter(lead =>
-            !lead.pipeline_id || lead.pipeline_id === selectedPipeline.id
-          );
+        console.log('Fetched leads with server-side filtering:', leadsData);
 
-          // First, set the leads in state so the UI can render quickly
-          setLeads(filteredLeadsData);
-          setFilteredLeads(filteredLeadsData);
-          setIsLoading(false);
+        // Set the leads in state immediately
+        setLeads(leadsData);
+        setFilteredLeads(leadsData);
 
+        // If this is the default pipeline, check for leads without pipeline_id and update them
+        if (isDefaultPipeline) {
           // If any leads don't have a pipeline_id, assign them to Alpha
-          const leadsToUpdate = filteredLeadsData.filter(lead => !lead.pipeline_id);
+          const leadsToUpdate = leadsData.filter(lead => !lead.pipeline_id);
           if (leadsToUpdate.length > 0) {
             console.log(`Assigning ${leadsToUpdate.length} leads to Alpha pipeline`);
 
@@ -309,7 +306,7 @@ function LeadsPageContent() {
               });
             });
 
-            // Process all updates concurrently
+            // Process all updates concurrently without waiting
             Promise.all(updatePromises)
               .then(() => {
                 console.log('All leads assigned to Alpha pipeline');
@@ -317,26 +314,13 @@ function LeadsPageContent() {
               .catch(error => {
                 console.error('Error assigning leads to Alpha pipeline:', error);
               });
-
-            // Continue with the rest of the function without waiting for updates to complete
-            return;
           }
-        } else {
-          // For other pipelines, only show leads explicitly assigned to this pipeline
-          filteredLeadsData = leadsData.filter(lead => lead.pipeline_id === selectedPipeline.id);
-
-          console.log('Filtered leads:', filteredLeadsData);
-
-          setLeads(filteredLeadsData);
-          setFilteredLeads(filteredLeadsData);
         }
       } catch (error) {
         console.error('Error fetching leads:', error);
       } finally {
-        // Only set loading to false if we haven't already done so for Alpha pipeline
-        if (!(selectedPipeline.name === 'Alpha' || selectedPipeline.is_default)) {
-          setIsLoading(false);
-        }
+        // Always set loading to false after data is loaded
+        setIsLoading(false);
       }
     };
 
