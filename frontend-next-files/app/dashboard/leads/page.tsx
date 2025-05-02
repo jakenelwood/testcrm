@@ -328,86 +328,20 @@ function LeadsPageContent() {
 
     // Set up real-time subscription only for leads in this pipeline
     // This is more efficient than subscribing to all lead changes
-    const channelName = `leads-changes-pipeline-${selectedPipeline.id}`;
+    // Use a simpler approach to avoid initialization issues
     const subscription = supabase
-      .channel(channelName)
+      .channel('leads-changes')
       .on('postgres_changes', {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: 'leads',
         filter: `pipeline_id=eq.${selectedPipeline.id}`
       }, (payload) => {
-        console.log('Received INSERT for lead in pipeline:', selectedPipeline.id);
-        // Refresh leads when a new lead is added
+        console.log('Received change for lead in pipeline:', selectedPipeline.id, payload.eventType);
+
+        // Simply refresh leads when any change occurs
+        // This is less efficient but more reliable
         fetchLeads();
-      })
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'leads',
-        filter: `pipeline_id=eq.${selectedPipeline.id}`
-      }, (payload) => {
-        console.log('Received UPDATE for lead in pipeline:', selectedPipeline.id);
-        // For updates, we can be more efficient by just updating the specific lead
-        // instead of refetching all leads
-        const updatedLead = payload.new as Lead;
-
-        // Update both leads and filteredLeads states
-        setLeads(prevLeads =>
-          prevLeads.map(lead =>
-            lead.id === updatedLead.id ? { ...lead, ...updatedLead } : lead
-          )
-        );
-
-        // Also update filteredLeads to keep them in sync
-        setFilteredLeads(prevFilteredLeads => {
-          // Check if this lead is in the filtered list
-          const leadInFiltered = prevFilteredLeads.some(lead => lead.id === updatedLead.id);
-
-          // If the lead is in the filtered list, update it
-          if (leadInFiltered) {
-            return prevFilteredLeads.map(lead =>
-              lead.id === updatedLead.id ? { ...lead, ...updatedLead } : lead
-            );
-          }
-
-          // If the lead is not in the filtered list but now matches the search query, add it
-          if (searchQuery.trim() !== '') {
-            const query = searchQuery.toLowerCase();
-            const matchesSearch =
-              updatedLead.first_name?.toLowerCase().includes(query) ||
-              updatedLead.last_name?.toLowerCase().includes(query) ||
-              updatedLead.email?.toLowerCase().includes(query) ||
-              updatedLead.phone_number?.toLowerCase().includes(query);
-
-            if (matchesSearch) {
-              return [...prevFilteredLeads, updatedLead];
-            }
-          }
-
-          // Otherwise, return the filtered list unchanged
-          return prevFilteredLeads;
-        });
-      })
-      .on('postgres_changes', {
-        event: 'DELETE',
-        schema: 'public',
-        table: 'leads',
-        filter: `pipeline_id=eq.${selectedPipeline.id}`
-      }, (payload) => {
-        console.log('Received DELETE for lead in pipeline:', selectedPipeline.id);
-        // For deletes, we can just remove the lead from both states
-        const deletedLead = payload.old as Lead;
-
-        // Remove from leads state
-        setLeads(prevLeads =>
-          prevLeads.filter(lead => lead.id !== deletedLead.id)
-        );
-
-        // Also remove from filteredLeads state
-        setFilteredLeads(prevFilteredLeads =>
-          prevFilteredLeads.filter(lead => lead.id !== deletedLead.id)
-        );
       })
       .subscribe();
 
