@@ -115,29 +115,6 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(true);
 
-  // Fetch pipelines on component mount
-  useEffect(() => {
-    const loadPipelines = async () => {
-      try {
-        setIsLoadingPipelines(true);
-        const data = await fetchPipelines();
-        setPipelines(data);
-
-        // If we have a default pipeline, set it as the default value
-        const defaultPipeline = data.find(p => p.is_default);
-        if (defaultPipeline && form) {
-          form.setValue('pipeline_id', defaultPipeline.id);
-        }
-      } catch (error) {
-        console.error('Error loading pipelines:', error);
-      } finally {
-        setIsLoadingPipelines(false);
-      }
-    };
-
-    loadPipelines();
-  }, [form]);
-
   // Initialize form with default values
   const form = useForm<ClientInfoFormValues>({
     resolver: zodResolver(formSchema),
@@ -165,6 +142,29 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
     },
   });
 
+  // Fetch pipelines on component mount
+  useEffect(() => {
+    const loadPipelines = async () => {
+      try {
+        setIsLoadingPipelines(true);
+        const data = await fetchPipelines();
+        setPipelines(data);
+
+        // If we have a default pipeline, set it as the default value
+        const defaultPipeline = data.find(p => p.is_default);
+        if (defaultPipeline) {
+          form.setValue('pipeline_id', defaultPipeline.id);
+        }
+      } catch (error) {
+        console.error('Error loading pipelines:', error);
+      } finally {
+        setIsLoadingPipelines(false);
+      }
+    };
+
+    loadPipelines();
+  }, [form]);
+
   // Watch for ZIP code changes
   const zipCode = form.watch('zip_code');
 
@@ -182,8 +182,8 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
   }, [zipCode, form]);
 
   // Handle form submission
-  const handleSubmit = (values: ClientInfoFormValues) => {
-    onSubmit(values);
+  const handleFormSubmit = (values: any) => {
+    onSubmit(values as ClientInfoFormValues);
   };
 
   return (
@@ -191,7 +191,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
       <Card>
         <CardContent className="pt-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}

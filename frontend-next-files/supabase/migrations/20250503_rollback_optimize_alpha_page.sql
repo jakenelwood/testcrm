@@ -13,3 +13,7 @@ DROP INDEX IF EXISTS idx_leads_insurance_type_id;
 DROP INDEX IF EXISTS idx_clients_name_trgm;
 DROP INDEX IF EXISTS idx_clients_email_trgm;
 DROP INDEX IF EXISTS idx_clients_phone_trgm;
+
+-- Note: We're not dropping the pg_trgm extension as it might be used by other features
+-- If you want to drop it, uncomment the line below:
+-- DROP EXTENSION IF EXISTS pg_trgm;
