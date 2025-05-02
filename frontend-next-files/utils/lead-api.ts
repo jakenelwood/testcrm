@@ -69,7 +69,6 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
  */
 export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeline: boolean = false): Promise<Lead[]> {
   try {
-    // Use the query analyzer to measure performance
     return await analyzeQuery(`fetchLeadsByPipeline(${pipelineId}, ${includeNullPipeline})`, async () => {
       // Start building the query
       let query = supabase
@@ -80,7 +79,7 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
           status:lead_statuses!inner(value),
           insurance_type:insurance_types!inner(name)
         `);
-
+      
       // Apply pipeline filtering at the database level
       if (includeNullPipeline) {
         // For default pipeline, include leads with null pipeline_id OR matching pipeline_id
@@ -89,7 +88,7 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
         // For other pipelines, only include leads with matching pipeline_id
         query = query.eq('pipeline_id', pipelineId);
       }
-
+      
       // Execute the query with ordering
       const { data, error } = await query.order('created_at', { ascending: false });
 
@@ -97,7 +96,7 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
         console.error('Error fetching leads by pipeline:', error);
         throw error;
       }
-
+      
       // Process the leads to ensure they have the expected structure for legacy components
       const processedLeads = data?.map(lead => {
         // Create a processed lead with the new schema structure
@@ -123,31 +122,6 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
 
       return processedLeads;
     });
-  } catch (err) {
-    console.error('Error in fetchLeadsByPipeline:', err);
-    throw err;
-  }
-      const processedLead: Lead = {
-        ...lead,
-        // Map joined fields to their expected properties
-        status: typeof lead.status === 'object' && lead.status?.value ? lead.status.value : 'New',
-        insurance_type: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name : 'Auto',
-
-        // Add legacy fields from client data for backward compatibility
-        first_name: typeof lead.client === 'object' && lead.client?.name ? lead.client.name.split(' ')[0] : '',
-        last_name: typeof lead.client === 'object' && lead.client?.name ? lead.client.name.split(' ').slice(1).join(' ') : '',
-        email: typeof lead.client === 'object' ? lead.client?.email || '' : '',
-        phone_number: typeof lead.client === 'object' ? lead.client?.phone_number || '' : '',
-
-        // Ensure we have status_legacy and insurance_type_legacy for compatibility
-        status_legacy: typeof lead.status === 'object' && lead.status?.value ? lead.status.value as LeadStatus : 'New',
-        insurance_type_legacy: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name as InsuranceType : 'Auto'
-      };
-
-      return processedLead;
-    }) || [];
-
-    return processedLeads;
   } catch (err) {
     console.error('Error in fetchLeadsByPipeline:', err);
     throw err;
