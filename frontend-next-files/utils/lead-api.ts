@@ -79,7 +79,7 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
           status:lead_statuses!inner(value),
           insurance_type:insurance_types!inner(name)
         `);
-      
+
       // Apply pipeline filtering at the database level
       if (includeNullPipeline) {
         // For default pipeline, include leads with null pipeline_id OR matching pipeline_id
@@ -88,15 +88,17 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
         // For other pipelines, only include leads with matching pipeline_id
         query = query.eq('pipeline_id', pipelineId);
       }
-      
+
       // Execute the query with ordering
+      // Note: This will use the idx_leads_pipeline_created_at composite index
+      // which is optimized for filtering by pipeline_id and sorting by created_at
       const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching leads by pipeline:', error);
         throw error;
       }
-      
+
       // Process the leads to ensure they have the expected structure for legacy components
       const processedLeads = data?.map(lead => {
         // Create a processed lead with the new schema structure
