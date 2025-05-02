@@ -280,39 +280,63 @@ function LeadsPageContent() {
             !lead.pipeline_id || lead.pipeline_id === selectedPipeline.id
           );
 
+          // First, set the leads in state so the UI can render quickly
+          setLeads(filteredLeadsData);
+          setFilteredLeads(filteredLeadsData);
+          setIsLoading(false);
+
           // If any leads don't have a pipeline_id, assign them to Alpha
           const leadsToUpdate = filteredLeadsData.filter(lead => !lead.pipeline_id);
           if (leadsToUpdate.length > 0) {
             console.log(`Assigning ${leadsToUpdate.length} leads to Alpha pipeline`);
 
-            // Update each lead to have the Alpha pipeline_id
-            for (const lead of leadsToUpdate) {
-              try {
-                await updateLeadPipelineAndStatus(
-                  lead.id,
-                  selectedPipeline.id,
-                  lead.status_id || 1 // Use existing status_id or default to 1 (New)
-                );
+            // Create an array of promises for all updates
+            const updatePromises = leadsToUpdate.map(lead => {
+              return updateLeadPipelineAndStatus(
+                lead.id,
+                selectedPipeline.id,
+                lead.status_id || 1 // Use existing status_id or default to 1 (New)
+              )
+              .then(() => {
                 // Update the lead in our local state
                 lead.pipeline_id = selectedPipeline.id;
-              } catch (error) {
+                return lead;
+              })
+              .catch(error => {
                 console.error(`Error assigning lead ${lead.id} to Alpha pipeline:`, error);
-              }
-            }
+                // Return a resolved promise to prevent Promise.all from failing
+                return Promise.resolve(lead);
+              });
+            });
+
+            // Process all updates concurrently
+            Promise.all(updatePromises)
+              .then(() => {
+                console.log('All leads assigned to Alpha pipeline');
+              })
+              .catch(error => {
+                console.error('Error assigning leads to Alpha pipeline:', error);
+              });
+
+            // Continue with the rest of the function without waiting for updates to complete
+            return;
           }
         } else {
           // For other pipelines, only show leads explicitly assigned to this pipeline
           filteredLeadsData = leadsData.filter(lead => lead.pipeline_id === selectedPipeline.id);
+
+          console.log('Filtered leads:', filteredLeadsData);
+
+          setLeads(filteredLeadsData);
+          setFilteredLeads(filteredLeadsData);
         }
-
-        console.log('Filtered leads:', filteredLeadsData);
-
-        setLeads(filteredLeadsData);
-        setFilteredLeads(filteredLeadsData);
       } catch (error) {
         console.error('Error fetching leads:', error);
       } finally {
-        setIsLoading(false);
+        // Only set loading to false if we haven't already done so for Alpha pipeline
+        if (!(selectedPipeline.name === 'Alpha' || selectedPipeline.is_default)) {
+          setIsLoading(false);
+        }
       }
     };
 
