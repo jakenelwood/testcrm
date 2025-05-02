@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { createPipelineStatus, updatePipelineStatus, deletePipelineStatus } from "@/utils/pipeline-api";
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -33,12 +33,12 @@ interface PipelineStatusEditorProps {
   onCancel?: () => void;
 }
 
-export function PipelineStatusEditor({ 
-  mode, 
-  pipelineId, 
-  status, 
-  onStatusCreated, 
-  onStatusUpdated, 
+export function PipelineStatusEditor({
+  mode,
+  pipelineId,
+  status,
+  onStatusCreated,
+  onStatusUpdated,
   onStatusDeleted,
   onCancel
 }: PipelineStatusEditorProps) {
@@ -160,7 +160,7 @@ export function PipelineStatusEditor({
             required
           />
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <Textarea
@@ -172,7 +172,7 @@ export function PipelineStatusEditor({
             rows={2}
           />
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="color_hex">Color</Label>
           <div className="flex items-center space-x-2">
@@ -193,7 +193,7 @@ export function PipelineStatusEditor({
             />
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="icon_name">Icon Name</Label>
           <Input
@@ -207,7 +207,7 @@ export function PipelineStatusEditor({
             Enter a Lucide icon name (optional)
           </p>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <Switch
             id="is_final"
@@ -216,7 +216,7 @@ export function PipelineStatusEditor({
           />
           <Label htmlFor="is_final">This is a final status (e.g., Sold, Lost)</Label>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="ai_action_template">AI Action Template</Label>
           <Textarea
@@ -228,7 +228,7 @@ export function PipelineStatusEditor({
             rows={3}
           />
           <p className="text-xs text-muted-foreground">
-            Use {placeholders} for dynamic content (optional)
+            Use {'{placeholders}'} for dynamic content (optional)
           </p>
         </div>
       </CardContent>
@@ -267,7 +267,7 @@ export function PipelineStatusEditor({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            
+
             <Button onClick={handleSave} disabled={isSaving || !formData.name.trim()}>
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving..." : "Save Changes"}

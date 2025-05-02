@@ -37,7 +37,7 @@
  * - Handles lead selection and passes it back to the parent
  */
 
-import { Lead, LeadStatus } from "@/types/lead";
+import { Lead, LeadStatus, PipelineStatus } from "@/types/lead";
 import { KanbanColumn } from "./KanbanColumn";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -48,19 +48,23 @@ interface KanbanBoardProps {
   leads: Lead[];                       // Array of lead objects to display
   isLoading: boolean;                  // Loading state flag
   onLeadSelect: (lead: Lead) => void;  // Callback for when a lead is selected/clicked
+  statuses?: PipelineStatus[];         // Optional array of pipeline statuses
 }
 
-export function KanbanBoard({ leads, isLoading, onLeadSelect }: KanbanBoardProps) {
-  // Define all possible statuses (uppercase to match database)
+export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipelineStatuses }: KanbanBoardProps) {
+  // Define default statuses if none are provided
   // These statuses represent the different stages in the sales pipeline
-  const statuses: LeadStatus[] = ['New', 'Contacted', 'Quoted', 'Sold', 'Lost'];
+  const defaultStatuses: LeadStatus[] = ['New', 'Contacted', 'Quoted', 'Sold', 'Lost'];
+
+  // Use provided pipeline statuses or fall back to default
+  const statuses = pipelineStatuses?.map(s => s.name as LeadStatus) || defaultStatuses;
 
   // Group leads by status for efficient rendering in columns
   // This creates a dictionary where keys are statuses and values are arrays of leads
   const leadsByStatus = statuses.reduce((acc, status) => {
     acc[status] = leads.filter(lead => lead.status === status);
     return acc;
-  }, {} as Record<LeadStatus, Lead[]>);
+  }, {} as Record<string, Lead[]>);
 
   // Display a loading skeleton when data is being fetched
   // This provides a better user experience than an empty state or loading spinner

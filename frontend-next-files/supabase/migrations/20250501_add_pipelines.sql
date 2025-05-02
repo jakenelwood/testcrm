@@ -25,7 +25,7 @@ CREATE TABLE pipeline_statuses (
   ai_action_template TEXT,             -- Template for AI-suggested actions at this status
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Ensure unique status names within a pipeline
   UNIQUE(pipeline_id, name)
 );
@@ -35,27 +35,27 @@ ALTER TABLE leads ADD COLUMN pipeline_id INT REFERENCES pipelines(id);
 
 -- Create a default pipeline
 INSERT INTO pipelines (name, description, is_default, display_order)
-VALUES ('Default Sales Pipeline', 'Standard sales pipeline for insurance leads', TRUE, 1);
+VALUES ('Alpha', 'Standard sales pipeline for insurance leads', TRUE, 1);
 
 -- Migrate existing lead_statuses to pipeline_statuses for the default pipeline
 INSERT INTO pipeline_statuses (
-  pipeline_id, 
-  name, 
-  description, 
-  is_final, 
-  display_order, 
-  color_hex, 
-  icon_name, 
+  pipeline_id,
+  name,
+  description,
+  is_final,
+  display_order,
+  color_hex,
+  icon_name,
   ai_action_template
 )
-SELECT 
+SELECT
   1 as pipeline_id, -- Default pipeline ID
-  value as name, 
-  description, 
-  is_final, 
-  display_order, 
-  color_hex, 
-  icon_name, 
+  value as name,
+  description,
+  is_final,
+  display_order,
+  color_hex,
+  icon_name,
   ai_action_template
 FROM lead_statuses;
 

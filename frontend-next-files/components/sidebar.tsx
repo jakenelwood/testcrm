@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -8,11 +9,37 @@ import {
   FileText,
   LayoutDashboard,
   Settings,
-  Users
+  Users,
+  ChevronDown,
+  ChevronRight,
+  PlusCircle,
+  Settings2
 } from "lucide-react";
+import { fetchPipelines } from "@/utils/pipeline-api";
+import { Pipeline } from "@/types/lead";
 
 export function Sidebar() {
   const pathname = usePathname() || '';
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+  const [isPipelinesOpen, setIsPipelinesOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch pipelines on component mount
+  useEffect(() => {
+    const loadPipelines = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchPipelines();
+        setPipelines(data);
+      } catch (error) {
+        console.error('Error loading pipelines:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPipelines();
+  }, []);
 
   const routes = [
     {
@@ -21,14 +48,6 @@ export function Sidebar() {
       href: "/dashboard",
       active: pathname === "/dashboard",
       iconColor: "text-[#003058]",
-      variant: undefined
-    },
-    {
-      label: "Leads",
-      icon: FileText,
-      href: "/dashboard/leads",
-      active: pathname.startsWith("/dashboard/leads"),
-      iconColor: "text-[#24605E]",
       variant: undefined
     },
     {
@@ -77,7 +96,68 @@ export function Sidebar() {
               </Link>
             </Button>
           ))}
+
+          {/* Pipelines Section */}
+          <div className="mt-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-between"
+              size="sm"
+              onClick={() => setIsPipelinesOpen(!isPipelinesOpen)}
+            >
+              <div className="flex items-center">
+                <FileText className="mr-2 h-4 w-4 text-[#24605E]" />
+                <span>Pipelines</span>
+              </div>
+              {isPipelinesOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+
+            {isPipelinesOpen && (
+              <div className="ml-6 mt-1 space-y-1">
+                <Button
+                  asChild
+                  variant={pathname === "/pipelines" ? "secondary" : "ghost"}
+                  className="w-full justify-start"
+                  size="sm"
+                >
+                  <Link href="/pipelines">
+                    <Settings2 className="mr-2 h-4 w-4" />
+                    Manage Pipelines
+                  </Link>
+                </Button>
+
+                {isLoading ? (
+                  <div className="py-2 px-4 text-sm text-muted-foreground">Loading...</div>
+                ) : pipelines.length === 0 ? (
+                  <div className="py-2 px-4 text-sm text-muted-foreground">No pipelines found</div>
+                ) : (
+                  pipelines.map((pipeline) => (
+                    <Button
+                      key={pipeline.id}
+                      asChild
+                      variant={pathname === `/leads?pipeline=${pipeline.id}` ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                      size="sm"
+                    >
+                      <Link href={`/leads?pipeline=${pipeline.id}`}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        {pipeline.name}
+                        {pipeline.is_default && (
+                          <span className="ml-2 text-xs text-muted-foreground">(Default)</span>
+                        )}
+                      </Link>
+                    </Button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </nav>
+
         <nav className="grid gap-1 px-2 mt-4 pt-4 border-t">
           {secondaryRoutes.map((route, i) => (
             <Button

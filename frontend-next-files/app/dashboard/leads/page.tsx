@@ -8,11 +8,12 @@
  * and manage leads across different stages of the sales pipeline.
  *
  * Written in React (TSX) with Next.js App Router, this page:
- * - Fetches leads from Supabase
+ * - Fetches leads from Supabase for the selected pipeline
  * - Implements real-time updates with Supabase subscriptions
  * - Provides search functionality for leads
  * - Implements drag-and-drop for moving leads between statuses
  * - Displays lead details in a modal
+ * - Supports multiple pipelines with different statuses
  *
  * ARCHITECTURE ROLE:
  * This is a page component in the presentation layer of the application.
@@ -24,14 +25,15 @@
  * - dnd-kit for drag-and-drop functionality
  * - Supabase client for database operations
  * - UI components from shadcn/ui
- * - Custom components: KanbanBoard, LeadDetailsModal
+ * - Custom components: KanbanBoard, LeadDetailsModal, PipelineSelector
  *
  * DATA FLOW:
- * 1. Fetches leads from Supabase on initial load
- * 2. Sets up real-time subscription for lead updates
- * 3. Handles search filtering of leads
- * 4. Manages drag-and-drop operations to update lead statuses
- * 5. Opens lead details modal when a lead is clicked
+ * 1. Fetches pipelines and the selected pipeline's statuses
+ * 2. Fetches leads for the selected pipeline
+ * 3. Sets up real-time subscription for lead updates
+ * 4. Handles search filtering of leads
+ * 5. Manages drag-and-drop operations to update lead statuses
+ * 6. Opens lead details modal when a lead is clicked
  */
 
 import { useState, useEffect } from 'react';
@@ -39,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   DndContext,
   closestCenter,
@@ -64,10 +67,12 @@ import {
 import { Search, LayoutGrid, List } from "lucide-react";
 import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { LeadDetailsModal } from "@/components/kanban/LeadDetailsModal";
-import { Lead, LeadStatus } from "@/types/lead";
+import { Lead, LeadStatus, Pipeline, PipelineStatus } from "@/types/lead";
 import supabase from '@/utils/supabase/client';
 import { fetchLeadsWithRelations, updateLeadStatus } from '@/utils/lead-api';
+import { fetchPipelines, fetchPipelineById, fetchDefaultPipeline, updateLeadPipelineAndStatus } from '@/utils/pipeline-api';
 import { LeadListView } from "@/components/leads/LeadListView";
+import { PipelineSelector } from "@/components/pipelines/PipelineSelector";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 /**
@@ -80,6 +85,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
  * @returns The rendered leads page with Kanban board and related functionality
  */
 export default function LeadsPage() {
+  const searchParams = useSearchParams();
+
   // State for all leads fetched from the database
   const [leads, setLeads] = useState<Lead[]>([]);
 
@@ -103,6 +110,15 @@ export default function LeadsPage() {
 
   // State for the current view (kanban or list)
   const [currentView, setCurrentView] = useState<'kanban' | 'list'>('kanban');
+
+  // State for pipelines
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+
+  // State for the selected pipeline
+  const [selectedPipeline, setSelectedPipeline] = useState<Pipeline | null>(null);
+
+  // State for loading pipelines
+  const [isPipelinesLoading, setIsPipelinesLoading] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -211,15 +227,57 @@ export default function LeadsPage() {
     });
   };
 
-  // Fetch leads from Supabase with proper joins
+  // Fetch pipelines and leads
   useEffect(() => {
+    const loadPipelines = async () => {
+      setIsPipelinesLoading(true);
+      try {
+        // Fetch all pipelines
+        const pipelinesData = await fetchPipelines();
+        setPipelines(pipelinesData);
+
+        // Get pipeline ID from URL or use default
+        const pipelineIdParam = searchParams.get('pipeline');
+        let pipelineToUse: Pipeline | null = null;
+
+        if (pipelineIdParam) {
+          // If pipeline ID is in URL, fetch that specific pipeline
+          const pipelineId = parseInt(pipelineIdParam);
+          pipelineToUse = await fetchPipelineById(pipelineId);
+        } else {
+          // Otherwise, use the default pipeline
+          pipelineToUse = await fetchDefaultPipeline();
+        }
+
+        setSelectedPipeline(pipelineToUse);
+      } catch (error) {
+        console.error('Error loading pipelines:', error);
+      } finally {
+        setIsPipelinesLoading(false);
+      }
+    };
+
+    loadPipelines();
+  }, [searchParams]);
+
+  // Fetch leads for the selected pipeline
+  useEffect(() => {
+    if (!selectedPipeline) return;
+
     const fetchLeads = async () => {
       setIsLoading(true);
       try {
-        // Use the fetchLeadsWithRelations function from lead-api.ts
+        // TODO: Update fetchLeadsWithRelations to filter by pipeline_id
+        // For now, we'll fetch all leads and filter client-side
         const leadsData = await fetchLeadsWithRelations();
-        setLeads(leadsData);
-        setFilteredLeads(leadsData);
+
+        // Filter leads by pipeline_id
+        const filteredLeadsData = leadsData.filter(lead =>
+          lead.pipeline_id === selectedPipeline.id
+        );
+
+        setLeads(filteredLeadsData);
+        setFilteredLeads(filteredLeadsData);
       } catch (error) {
         console.error('Error fetching leads:', error);
       } finally {
@@ -245,7 +303,7 @@ export default function LeadsPage() {
       // Ensure dragging class is removed if component unmounts during drag
       document.body.classList.remove('dragging');
     };
-  }, []);
+  }, [selectedPipeline]);
 
   // Filter leads based on search query
   useEffect(() => {
@@ -285,33 +343,19 @@ export default function LeadsPage() {
     // Remove the dragging class from the body
     document.body.classList.remove('dragging');
 
-    if (over && active.id !== over.id) {
+    if (over && active.id !== over.id && selectedPipeline?.statuses) {
       const leadId = active.id as string;
+      const statusName = over.id as string;
 
-      // Get the status ID from the column ID
-      let statusId: number;
+      // Find the status in the selected pipeline
+      const status = selectedPipeline.statuses.find(s => s.name === statusName);
 
-      // Map the column ID to the status ID in the database
-      switch (over.id) {
-        case 'New':
-          statusId = 1;
-          break;
-        case 'Contacted':
-          statusId = 2;
-          break;
-        case 'Quoted':
-          statusId = 3;
-          break;
-        case 'Sold':
-          statusId = 4;
-          break;
-        case 'Lost':
-          statusId = 5;
-          break;
-        default:
-          console.error('Unknown status:', over.id);
-          return; // Exit if status is unknown
+      if (!status) {
+        console.error('Unknown status:', statusName);
+        return; // Exit if status is unknown
       }
+
+      const statusId = status.id;
 
       console.log('Moving lead', leadId, 'to status ID:', statusId);
 
@@ -322,21 +366,17 @@ export default function LeadsPage() {
         return;
       }
 
-      // Get the status value for UI update
-      const newStatus = over.id as LeadStatus;
-
       // Update lead status in state
       setLeads((prevLeads) =>
         prevLeads.map((lead) =>
-          lead.id === leadId ? { ...lead, status: newStatus } : lead
+          lead.id === leadId ? { ...lead, status: statusName } : lead
         )
       );
 
       try {
-        // Use the updateLeadStatus function from lead-api.ts
-        await updateLeadStatus(leadId, statusId);
+        // Use the updateLeadPipelineAndStatus function from pipeline-api.ts
+        await updateLeadPipelineAndStatus(leadId, selectedPipeline.id, statusId);
       } catch (error) {
-
         console.error('Error updating lead status:', error);
         // Revert the state change if the update fails
         try {
@@ -377,10 +417,39 @@ export default function LeadsPage() {
     setSelectedLead(updatedLead);
   };
 
+  // Handle pipeline change
+  const handlePipelineChange = (pipelineId: number) => {
+    // Find the pipeline
+    const pipeline = pipelines.find(p => p.id === pipelineId);
+    if (pipeline) {
+      setSelectedPipeline(pipeline);
+
+      // Update URL with the pipeline ID
+      const url = new URL(window.location.href);
+      url.searchParams.set('pipeline', pipelineId.toString());
+      window.history.pushState({}, '', url.toString());
+    }
+  };
+
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Leads</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <h1 className="text-3xl font-bold">
+            {selectedPipeline ? selectedPipeline.name : 'Pipeline'}
+          </h1>
+
+          {/* Pipeline Selector */}
+          {!isPipelinesLoading && pipelines.length > 0 && selectedPipeline && (
+            <PipelineSelector
+              pipelines={pipelines}
+              selectedPipelineId={selectedPipeline.id}
+              onPipelineChange={handlePipelineChange}
+              isLoading={isPipelinesLoading}
+            />
+          )}
+        </div>
+
         <Button
           asChild
           className="bg-black hover:bg-gray-800 text-white"
@@ -432,11 +501,18 @@ export default function LeadsPage() {
             }
           }}
         >
-          <KanbanBoard
-            leads={filteredLeads}
-            isLoading={isLoading}
-            onLeadSelect={handleLeadSelect}
-          />
+          {selectedPipeline?.statuses ? (
+            <KanbanBoard
+              leads={filteredLeads}
+              isLoading={isLoading || isPipelinesLoading}
+              onLeadSelect={handleLeadSelect}
+              statuses={selectedPipeline.statuses}
+            />
+          ) : (
+            <div className="text-center py-10">
+              {isPipelinesLoading ? 'Loading pipeline...' : 'No pipeline statuses found'}
+            </div>
+          )}
 
           <DragOverlay dropAnimation={{
             duration: 300,
@@ -487,9 +563,18 @@ export default function LeadsPage() {
       ) : (
         <LeadListView
           leads={filteredLeads}
-          isLoading={isLoading}
+          isLoading={isLoading || isPipelinesLoading}
           onLeadSelect={handleLeadSelect}
           onStatusChange={(leadId, newStatus) => {
+            if (!selectedPipeline?.statuses) return;
+
+            // Find the status in the selected pipeline
+            const status = selectedPipeline.statuses.find(s => s.name === newStatus);
+            if (!status) {
+              console.error('Unknown status:', newStatus);
+              return;
+            }
+
             // Update lead status in state
             setLeads((prevLeads) =>
               prevLeads.map((lead) =>
@@ -497,18 +582,8 @@ export default function LeadsPage() {
               )
             );
 
-            // Get the status ID based on the status name
-            let statusId = 1; // Default to "New" (ID: 1)
-            switch (newStatus) {
-              case 'New': statusId = 1; break;
-              case 'Contacted': statusId = 2; break;
-              case 'Quoted': statusId = 3; break;
-              case 'Sold': statusId = 4; break;
-              case 'Lost': statusId = 5; break;
-            }
-
             // Update lead status in database
-            updateLeadStatus(leadId, statusId).catch(error => {
+            updateLeadPipelineAndStatus(leadId, selectedPipeline.id, status.id).catch(error => {
               console.error('Error updating lead status:', error);
               // Revert the state change if the update fails
               fetchLeadsWithRelations().then(leadsData => {
@@ -525,6 +600,7 @@ export default function LeadsPage() {
               });
             });
           }}
+          statuses={selectedPipeline?.statuses || []}
         />
       )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Lead, LeadStatus } from "@/types/lead";
+import { Lead, LeadStatus, PipelineStatus } from "@/types/lead";
 import { LeadStatusDropdown } from "./LeadStatusDropdown";
 import {
   Table,
@@ -16,10 +16,11 @@ interface LeadListViewProps {
   leads: Lead[];
   isLoading: boolean;
   onLeadSelect: (lead: Lead) => void;
-  onStatusChange: (leadId: string, newStatus: LeadStatus) => void;
+  onStatusChange: (leadId: string, newStatus: string) => void;
+  statuses?: PipelineStatus[];
 }
 
-export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange }: LeadListViewProps) {
+export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, statuses = [] }: LeadListViewProps) {
   // Format date for display
   const formatDisplayDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -70,8 +71,8 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange }:
             </TableRow>
           ) : (
             leads.map((lead) => (
-              <TableRow 
-                key={lead.id} 
+              <TableRow
+                key={lead.id}
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => onLeadSelect(lead)}
               >
@@ -100,8 +101,9 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange }:
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <LeadStatusDropdown
                     leadId={lead.id}
-                    currentStatus={lead.status as LeadStatus}
+                    currentStatus={lead.status}
                     onStatusChange={onStatusChange}
+                    statuses={statuses}
                   />
                 </TableCell>
                 <TableCell>
