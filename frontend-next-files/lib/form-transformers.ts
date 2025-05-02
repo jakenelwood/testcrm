@@ -2,22 +2,22 @@
 // the structure in auto-insurance-form.tsx
 
 // Add vehicle pattern types to match the form values
-type VehicleFieldPattern = 
-  | "v1yr" | "v1make" | "v1model" | "v1vin" | "v1usage" | "v1mi" | "v1-driver" 
+type VehicleFieldPattern =
+  | "v1yr" | "v1make" | "v1model" | "v1vin" | "v1usage" | "v1mi" | "v1-driver"
   | "v1comp" | "v1coll" | "v1glass" | "v1tow" | "v1rr" | "v1fin" | "v1gap"
-  | "v2yr" | "v2make" | "v2model" | "v2vin" | "v2usage" | "v2mi" | "v2-driver" 
+  | "v2yr" | "v2make" | "v2model" | "v2vin" | "v2usage" | "v2mi" | "v2-driver"
   | "v2comp" | "v2coll" | "v2glass" | "v2tow" | "v2rr" | "v2fin" | "v2gap"
-  | "v3yr" | "v3make" | "v3model" | "v3vin" | "v3usage" | "v3mi" | "v3-driver" 
+  | "v3yr" | "v3make" | "v3model" | "v3vin" | "v3usage" | "v3mi" | "v3-driver"
   | "v3comp" | "v3coll" | "v3glass" | "v3tow" | "v3rr" | "v3fin" | "v3gap"
-  | "v4yr" | "v4make" | "v4model" | "v4vin" | "v4usage" | "v4mi" | "v4-driver" 
+  | "v4yr" | "v4make" | "v4model" | "v4vin" | "v4usage" | "v4mi" | "v4-driver"
   | "v4comp" | "v4coll" | "v4glass" | "v4tow" | "v4rr" | "v4fin" | "v4gap"
-  | "v5yr" | "v5make" | "v5model" | "v5vin" | "v5usage" | "v5mi" | "v5-driver" 
+  | "v5yr" | "v5make" | "v5model" | "v5vin" | "v5usage" | "v5mi" | "v5-driver"
   | "v5comp" | "v5coll" | "v5glass" | "v5tow" | "v5rr" | "v5fin" | "v5gap"
-  | "v6yr" | "v6make" | "v6model" | "v6vin" | "v6usage" | "v6mi" | "v6-driver" 
+  | "v6yr" | "v6make" | "v6model" | "v6vin" | "v6usage" | "v6mi" | "v6-driver"
   | "v6comp" | "v6coll" | "v6glass" | "v6tow" | "v6rr" | "v6fin" | "v6gap"
-  | "v7yr" | "v7make" | "v7model" | "v7vin" | "v7usage" | "v7mi" | "v7-driver" 
+  | "v7yr" | "v7make" | "v7model" | "v7vin" | "v7usage" | "v7mi" | "v7-driver"
   | "v7comp" | "v7coll" | "v7glass" | "v7tow" | "v7rr" | "v7fin" | "v7gap"
-  | "v8yr" | "v8make" | "v8model" | "v8vin" | "v8usage" | "v8mi" | "v8-driver" 
+  | "v8yr" | "v8make" | "v8model" | "v8vin" | "v8usage" | "v8mi" | "v8-driver"
   | "v8comp" | "v8coll" | "v8glass" | "v8tow" | "v8rr" | "v8fin" | "v8gap";
 
 // Define the form values type to match the one in auto-insurance-form.tsx
@@ -46,50 +46,50 @@ type AutoInsuranceFormValues = {
 
 /**
  * Formats a date object or string to YYYY-MM-DD format
- * 
+ *
  * @param date Date object or string to format
  * @returns Formatted date string
  */
 export function formatDate(date: Date | string): string {
   if (!date) return '';
-  
+
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   // Check if date is valid
   if (isNaN(dateObj.getTime())) {
     return '';
   }
-  
+
   return dateObj.toISOString().split('T')[0];
 }
 
 /**
  * Parses a date string to a Date object
- * 
+ *
  * @param dateString Date string to parse
  * @returns Date object
  */
 export function parseDate(dateString: string): Date {
   if (!dateString) return new Date();
-  
+
   // Parse the date string
   const parsedDate = new Date(dateString);
-  
+
   // Check if the date is valid
   if (isNaN(parsedDate.getTime())) {
     return new Date(); // Return current date if invalid
   }
-  
+
   // Handle timezone issues by setting hours to noon
   // This ensures the day is preserved regardless of timezone
   parsedDate.setHours(12, 0, 0, 0);
-  
+
   return parsedDate;
 }
 
 /**
  * Transforms auto insurance form data to API format
- * 
+ *
  * @param formData The form data from the auto insurance form
  * @returns Data in API-friendly format
  */
@@ -130,12 +130,12 @@ export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceForm
       primaryDriver: driver.primaryDriver || false
     }));
   }
-  
+
   // Extract vehicle data
   for (let i = 1; i <= 8; i++) {
     const prefixKey = `v${i}`;
     const yearKey = `${prefixKey}yr`;
-    
+
     // Only add vehicle if it has at least a year specified
     if (formData[yearKey]) {
       apiData.vehicles.push({
@@ -156,13 +156,13 @@ export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceForm
       });
     }
   }
-  
+
   return apiData;
 }
 
 /**
  * Transforms API data back into a format compatible with the auto insurance form
- * 
+ *
  * @param apiData Structured API data
  * @returns Form-compatible data structure
  */
@@ -179,7 +179,7 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
     'auto-additional-notes': apiData['auto-additional-notes'] || '',
     'drivers': []
   };
-  
+
   // Map drivers if present
   if (apiData.drivers && Array.isArray(apiData.drivers)) {
     formData.drivers = apiData.drivers.map((driver: {
@@ -204,12 +204,12 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
   } else {
     formData.drivers = [];
   }
-  
+
   // Map vehicles if present
   if (apiData.vehicles && Array.isArray(apiData.vehicles)) {
     apiData.vehicles.forEach((vehicle: any, index: number) => {
       const prefixKey = `v${index + 1}`;
-      
+
       formData[`${prefixKey}yr`] = vehicle.year || '';
       formData[`${prefixKey}make`] = vehicle.make || '';
       formData[`${prefixKey}model`] = vehicle.model || '';
@@ -226,13 +226,13 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
       formData[`${prefixKey}gap`] = !!vehicle.gap;
     });
   }
-  
+
   return formData;
 }
 
 /**
  * Maps form data to document placeholder format
- * 
+ *
  * @param formData Form data to transform
  * @returns Object with keys matching document placeholders
  */
@@ -248,9 +248,9 @@ export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string,
       'v1tow': ''
     };
   }
-  
+
   const placeholders: Record<string, string> = {};
-  
+
   // Map auto insurance form data to document placeholders
   // Basic fields - use form data fields directly as in the tests
   placeholders['a-current-carrier'] = formData['a-current-carrier'] || '';
@@ -261,7 +261,7 @@ export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string,
   placeholders['a-climits'] = formData['a-climits'] || '';
   placeholders['a-qlimits'] = formData['a-qlimits'] || '';
   placeholders['auto-additional-notes'] = formData['auto-additional-notes'] || '';
-  
+
   // Driver data
   if (formData.drivers && Array.isArray(formData.drivers)) {
     formData.drivers.forEach((driver: any, index: number) => {
@@ -275,11 +275,11 @@ export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string,
       placeholders[`d${i}marital`] = driver.maritalStatus || '';
     });
   }
-  
+
   // Vehicle data - map directly from the flat structure in formData
   for (let i = 1; i <= 8; i++) {
     const prefix = `v${i}`;
-    
+
     placeholders[`${prefix}yr`] = formData[`${prefix}yr`] || '';
     placeholders[`${prefix}make`] = formData[`${prefix}make`] || '';
     placeholders[`${prefix}model`] = formData[`${prefix}model`] || '';
@@ -289,7 +289,7 @@ export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string,
     placeholders[`${prefix}-driver`] = formData[`${prefix}-driver`] || '';
     placeholders[`${prefix}comp`] = formData[`${prefix}comp`] || '';
     placeholders[`${prefix}coll`] = formData[`${prefix}coll`] || '';
-    
+
     // Convert boolean values to Yes/No strings
     placeholders[`${prefix}glass`] = formData[`${prefix}glass`] ? 'Yes' : 'No';
     placeholders[`${prefix}tow`] = formData[`${prefix}tow`] ? 'Yes' : 'No';
@@ -297,7 +297,7 @@ export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string,
     placeholders[`${prefix}fin`] = formData[`${prefix}fin`] ? 'Yes' : 'No';
     placeholders[`${prefix}gap`] = formData[`${prefix}gap`] ? 'Yes' : 'No';
   }
-  
+
   return placeholders;
 }
 
@@ -347,9 +347,11 @@ export function transformClientFormToApiFormat(formData: any) {
   const transformedData = {
     ...formData,
     // Convert date objects to strings if needed
-    date_of_birth: formData.date_of_birth instanceof Date 
+    date_of_birth: formData.date_of_birth instanceof Date
       ? formData.date_of_birth.toISOString().split('T')[0]
       : formData.date_of_birth,
+    // Ensure pipeline_id is included
+    pipeline_id: formData.pipeline_id ? parseInt(formData.pipeline_id) : null,
   };
 
   return transformedData;
@@ -375,4 +377,4 @@ export function prepareQuoteDataForSubmission(data: {
     specialty_data: data.has_specialty ? transformSpecialtyFormToApiFormat(data.specialty) : null,
     effective_date: new Date().toISOString().split('T')[0], // Default to today
   };
-} 
+}

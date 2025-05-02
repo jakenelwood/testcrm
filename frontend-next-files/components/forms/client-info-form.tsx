@@ -34,12 +34,14 @@ import {
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { fetchPipelines } from "@/utils/pipeline-api";
+import { Pipeline } from "@/types/lead";
 
 // Function to format phone number as (555) 555-5555
 const formatPhoneNumber = (value: string) => {
   // Remove all non-numeric characters
   const phoneNumber = value.replace(/\D/g, '');
-  
+
   // Format the phone number
   if (phoneNumber.length <= 3) {
     return phoneNumber;
@@ -93,6 +95,7 @@ const formSchema = z.object({
   license_state: z.string().min(1, "License state is required"),
   ssn: z.string().optional(),
   referred_by: z.string().optional(),
+  pipeline_id: z.number().min(1, "Pipeline is required"),
   includeAuto: z.boolean().default(false),
   includeHome: z.boolean().default(false),
   includeSpecialty: z.boolean().default(false),
@@ -108,6 +111,32 @@ interface ClientInfoFormProps {
 export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps) {
   // State for ZIP code to State mapping
   const [zipLookupState, setZipLookupState] = useState<string | null>(null);
+  // State for pipelines
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+  const [isLoadingPipelines, setIsLoadingPipelines] = useState(true);
+
+  // Fetch pipelines on component mount
+  useEffect(() => {
+    const loadPipelines = async () => {
+      try {
+        setIsLoadingPipelines(true);
+        const data = await fetchPipelines();
+        setPipelines(data);
+
+        // If we have a default pipeline, set it as the default value
+        const defaultPipeline = data.find(p => p.is_default);
+        if (defaultPipeline && form) {
+          form.setValue('pipeline_id', defaultPipeline.id);
+        }
+      } catch (error) {
+        console.error('Error loading pipelines:', error);
+      } finally {
+        setIsLoadingPipelines(false);
+      }
+    };
+
+    loadPipelines();
+  }, [form]);
 
   // Initialize form with default values
   const form = useForm<ClientInfoFormValues>({
@@ -129,6 +158,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
       license_state: "",
       ssn: "",
       referred_by: "",
+      pipeline_id: 0, // Will be set by the useEffect when pipelines are loaded
       includeAuto: false,
       includeHome: false,
       includeSpecialty: false,
@@ -137,7 +167,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
 
   // Watch for ZIP code changes
   const zipCode = form.watch('zip_code');
-  
+
   // Auto-populate state based on ZIP code
   useEffect(() => {
     if (zipCode && zipCode.length === 5) {
@@ -184,9 +214,9 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="(555) 555-5555" 
-                          {...field} 
+                        <Input
+                          placeholder="(555) 555-5555"
+                          {...field}
                           onChange={(e) => {
                             const formatted = formatPhoneNumber(e.target.value);
                             field.onChange(formatted);
@@ -219,7 +249,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                     <FormItem>
                       <FormLabel>Date of Birth (MM/DD/YYYY)</FormLabel>
                       <FormControl>
-                        <Input 
+                        <Input
                           placeholder="MM/DD/YYYY"
                           {...field}
                           onChange={(e) => {
@@ -552,7 +582,42 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                   )}
                 />
               </div>
-              
+
+              {/* Pipeline Selector */}
+              <div className="space-y-4 mb-6">
+                <FormField
+                  control={form.control}
+                  name="pipeline_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pipeline</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        value={field.value ? field.value.toString() : undefined}
+                        disabled={isLoadingPipelines}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={isLoadingPipelines ? "Loading pipelines..." : "Select a pipeline"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {pipelines.map((pipeline) => (
+                            <SelectItem key={pipeline.id} value={pipeline.id.toString()}>
+                              {pipeline.name} {pipeline.is_default && "(Default)"}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select which pipeline this lead should be assigned to
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               {/* Insurance Type Checkboxes */}
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -575,7 +640,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="includeHome"
@@ -595,7 +660,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="includeSpecialty"
@@ -627,4 +692,4 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
       </Card>
     </div>
   );
-} 
+}

@@ -139,7 +139,7 @@ export function Sidebar() {
                     <Button
                       key={pipeline.id}
                       asChild
-                      variant={pathname === `/leads?pipeline=${pipeline.id}` ? "secondary" : "ghost"}
+                      variant={pathname.includes(`pipeline=${pipeline.id}`) ? "secondary" : "ghost"}
                       className="w-full justify-start"
                       size="sm"
                     >

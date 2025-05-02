@@ -148,9 +148,15 @@ export default function LeadsPage() {
     // Filter containers to only include status columns (not other cards)
     // This ensures we prioritize dropping into columns over other elements
     const statusContainers = droppableContainers.filter(container => {
-      // Check if the container's id is one of our status values
-      const statusValues = ['New', 'Contacted', 'Quoted', 'Sold', 'Lost'];
-      return statusValues.includes(String(container.id));
+      // If we have pipeline statuses, use those
+      if (selectedPipeline?.statuses) {
+        const statusNames = selectedPipeline.statuses.map(s => s.name);
+        return statusNames.includes(String(container.id));
+      }
+
+      // Otherwise, fall back to default status values
+      const defaultStatusValues = ['New', 'Contacted', 'Quoted', 'Sold', 'Lost'];
+      return defaultStatusValues.includes(String(container.id));
     });
 
     // If we're not over any column, find the closest column
@@ -267,14 +273,47 @@ export default function LeadsPage() {
     const fetchLeads = async () => {
       setIsLoading(true);
       try {
-        // TODO: Update fetchLeadsWithRelations to filter by pipeline_id
-        // For now, we'll fetch all leads and filter client-side
+        // Fetch all leads
         const leadsData = await fetchLeadsWithRelations();
 
-        // Filter leads by pipeline_id
-        const filteredLeadsData = leadsData.filter(lead =>
-          lead.pipeline_id === selectedPipeline.id
-        );
+        console.log('Fetched leads:', leadsData);
+        console.log('Selected pipeline:', selectedPipeline);
+
+        let filteredLeadsData;
+
+        // If this is the Alpha pipeline (default), show all leads that don't have a pipeline_id
+        // as well as leads explicitly assigned to this pipeline
+        if (selectedPipeline.name === 'Alpha' || selectedPipeline.is_default) {
+          filteredLeadsData = leadsData.filter(lead =>
+            !lead.pipeline_id || lead.pipeline_id === selectedPipeline.id
+          );
+
+          // If any leads don't have a pipeline_id, assign them to Alpha
+          const leadsToUpdate = filteredLeadsData.filter(lead => !lead.pipeline_id);
+          if (leadsToUpdate.length > 0) {
+            console.log(`Assigning ${leadsToUpdate.length} leads to Alpha pipeline`);
+
+            // Update each lead to have the Alpha pipeline_id
+            for (const lead of leadsToUpdate) {
+              try {
+                await updateLeadPipelineAndStatus(
+                  lead.id,
+                  selectedPipeline.id,
+                  lead.status_id || 1 // Use existing status_id or default to 1 (New)
+                );
+                // Update the lead in our local state
+                lead.pipeline_id = selectedPipeline.id;
+              } catch (error) {
+                console.error(`Error assigning lead ${lead.id} to Alpha pipeline:`, error);
+              }
+            }
+          }
+        } else {
+          // For other pipelines, only show leads explicitly assigned to this pipeline
+          filteredLeadsData = leadsData.filter(lead => lead.pipeline_id === selectedPipeline.id);
+        }
+
+        console.log('Filtered leads:', filteredLeadsData);
 
         setLeads(filteredLeadsData);
         setFilteredLeads(filteredLeadsData);

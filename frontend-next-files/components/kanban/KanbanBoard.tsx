@@ -86,6 +86,23 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
     );
   }
 
+  // If there are no statuses, display a message
+  if (statuses.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[500px] border rounded-lg">
+        <div className="text-center p-6">
+          <h3 className="text-lg font-medium mb-2">No Pipeline Statuses</h3>
+          <p className="text-muted-foreground mb-4">
+            This pipeline doesn't have any statuses defined yet.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Go to the Pipeline Management page to add statuses to this pipeline.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Render the actual kanban board with data
   // The grid layout adjusts responsively based on screen size:
   // - Single column on mobile
