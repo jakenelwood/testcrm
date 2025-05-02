@@ -36,7 +36,7 @@
  * 6. Opens lead details modal when a lead is clicked
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -75,16 +75,8 @@ import { LeadListView } from "@/components/leads/LeadListView";
 import { PipelineSelector } from "@/components/pipelines/PipelineSelector";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-/**
- * LeadsPage Component
- *
- * The main page component for lead management. This component orchestrates
- * the entire lead management interface, including the Kanban board, search,
- * and lead details modal.
- *
- * @returns The rendered leads page with Kanban board and related functionality
- */
-export default function LeadsPage() {
+// Component that uses searchParams
+function LeadsPageContent() {
   const searchParams = useSearchParams();
 
   // State for all leads fetched from the database
@@ -652,5 +644,19 @@ export default function LeadsPage() {
         />
       )}
     </div>
+  );
+}
+
+// Wrap the component that uses searchParams in a Suspense boundary
+export default function LeadsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold mb-2">Loading...</h2>
+        <p className="text-muted-foreground">Please wait while we prepare your leads.</p>
+      </div>
+    </div>}>
+      <LeadsPageContent />
+    </Suspense>
   );
 }
