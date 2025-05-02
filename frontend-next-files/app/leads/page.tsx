@@ -2,7 +2,7 @@
 
 /**
  * LEADS PAGE (ROOT LEVEL)
- * 
+ *
  * This is a simple redirect page that forwards to the dashboard/leads page
  * with the appropriate pipeline parameter.
  */
@@ -10,17 +10,19 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchDefaultPipeline } from '@/utils/pipeline-api';
+import { Suspense } from 'react';
 
-export default function LeadsRedirectPage() {
+// Component that uses searchParams
+function LeadsRedirectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   useEffect(() => {
     const redirectToLeads = async () => {
       try {
         // Get pipeline ID from URL or use default
         const pipelineId = searchParams.get('pipeline');
-        
+
         if (pipelineId) {
           // If pipeline ID is provided, redirect to dashboard/leads with that pipeline
           router.push(`/dashboard/leads?pipeline=${pipelineId}`);
@@ -35,10 +37,10 @@ export default function LeadsRedirectPage() {
         router.push('/dashboard/leads');
       }
     };
-    
+
     redirectToLeads();
   }, [router, searchParams]);
-  
+
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="text-center">
@@ -46,5 +48,19 @@ export default function LeadsRedirectPage() {
         <p className="text-muted-foreground">Please wait while we load your pipeline.</p>
       </div>
     </div>
+  );
+}
+
+// Wrap the component that uses searchParams in a Suspense boundary
+export default function LeadsRedirectPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold mb-2">Loading...</h2>
+        <p className="text-muted-foreground">Please wait while we prepare your leads.</p>
+      </div>
+    </div>}>
+      <LeadsRedirectContent />
+    </Suspense>
   );
 }

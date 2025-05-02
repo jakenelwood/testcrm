@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../../utils/supabase/client';
+import supabase from '../../utils/supabase/client';
 import { Database } from '../../types/database.types';
 
 type DeveloperNote = Database['public']['Tables']['developer_notes']['Insert'];
@@ -97,7 +97,7 @@ const DeveloperNoteForm: React.FC<DeveloperNoteFormProps> = ({
     try {
       // Get the current user
       const user = supabase.auth.user();
-      
+
       // Prepare the data
       const noteData: DeveloperNote = {
         ...formData as DeveloperNote,

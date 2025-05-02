@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../utils/supabase/client';
+import supabase from '../../utils/supabase/client';
 import { Database } from '../../types/database.types';
 
 type DeveloperNote = Database['public']['Tables']['developer_notes']['Row'];
@@ -152,9 +152,9 @@ const DeveloperNotesList: React.FC<DeveloperNotesListProps> = ({
               )}
             </div>
           </div>
-          
+
           <p className="mt-2 text-gray-600">{note.summary}</p>
-          
+
           {note.tags && note.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1">
               {note.tags.map((tag) => (
@@ -167,7 +167,7 @@ const DeveloperNotesList: React.FC<DeveloperNotesListProps> = ({
               ))}
             </div>
           )}
-          
+
           <div className="mt-3 text-sm text-gray-500 flex justify-between">
             <div>
               {note.related_feature && (
