@@ -326,21 +326,11 @@ function LeadsPageContent() {
 
     fetchLeads();
 
-    // Set up real-time subscription only for leads in this pipeline
-    // This is more efficient than subscribing to all lead changes
-    // Use a simpler approach to avoid initialization issues
+    // Set up real-time subscription
     const subscription = supabase
       .channel('leads-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'leads',
-        filter: `pipeline_id=eq.${selectedPipeline.id}`
-      }, (payload) => {
-        console.log('Received change for lead in pipeline:', selectedPipeline.id, payload.eventType);
-
-        // Simply refresh leads when any change occurs
-        // This is less efficient but more reliable
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
+        // Refresh leads when changes occur
         fetchLeads();
       })
       .subscribe();

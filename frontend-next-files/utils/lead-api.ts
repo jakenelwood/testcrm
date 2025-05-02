@@ -90,8 +90,6 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
       }
 
       // Execute the query with ordering
-      // Note: This will use the idx_leads_pipeline_created_at composite index
-      // which is optimized for filtering by pipeline_id and sorting by created_at
       const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
