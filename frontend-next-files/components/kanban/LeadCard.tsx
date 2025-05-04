@@ -4,6 +4,13 @@ import { Lead } from "@/types/lead";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React from "react";
+import { formatDateMMDDYYYY } from "@/utils/date-format";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface LeadCardProps {
   lead: Lead;
@@ -49,18 +56,21 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
 
     // If it was a quick click (less than 200ms) and not dragging, treat as a click
     if (isClicking && clickDuration < 200 && !isDragging) {
-      onClick();
+      // Check if Ctrl/Cmd key is pressed
+      if (e.ctrlKey || e.metaKey) {
+        // Open full lead details page in a new tab
+        window.open(`/dashboard/leads/${lead.id}`, '_blank');
+      } else {
+        // Open modal view
+        onClick();
+      }
     }
 
     setIsClicking(false);
   };
 
-  // Format date for display
-  const formattedDate = new Date(lead.created_at).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  // Format date for display using our utility function
+  const formattedDate = formatDateMMDDYYYY(lead.created_at);
 
   // Determine carrier badge color
   const getCarrierColor = (carrier: string | null) => {
@@ -76,25 +86,28 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`bg-white dark:bg-zinc-800 rounded-md p-4 mb-3 cursor-pointer transition-all select-none ${
-        isDragging
-          ? 'opacity-50 shadow-none border-2 border-blue-500'
-          : 'opacity-100 hover:shadow-md shadow-sm hover:border hover:border-blue-300'
-      }`}
-      onClick={(e) => {
-        // Prevent the click from triggering drag
-        e.stopPropagation();
-        // Only handle click if not dragging
-        if (!isDragging) {
-          onClick();
-        }
-      }}
-    >
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className={`bg-white dark:bg-zinc-800 rounded-md p-4 mb-3 cursor-pointer transition-all select-none ${
+              isDragging
+                ? 'opacity-50 shadow-none border-2 border-blue-500'
+                : 'opacity-100 hover:shadow-md shadow-sm hover:border hover:border-blue-300'
+            }`}
+            onClick={(e) => {
+              // Prevent the click from triggering drag
+              e.stopPropagation();
+              // Only handle click if not dragging
+              if (!isDragging) {
+                onClick();
+              }
+            }}
+          >
       <div className="font-medium text-foreground dark:text-white">
         {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
       </div>
@@ -122,6 +135,12 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
           </span>
         </div>
       )}
-    </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Click to view details. Ctrl/Cmd+Click for full page view.</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

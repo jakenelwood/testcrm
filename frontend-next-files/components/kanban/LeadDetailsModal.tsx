@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { formatDateMMDDYYYY, formatDateTimeMMDDYYYY } from "@/utils/date-format";
 import {
   Tabs,
   TabsContent,
@@ -380,17 +381,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     }
   };
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-    });
-  };
+  // Use the utility function for date formatting
 
   return (
     <Dialog
@@ -406,9 +397,18 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto"
       >
         <DialogHeader>
-          <DialogTitle className="text-xl">
+          <DialogTitle className="text-xl font-bold tracking-tight">
             {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
           </DialogTitle>
+          <div className="text-sm text-blue-500 hover:text-blue-700 mt-1">
+            <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
+              e.preventDefault();
+              onClose(); // Close the modal first
+              window.location.href = `/dashboard/leads/${lead.id}`; // Navigate to the full lead details page
+            }}>
+              View full lead details
+            </a>
+          </div>
         </DialogHeader>
 
         <Tabs defaultValue="data" value={activeTab} onValueChange={setActiveTab} className="mt-4">
@@ -421,8 +421,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           {/* Lead Data Tab */}
           <TabsContent value="data" className="space-y-4 mt-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Basic Information</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg font-medium">Basic Information</CardTitle>
                 <Button
                   variant={isEditing ? "default" : "outline"}
                   onClick={() => setIsEditing(!isEditing)}
@@ -662,52 +662,52 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                     // Read-only view
                     <>
                       <div>
-                        <Label>Name</Label>
-                        <div className="font-medium">{typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                        <div>{typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}</div>
                       </div>
                       <div>
-                        <Label>Email</Label>
-                        <div className="font-medium">{lead.email || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                        <div>{lead.email || 'N/A'}</div>
                       </div>
                       <div>
-                        <Label>Phone</Label>
-                        <div className="font-medium">{lead.phone_number || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                        <div>{lead.phone_number || 'N/A'}</div>
                       </div>
                       <div>
-                        <Label>Insurance Type</Label>
-                        <div className="font-medium">
+                        <Label className="text-xs font-medium text-muted-foreground">Insurance Type</Label>
+                        <div>
                           {typeof lead.insurance_type === 'string'
                             ? lead.insurance_type
                             : (lead.insurance_type as any)?.name || 'Auto'}
                         </div>
                       </div>
                       <div>
-                        <Label>Current Carrier</Label>
-                        <div className="font-medium">{lead.current_carrier || 'None'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Current Carrier</Label>
+                        <div>{lead.current_carrier || 'None'}</div>
                       </div>
                       <div>
-                        <Label>Premium</Label>
-                        <div className="font-medium">
+                        <Label className="text-xs font-medium text-muted-foreground">Premium</Label>
+                        <div>
                           ${lead.premium
                             ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                             : '0.00'}
                         </div>
                       </div>
                       <div>
-                        <Label>Status</Label>
-                        <div className="font-medium">
+                        <Label className="text-xs font-medium text-muted-foreground">Status</Label>
+                        <div>
                           {typeof lead.status === 'string'
                             ? lead.status.charAt(0).toUpperCase() + lead.status.slice(1)
                             : (lead.status as any)?.value || 'New'}
                         </div>
                       </div>
                       <div>
-                        <Label>Assigned To</Label>
-                        <div className="font-medium">{lead.assigned_to || 'Unassigned'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
+                        <div>{lead.assigned_to || 'Unassigned'}</div>
                       </div>
                       <div className="col-span-2">
-                        <Label>Address</Label>
-                        <div className="font-medium">
+                        <Label className="text-xs font-medium text-muted-foreground">Address</Label>
+                        <div>
                           {lead.client?.address?.street ? (
                             <>
                               {lead.client.address.street}<br />
@@ -719,32 +719,32 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                         </div>
                       </div>
                       <div>
-                        <Label>Date of Birth</Label>
-                        <div className="font-medium">{lead.client?.date_of_birth || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Date of Birth</Label>
+                        <div>{lead.client?.date_of_birth ? formatDateMMDDYYYY(lead.client.date_of_birth) : 'N/A'}</div>
                       </div>
                       <div>
-                        <Label>Gender</Label>
-                        <div className="font-medium">{lead.client?.gender || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Gender</Label>
+                        <div>{lead.client?.gender || 'N/A'}</div>
                       </div>
                       <div>
-                        <Label>Marital Status</Label>
-                        <div className="font-medium">{lead.client?.marital_status || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Marital Status</Label>
+                        <div>{lead.client?.marital_status || 'N/A'}</div>
                       </div>
                       <div>
-                        <Label>Driver's License</Label>
-                        <div className="font-medium">{lead.client?.drivers_license || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Driver's License</Label>
+                        <div>{lead.client?.drivers_license || 'N/A'}</div>
                       </div>
                       <div>
-                        <Label>License State</Label>
-                        <div className="font-medium">{lead.client?.license_state || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">License State</Label>
+                        <div>{lead.client?.license_state || 'N/A'}</div>
                       </div>
                       <div>
-                        <Label>Referred By</Label>
-                        <div className="font-medium">{lead.client?.referred_by || 'N/A'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Referred By</Label>
+                        <div>{lead.client?.referred_by || 'N/A'}</div>
                       </div>
                       <div className="col-span-2">
-                        <Label>Notes</Label>
-                        <div className="font-medium">{lead.notes || 'No notes'}</div>
+                        <Label className="text-xs font-medium text-muted-foreground">Notes</Label>
+                        <div>{lead.notes || 'No notes'}</div>
                       </div>
                     </>
                   )}
@@ -771,8 +771,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
             {lead.insurance_type === 'Auto' && lead.auto_data && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Auto Insurance Details</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium">Auto Insurance Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="text-sm bg-muted p-4 rounded-md overflow-auto">
@@ -784,8 +784,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
             {lead.insurance_type === 'Home' && lead.home_data && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Home Insurance Details</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium">Home Insurance Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="text-sm bg-muted p-4 rounded-md overflow-auto">
@@ -797,8 +797,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
             {lead.insurance_type === 'Specialty' && lead.specialty_data && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Specialty Insurance Details</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium">Specialty Insurance Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="text-sm bg-muted p-4 rounded-md overflow-auto">
@@ -812,9 +812,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           {/* Communication History Tab */}
           <TabsContent value="communications" className="space-y-4 mt-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Add Note</CardTitle>
-                <CardDescription>Add a note about this lead</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium">Add Note</CardTitle>
+                <CardDescription className="text-sm">Add a note about this lead</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -831,9 +831,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Communication History</CardTitle>
-                <CardDescription>All interactions with this lead</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium">Communication History</CardTitle>
+                <CardDescription className="text-sm">All interactions with this lead</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[...notes, ...communications].sort((a, b) =>
@@ -843,11 +843,11 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                     <CardContent className="pt-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <div className="font-medium">
+                          <div className="text-sm font-medium">
                             {item.type || 'Note'} {item.direction ? `(${item.direction})` : ''}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {formatDate(item.created_at)}
+                            {formatDateTimeMMDDYYYY(item.created_at)}
                           </div>
                         </div>
                         <div className="text-sm text-muted-foreground">
@@ -873,9 +873,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           {/* Marketing Automation Tab */}
           <TabsContent value="marketing" className="space-y-4 mt-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Marketing Campaigns</CardTitle>
-                <CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium">Marketing Campaigns</CardTitle>
+                <CardDescription className="text-sm">
                   Enable or disable marketing campaigns for this lead
                 </CardDescription>
               </CardHeader>

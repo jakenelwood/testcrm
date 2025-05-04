@@ -10,7 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate } from "@/lib/utils";
+import { formatDateMMDDYYYY } from "@/utils/date-format";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 interface LeadListViewProps {
   leads: Lead[];
@@ -21,14 +23,7 @@ interface LeadListViewProps {
 }
 
 export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, statuses = [] }: LeadListViewProps) {
-  // Format date for display
-  const formatDisplayDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+  // Using our utility function for date formatting
 
   // Determine carrier badge color
   const getCarrierColor = (carrier: string | null) => {
@@ -54,18 +49,19 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
             <TableHead>Created</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Assigned To</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8">
+              <TableCell colSpan={7} className="text-center py-8">
                 Loading leads...
               </TableCell>
             </TableRow>
           ) : leads.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8">
+              <TableCell colSpan={7} className="text-center py-8">
                 No leads found. Try adjusting your search or add a new lead.
               </TableCell>
             </TableRow>
@@ -96,7 +92,7 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
                   </div>
                 </TableCell>
                 <TableCell>
-                  {formatDisplayDate(lead.created_at)}
+                  {formatDateMMDDYYYY(lead.created_at)}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <LeadStatusDropdown
@@ -108,6 +104,17 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
                 </TableCell>
                 <TableCell>
                   {lead.assigned_to || 'Unassigned'}
+                </TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                  >
+                    <a href={`/dashboard/leads/${lead.id}`} target="_blank" rel="noopener noreferrer" title="View full lead details">
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))
