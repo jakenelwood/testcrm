@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/sidebar";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SidebarProvider } from "@/contexts/sidebar-context";
 
 export default function DashboardLayout({
   children,
@@ -18,14 +19,15 @@ export default function DashboardLayout({
     setIsMobileMenuOpen(prev => !prev);
   };
   return (
-    <div className="relative min-h-screen flex">
-      {/* Mobile sidebar backdrop */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
+    <SidebarProvider>
+      <div className="relative min-h-screen flex">
+        {/* Mobile sidebar backdrop */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
 
       {/* Mobile sidebar */}
       <div
@@ -59,10 +61,11 @@ export default function DashboardLayout({
       <div className="flex-1 flex flex-col">
         <Header onMobileMenuToggle={toggleMobileMenu} />
 
-        <main className="flex-1 overflow-auto bg-slate-50 p-6">
+        <main className="flex-1 overflow-auto bg-slate-50 p-6 transition-all duration-300">
           {children}
         </main>
       </div>
     </div>
+    </SidebarProvider>
   );
 }
