@@ -25,7 +25,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import supabase from '@/utils/supabase/client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { OtherInsuredForm } from '@/components/forms/other-insured-form';
+import { VehicleForm } from '@/components/forms/vehicle-form';
+import { HomeForm } from '@/components/forms/home-form';
+import { SpecialtyItemForm } from '@/components/forms/specialty-item-form';
 
 export default function LeadDetailsPage() {
   const params = useParams();
@@ -41,6 +46,23 @@ export default function LeadDetailsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<any>({});
+  const [otherInsureds, setOtherInsureds] = useState<any[]>([]);
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [homes, setHomes] = useState<any[]>([]);
+  const [specialtyItems, setSpecialtyItems] = useState<any[]>([]);
+
+  // Edit states for each section
+  const [isEditingOtherInsureds, setIsEditingOtherInsureds] = useState(false);
+  const [isEditingVehicles, setIsEditingVehicles] = useState(false);
+  const [isEditingHomes, setIsEditingHomes] = useState(false);
+  const [isEditingSpecialtyItems, setIsEditingSpecialtyItems] = useState(false);
+  const [isSubmittingItem, setIsSubmittingItem] = useState(false);
+
+  // New item form data
+  const [newOtherInsured, setNewOtherInsured] = useState<any>({});
+  const [newVehicle, setNewVehicle] = useState<any>({});
+  const [newHome, setNewHome] = useState<any>({});
+  const [newSpecialtyItem, setNewSpecialtyItem] = useState<any>({});
 
   // Fetch lead data
   useEffect(() => {
@@ -167,8 +189,136 @@ export default function LeadDetailsPage() {
         }
       };
 
+      const fetchOtherInsureds = async () => {
+        try {
+          // First check if the table exists
+          const { error: tableError } = await supabase
+            .from('other_insureds')
+            .select('count')
+            .limit(1)
+            .single();
+
+          if (tableError && tableError.code === '42P01') { // Table doesn't exist
+            console.log('other_insureds table does not exist yet');
+            return; // Exit early
+          }
+
+          const { data, error } = await supabase
+            .from('other_insureds')
+            .select('*')
+            .eq('lead_id', params.id)
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            console.error('Error fetching other insureds:', error);
+          } else {
+            setOtherInsureds(data || []);
+          }
+        } catch (err) {
+          console.log('Could not fetch other insureds, table may not exist yet');
+          setOtherInsureds([]);
+        }
+      };
+
+      const fetchVehicles = async () => {
+        try {
+          // First check if the table exists
+          const { error: tableError } = await supabase
+            .from('vehicles')
+            .select('count')
+            .limit(1)
+            .single();
+
+          if (tableError && tableError.code === '42P01') { // Table doesn't exist
+            console.log('vehicles table does not exist yet');
+            return; // Exit early
+          }
+
+          const { data, error } = await supabase
+            .from('vehicles')
+            .select('*')
+            .eq('lead_id', params.id)
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            console.error('Error fetching vehicles:', error);
+          } else {
+            setVehicles(data || []);
+          }
+        } catch (err) {
+          console.log('Could not fetch vehicles, table may not exist yet');
+          setVehicles([]);
+        }
+      };
+
+      const fetchHomes = async () => {
+        try {
+          // First check if the table exists
+          const { error: tableError } = await supabase
+            .from('homes')
+            .select('count')
+            .limit(1)
+            .single();
+
+          if (tableError && tableError.code === '42P01') { // Table doesn't exist
+            console.log('homes table does not exist yet');
+            return; // Exit early
+          }
+
+          const { data, error } = await supabase
+            .from('homes')
+            .select('*')
+            .eq('lead_id', params.id)
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            console.error('Error fetching homes:', error);
+          } else {
+            setHomes(data || []);
+          }
+        } catch (err) {
+          console.log('Could not fetch homes, table may not exist yet');
+          setHomes([]);
+        }
+      };
+
+      const fetchSpecialtyItems = async () => {
+        try {
+          // First check if the table exists
+          const { error: tableError } = await supabase
+            .from('specialty_items')
+            .select('count')
+            .limit(1)
+            .single();
+
+          if (tableError && tableError.code === '42P01') { // Table doesn't exist
+            console.log('specialty_items table does not exist yet');
+            return; // Exit early
+          }
+
+          const { data, error } = await supabase
+            .from('specialty_items')
+            .select('*')
+            .eq('lead_id', params.id)
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            console.error('Error fetching specialty items:', error);
+          } else {
+            setSpecialtyItems(data || []);
+          }
+        } catch (err) {
+          console.log('Could not fetch specialty items, table may not exist yet');
+          setSpecialtyItems([]);
+        }
+      };
+
       fetchNotes();
       fetchCommunications();
+      fetchOtherInsureds();
+      fetchVehicles();
+      fetchHomes();
+      fetchSpecialtyItems();
     }
   }, [params.id]);
 
@@ -234,6 +384,316 @@ export default function LeadDetailsPage() {
   // Handle select changes
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle input changes for new items
+  const handleOtherInsuredChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewOtherInsured(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleOtherInsuredSelectChange = (name: string, value: string) => {
+    setNewOtherInsured(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleVehicleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewVehicle(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleVehicleSelectChange = (name: string, value: string) => {
+    setNewVehicle(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleHomeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewHome(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleHomeSelectChange = (name: string, value: string) => {
+    setNewHome(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSpecialtyItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewSpecialtyItem(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSpecialtyItemSelectChange = (name: string, value: string) => {
+    setNewSpecialtyItem(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle adding other insured
+  const handleAddOtherInsured = async (data: any) => {
+    if (!lead || !lead.client_id) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Add the other insured to the database
+      const { data: newInsured, error } = await supabase
+        .from('other_insureds')
+        .insert({
+          client_id: lead.client_id,
+          lead_id: lead.id,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          relationship: data.relationship,
+          date_of_birth: data.date_of_birth,
+          gender: data.gender,
+          drivers_license: data.drivers_license,
+          license_state: data.license_state,
+          marital_status: data.marital_status,
+          education_occupation: data.education_occupation,
+        })
+        .select();
+
+      if (error) {
+        console.error('Error adding other insured:', error);
+
+        if (error.code === '42P01') { // Table doesn't exist
+          toast({
+            title: "Database Setup Required",
+            description: "The other_insureds table doesn't exist. Please contact your administrator.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to add other insured. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Other insured added successfully.",
+        });
+
+        // Add the new insured to the state
+        if (newInsured && newInsured.length > 0) {
+          setOtherInsureds(prev => [newInsured[0], ...prev]);
+        }
+
+        // Close the dialog
+        setOtherInsuredDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Error adding other insured:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add other insured. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
+  // Handle adding vehicle
+  const handleAddVehicle = async (data: any) => {
+    if (!lead || !lead.client_id) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Add the vehicle to the database
+      const { data: newVehicle, error } = await supabase
+        .from('vehicles')
+        .insert({
+          client_id: lead.client_id,
+          lead_id: lead.id,
+          year: data.year,
+          make: data.make,
+          model: data.model,
+          vin: data.vin,
+          usage: data.usage,
+          annual_mileage: data.annual_mileage,
+          ownership: data.ownership,
+          primary_driver: data.primary_driver,
+          collision: data.collision,
+          comprehensive: data.comprehensive,
+          gap_coverage: data.gap_coverage,
+          glass_coverage: data.glass_coverage,
+          rental_coverage: data.rental_coverage,
+          towing_coverage: data.towing_coverage,
+        })
+        .select();
+
+      if (error) {
+        console.error('Error adding vehicle:', error);
+
+        if (error.code === '42P01') { // Table doesn't exist
+          toast({
+            title: "Database Setup Required",
+            description: "The vehicles table doesn't exist. Please contact your administrator.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to add vehicle. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Vehicle added successfully.",
+        });
+
+        // Add the new vehicle to the state
+        if (newVehicle && newVehicle.length > 0) {
+          setVehicles(prev => [newVehicle[0], ...prev]);
+        }
+
+        // Close the dialog
+        setVehicleDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Error adding vehicle:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add vehicle. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
+  // Handle adding home
+  const handleAddHome = async (data: any) => {
+    if (!lead || !lead.client_id) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Add the home to the database
+      const { data: newHome, error } = await supabase
+        .from('homes')
+        .insert({
+          client_id: lead.client_id,
+          lead_id: lead.id,
+          address_street: data.address_street,
+          address_city: data.address_city,
+          address_state: data.address_state,
+          address_zip: data.address_zip,
+          year_built: data.year_built,
+          square_feet: data.square_feet,
+          construction_type: data.construction_type,
+          roof_type: data.roof_type,
+          number_of_stories: data.number_of_stories,
+          ownership_type: data.ownership_type,
+        })
+        .select();
+
+      if (error) {
+        console.error('Error adding home:', error);
+
+        if (error.code === '42P01') { // Table doesn't exist
+          toast({
+            title: "Database Setup Required",
+            description: "The homes table doesn't exist. Please contact your administrator.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to add home. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Home added successfully.",
+        });
+
+        // Add the new home to the state
+        if (newHome && newHome.length > 0) {
+          setHomes(prev => [newHome[0], ...prev]);
+        }
+
+        // Close the dialog
+        setHomeDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Error adding home:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add home. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
+  // Handle adding specialty item
+  const handleAddSpecialtyItem = async (data: any) => {
+    if (!lead || !lead.client_id) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Add the specialty item to the database
+      const { data: newItem, error } = await supabase
+        .from('specialty_items')
+        .insert({
+          client_id: lead.client_id,
+          lead_id: lead.id,
+          type: data.type,
+          make: data.make,
+          model: data.model,
+          year: data.year,
+          value: data.value,
+          storage_location: data.storage_location,
+          usage: data.usage,
+          cc_size: data.cc_size,
+          total_hp: data.total_hp,
+          max_speed: data.max_speed,
+          collision_deductible: data.collision_deductible,
+          comprehensive_deductible: data.comprehensive_deductible,
+        })
+        .select();
+
+      if (error) {
+        console.error('Error adding specialty item:', error);
+
+        if (error.code === '42P01') { // Table doesn't exist
+          toast({
+            title: "Database Setup Required",
+            description: "The specialty_items table doesn't exist. Please contact your administrator.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to add specialty item. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Specialty item added successfully.",
+        });
+
+        // Add the new specialty item to the state
+        if (newItem && newItem.length > 0) {
+          setSpecialtyItems(prev => [newItem[0], ...prev]);
+        }
+
+        // Close the dialog
+        setSpecialtyItemDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Error adding specialty item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add specialty item. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
   };
 
   // Check if we have permission to update leads
@@ -813,6 +1273,934 @@ export default function LeadDetailsPage() {
 
         {/* Insurance Details Tab */}
         <TabsContent value="insurance" className="space-y-4 mt-4">
+          {/* Other Insureds Section */}
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-medium">Other Insureds</CardTitle>
+                <CardDescription className="text-sm">Additional people insured under this policy</CardDescription>
+              </div>
+              <Button
+                size="sm"
+                className="ml-auto"
+                onClick={() => setIsEditingOtherInsureds(!isEditingOtherInsureds)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {isEditingOtherInsureds ? "Cancel" : "Edit"}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isEditingOtherInsureds && (
+                <Card className="mb-6 border-dashed border-2 border-primary/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md">Add New Insured</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="first_name">First Name</Label>
+                        <Input
+                          id="first_name"
+                          name="first_name"
+                          value={newOtherInsured.first_name || ''}
+                          onChange={handleOtherInsuredChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="last_name">Last Name</Label>
+                        <Input
+                          id="last_name"
+                          name="last_name"
+                          value={newOtherInsured.last_name || ''}
+                          onChange={handleOtherInsuredChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="relationship">Relationship to Primary Insured</Label>
+                        <Select
+                          value={newOtherInsured.relationship || ''}
+                          onValueChange={(value) => handleOtherInsuredSelectChange('relationship', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select relationship" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Spouse">Spouse</SelectItem>
+                            <SelectItem value="Child">Child</SelectItem>
+                            <SelectItem value="Parent">Parent</SelectItem>
+                            <SelectItem value="Sibling">Sibling</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="date_of_birth">Date of Birth</Label>
+                        <Input
+                          id="date_of_birth"
+                          name="date_of_birth"
+                          type="date"
+                          value={newOtherInsured.date_of_birth || ''}
+                          onChange={handleOtherInsuredChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gender">Gender</Label>
+                        <Select
+                          value={newOtherInsured.gender || ''}
+                          onValueChange={(value) => handleOtherInsuredSelectChange('gender', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                            <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="drivers_license">Driver's License</Label>
+                        <Input
+                          id="drivers_license"
+                          name="drivers_license"
+                          value={newOtherInsured.drivers_license || ''}
+                          onChange={handleOtherInsuredChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="license_state">License State</Label>
+                        <Input
+                          id="license_state"
+                          name="license_state"
+                          value={newOtherInsured.license_state || ''}
+                          onChange={handleOtherInsuredChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="marital_status">Marital Status</Label>
+                        <Select
+                          value={newOtherInsured.marital_status || ''}
+                          onValueChange={(value) => handleOtherInsuredSelectChange('marital_status', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select marital status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Single">Single</SelectItem>
+                            <SelectItem value="Married">Married</SelectItem>
+                            <SelectItem value="Divorced">Divorced</SelectItem>
+                            <SelectItem value="Widowed">Widowed</SelectItem>
+                            <SelectItem value="Separated">Separated</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="education_occupation">Education/Occupation</Label>
+                        <Input
+                          id="education_occupation"
+                          name="education_occupation"
+                          value={newOtherInsured.education_occupation || ''}
+                          onChange={handleOtherInsuredChange}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => handleAddOtherInsured(newOtherInsured)}
+                      disabled={isSubmittingItem || !newOtherInsured.first_name || !newOtherInsured.last_name}
+                      className="w-full"
+                    >
+                      {isSubmittingItem ? "Adding..." : "Add Other Insured"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {otherInsureds.length > 0 ? (
+                <div className="space-y-4">
+                  {otherInsureds.map((insured, index) => (
+                    <Card key={index} className="bg-muted/30">
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                            <div>{insured.first_name} {insured.last_name}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Relationship</Label>
+                            <div>{insured.relationship || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Date of Birth</Label>
+                            <div>{insured.date_of_birth ? formatDateMMDDYYYY(insured.date_of_birth) : 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Gender</Label>
+                            <div>{insured.gender || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Driver's License</Label>
+                            <div>{insured.drivers_license || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">License State</Label>
+                            <div>{insured.license_state || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Marital Status</Label>
+                            <div>{insured.marital_status || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Education/Occupation</Label>
+                            <div>{insured.education_occupation || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No other insureds added yet
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Vehicles Section */}
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-medium">Vehicles</CardTitle>
+                <CardDescription className="text-sm">Vehicles covered under this policy</CardDescription>
+              </div>
+              <Button
+                size="sm"
+                className="ml-auto"
+                onClick={() => setIsEditingVehicles(!isEditingVehicles)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {isEditingVehicles ? "Cancel" : "Edit"}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isEditingVehicles && (
+                <Card className="mb-6 border-dashed border-2 border-primary/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md">Add New Vehicle</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="year">Year</Label>
+                        <Input
+                          id="year"
+                          name="year"
+                          type="number"
+                          value={newVehicle.year || ''}
+                          onChange={handleVehicleChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="make">Make</Label>
+                        <Input
+                          id="make"
+                          name="make"
+                          value={newVehicle.make || ''}
+                          onChange={handleVehicleChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="model">Model</Label>
+                        <Input
+                          id="model"
+                          name="model"
+                          value={newVehicle.model || ''}
+                          onChange={handleVehicleChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="vin">VIN</Label>
+                        <Input
+                          id="vin"
+                          name="vin"
+                          value={newVehicle.vin || ''}
+                          onChange={handleVehicleChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="usage">Usage</Label>
+                        <Select
+                          value={newVehicle.usage || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('usage', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select usage" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Commute">Commute</SelectItem>
+                            <SelectItem value="Pleasure">Pleasure</SelectItem>
+                            <SelectItem value="Business">Business</SelectItem>
+                            <SelectItem value="Farm">Farm</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="annual_mileage">Annual Mileage</Label>
+                        <Input
+                          id="annual_mileage"
+                          name="annual_mileage"
+                          type="number"
+                          value={newVehicle.annual_mileage || ''}
+                          onChange={handleVehicleChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ownership">Ownership</Label>
+                        <Select
+                          value={newVehicle.ownership || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('ownership', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select ownership" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Owned">Owned</SelectItem>
+                            <SelectItem value="Financed">Financed</SelectItem>
+                            <SelectItem value="Leased">Leased</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="primary_driver">Primary Driver</Label>
+                        <Input
+                          id="primary_driver"
+                          name="primary_driver"
+                          value={newVehicle.primary_driver || ''}
+                          onChange={handleVehicleChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="collision">Collision Coverage</Label>
+                        <Select
+                          value={newVehicle.collision || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('collision', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="comprehensive">Comprehensive Coverage</Label>
+                        <Select
+                          value={newVehicle.comprehensive || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('comprehensive', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gap_coverage">GAP Coverage</Label>
+                        <Select
+                          value={newVehicle.gap_coverage || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('gap_coverage', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="glass_coverage">Glass Coverage</Label>
+                        <Select
+                          value={newVehicle.glass_coverage || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('glass_coverage', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="rental_coverage">Rental Car Reimbursement</Label>
+                        <Select
+                          value={newVehicle.rental_coverage || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('rental_coverage', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="towing_coverage">Towing Coverage</Label>
+                        <Select
+                          value={newVehicle.towing_coverage || ''}
+                          onValueChange={(value) => handleVehicleSelectChange('towing_coverage', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => handleAddVehicle(newVehicle)}
+                      disabled={isSubmittingItem || !newVehicle.year || !newVehicle.make || !newVehicle.model}
+                      className="w-full"
+                    >
+                      {isSubmittingItem ? "Adding..." : "Add Vehicle"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {vehicles.length > 0 ? (
+                <div className="space-y-4">
+                  {vehicles.map((vehicle, index) => (
+                    <Card key={index} className="bg-muted/30">
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Vehicle</Label>
+                            <div>{vehicle.year} {vehicle.make} {vehicle.model}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">VIN</Label>
+                            <div>{vehicle.vin || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Usage</Label>
+                            <div>{vehicle.usage || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Annual Mileage</Label>
+                            <div>{vehicle.annual_mileage || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Ownership</Label>
+                            <div>{vehicle.ownership || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Primary Driver</Label>
+                            <div>{vehicle.primary_driver || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Collision Coverage</Label>
+                            <div>{vehicle.collision || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Comprehensive Coverage</Label>
+                            <div>{vehicle.comprehensive || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">GAP Coverage</Label>
+                            <div>{vehicle.gap_coverage || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Glass Coverage</Label>
+                            <div>{vehicle.glass_coverage || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Rental Car Reimbursement</Label>
+                            <div>{vehicle.rental_coverage || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Towing Coverage</Label>
+                            <div>{vehicle.towing_coverage || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No vehicles added yet
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Homes Section */}
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-medium">Homes</CardTitle>
+                <CardDescription className="text-sm">Properties covered under this policy</CardDescription>
+              </div>
+              <Button
+                size="sm"
+                className="ml-auto"
+                onClick={() => setIsEditingHomes(!isEditingHomes)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {isEditingHomes ? "Cancel" : "Edit"}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isEditingHomes && (
+                <Card className="mb-6 border-dashed border-2 border-primary/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md">Add New Home</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="col-span-2 space-y-2">
+                        <Label htmlFor="address_street">Street Address</Label>
+                        <Input
+                          id="address_street"
+                          name="address_street"
+                          value={newHome.address_street || ''}
+                          onChange={handleHomeChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address_city">City</Label>
+                        <Input
+                          id="address_city"
+                          name="address_city"
+                          value={newHome.address_city || ''}
+                          onChange={handleHomeChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address_state">State</Label>
+                        <Input
+                          id="address_state"
+                          name="address_state"
+                          value={newHome.address_state || ''}
+                          onChange={handleHomeChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address_zip">ZIP Code</Label>
+                        <Input
+                          id="address_zip"
+                          name="address_zip"
+                          value={newHome.address_zip || ''}
+                          onChange={handleHomeChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="year_built">Year Built</Label>
+                        <Input
+                          id="year_built"
+                          name="year_built"
+                          type="number"
+                          value={newHome.year_built || ''}
+                          onChange={handleHomeChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="square_feet">Square Feet</Label>
+                        <Input
+                          id="square_feet"
+                          name="square_feet"
+                          type="number"
+                          value={newHome.square_feet || ''}
+                          onChange={handleHomeChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="construction_type">Construction Type</Label>
+                        <Select
+                          value={newHome.construction_type || ''}
+                          onValueChange={(value) => handleHomeSelectChange('construction_type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select construction type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Frame">Frame</SelectItem>
+                            <SelectItem value="Masonry">Masonry</SelectItem>
+                            <SelectItem value="Brick">Brick</SelectItem>
+                            <SelectItem value="Stone">Stone</SelectItem>
+                            <SelectItem value="Concrete">Concrete</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="roof_type">Roof Type</Label>
+                        <Select
+                          value={newHome.roof_type || ''}
+                          onValueChange={(value) => handleHomeSelectChange('roof_type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select roof type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Asphalt Shingle">Asphalt Shingle</SelectItem>
+                            <SelectItem value="Metal">Metal</SelectItem>
+                            <SelectItem value="Tile">Tile</SelectItem>
+                            <SelectItem value="Slate">Slate</SelectItem>
+                            <SelectItem value="Wood Shake">Wood Shake</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="number_of_stories">Number of Stories</Label>
+                        <Input
+                          id="number_of_stories"
+                          name="number_of_stories"
+                          type="number"
+                          value={newHome.number_of_stories || ''}
+                          onChange={handleHomeChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ownership_type">Ownership Type</Label>
+                        <Select
+                          value={newHome.ownership_type || ''}
+                          onValueChange={(value) => handleHomeSelectChange('ownership_type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select ownership type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Own">Own</SelectItem>
+                            <SelectItem value="Rent">Rent</SelectItem>
+                            <SelectItem value="Mortgage">Mortgage</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => handleAddHome(newHome)}
+                      disabled={isSubmittingItem || !newHome.address_street || !newHome.address_city || !newHome.address_state || !newHome.address_zip}
+                      className="w-full"
+                    >
+                      {isSubmittingItem ? "Adding..." : "Add Home"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {homes.length > 0 ? (
+                <div className="space-y-4">
+                  {homes.map((home, index) => (
+                    <Card key={index} className="bg-muted/30">
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="col-span-2">
+                            <Label className="text-xs font-medium text-muted-foreground">Address</Label>
+                            <div>
+                              {home.address_street}<br />
+                              {home.address_city}, {home.address_state} {home.address_zip}
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Year Built</Label>
+                            <div>{home.year_built || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Square Feet</Label>
+                            <div>{home.square_feet || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Construction Type</Label>
+                            <div>{home.construction_type || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Roof Type</Label>
+                            <div>{home.roof_type || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Number of Stories</Label>
+                            <div>{home.number_of_stories || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Ownership Type</Label>
+                            <div>{home.ownership_type || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No homes added yet
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Specialty Items Section */}
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-medium">Specialty Items</CardTitle>
+                <CardDescription className="text-sm">Specialty items covered under this policy</CardDescription>
+              </div>
+              <Button
+                size="sm"
+                className="ml-auto"
+                onClick={() => setIsEditingSpecialtyItems(!isEditingSpecialtyItems)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {isEditingSpecialtyItems ? "Cancel" : "Edit"}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isEditingSpecialtyItems && (
+                <Card className="mb-6 border-dashed border-2 border-primary/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-md">Add New Specialty Item</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="type">Type</Label>
+                        <Select
+                          value={newSpecialtyItem.type || ''}
+                          onValueChange={(value) => handleSpecialtyItemSelectChange('type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Boat">Boat</SelectItem>
+                            <SelectItem value="Motorcycle">Motorcycle</SelectItem>
+                            <SelectItem value="RV">RV</SelectItem>
+                            <SelectItem value="ATV">ATV</SelectItem>
+                            <SelectItem value="Snowmobile">Snowmobile</SelectItem>
+                            <SelectItem value="Jet Ski">Jet Ski</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="make">Make</Label>
+                        <Input
+                          id="make"
+                          name="make"
+                          value={newSpecialtyItem.make || ''}
+                          onChange={handleSpecialtyItemChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="model">Model</Label>
+                        <Input
+                          id="model"
+                          name="model"
+                          value={newSpecialtyItem.model || ''}
+                          onChange={handleSpecialtyItemChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="year">Year</Label>
+                        <Input
+                          id="year"
+                          name="year"
+                          type="number"
+                          value={newSpecialtyItem.year || ''}
+                          onChange={handleSpecialtyItemChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="value">Value</Label>
+                        <Input
+                          id="value"
+                          name="value"
+                          type="number"
+                          step="0.01"
+                          value={newSpecialtyItem.value || ''}
+                          onChange={handleSpecialtyItemChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="storage_location">Storage Location</Label>
+                        <Input
+                          id="storage_location"
+                          name="storage_location"
+                          value={newSpecialtyItem.storage_location || ''}
+                          onChange={handleSpecialtyItemChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="usage">Usage</Label>
+                        <Select
+                          value={newSpecialtyItem.usage || ''}
+                          onValueChange={(value) => handleSpecialtyItemSelectChange('usage', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select usage" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Recreational">Recreational</SelectItem>
+                            <SelectItem value="Commercial">Commercial</SelectItem>
+                            <SelectItem value="Mixed">Mixed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cc_size">CC Size</Label>
+                        <Input
+                          id="cc_size"
+                          name="cc_size"
+                          type="number"
+                          value={newSpecialtyItem.cc_size || ''}
+                          onChange={handleSpecialtyItemChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="total_hp">Total HP</Label>
+                        <Input
+                          id="total_hp"
+                          name="total_hp"
+                          type="number"
+                          value={newSpecialtyItem.total_hp || ''}
+                          onChange={handleSpecialtyItemChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="max_speed">Max Speed</Label>
+                        <Input
+                          id="max_speed"
+                          name="max_speed"
+                          type="number"
+                          value={newSpecialtyItem.max_speed || ''}
+                          onChange={handleSpecialtyItemChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="collision_deductible">Collision Deductible</Label>
+                        <Input
+                          id="collision_deductible"
+                          name="collision_deductible"
+                          type="number"
+                          value={newSpecialtyItem.collision_deductible || ''}
+                          onChange={handleSpecialtyItemChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="comprehensive_deductible">Comprehensive Deductible</Label>
+                        <Input
+                          id="comprehensive_deductible"
+                          name="comprehensive_deductible"
+                          type="number"
+                          value={newSpecialtyItem.comprehensive_deductible || ''}
+                          onChange={handleSpecialtyItemChange}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => handleAddSpecialtyItem(newSpecialtyItem)}
+                      disabled={isSubmittingItem || !newSpecialtyItem.type || !newSpecialtyItem.make || !newSpecialtyItem.model || !newSpecialtyItem.year}
+                      className="w-full"
+                    >
+                      {isSubmittingItem ? "Adding..." : "Add Specialty Item"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {specialtyItems.length > 0 ? (
+                <div className="space-y-4">
+                  {specialtyItems.map((item, index) => (
+                    <Card key={index} className="bg-muted/30">
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Type</Label>
+                            <div>{item.type || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Item</Label>
+                            <div>{item.year} {item.make} {item.model}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Value</Label>
+                            <div>
+                              ${item.value
+                                ? parseFloat(item.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                : '0.00'}
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Storage Location</Label>
+                            <div>{item.storage_location || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Usage</Label>
+                            <div>{item.usage || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">CC Size</Label>
+                            <div>{item.cc_size || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Total HP</Label>
+                            <div>{item.total_hp || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Max Speed</Label>
+                            <div>{item.max_speed || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Collision Deductible</Label>
+                            <div>{item.collision_deductible || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-medium text-muted-foreground">Comprehensive Deductible</Label>
+                            <div>{item.comprehensive_deductible || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No specialty items added yet
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Auto Insurance Section */}
           <Card>
             <CardHeader className="pb-2">
@@ -1006,6 +2394,8 @@ export default function LeadDetailsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+
 
         {/* Marketing Automation Tab */}
         <TabsContent value="marketing" className="space-y-4 mt-4">
