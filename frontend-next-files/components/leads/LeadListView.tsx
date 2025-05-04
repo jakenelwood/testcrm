@@ -100,6 +100,7 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
                     currentStatus={lead.status}
                     onStatusChange={onStatusChange}
                     statuses={statuses}
+                    useColoredBadge={true}
                   />
                 </TableCell>
                 <TableCell>

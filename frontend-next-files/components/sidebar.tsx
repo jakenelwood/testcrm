@@ -159,7 +159,7 @@ export function Sidebar() {
                   route.iconColor,
                   showText ? "mr-2" : "mr-0"
                 )} />
-                {showText && route.label}
+                {showText && <span className="font-bold">{route.label}</span>}
               </Link>
             </Button>
           ))}
@@ -181,7 +181,7 @@ export function Sidebar() {
                   "h-4 w-4 text-[#24605E]",
                   showText ? "mr-2" : "mr-0"
                 )} />
-                {showText && <span>Pipelines</span>}
+                {showText && <span className="font-bold">Pipelines</span>}
               </div>
               {showText && (isPipelinesOpen ? (
                 <ChevronDown className="h-4 w-4" />
@@ -285,7 +285,7 @@ export function Sidebar() {
                   route.iconColor,
                   showText ? "mr-2" : "mr-0"
                 )} />
-                {showText && route.label}
+                {showText && <span className="font-bold">{route.label}</span>}
               </Link>
             </Button>
           ))}

@@ -12,15 +12,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { getStatusStyles, getCustomStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 
 interface LeadStatusDropdownProps {
   leadId: string;
   currentStatus: string;
   onStatusChange: (leadId: string, newStatus: string) => void;
   statuses?: PipelineStatus[];
+  useColoredBadge?: boolean;
 }
 
-export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, statuses = [] }: LeadStatusDropdownProps) {
+export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, statuses = [], useColoredBadge = false }: LeadStatusDropdownProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 
@@ -32,31 +34,16 @@ export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, stat
     ? statuses.map(s => s.name)
     : defaultStatuses;
 
-  // Get status color
+  // Get status color using centralized styling
   const getStatusColor = (status: string) => {
     // If we have pipeline statuses with color_hex, use those
     const pipelineStatus = statuses.find(s => s.name === status);
     if (pipelineStatus?.color_hex) {
-      const color = pipelineStatus.color_hex;
-      // Create a lighter version for the background
-      return `bg-opacity-20 bg-[${color}] text-[${color}] dark:bg-opacity-30 dark:text-opacity-90`;
+      return getCustomStatusStyles(pipelineStatus.color_hex, useColoredBadge ? 'default' : 'kanban');
     }
 
     // Otherwise, fall back to default colors
-    switch (status) {
-      case 'New':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'Contacted':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'Quoted':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
-      case 'Sold':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      case 'Lost':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
-    }
+    return getStatusStyles(status, useColoredBadge ? 'default' : 'kanban');
   };
 
   // Handle status change
@@ -113,15 +100,23 @@ export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, stat
     }
   };
 
+  // Get the appropriate style for the current status
+  const getStatusStyle = (status: string) => {
+    // Handle special case for "Quoted" status
+    if (status === 'Quoted') {
+      return 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400';
+    }
+
+    // Use the general status styles function for other statuses
+    return getStatusStyles(status);
+  };
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild disabled={isUpdating}>
-        <Button
-          variant="ghost"
-          className={`px-2.5 py-1 h-auto text-xs font-medium rounded-full ${getStatusColor(currentStatus)}`}
-        >
+      <DropdownMenuTrigger disabled={isUpdating}>
+        <div className={`inline-flex items-center cursor-pointer ${statusBadgeStyles} ${getStatusStyle(currentStatus)}`}>
           {currentStatus} <ChevronDown className="ml-1 h-3 w-3" />
-        </Button>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {statusOptions.map((status) => (
@@ -131,7 +126,7 @@ export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, stat
             onClick={() => handleStatusChange(status)}
             disabled={isUpdating}
           >
-            <div className={`w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`} />
+            <div className={`w-2 h-2 rounded-full mr-2 ${getStatusStyles(status, 'default')}`} />
             {status}
           </DropdownMenuItem>
         ))}

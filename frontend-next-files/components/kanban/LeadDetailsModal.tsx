@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
+import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 import supabase from '@/utils/supabase/client';
 
 interface LeadDetailsModalProps {
@@ -696,9 +697,15 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                         <div>
-                          {typeof lead.status === 'string'
-                            ? lead.status.charAt(0).toUpperCase() + lead.status.slice(1)
-                            : (lead.status as any)?.value || 'New'}
+                          <span className={`${statusBadgeStyles} ${getStatusStyles(
+                            typeof lead.status === 'string'
+                              ? lead.status
+                              : (lead.status as any)?.value || 'New'
+                          )}`}>
+                            {typeof lead.status === 'string'
+                              ? lead.status.charAt(0).toUpperCase() + lead.status.slice(1)
+                              : (lead.status as any)?.value || 'New'}
+                          </span>
                         </div>
                       </div>
                       <div>
