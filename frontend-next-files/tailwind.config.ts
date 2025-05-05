@@ -72,7 +72,17 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    // Try to load the tailwindcss-animate plugin, but don't fail if it's not available
+    function() {
+      try {
+        return require("tailwindcss-animate");
+      } catch (e) {
+        console.warn("tailwindcss-animate plugin not found, animations may not work properly");
+        return {};
+      }
+    }()
+  ],
 };
 
 export default config;
