@@ -28,7 +28,7 @@ export function KanbanColumn({ status, leads, onLeadSelect }: KanbanColumnProps)
 
   return (
     <div className="flex flex-col">
-      <div className={`px-3 py-1 rounded-md text-sm font-medium inline-block mb-2 ${getStatusStyles(status, 'kanban')}`}>
+      <div className={`px-3 py-1 rounded-md text-sm font-medium inline-block mb-2 text-black font-semibold ${getStatusStyles(status, 'kanban')}`}>
         {status} ({leads.length})
       </div>
       <div

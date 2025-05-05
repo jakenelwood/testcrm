@@ -398,10 +398,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto"
       >
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold tracking-tight">
+          <DialogTitle className="text-xl font-bold tracking-tight text-gray-900">
             {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
           </DialogTitle>
-          <div className="text-sm text-blue-500 hover:text-blue-700 mt-1">
+          <div className="text-sm text-blue-600 hover:text-blue-800 mt-1">
             <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
               e.preventDefault();
               onClose(); // Close the modal first
@@ -421,9 +421,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
           {/* Lead Data Tab */}
           <TabsContent value="data" className="space-y-4 mt-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-medium">Basic Information</CardTitle>
+            <Card className="border shadow-sm">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50">
+                <CardTitle className="text-lg font-medium text-gray-900">Basic Information</CardTitle>
                 <Button
                   variant={isEditing ? "default" : "outline"}
                   onClick={() => setIsEditing(!isEditing)}
@@ -434,7 +434,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                 </Button>
               </CardHeader>
               <ScrollArea className="h-[500px]">
-                <CardContent className="grid grid-cols-2 gap-4">
+                <CardContent className="grid grid-cols-2 gap-4 pt-4">
                   {isEditing ? (
                     // Editable form
                     <>
