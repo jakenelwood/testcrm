@@ -73,7 +73,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
   const formattedDate = formatDateMMDDYYYY(lead.created_at);
 
   // Determine carrier badge color
-  const getCarrierColor = (carrier: string | null) => {
+  const getCarrierColor = (carrier: string | null | undefined) => {
     if (!carrier) return "bg-black text-white";
 
     switch (carrier.toLowerCase()) {
@@ -91,12 +91,15 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
         <TooltipTrigger asChild>
           <div
             ref={setNodeRef}
-            style={style}
+            style={{
+              ...style,
+              backgroundColor: 'white', // Force white background even during drag
+            }}
             {...attributes}
             {...listeners}
-            className={`bg-white dark:bg-zinc-800 rounded-md p-4 mb-3 cursor-pointer transition-all select-none ${
+            className={`bg-white !bg-white rounded-md p-4 mb-3 cursor-pointer transition-all select-none border border-gray-200 ${
               isDragging
-                ? 'opacity-50 shadow-none border-2 border-blue-500'
+                ? 'opacity-80 shadow-xl border-2 border-blue-500 !bg-white'
                 : 'opacity-100 hover:shadow-md shadow-sm hover:border hover:border-blue-300'
             }`}
             onClick={(e) => {
@@ -108,11 +111,11 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
               }
             }}
           >
-      <div className="font-medium text-foreground dark:text-white">
+      <div className="font-medium text-gray-900">
         {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
       </div>
 
-      <div className="text-sm text-muted-foreground mt-1">
+      <div className="text-sm text-gray-600 mt-1">
         Entered on: {formattedDate}
       </div>
 

@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   :root {
@@ -54,10 +52,11 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 
@@ -97,7 +96,8 @@
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 
-  /* Stone theme from shadcn/ui */
+  /* Theme variations */
+  /* Stone theme */
   html[data-theme="stone"] {
     --radius: 0.625rem !important;
     --background: #fafaf9 !important;
@@ -118,27 +118,6 @@
     --border: #e7e5e4 !important;
     --input: #e7e5e4 !important;
     --ring: #a8a29e !important;
-
-    /* Update theme variables */
-    --color-background: var(--background) !important;
-    --color-foreground: var(--foreground) !important;
-    --color-card: var(--card) !important;
-    --color-card-foreground: var(--card-foreground) !important;
-    --color-popover: var(--popover) !important;
-    --color-popover-foreground: var(--popover-foreground) !important;
-    --color-primary: var(--primary) !important;
-    --color-primary-foreground: var(--primary-foreground) !important;
-    --color-secondary: var(--secondary) !important;
-    --color-secondary-foreground: var(--secondary-foreground) !important;
-    --color-muted: var(--muted) !important;
-    --color-muted-foreground: var(--muted-foreground) !important;
-    --color-accent: var(--accent) !important;
-    --color-accent-foreground: var(--accent-foreground) !important;
-    --color-destructive: var(--destructive) !important;
-    --color-destructive-foreground: var(--destructive-foreground) !important;
-    --color-border: var(--border) !important;
-    --color-input: var(--input) !important;
-    --color-ring: var(--ring) !important;
   }
 
   /* Zinc theme */
@@ -162,27 +141,6 @@
     --border: #e4e4e7 !important;
     --input: #e4e4e7 !important;
     --ring: #a1a1aa !important;
-
-    /* Update theme variables */
-    --color-background: var(--background) !important;
-    --color-foreground: var(--foreground) !important;
-    --color-card: var(--card) !important;
-    --color-card-foreground: var(--card-foreground) !important;
-    --color-popover: var(--popover) !important;
-    --color-popover-foreground: var(--popover-foreground) !important;
-    --color-primary: var(--primary) !important;
-    --color-primary-foreground: var(--primary-foreground) !important;
-    --color-secondary: var(--secondary) !important;
-    --color-secondary-foreground: var(--secondary-foreground) !important;
-    --color-muted: var(--muted) !important;
-    --color-muted-foreground: var(--muted-foreground) !important;
-    --color-accent: var(--accent) !important;
-    --color-accent-foreground: var(--accent-foreground) !important;
-    --color-destructive: var(--destructive) !important;
-    --color-destructive-foreground: var(--destructive-foreground) !important;
-    --color-border: var(--border) !important;
-    --color-input: var(--input) !important;
-    --color-ring: var(--ring) !important;
   }
 
   /* Gray theme */
@@ -206,27 +164,6 @@
     --border: #e5e7eb !important;
     --input: #e5e7eb !important;
     --ring: #9ca3af !important;
-
-    /* Update theme variables */
-    --color-background: var(--background) !important;
-    --color-foreground: var(--foreground) !important;
-    --color-card: var(--card) !important;
-    --color-card-foreground: var(--card-foreground) !important;
-    --color-popover: var(--popover) !important;
-    --color-popover-foreground: var(--popover-foreground) !important;
-    --color-primary: var(--primary) !important;
-    --color-primary-foreground: var(--primary-foreground) !important;
-    --color-secondary: var(--secondary) !important;
-    --color-secondary-foreground: var(--secondary-foreground) !important;
-    --color-muted: var(--muted) !important;
-    --color-muted-foreground: var(--muted-foreground) !important;
-    --color-accent: var(--accent) !important;
-    --color-accent-foreground: var(--accent-foreground) !important;
-    --color-destructive: var(--destructive) !important;
-    --color-destructive-foreground: var(--destructive-foreground) !important;
-    --color-border: var(--border) !important;
-    --color-input: var(--input) !important;
-    --color-ring: var(--ring) !important;
   }
 
   /* Slate theme */
@@ -250,41 +187,5 @@
     --border: #e2e8f0 !important;
     --input: #e2e8f0 !important;
     --ring: #94a3b8 !important;
-
-    /* Update theme variables */
-    --color-background: var(--background) !important;
-    --color-foreground: var(--foreground) !important;
-    --color-card: var(--card) !important;
-    --color-card-foreground: var(--card-foreground) !important;
-    --color-popover: var(--popover) !important;
-    --color-popover-foreground: var(--popover-foreground) !important;
-    --color-primary: var(--primary) !important;
-    --color-primary-foreground: var(--primary-foreground) !important;
-    --color-secondary: var(--secondary) !important;
-    --color-secondary-foreground: var(--secondary-foreground) !important;
-    --color-muted: var(--muted) !important;
-    --color-muted-foreground: var(--muted-foreground) !important;
-    --color-accent: var(--accent) !important;
-    --color-accent-foreground: var(--accent-foreground) !important;
-    --color-destructive: var(--destructive) !important;
-    --color-destructive-foreground: var(--destructive-foreground) !important;
-    --color-border: var(--border) !important;
-    --color-input: var(--input) !important;
-    --color-ring: var(--ring) !important;
-  }
-
-  /* Debug styles to make it obvious which theme is active */
-  html::before {
-    content: "Current Theme: " attr(data-theme);
-    display: block;
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: #000;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 4px;
-    z-index: 9999;
-    font-size: 12px;
   }
 }
