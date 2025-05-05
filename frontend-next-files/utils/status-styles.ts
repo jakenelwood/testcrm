@@ -25,38 +25,38 @@ export function getStatusStyles(status: string, variant: 'default' | 'kanban' = 
 
   if (statusLower === 'new' || statusLower === 'pending') {
     return isKanban
-      ? 'bg-blue-100 text-black font-medium dark:bg-blue-900/30 dark:text-black'
-      : 'bg-blue-50 text-black font-medium dark:bg-blue-900/20 dark:text-black';
+      ? 'bg-blue-200 text-black font-medium'
+      : 'bg-blue-200 text-black font-medium';
   }
 
   if (statusLower === 'contacted' || statusLower === 'in progress') {
     return isKanban
-      ? 'bg-yellow-100 text-black font-medium dark:bg-yellow-900/30 dark:text-black'
-      : 'bg-yellow-50 text-black font-medium dark:bg-yellow-900/20 dark:text-black';
+      ? 'bg-yellow-200 text-black font-medium'
+      : 'bg-yellow-200 text-black font-medium';
   }
 
   if (statusLower === 'quoted') {
     return isKanban
-      ? 'bg-purple-100 text-black font-medium dark:bg-purple-900/30 dark:text-black'
-      : 'bg-purple-50 text-black font-medium dark:bg-purple-900/20 dark:text-black';
+      ? 'bg-purple-200 text-black font-medium'
+      : 'bg-purple-200 text-black font-medium';
   }
 
   if (statusLower === 'sold' || statusLower === 'completed') {
     return isKanban
-      ? 'bg-green-100 text-black font-medium dark:bg-green-900/30 dark:text-black'
-      : 'bg-green-50 text-black font-medium dark:bg-green-900/20 dark:text-black';
+      ? 'bg-green-200 text-black font-medium'
+      : 'bg-green-200 text-black font-medium';
   }
 
   if (statusLower === 'lost') {
     return isKanban
-      ? 'bg-red-100 text-black font-medium dark:bg-red-900/30 dark:text-black'
-      : 'bg-red-50 text-black font-medium dark:bg-red-900/20 dark:text-black';
+      ? 'bg-red-200 text-black font-medium'
+      : 'bg-red-200 text-black font-medium';
   }
 
   // Default case
   return isKanban
-    ? 'bg-gray-100 text-black font-medium dark:bg-gray-800 dark:text-black'
-    : 'bg-gray-50 text-black font-medium dark:bg-gray-900/20 dark:text-black';
+    ? 'bg-gray-200 text-black font-medium'
+    : 'bg-gray-200 text-black font-medium';
 }
 
 /**
@@ -68,9 +68,9 @@ export function getStatusStyles(status: string, variant: 'default' | 'kanban' = 
 export function getCustomStatusStyles(color: string, variant: 'default' | 'kanban' = 'default') {
   // For custom colors, we create appropriate styling based on the variant
   if (variant === 'kanban') {
-    return `bg-[${color}]/20 text-black font-medium dark:bg-[${color}]/30 dark:text-black`;
+    return `bg-[${color}]/30 text-black font-medium`;
   } else {
-    return `bg-[${color}]/10 text-black font-medium dark:bg-[${color}]/20 dark:text-black`;
+    return `bg-[${color}]/30 text-black font-medium`;
   }
 }
 
@@ -78,4 +78,4 @@ export function getCustomStatusStyles(color: string, variant: 'default' | 'kanba
  * Common badge styling for status indicators
  * Used for consistent appearance across the application
  */
-export const statusBadgeStyles = "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium";
+export const statusBadgeStyles = "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium text-black";

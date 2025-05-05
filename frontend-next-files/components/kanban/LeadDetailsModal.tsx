@@ -397,9 +397,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       }}
     >
       <DialogContent
-        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-white/100 border-gray-200"
+        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-lg"
       >
-        <DialogHeader className="border-b border-gray-100 pb-2 mb-2">
+        <DialogHeader className="border-b border-gray-200 pb-2 mb-2 bg-white">
           <DialogTitle className="text-xl font-bold tracking-tight text-gray-900">
             {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
           </DialogTitle>
@@ -415,10 +415,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         </DialogHeader>
 
         <Tabs defaultValue="data" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid grid-cols-3">
-            <TabsTrigger value="data">Lead Data</TabsTrigger>
-            <TabsTrigger value="communications">Communication History</TabsTrigger>
-            <TabsTrigger value="marketing">Marketing Automation</TabsTrigger>
+          <TabsList className="grid grid-cols-3 bg-gray-100">
+            <TabsTrigger value="data" className="text-gray-900 data-[state=active]:bg-white data-[state=active]:text-black">Lead Data</TabsTrigger>
+            <TabsTrigger value="communications" className="text-gray-900 data-[state=active]:bg-white data-[state=active]:text-black">Communication History</TabsTrigger>
+            <TabsTrigger value="marketing" className="text-gray-900 data-[state=active]:bg-white data-[state=active]:text-black">Marketing Automation</TabsTrigger>
           </TabsList>
 
           {/* Lead Data Tab */}
@@ -484,7 +484,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                             <>
                               <a 
                                 href="#"
-                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
                                 title="Call via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -544,7 +544,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                               </a>
                               <a 
                                 href="#"
-                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                 title="Message via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -813,7 +813,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                             <>
                               <a 
                                 href="#"
-                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
                                 title="Call via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -873,7 +873,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                               </a>
                               <a 
                                 href="#"
-                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                 title="Message via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -1113,22 +1113,22 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                 {[...notes, ...communications].sort((a, b) =>
                   new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
                 ).map((item, index) => (
-                  <Card key={index} className="bg-gray-50 border border-gray-100">
+                  <Card key={index} className="bg-gray-50 border border-gray-200">
                     <CardContent className="pt-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <div className="text-sm font-medium">
+                          <div className="text-sm font-medium text-black">
                             {item.type || 'Note'} {item.direction ? `(${item.direction})` : ''}
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-sm text-gray-600">
                             {formatDateTimeMMDDYYYY(item.created_at)}
                           </div>
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-gray-600">
                           {item.created_by || 'System'}
                         </div>
                       </div>
-                      <div className="mt-2">
+                      <div className="mt-2 text-black">
                         {item.note_content || item.content}
                       </div>
                     </CardContent>
