@@ -104,7 +104,7 @@ export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, stat
   const getStatusStyle = (status: string) => {
     // Handle special case for "Quoted" status
     if (status === 'Quoted') {
-      return 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400';
+      return 'bg-purple-50 text-black font-medium dark:bg-purple-900/20 dark:text-black';
     }
 
     // Use the general status styles function for other statuses

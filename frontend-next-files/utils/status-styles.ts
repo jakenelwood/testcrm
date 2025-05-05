@@ -25,38 +25,38 @@ export function getStatusStyles(status: string, variant: 'default' | 'kanban' = 
 
   if (statusLower === 'new' || statusLower === 'pending') {
     return isKanban
-      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-      : 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
+      ? 'bg-blue-100 text-black font-medium dark:bg-blue-900/30 dark:text-black'
+      : 'bg-blue-50 text-black font-medium dark:bg-blue-900/20 dark:text-black';
   }
 
   if (statusLower === 'contacted' || statusLower === 'in progress') {
     return isKanban
-      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-      : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
+      ? 'bg-yellow-100 text-black font-medium dark:bg-yellow-900/30 dark:text-black'
+      : 'bg-yellow-50 text-black font-medium dark:bg-yellow-900/20 dark:text-black';
   }
 
   if (statusLower === 'quoted') {
     return isKanban
-      ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-      : 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400';
+      ? 'bg-purple-100 text-black font-medium dark:bg-purple-900/30 dark:text-black'
+      : 'bg-purple-50 text-black font-medium dark:bg-purple-900/20 dark:text-black';
   }
 
   if (statusLower === 'sold' || statusLower === 'completed') {
     return isKanban
-      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-      : 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
+      ? 'bg-green-100 text-black font-medium dark:bg-green-900/30 dark:text-black'
+      : 'bg-green-50 text-black font-medium dark:bg-green-900/20 dark:text-black';
   }
 
   if (statusLower === 'lost') {
     return isKanban
-      ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-      : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
+      ? 'bg-red-100 text-black font-medium dark:bg-red-900/30 dark:text-black'
+      : 'bg-red-50 text-black font-medium dark:bg-red-900/20 dark:text-black';
   }
 
   // Default case
   return isKanban
-    ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
-    : 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
+    ? 'bg-gray-100 text-black font-medium dark:bg-gray-800 dark:text-black'
+    : 'bg-gray-50 text-black font-medium dark:bg-gray-900/20 dark:text-black';
 }
 
 /**
@@ -68,9 +68,9 @@ export function getStatusStyles(status: string, variant: 'default' | 'kanban' = 
 export function getCustomStatusStyles(color: string, variant: 'default' | 'kanban' = 'default') {
   // For custom colors, we create appropriate styling based on the variant
   if (variant === 'kanban') {
-    return `bg-[${color}]/20 text-[${color}] dark:bg-[${color}]/30 dark:text-[${color}]/90`;
+    return `bg-[${color}]/20 text-black font-medium dark:bg-[${color}]/30 dark:text-black`;
   } else {
-    return `bg-[${color}]/10 text-[${color}] dark:bg-[${color}]/20 dark:text-[${color}]/90`;
+    return `bg-[${color}]/10 text-black font-medium dark:bg-[${color}]/20 dark:text-black`;
   }
 }
 
