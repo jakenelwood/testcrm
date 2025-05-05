@@ -31,6 +31,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
+import { Phone, MessageSquare } from "lucide-react";
 import supabase from '@/utils/supabase/client';
 
 interface LeadDetailsModalProps {
@@ -470,12 +471,81 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone_number">Phone</Label>
-                        <Input
-                          id="phone_number"
-                          name="phone_number"
-                          value={formData.phone_number}
-                          onChange={handleInputChange}
-                        />
+                        <div className="flex space-x-2">
+                          <Input
+                            id="phone_number"
+                            name="phone_number"
+                            value={formData.phone_number}
+                            onChange={handleInputChange}
+                            className="flex-1"
+                          />
+                          {formData.phone_number && (
+                            <>
+                              <a 
+                                href={`tel:${formData.phone_number}`}
+                                className="inline-flex items-center justify-center px-3 h-10 rounded-md bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                                title="Call"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Log this communication to the database
+                                  supabase
+                                    .from('lead_communications')
+                                    .insert({
+                                      lead_id: lead.id,
+                                      type: 'Call',
+                                      content: `Call initiated to ${formData.phone_number}`,
+                                      created_by: 'User',
+                                      created_at: new Date().toISOString(),
+                                    })
+                                    .then(() => {
+                                      // Refresh communications list
+                                      supabase
+                                        .from('lead_communications')
+                                        .select('*')
+                                        .eq('lead_id', lead.id)
+                                        .order('created_at', { ascending: false })
+                                        .then(({ data }) => {
+                                          if (data) setCommunications(data);
+                                        });
+                                    });
+                                }}
+                              >
+                                <Phone className="h-4 w-4" />
+                              </a>
+                              <a 
+                                href={`sms:${formData.phone_number}`}
+                                className="inline-flex items-center justify-center px-3 h-10 rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                title="Message"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Log this communication to the database
+                                  supabase
+                                    .from('lead_communications')
+                                    .insert({
+                                      lead_id: lead.id,
+                                      type: 'SMS',
+                                      content: `SMS initiated to ${formData.phone_number}`,
+                                      created_by: 'User',
+                                      created_at: new Date().toISOString(),
+                                    })
+                                    .then(() => {
+                                      // Refresh communications list
+                                      supabase
+                                        .from('lead_communications')
+                                        .select('*')
+                                        .eq('lead_id', lead.id)
+                                        .order('created_at', { ascending: false })
+                                        .then(({ data }) => {
+                                          if (data) setCommunications(data);
+                                        });
+                                    });
+                                }}
+                              >
+                                <MessageSquare className="h-4 w-4" />
+                              </a>
+                            </>
+                          )}
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="insurance_type">Insurance Type</Label>
@@ -672,7 +742,75 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
-                        <div>{lead.phone_number || 'N/A'}</div>
+                        <div className="flex items-center">
+                          <span className="mr-3">{lead.phone_number || 'N/A'}</span>
+                          {lead.phone_number && (
+                            <>
+                              <a 
+                                href={`tel:${lead.phone_number}`}
+                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                                title="Call"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Log this communication to the database
+                                  supabase
+                                    .from('lead_communications')
+                                    .insert({
+                                      lead_id: lead.id,
+                                      type: 'Call',
+                                      content: `Call initiated to ${lead.phone_number}`,
+                                      created_by: 'User',
+                                      created_at: new Date().toISOString(),
+                                    })
+                                    .then(() => {
+                                      // Refresh communications list
+                                      supabase
+                                        .from('lead_communications')
+                                        .select('*')
+                                        .eq('lead_id', lead.id)
+                                        .order('created_at', { ascending: false })
+                                        .then(({ data }) => {
+                                          if (data) setCommunications(data);
+                                        });
+                                    });
+                                }}
+                              >
+                                <Phone className="h-4 w-4" />
+                              </a>
+                              <a 
+                                href={`sms:${lead.phone_number}`}
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                title="Message"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Log this communication to the database
+                                  supabase
+                                    .from('lead_communications')
+                                    .insert({
+                                      lead_id: lead.id,
+                                      type: 'SMS',
+                                      content: `SMS initiated to ${lead.phone_number}`,
+                                      created_by: 'User',
+                                      created_at: new Date().toISOString(),
+                                    })
+                                    .then(() => {
+                                      // Refresh communications list
+                                      supabase
+                                        .from('lead_communications')
+                                        .select('*')
+                                        .eq('lead_id', lead.id)
+                                        .order('created_at', { ascending: false })
+                                        .then(({ data }) => {
+                                          if (data) setCommunications(data);
+                                        });
+                                    });
+                                }}
+                              >
+                                <MessageSquare className="h-4 w-4" />
+                              </a>
+                            </>
+                          )}
+                        </div>
                       </div>
                       <div>
                         <Label className="text-xs font-medium text-muted-foreground">Insurance Type</Label>
