@@ -559,12 +559,12 @@ function LeadsPageContent() {
             scale: 0.98,
           }}>
             {activeLead ? (
-              <div className="bg-white dark:bg-zinc-800 rounded-md shadow-xl p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500 rotate-1 scale-105 select-none">
-                <div className="font-medium text-foreground dark:text-white">
+              <div className="bg-white rounded-md shadow-xl p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500 rotate-1 scale-105 select-none">
+                <div className="font-medium text-gray-900">
                   {typeof activeLead.first_name === 'string' ? activeLead.first_name : ''} {typeof activeLead.last_name === 'string' ? activeLead.last_name : ''}
                 </div>
 
-                <div className="text-sm text-muted-foreground mt-1">
+                <div className="text-sm text-gray-600 mt-1">
                   Entered on: {new Date(activeLead.created_at).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
