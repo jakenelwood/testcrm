@@ -1,71 +1,75 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer base {
+  :root {
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --radius: 0.625rem;
 
-:root {
-  --font-sans: 'Inter', system-ui, sans-serif;
+    /* Neutral theme */
+    --background: #ffffff;
+    --foreground: #171717;
+    --card: #ffffff;
+    --card-foreground: #171717;
+    --popover: #ffffff;
+    --popover-foreground: #171717;
+    --primary: #171717;
+    --primary-foreground: #ffffff;
+    --secondary: #f5f5f5;
+    --secondary-foreground: #171717;
+    --muted: #f5f5f5;
+    --muted-foreground: #737373;
+    --accent: #f5f5f5;
+    --accent-foreground: #171717;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #e5e5e5;
+    --input: #e5e5e5;
+    --ring: #737373;
+  }
 
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-
-  --radius: 0.5rem;
+  .dark {
+    --background: #171717;
+    --foreground: #ffffff;
+    --card: #262626;
+    --card-foreground: #ffffff;
+    --popover: #262626;
+    --popover-foreground: #ffffff;
+    --primary: #ffffff;
+    --primary-foreground: #171717;
+    --secondary: #333333;
+    --secondary-foreground: #ffffff;
+    --muted: #333333;
+    --muted-foreground: #a3a3a3;
+    --accent: #333333;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #333333;
+    --input: #333333;
+    --ring: #a3a3a3;
+  }
 }
 
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 @layer base {
@@ -106,5 +110,201 @@
   .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Theme transition helper */
+  .theme-transition * {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* Stone theme from shadcn/ui */
+  html[data-theme="stone"] {
+    --radius: 0.625rem !important;
+    --background: #fafaf9 !important;
+    --foreground: #44403c !important;
+    --card: #ffffff !important;
+    --card-foreground: #44403c !important;
+    --popover: #ffffff !important;
+    --popover-foreground: #44403c !important;
+    --primary: #78716c !important;
+    --primary-foreground: #ffffff !important;
+    --secondary: #f5f3f2 !important;
+    --secondary-foreground: #44403c !important;
+    --muted: #f5f3f2 !important;
+    --muted-foreground: #78716c !important;
+    --accent: #f5f3f2 !important;
+    --accent-foreground: #44403c !important;
+    --destructive: #ef4444 !important;
+    --border: #e7e5e4 !important;
+    --input: #e7e5e4 !important;
+    --ring: #a8a29e !important;
+
+    /* Update theme variables */
+    --color-background: var(--background) !important;
+    --color-foreground: var(--foreground) !important;
+    --color-card: var(--card) !important;
+    --color-card-foreground: var(--card-foreground) !important;
+    --color-popover: var(--popover) !important;
+    --color-popover-foreground: var(--popover-foreground) !important;
+    --color-primary: var(--primary) !important;
+    --color-primary-foreground: var(--primary-foreground) !important;
+    --color-secondary: var(--secondary) !important;
+    --color-secondary-foreground: var(--secondary-foreground) !important;
+    --color-muted: var(--muted) !important;
+    --color-muted-foreground: var(--muted-foreground) !important;
+    --color-accent: var(--accent) !important;
+    --color-accent-foreground: var(--accent-foreground) !important;
+    --color-destructive: var(--destructive) !important;
+    --color-destructive-foreground: var(--destructive-foreground) !important;
+    --color-border: var(--border) !important;
+    --color-input: var(--input) !important;
+    --color-ring: var(--ring) !important;
+  }
+
+  /* Zinc theme */
+  html[data-theme="zinc"] {
+    --radius: 0.625rem !important;
+    --background: #fafafa !important;
+    --foreground: #3f3f46 !important;
+    --card: #ffffff !important;
+    --card-foreground: #3f3f46 !important;
+    --popover: #ffffff !important;
+    --popover-foreground: #3f3f46 !important;
+    --primary: #71717a !important;
+    --primary-foreground: #ffffff !important;
+    --secondary: #f4f4f5 !important;
+    --secondary-foreground: #3f3f46 !important;
+    --muted: #f4f4f5 !important;
+    --muted-foreground: #71717a !important;
+    --accent: #f4f4f5 !important;
+    --accent-foreground: #3f3f46 !important;
+    --destructive: #ef4444 !important;
+    --border: #e4e4e7 !important;
+    --input: #e4e4e7 !important;
+    --ring: #a1a1aa !important;
+
+    /* Update theme variables */
+    --color-background: var(--background) !important;
+    --color-foreground: var(--foreground) !important;
+    --color-card: var(--card) !important;
+    --color-card-foreground: var(--card-foreground) !important;
+    --color-popover: var(--popover) !important;
+    --color-popover-foreground: var(--popover-foreground) !important;
+    --color-primary: var(--primary) !important;
+    --color-primary-foreground: var(--primary-foreground) !important;
+    --color-secondary: var(--secondary) !important;
+    --color-secondary-foreground: var(--secondary-foreground) !important;
+    --color-muted: var(--muted) !important;
+    --color-muted-foreground: var(--muted-foreground) !important;
+    --color-accent: var(--accent) !important;
+    --color-accent-foreground: var(--accent-foreground) !important;
+    --color-destructive: var(--destructive) !important;
+    --color-destructive-foreground: var(--destructive-foreground) !important;
+    --color-border: var(--border) !important;
+    --color-input: var(--input) !important;
+    --color-ring: var(--ring) !important;
+  }
+
+  /* Gray theme */
+  html[data-theme="gray"] {
+    --radius: 0.625rem !important;
+    --background: #f9fafb !important;
+    --foreground: #4b5563 !important;
+    --card: #ffffff !important;
+    --card-foreground: #4b5563 !important;
+    --popover: #ffffff !important;
+    --popover-foreground: #4b5563 !important;
+    --primary: #6b7280 !important;
+    --primary-foreground: #ffffff !important;
+    --secondary: #f3f4f6 !important;
+    --secondary-foreground: #4b5563 !important;
+    --muted: #f3f4f6 !important;
+    --muted-foreground: #6b7280 !important;
+    --accent: #f3f4f6 !important;
+    --accent-foreground: #4b5563 !important;
+    --destructive: #ef4444 !important;
+    --border: #e5e7eb !important;
+    --input: #e5e7eb !important;
+    --ring: #9ca3af !important;
+
+    /* Update theme variables */
+    --color-background: var(--background) !important;
+    --color-foreground: var(--foreground) !important;
+    --color-card: var(--card) !important;
+    --color-card-foreground: var(--card-foreground) !important;
+    --color-popover: var(--popover) !important;
+    --color-popover-foreground: var(--popover-foreground) !important;
+    --color-primary: var(--primary) !important;
+    --color-primary-foreground: var(--primary-foreground) !important;
+    --color-secondary: var(--secondary) !important;
+    --color-secondary-foreground: var(--secondary-foreground) !important;
+    --color-muted: var(--muted) !important;
+    --color-muted-foreground: var(--muted-foreground) !important;
+    --color-accent: var(--accent) !important;
+    --color-accent-foreground: var(--accent-foreground) !important;
+    --color-destructive: var(--destructive) !important;
+    --color-destructive-foreground: var(--destructive-foreground) !important;
+    --color-border: var(--border) !important;
+    --color-input: var(--input) !important;
+    --color-ring: var(--ring) !important;
+  }
+
+  /* Slate theme */
+  html[data-theme="slate"] {
+    --radius: 0.625rem !important;
+    --background: #f8fafc !important;
+    --foreground: #334155 !important;
+    --card: #ffffff !important;
+    --card-foreground: #334155 !important;
+    --popover: #ffffff !important;
+    --popover-foreground: #334155 !important;
+    --primary: #64748b !important;
+    --primary-foreground: #ffffff !important;
+    --secondary: #f1f5f9 !important;
+    --secondary-foreground: #334155 !important;
+    --muted: #f1f5f9 !important;
+    --muted-foreground: #64748b !important;
+    --accent: #f1f5f9 !important;
+    --accent-foreground: #334155 !important;
+    --destructive: #ef4444 !important;
+    --border: #e2e8f0 !important;
+    --input: #e2e8f0 !important;
+    --ring: #94a3b8 !important;
+
+    /* Update theme variables */
+    --color-background: var(--background) !important;
+    --color-foreground: var(--foreground) !important;
+    --color-card: var(--card) !important;
+    --color-card-foreground: var(--card-foreground) !important;
+    --color-popover: var(--popover) !important;
+    --color-popover-foreground: var(--popover-foreground) !important;
+    --color-primary: var(--primary) !important;
+    --color-primary-foreground: var(--primary-foreground) !important;
+    --color-secondary: var(--secondary) !important;
+    --color-secondary-foreground: var(--secondary-foreground) !important;
+    --color-muted: var(--muted) !important;
+    --color-muted-foreground: var(--muted-foreground) !important;
+    --color-accent: var(--accent) !important;
+    --color-accent-foreground: var(--accent-foreground) !important;
+    --color-destructive: var(--destructive) !important;
+    --color-destructive-foreground: var(--destructive-foreground) !important;
+    --color-border: var(--border) !important;
+    --color-input: var(--input) !important;
+    --color-ring: var(--ring) !important;
+  }
+
+  /* Debug styles to make it obvious which theme is active */
+  html::before {
+    content: "Current Theme: " attr(data-theme);
+    display: block;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: #000;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    z-index: 9999;
+    font-size: 12px;
   }
 }
