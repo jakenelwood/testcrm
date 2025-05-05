@@ -2,6 +2,7 @@
   "version": 2,
   "framework": "nextjs",
   "regions": ["iad1"],
+  "installCommand": "npm install --legacy-peer-deps",
   "env": {
     "NEXT_PUBLIC_API_BASE_URL": "http://65.21.174.252:8000",
     "NEXT_PUBLIC_SUPABASE_URL": "https://vpwvdfrxvvuxojejnegm.supabase.co",
