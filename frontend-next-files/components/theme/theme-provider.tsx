@@ -157,9 +157,25 @@ export function ThemeProvider({
       // Store theme preference
       localStorage.setItem('theme', theme);
 
+      // Apply theme class to body for shadcn/ui theming
+      if (theme === 'stone' || theme === 'zinc' || theme === 'gray' || theme === 'slate') {
+        document.body.classList.add('theme-' + theme);
+        // Remove other theme classes
+        ['stone', 'zinc', 'gray', 'slate', 'neutral'].forEach(t => {
+          if (t !== theme) document.body.classList.remove('theme-' + t);
+        });
+      } else {
+        // Default to neutral theme
+        document.body.classList.add('theme-neutral');
+        ['stone', 'zinc', 'gray', 'slate'].forEach(t => {
+          document.body.classList.remove('theme-' + t);
+        });
+      }
+
       // Debug: Log the applied theme
       console.log('Applied theme:', {
-        'data-theme': root.getAttribute('data-theme')
+        'data-theme': root.getAttribute('data-theme'),
+        'body-classes': document.body.className
       });
 
     } catch (error) {
