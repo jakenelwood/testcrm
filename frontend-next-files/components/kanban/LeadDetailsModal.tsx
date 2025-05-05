@@ -32,6 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 import { Phone, MessageSquare } from "lucide-react";
+import { makeRingCentralCall, sendRingCentralSMS } from "@/utils/ringcentral";
 import supabase from '@/utils/supabase/client';
 
 interface LeadDetailsModalProps {
@@ -482,63 +483,127 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                           {formData.phone_number && (
                             <>
                               <a 
-                                href={`tel:${formData.phone_number}`}
-                                className="inline-flex items-center justify-center px-3 h-10 rounded-md bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                                title="Call"
+                                href="#"
+                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                                title="Call via RingCentral"
                                 onClick={(e) => {
+                                  e.preventDefault();
                                   e.stopPropagation();
-                                  // Log this communication to the database
-                                  supabase
-                                    .from('lead_communications')
-                                    .insert({
-                                      lead_id: lead.id,
-                                      type: 'Call',
-                                      content: `Call initiated to ${formData.phone_number}`,
-                                      created_by: 'User',
-                                      created_at: new Date().toISOString(),
+                                  
+                                  // Show a toast notification that we're initiating the call
+                                  toast({
+                                    title: "Initiating call...",
+                                    description: `Calling ${formData.phone_number} via RingCentral`,
+                                  });
+                                  
+                                  // Make the call via RingCentral API
+                                  makeRingCentralCall(
+                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                    formData.phone_number || ''
+                                  )
+                                    .then(response => {
+                                      // Show success toast
+                                      toast({
+                                        title: "Call initiated",
+                                        description: "You should receive a call on your phone shortly.",
+                                      });
+                                      
+                                      // Log this communication to the database
+                                      return supabase
+                                        .from('lead_communications')
+                                        .insert({
+                                          lead_id: lead.id,
+                                          type: 'Call',
+                                          content: `RingCentral call initiated to ${formData.phone_number}`,
+                                          created_by: 'User',
+                                          created_at: new Date().toISOString(),
+                                        });
                                     })
                                     .then(() => {
                                       // Refresh communications list
-                                      supabase
+                                      return supabase
                                         .from('lead_communications')
                                         .select('*')
                                         .eq('lead_id', lead.id)
-                                        .order('created_at', { ascending: false })
-                                        .then(({ data }) => {
-                                          if (data) setCommunications(data);
-                                        });
+                                        .order('created_at', { ascending: false });
+                                    })
+                                    .then(({ data }) => {
+                                      if (data) setCommunications(data);
+                                    })
+                                    .catch(error => {
+                                      console.error('RingCentral call error:', error);
+                                      toast({
+                                        title: "Call failed",
+                                        description: "Failed to initiate RingCentral call. See console for details.",
+                                        variant: "destructive"
+                                      });
                                     });
                                 }}
                               >
                                 <Phone className="h-4 w-4" />
                               </a>
                               <a 
-                                href={`sms:${formData.phone_number}`}
-                                className="inline-flex items-center justify-center px-3 h-10 rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                                title="Message"
+                                href="#"
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                title="Message via RingCentral"
                                 onClick={(e) => {
+                                  e.preventDefault();
                                   e.stopPropagation();
-                                  // Log this communication to the database
-                                  supabase
-                                    .from('lead_communications')
-                                    .insert({
-                                      lead_id: lead.id,
-                                      type: 'SMS',
-                                      content: `SMS initiated to ${formData.phone_number}`,
-                                      created_by: 'User',
-                                      created_at: new Date().toISOString(),
-                                    })
-                                    .then(() => {
-                                      // Refresh communications list
-                                      supabase
-                                        .from('lead_communications')
-                                        .select('*')
-                                        .eq('lead_id', lead.id)
-                                        .order('created_at', { ascending: false })
-                                        .then(({ data }) => {
-                                          if (data) setCommunications(data);
-                                        });
+                                  
+                                  // Show a prompt for the message text
+                                  const messageText = prompt("Enter your message:", `Hi ${formData.first_name || ''}, this is regarding your insurance quote.`);
+                                  
+                                  if (messageText) {
+                                    // Show a toast notification that we're sending the message
+                                    toast({
+                                      title: "Sending message...",
+                                      description: `Texting ${formData.phone_number} via RingCentral`,
                                     });
+                                    
+                                    // Send the message via RingCentral API
+                                    sendRingCentralSMS(
+                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                      formData.phone_number || '',
+                                      messageText
+                                    )
+                                      .then(response => {
+                                        // Show success toast
+                                        toast({
+                                          title: "Message sent",
+                                          description: "Your message has been sent via RingCentral.",
+                                        });
+                                        
+                                        // Log this communication to the database
+                                        return supabase
+                                          .from('lead_communications')
+                                          .insert({
+                                            lead_id: lead.id,
+                                            type: 'SMS',
+                                            content: `SMS sent to ${formData.phone_number}: ${messageText}`,
+                                            created_by: 'User',
+                                            created_at: new Date().toISOString(),
+                                          });
+                                      })
+                                      .then(() => {
+                                        // Refresh communications list
+                                        return supabase
+                                          .from('lead_communications')
+                                          .select('*')
+                                          .eq('lead_id', lead.id)
+                                          .order('created_at', { ascending: false });
+                                      })
+                                      .then(({ data }) => {
+                                        if (data) setCommunications(data);
+                                      })
+                                      .catch(error => {
+                                        console.error('RingCentral SMS error:', error);
+                                        toast({
+                                          title: "Message failed",
+                                          description: "Failed to send RingCentral SMS. See console for details.",
+                                          variant: "destructive"
+                                        });
+                                      });
+                                  }
                                 }}
                               >
                                 <MessageSquare className="h-4 w-4" />
@@ -747,63 +812,127 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                           {lead.phone_number && (
                             <>
                               <a 
-                                href={`tel:${lead.phone_number}`}
+                                href="#"
                                 className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                                title="Call"
+                                title="Call via RingCentral"
                                 onClick={(e) => {
+                                  e.preventDefault();
                                   e.stopPropagation();
-                                  // Log this communication to the database
-                                  supabase
-                                    .from('lead_communications')
-                                    .insert({
-                                      lead_id: lead.id,
-                                      type: 'Call',
-                                      content: `Call initiated to ${lead.phone_number}`,
-                                      created_by: 'User',
-                                      created_at: new Date().toISOString(),
+                                  
+                                  // Show a toast notification that we're initiating the call
+                                  toast({
+                                    title: "Initiating call...",
+                                    description: `Calling ${lead.phone_number} via RingCentral`,
+                                  });
+                                  
+                                  // Make the call via RingCentral API
+                                  makeRingCentralCall(
+                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                    lead.phone_number || ''
+                                  )
+                                    .then(response => {
+                                      // Show success toast
+                                      toast({
+                                        title: "Call initiated",
+                                        description: "You should receive a call on your phone shortly.",
+                                      });
+                                      
+                                      // Log this communication to the database
+                                      return supabase
+                                        .from('lead_communications')
+                                        .insert({
+                                          lead_id: lead.id,
+                                          type: 'Call',
+                                          content: `RingCentral call initiated to ${lead.phone_number}`,
+                                          created_by: 'User',
+                                          created_at: new Date().toISOString(),
+                                        });
                                     })
                                     .then(() => {
                                       // Refresh communications list
-                                      supabase
+                                      return supabase
                                         .from('lead_communications')
                                         .select('*')
                                         .eq('lead_id', lead.id)
-                                        .order('created_at', { ascending: false })
-                                        .then(({ data }) => {
-                                          if (data) setCommunications(data);
-                                        });
+                                        .order('created_at', { ascending: false });
+                                    })
+                                    .then(({ data }) => {
+                                      if (data) setCommunications(data);
+                                    })
+                                    .catch(error => {
+                                      console.error('RingCentral call error:', error);
+                                      toast({
+                                        title: "Call failed",
+                                        description: "Failed to initiate RingCentral call. See console for details.",
+                                        variant: "destructive"
+                                      });
                                     });
                                 }}
                               >
                                 <Phone className="h-4 w-4" />
                               </a>
                               <a 
-                                href={`sms:${lead.phone_number}`}
+                                href="#"
                                 className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                                title="Message"
+                                title="Message via RingCentral"
                                 onClick={(e) => {
+                                  e.preventDefault();
                                   e.stopPropagation();
-                                  // Log this communication to the database
-                                  supabase
-                                    .from('lead_communications')
-                                    .insert({
-                                      lead_id: lead.id,
-                                      type: 'SMS',
-                                      content: `SMS initiated to ${lead.phone_number}`,
-                                      created_by: 'User',
-                                      created_at: new Date().toISOString(),
-                                    })
-                                    .then(() => {
-                                      // Refresh communications list
-                                      supabase
-                                        .from('lead_communications')
-                                        .select('*')
-                                        .eq('lead_id', lead.id)
-                                        .order('created_at', { ascending: false })
-                                        .then(({ data }) => {
-                                          if (data) setCommunications(data);
-                                        });
+                                  
+                                  // Show a prompt for the message text
+                                  const messageText = prompt("Enter your message:", `Hi ${lead.first_name || ''}, this is regarding your insurance quote.`);
+                                  
+                                  if (messageText) {
+                                    // Show a toast notification that we're sending the message
+                                    toast({
+                                      title: "Sending message...",
+                                      description: `Texting ${lead.phone_number} via RingCentral`,
                                     });
+                                    
+                                    // Send the message via RingCentral API
+                                    sendRingCentralSMS(
+                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                      lead.phone_number || '',
+                                      messageText
+                                    )
+                                      .then(response => {
+                                        // Show success toast
+                                        toast({
+                                          title: "Message sent",
+                                          description: "Your message has been sent via RingCentral.",
+                                        });
+                                        
+                                        // Log this communication to the database
+                                        return supabase
+                                          .from('lead_communications')
+                                          .insert({
+                                            lead_id: lead.id,
+                                            type: 'SMS',
+                                            content: `SMS sent to ${lead.phone_number}: ${messageText}`,
+                                            created_by: 'User',
+                                            created_at: new Date().toISOString(),
+                                          });
+                                      })
+                                      .then(() => {
+                                        // Refresh communications list
+                                        return supabase
+                                          .from('lead_communications')
+                                          .select('*')
+                                          .eq('lead_id', lead.id)
+                                          .order('created_at', { ascending: false });
+                                      })
+                                      .then(({ data }) => {
+                                        if (data) setCommunications(data);
+                                      })
+                                      .catch(error => {
+                                        console.error('RingCentral SMS error:', error);
+                                        toast({
+                                          title: "Message failed",
+                                          description: "Failed to send RingCentral SMS. See console for details.",
+                                          variant: "destructive"
+                                        });
+                                      });
+                                  }
                                 }}
                               >
                                 <MessageSquare className="h-4 w-4" />

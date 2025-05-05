@@ -78,3 +78,10 @@ frontend-next-fresh/
 
 # Python virtual environment
 backend/venv/
+
+# RingCentral environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+ringcentral-env/
