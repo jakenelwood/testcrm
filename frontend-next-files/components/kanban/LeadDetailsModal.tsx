@@ -395,9 +395,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       }}
     >
       <DialogContent
-        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto"
+        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-white/100 border-gray-200"
       >
-        <DialogHeader>
+        <DialogHeader className="border-b border-gray-100 pb-2 mb-2">
           <DialogTitle className="text-xl font-bold tracking-tight text-gray-900">
             {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
           </DialogTitle>
@@ -421,8 +421,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
           {/* Lead Data Tab */}
           <TabsContent value="data" className="space-y-4 mt-4">
-            <Card className="border shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50">
+            <Card className="border border-gray-200 shadow-sm bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
                 <CardTitle className="text-lg font-medium text-gray-900">Basic Information</CardTitle>
                 <Button
                   variant={isEditing ? "default" : "outline"}
@@ -433,8 +433,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                   {isEditing ? "Cancel" : "Edit"}
                 </Button>
               </CardHeader>
-              <ScrollArea className="h-[500px]">
-                <CardContent className="grid grid-cols-2 gap-4 pt-4">
+              <ScrollArea className="h-[500px] bg-white">
+                <CardContent className="grid grid-cols-2 gap-4 pt-4 bg-white">
                   {isEditing ? (
                     // Editable form
                     <>
@@ -777,12 +777,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
             </Card>
 
             {lead.insurance_type === 'Auto' && lead.auto_data && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-medium">Auto Insurance Details</CardTitle>
+              <Card className="border border-gray-200 shadow-sm bg-white">
+                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardTitle className="text-lg font-medium text-gray-900">Auto Insurance Details</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <pre className="text-sm bg-muted p-4 rounded-md overflow-auto">
+                <CardContent className="bg-white pt-4">
+                  <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
                     {JSON.stringify(lead.auto_data, null, 2)}
                   </pre>
                 </CardContent>
@@ -790,12 +790,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
             )}
 
             {lead.insurance_type === 'Home' && lead.home_data && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-medium">Home Insurance Details</CardTitle>
+              <Card className="border border-gray-200 shadow-sm bg-white">
+                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardTitle className="text-lg font-medium text-gray-900">Home Insurance Details</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <pre className="text-sm bg-muted p-4 rounded-md overflow-auto">
+                <CardContent className="bg-white pt-4">
+                  <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
                     {JSON.stringify(lead.home_data, null, 2)}
                   </pre>
                 </CardContent>
@@ -803,12 +803,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
             )}
 
             {lead.insurance_type === 'Specialty' && lead.specialty_data && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-medium">Specialty Insurance Details</CardTitle>
+              <Card className="border border-gray-200 shadow-sm bg-white">
+                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardTitle className="text-lg font-medium text-gray-900">Specialty Insurance Details</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <pre className="text-sm bg-muted p-4 rounded-md overflow-auto">
+                <CardContent className="bg-white pt-4">
+                  <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
                     {JSON.stringify(lead.specialty_data, null, 2)}
                   </pre>
                 </CardContent>
@@ -818,12 +818,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
           {/* Communication History Tab */}
           <TabsContent value="communications" className="space-y-4 mt-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">Add Note</CardTitle>
+            <Card className="border border-gray-200 shadow-sm bg-white">
+              <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                <CardTitle className="text-lg font-medium text-gray-900">Add Note</CardTitle>
                 <CardDescription className="text-sm">Add a note about this lead</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="bg-white pt-4">
                 <div className="space-y-4">
                   <Textarea
                     placeholder="Enter your note here..."
@@ -837,16 +837,16 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">Communication History</CardTitle>
+            <Card className="border border-gray-200 shadow-sm bg-white">
+              <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                <CardTitle className="text-lg font-medium text-gray-900">Communication History</CardTitle>
                 <CardDescription className="text-sm">All interactions with this lead</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 bg-white pt-4">
                 {[...notes, ...communications].sort((a, b) =>
                   new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
                 ).map((item, index) => (
-                  <Card key={index} className="bg-muted/30">
+                  <Card key={index} className="bg-gray-50 border border-gray-100">
                     <CardContent className="pt-4">
                       <div className="flex justify-between items-start">
                         <div>
@@ -879,14 +879,14 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
           {/* Marketing Automation Tab */}
           <TabsContent value="marketing" className="space-y-4 mt-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">Marketing Campaigns</CardTitle>
+            <Card className="border border-gray-200 shadow-sm bg-white">
+              <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                <CardTitle className="text-lg font-medium text-gray-900">Marketing Campaigns</CardTitle>
                 <CardDescription className="text-sm">
                   Enable or disable marketing campaigns for this lead
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="bg-white pt-4">
                 <div className="text-center py-8 text-muted-foreground">
                   Marketing automation features coming soon
                 </div>
