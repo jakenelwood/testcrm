@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bell, Menu, Search } from "lucide-react";
+import { LogoutButton } from "@/components/logout-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -103,6 +104,9 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        
+        {/* Add Logout Button */}
+        <LogoutButton />
       </div>
     </header>
   );

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 
 export default function Home() {
-  redirect('/dashboard');
+  // For now, just redirect to login page
+  redirect('/auth/login');
 }

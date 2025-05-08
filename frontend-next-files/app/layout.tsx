@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import React from "react";
 
 export const metadata = {
-  title: "AICRM",
-  description: "AI-powered CRM for insurance lead management",
+  title: "Conzigo",
+  description: "The AI that remembers everything, so you don't have to.",
 };
 
 interface RootLayoutProps {

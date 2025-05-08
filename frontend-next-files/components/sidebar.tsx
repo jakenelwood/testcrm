@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { UserProfile } from "@/components/user-profile";
+import { useLogout } from "@/utils/auth";
 import {
   FileText,
   LayoutDashboard,
@@ -15,7 +17,8 @@ import {
   PlusCircle,
   Settings2,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  LogOut
 } from "lucide-react";
 import { fetchPipelines } from "@/utils/pipeline-api";
 import { Pipeline } from "@/types/lead";
@@ -29,6 +32,7 @@ export function Sidebar() {
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const [isHovered, setIsHovered] = useState(false);
   const [tempExpanded, setTempExpanded] = useState(false);
+  const logout = useLogout();
 
   // Fetch pipelines on component mount
   useEffect(() => {
@@ -75,6 +79,15 @@ export function Sidebar() {
       iconColor: "text-[#615F48]",
       variant: undefined
     },
+    {
+      label: "Logout",
+      icon: LogOut,
+      href: "#",
+      active: false,
+      iconColor: "text-red-500",
+      variant: undefined,
+      onClick: () => logout()
+    }
   ];
 
   // Handle mouse enter - temporarily expand the sidebar
@@ -124,9 +137,9 @@ export function Sidebar() {
       )}>
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           {showExpanded ? (
-            <span className="text-xl font-bold">AICRM</span>
+            <span className="text-xl font-bold">Conzigo</span>
           ) : (
-            <span className="text-xl font-bold">AI</span>
+            <span className="text-xl font-bold">C</span>
           )}
         </Link>
         {/* Always show the toggle button in a fixed position */}
@@ -270,7 +283,6 @@ export function Sidebar() {
           {secondaryRoutes.map((route, i) => (
             <Button
               key={i}
-              asChild
               variant={route.active ? "secondary" : "ghost"}
               className={cn(
                 "justify-start",
@@ -278,36 +290,35 @@ export function Sidebar() {
               )}
               size="sm"
               title={!showExpanded ? route.label : undefined}
+              onClick={route.onClick}
+              asChild={!route.onClick}
             >
-              <Link href={route.href}>
-                <route.icon className={cn(
-                  "h-4 w-4",
-                  route.iconColor,
-                  showText ? "mr-2" : "mr-0"
-                )} />
-                {showText && <span className="font-bold">{route.label}</span>}
-              </Link>
+              {route.onClick ? (
+                <>
+                  <route.icon className={cn(
+                    "h-4 w-4",
+                    route.iconColor,
+                    showText ? "mr-2" : "mr-0"
+                  )} />
+                  {showText && <span className="font-bold">{route.label}</span>}
+                </>
+              ) : (
+                <Link href={route.href}>
+                  <route.icon className={cn(
+                    "h-4 w-4",
+                    route.iconColor,
+                    showText ? "mr-2" : "mr-0"
+                  )} />
+                  {showText && <span className="font-bold">{route.label}</span>}
+                </Link>
+              )}
             </Button>
           ))}
         </nav>
       </div>
-      <div className={cn(
-        "border-t",
-        showText ? "p-4" : "p-2"
-      )}>
-        <div className={cn(
-          "flex items-center",
-          showText ? "gap-2" : "justify-center"
-        )}>
-          <div className="h-8 w-8 rounded-full bg-slate-200 flex-shrink-0" />
-          {showText && (
-            <div>
-              <p className="text-sm font-medium">User Name</p>
-              <p className="text-xs text-slate-500">user@example.com</p>
-            </div>
-          )}
-        </div>
-      </div>
+      
+      {/* User Profile */}
+      <UserProfile showText={showText} />
     </div>
   );
 }
