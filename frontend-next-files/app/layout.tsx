@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import React from "react";
 
 export const metadata = {
-  title: "Conzigo",
-  description: "The AI that remembers everything, so you don't have to.",
+  title: "Gonzigo | The Pipeline Whisperer",
+  description: "The AI-powered CRM that thinks like a closer. Gonzigo listens, remembers, and nudges at just the right time.",
+  keywords: "CRM, AI, sales, pipeline management, lead management, sales automation",
 };
 
 interface RootLayoutProps {
