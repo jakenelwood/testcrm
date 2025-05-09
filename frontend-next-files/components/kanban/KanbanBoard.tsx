@@ -71,17 +71,49 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {statuses.map((status) => (
-          <div key={status} className="flex flex-col">
-            <h3 className="font-medium text-sm mb-2">{status}</h3>
-            <div className="bg-muted/30 rounded-lg p-4 min-h-[500px]">
-              {/* Render 3 skeleton cards per column to indicate loading */}
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-24 mb-2 rounded-md" />
-              ))}
+        {statuses.map((status, index) => {
+          // Get status color based on status name
+          const getStatusColor = (status: string) => {
+            switch(status.toLowerCase()) {
+              case 'new': return 'from-blue-500 to-blue-600';
+              case 'contacted': return 'from-indigo-500 to-indigo-600';
+              case 'quoted': return 'from-purple-500 to-purple-600';
+              case 'sold': return 'from-green-500 to-green-600';
+              case 'lost': return 'from-gray-500 to-gray-600';
+              default: return 'from-blue-500 to-blue-600';
+            }
+          };
+
+          const statusColor = getStatusColor(status);
+
+          return (
+            <div key={status} className="flex flex-col">
+              <div className="mb-3">
+                <div className={`px-4 py-2 rounded-md text-sm font-medium inline-flex items-center gap-2 bg-gradient-to-r ${statusColor} text-white shadow-sm`}>
+                  <span>{status}</span>
+                  <div className="h-5 w-5 bg-white/20 rounded-full"></div>
+                </div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg p-4 min-h-[500px] shadow-sm">
+                {/* Render 3 skeleton cards per column to indicate loading */}
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="bg-gray-100 h-24 mb-3 rounded-lg border border-gray-200">
+                      <div className="p-4">
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                        <div className="flex justify-between mt-4">
+                          <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                          <div className="h-5 bg-gray-200 rounded w-1/4"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   }
@@ -89,15 +121,20 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   // If there are no statuses, display a message
   if (statuses.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[500px] border rounded-lg">
-        <div className="text-center p-6">
-          <h3 className="text-lg font-medium mb-2">No Pipeline Statuses</h3>
-          <p className="text-muted-foreground mb-4">
-            This pipeline doesn't have any statuses defined yet.
+      <div className="flex items-center justify-center h-[500px] border border-gray-200 rounded-lg bg-white shadow-sm">
+        <div className="text-center p-8 max-w-md">
+          <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">No Pipeline Statuses</h3>
+          <p className="text-gray-600 mb-6">
+            This pipeline doesn't have any statuses defined yet. You'll need to add statuses to organize your leads.
           </p>
-          <p className="text-sm text-muted-foreground">
-            Go to the Pipeline Management page to add statuses to this pipeline.
-          </p>
+          <a href="/pipelines" className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-md shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all duration-200">
+            Go to Pipeline Management
+          </a>
         </div>
       </div>
     );

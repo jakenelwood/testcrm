@@ -22,21 +22,37 @@ export function KanbanColumn({ status, leads, onLeadSelect }: KanbanColumnProps)
     }
   });
 
-  // Using centralized status styles
+  // Get status color based on status name
+  const getStatusColor = (status: string) => {
+    switch(status.toLowerCase()) {
+      case 'new': return 'from-blue-500 to-blue-600';
+      case 'contacted': return 'from-indigo-500 to-indigo-600';
+      case 'quoted': return 'from-purple-500 to-purple-600';
+      case 'sold': return 'from-green-500 to-green-600';
+      case 'lost': return 'from-gray-500 to-gray-600';
+      default: return 'from-blue-500 to-blue-600';
+    }
+  };
 
   // Status is already capitalized in the database
+  const statusColor = getStatusColor(status);
 
   return (
     <div className="flex flex-col">
-      <div className={`px-3 py-1 rounded-md text-sm font-medium inline-block mb-2 text-black font-semibold ${getStatusStyles(status, 'kanban')}`}>
-        {status} ({leads.length})
+      <div className="mb-3">
+        <div className={`px-4 py-2 rounded-md text-sm font-medium inline-flex items-center gap-2 bg-gradient-to-r ${statusColor} text-white shadow-sm`}>
+          <span>{status}</span>
+          <span className="flex items-center justify-center bg-white/20 text-white text-xs font-bold rounded-full h-5 w-5 ml-1">
+            {leads.length}
+          </span>
+        </div>
       </div>
       <div
         ref={setNodeRef}
-        className={`rounded-lg p-4 min-h-[500px] transition-all duration-200 ${
+        className={`rounded-lg p-4 min-h-[500px] transition-all duration-300 ${
           isOver
-            ? 'bg-blue-100/50 border-2 border-dashed border-blue-500 shadow-lg scale-[1.02]'
-            : 'bg-gray-100/80 border border-transparent hover:border-blue-300 hover:border-dashed hover:border'
+            ? 'bg-blue-50 border-2 border-dashed border-blue-500 shadow-lg scale-[1.02]'
+            : 'bg-white border border-gray-200 shadow-sm hover:border-blue-300 hover:shadow-md'
         }`}
       >
         <SortableContext
@@ -55,8 +71,14 @@ export function KanbanColumn({ status, leads, onLeadSelect }: KanbanColumnProps)
         </SortableContext>
 
         {leads.length === 0 && (
-          <div className="flex items-center justify-center h-24 border border-dashed rounded-md border-muted-foreground/50">
-            <p className="text-sm text-muted-foreground">No leads</p>
+          <div className="flex flex-col items-center justify-center h-32 border border-dashed rounded-lg border-gray-300 bg-gray-50/50 p-4">
+            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-gray-500">No leads in {status}</p>
+            <p className="text-xs text-gray-400 mt-1">Drag leads here or add new ones</p>
           </div>
         )}
       </div>

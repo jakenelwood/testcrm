@@ -397,28 +397,56 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       }}
     >
       <DialogContent
-        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-lg"
+        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl rounded-lg"
       >
-        <DialogHeader className="border-b border-gray-200 pb-2 mb-2 bg-white">
-          <DialogTitle className="text-xl font-bold tracking-tight text-gray-900">
-            {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
-          </DialogTitle>
-          <div className="text-sm text-blue-600 hover:text-blue-800 mt-1">
-            <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
-              e.preventDefault();
-              onClose(); // Close the modal first
-              window.location.href = `/dashboard/leads/${lead.id}`; // Navigate to the full lead details page
-            }}>
-              View full lead details
-            </a>
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-lg"></div>
+
+        <DialogHeader className="border-b border-gray-200 pb-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50/30 -mx-6 px-6 pt-6 rounded-t-lg">
+          <div className="flex items-start justify-between">
+            <div>
+              <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
+                {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+              </DialogTitle>
+              <div className="text-sm text-blue-600 hover:text-blue-800 mt-1 flex items-center">
+                <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
+                  e.preventDefault();
+                  onClose(); // Close the modal first
+                  window.location.href = `/dashboard/leads/${lead.id}`; // Navigate to the full lead details page
+                }} className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  View full lead details
+                </a>
+              </div>
+            </div>
+
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-bold shadow-sm">
+              {typeof lead.first_name === 'string' && lead.first_name ? lead.first_name.charAt(0).toUpperCase() : ''}
+            </div>
           </div>
         </DialogHeader>
 
         <Tabs defaultValue="data" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid grid-cols-3 bg-gray-100">
-            <TabsTrigger value="data" className="text-gray-900 data-[state=active]:bg-white data-[state=active]:text-black">Lead Data</TabsTrigger>
-            <TabsTrigger value="communications" className="text-gray-900 data-[state=active]:bg-white data-[state=active]:text-black">Communication History</TabsTrigger>
-            <TabsTrigger value="marketing" className="text-gray-900 data-[state=active]:bg-white data-[state=active]:text-black">Marketing Automation</TabsTrigger>
+          <TabsList className="grid grid-cols-3 bg-gray-100 p-1 rounded-lg">
+            <TabsTrigger
+              value="data"
+              className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+            >
+              Lead Data
+            </TabsTrigger>
+            <TabsTrigger
+              value="communications"
+              className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+            >
+              Communication History
+            </TabsTrigger>
+            <TabsTrigger
+              value="marketing"
+              className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+            >
+              Marketing Automation
+            </TabsTrigger>
           </TabsList>
 
           {/* Lead Data Tab */}
@@ -482,23 +510,23 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                           />
                           {formData.phone_number && (
                             <>
-                              <a 
+                              <a
                                 href="#"
                                 className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
                                 title="Call via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  
+
                                   // Show a toast notification that we're initiating the call
                                   toast({
                                     title: "Initiating call...",
                                     description: `Calling ${formData.phone_number} via RingCentral`,
                                   });
-                                  
+
                                   // Make the call via RingCentral API
                                   makeRingCentralCall(
-                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
                                     formData.phone_number || ''
                                   )
                                     .then(response => {
@@ -507,7 +535,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                         title: "Call initiated",
                                         description: "You should receive a call on your phone shortly.",
                                       });
-                                      
+
                                       // Log this communication to the database
                                       return supabase
                                         .from('lead_communications')
@@ -542,27 +570,27 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                               >
                                 <Phone className="h-4 w-4" />
                               </a>
-                              <a 
+                              <a
                                 href="#"
                                 className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                 title="Message via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  
+
                                   // Show a prompt for the message text
                                   const messageText = prompt("Enter your message:", `Hi ${formData.first_name || ''}, this is regarding your insurance quote.`);
-                                  
+
                                   if (messageText) {
                                     // Show a toast notification that we're sending the message
                                     toast({
                                       title: "Sending message...",
                                       description: `Texting ${formData.phone_number} via RingCentral`,
                                     });
-                                    
+
                                     // Send the message via RingCentral API
                                     sendRingCentralSMS(
-                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
                                       formData.phone_number || '',
                                       messageText
                                     )
@@ -572,7 +600,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                           title: "Message sent",
                                           description: "Your message has been sent via RingCentral.",
                                         });
-                                        
+
                                         // Log this communication to the database
                                         return supabase
                                           .from('lead_communications')
@@ -811,23 +839,23 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                           <span className="mr-3">{lead.phone_number || 'N/A'}</span>
                           {lead.phone_number && (
                             <>
-                              <a 
+                              <a
                                 href="#"
                                 className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
                                 title="Call via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  
+
                                   // Show a toast notification that we're initiating the call
                                   toast({
                                     title: "Initiating call...",
                                     description: `Calling ${lead.phone_number} via RingCentral`,
                                   });
-                                  
+
                                   // Make the call via RingCentral API
                                   makeRingCentralCall(
-                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
                                     lead.phone_number || ''
                                   )
                                     .then(response => {
@@ -836,7 +864,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                         title: "Call initiated",
                                         description: "You should receive a call on your phone shortly.",
                                       });
-                                      
+
                                       // Log this communication to the database
                                       return supabase
                                         .from('lead_communications')
@@ -871,27 +899,27 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                               >
                                 <Phone className="h-4 w-4" />
                               </a>
-                              <a 
+                              <a
                                 href="#"
                                 className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                 title="Message via RingCentral"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  
+
                                   // Show a prompt for the message text
                                   const messageText = prompt("Enter your message:", `Hi ${lead.first_name || ''}, this is regarding your insurance quote.`);
-                                  
+
                                   if (messageText) {
                                     // Show a toast notification that we're sending the message
                                     toast({
                                       title: "Sending message...",
                                       description: `Texting ${lead.phone_number} via RingCentral`,
                                     });
-                                    
+
                                     // Send the message via RingCentral API
                                     sendRingCentralSMS(
-                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '', 
+                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
                                       lead.phone_number || '',
                                       messageText
                                     )
@@ -901,7 +929,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                           title: "Message sent",
                                           description: "Your message has been sent via RingCentral.",
                                         });
-                                        
+
                                         // Log this communication to the database
                                         return supabase
                                           .from('lead_communications')

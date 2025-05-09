@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { EyeIcon, EyeOffIcon, Mail, Lock, User, ArrowRight, CheckCircle2, XCircle } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
+import GonzigoBrand from '@/components/gonzigo-brand'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -89,28 +89,47 @@ export default function SignUpPage() {
         },
       })
 
+      // Handle signup errors without throwing
       if (signUpError) {
-        throw signUpError
+        // Handle expected authentication errors
+        if (signUpError.name === 'AuthApiError') {
+          if (signUpError.message.includes('email')) {
+            setError("Invalid email address. Please check and try again.");
+          } else if (signUpError.message.includes('password')) {
+            setError("Password is too weak. Please use a stronger password.");
+          } else if (signUpError.message.includes('rate limit')) {
+            setError("Too many signup attempts. Please try again later.");
+          } else {
+            setError(signUpError.message || "Authentication failed. Please try again.");
+          }
+        } else {
+          // Handle unexpected errors
+          console.warn('Unexpected signup error:', signUpError);
+          setError("An error occurred during signup. Please try again.");
+        }
+        return; // Exit early without throwing
       }
 
+      // Check if user already exists
       if (data.user?.identities?.length === 0) {
-        setError("An account with this email already exists.")
-        return
+        setError("An account with this email already exists.");
+        return;
       }
 
       // Show success message
-      setError("Success! Check your email for the confirmation link.")
+      setError("Success! Check your email for the confirmation link.");
 
       // Optionally redirect to login page after a delay
       setTimeout(() => {
-        router.push('/auth/login')
-      }, 5000)
+        router.push('/auth/login');
+      }, 5000);
 
     } catch (error: any) {
-      console.error('Error:', error)
-      setError(error.message || "An error occurred during sign up")
+      // This should only catch unexpected errors, not auth errors
+      console.error('Unexpected error during signup:', error);
+      setError("An unexpected error occurred. Please try again later.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -156,15 +175,15 @@ export default function SignUpPage() {
       <nav className="container mx-auto py-6 px-4">
         <div className="flex justify-center md:justify-start">
           <Link href="/" className="flex items-center gap-2">
-            <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Gonzigo</div>
+            <GonzigoBrand size="lg" className="h-10 flex items-center" />
           </Link>
         </div>
       </nav>
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="flex flex-col md:flex-row gap-12 items-center justify-center">
+        <div className="flex flex-col md:flex-row gap-12 items-start justify-between">
           {/* Left side - Signup form */}
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-sm">
             <div className="text-center md:text-left mb-8">
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mb-3">Create an account</h1>
               <p className="text-lg text-gray-600">
@@ -399,6 +418,9 @@ export default function SignUpPage() {
 
       {/* Footer */}
       <footer className="container mx-auto py-6 px-4 text-center text-gray-500 text-sm">
+        <div className="flex justify-center mb-3">
+          <GonzigoBrand size="sm" className="h-6 flex items-center opacity-50" />
+        </div>
         <p>© {new Date().getFullYear()} Gonzigo. All rights reserved.</p>
       </footer>
     </div>

@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+import { ToastProvider } from "@/components/providers/toast-provider";
 import React from "react";
 
 export const metadata = {
@@ -18,7 +18,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head suppressHydrationWarning />
       <body className="min-h-screen bg-background font-sans antialiased" suppressHydrationWarning>
         {children}
-        <Toaster />
+        <ToastProvider />
       </body>
     </html>
   );

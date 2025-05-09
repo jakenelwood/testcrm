@@ -4,30 +4,46 @@ import { useState } from "react";
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/contexts/sidebar-context";
+import { AuthProvider, useAuth } from "@/contexts/auth-context";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function DashboardContent({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { loading, user } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
   };
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
+          <p className="text-lg font-medium text-gray-700">Loading Gonzigo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not loading and no user, the middleware will redirect to login
+  // This is just an extra safety check
+  if (!user) {
+    return null;
+  }
+
   return (
-    <SidebarProvider>
-      <div className="relative min-h-screen flex">
-        {/* Mobile sidebar backdrop */}
-        {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-        )}
+    <div className="relative min-h-screen flex">
+      {/* Mobile sidebar backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
       {/* Mobile sidebar */}
       <div
@@ -66,6 +82,19 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
-    </SidebarProvider>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AuthProvider>
+      <SidebarProvider>
+        <DashboardContent>{children}</DashboardContent>
+      </SidebarProvider>
+    </AuthProvider>
   );
 }

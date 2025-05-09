@@ -5,12 +5,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React from "react";
 import { formatDateMMDDYYYY } from "@/utils/date-format";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface LeadCardProps {
   lead: Lead;
@@ -74,76 +68,76 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
 
   // Determine carrier badge color
   const getCarrierColor = (carrier: string | null | undefined) => {
-    if (!carrier) return "bg-black text-white";
+    if (!carrier) return "bg-gradient-to-r from-gray-700 to-gray-800 text-white";
 
     switch (carrier.toLowerCase()) {
-      case 'state farm': return "bg-red-500 text-white";
-      case 'geico': return "bg-green-500 text-white";
-      case 'progressive': return "bg-blue-500 text-white";
-      case 'allstate': return "bg-yellow-500 text-black";
-      default: return "bg-gray-500 text-white";
+      case 'state farm': return "bg-gradient-to-r from-red-500 to-red-600 text-white";
+      case 'geico': return "bg-gradient-to-r from-green-500 to-green-600 text-white";
+      case 'progressive': return "bg-gradient-to-r from-blue-500 to-blue-600 text-white";
+      case 'allstate': return "bg-gradient-to-r from-yellow-400 to-yellow-500 text-black";
+      default: return "bg-gradient-to-r from-gray-500 to-gray-600 text-white";
     }
   };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div
-            ref={setNodeRef}
-            style={{
-              ...style,
-              backgroundColor: 'white', // Force white background even during drag
-            }}
-            {...attributes}
-            {...listeners}
-            className={`bg-white !bg-white rounded-md p-4 mb-3 cursor-pointer transition-all select-none border border-gray-200 ${
-              isDragging
-                ? 'opacity-80 shadow-xl border-2 border-blue-500 !bg-white'
-                : 'opacity-100 hover:shadow-md shadow-sm hover:border hover:border-blue-300'
-            }`}
-            onClick={(e) => {
-              // Prevent the click from triggering drag
-              e.stopPropagation();
-              // Only handle click if not dragging
-              if (!isDragging) {
-                onClick();
-              }
-            }}
-          >
-      <div className="font-medium text-gray-900">
-        {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+    <div
+      ref={setNodeRef}
+      style={{
+        ...style,
+        backgroundColor: 'white', // Force white background even during drag
+      }}
+      {...attributes}
+      {...listeners}
+      className={`bg-white !bg-white rounded-lg p-4 mb-3 cursor-pointer transition-all duration-200 select-none border ${
+        isDragging
+          ? 'opacity-90 shadow-xl border-2 border-blue-500 !bg-white scale-105'
+          : 'opacity-100 hover:shadow-md shadow-sm border-gray-200 hover:border-blue-300'
+      }`}
+      onClick={(e) => {
+        // Prevent the click from triggering drag
+        e.stopPropagation();
+        // Only handle click if not dragging
+        if (!isDragging) {
+          onClick();
+        }
+      }}
+    >
+      {/* Top section with name and date */}
+      <div className="flex justify-between items-start mb-3">
+        <div className="font-medium text-gray-900 text-base">
+          {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+        </div>
+
+        {lead.assigned_to && (
+          <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm" title={`Assigned to: ${lead.assigned_to}`}>
+            {lead.assigned_to.charAt(0).toUpperCase()}
+          </div>
+        )}
       </div>
 
-      <div className="text-sm text-gray-600 mt-1">
-        Entered on: {formattedDate}
+      {/* Date section */}
+      <div className="text-xs text-gray-500 mb-3 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        {formattedDate}
       </div>
 
-      <div className="flex justify-between items-center mt-3">
-        <span className={`px-2 py-1 rounded-full text-xs ${getCarrierColor(lead.current_carrier)}`}>
+      {/* Divider */}
+      <div className="border-t border-gray-100 my-2"></div>
+
+      {/* Bottom section with carrier and premium */}
+      <div className="flex justify-between items-center mt-2">
+        <span className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${getCarrierColor(lead.current_carrier)}`}>
           {lead.current_carrier || "No Prior"}
         </span>
 
-        <span className="font-medium">
+        <span className="font-medium text-sm bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
           ${lead.premium
             ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
             : "0.00"}
         </span>
       </div>
-
-      {lead.assigned_to && (
-        <div className="mt-2 flex justify-end">
-          <span className="text-xs px-2 py-1 rounded-md border border-blue-500 text-blue-500">
-            {lead.assigned_to}
-          </span>
-        </div>
-      )}
           </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Click to view details. Ctrl/Cmd+Click for full page view.</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
   );
 }

@@ -18,25 +18,17 @@ export default function Hero() {
         {/* Background decorative elements */}
         <div className="absolute -z-10 top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-blue-500/10 to-purple-500/5 rounded-full blur-3xl" />
         <div className="absolute -z-10 bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-amber-500/10 to-pink-500/5 rounded-full blur-3xl" />
-        
+
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left column - Text content */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col"
           >
             <div className="mb-6">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: isVisible ? 1 : 0, scale: isVisible ? 1 : 0.9 }}
-                transition={{ duration: 0.5 }}
-                className="inline-block px-4 py-1 mb-4 text-sm font-medium text-blue-600 bg-blue-100 rounded-full"
-              >
-                Meet your new favorite CRM
-              </motion.div>
-              <motion.h1 
+              <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
@@ -44,63 +36,41 @@ export default function Hero() {
               >
                 Gonzigo
               </motion.h1>
-              <motion.h2 
+              <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-2xl md:text-3xl font-semibold mb-6 text-gray-800"
               >
-                The Pipeline Whisperer.
+                The pipeline whisperer.
               </motion.h2>
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
                 className="text-lg text-gray-600 mb-8 leading-relaxed"
               >
-                Your deals don't fall through the cracks—they glide.
+                Meet your new favorite CRM. Deals don't fall through the cracks—they glide.
                 Gonzigo listens, learns, and nudges at just the right time.
               </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="text-lg text-gray-600 mb-8 leading-relaxed"
+              >
+                Built like enterprise. Priced like indie. You're welcome.
+              </motion.p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-                className="flex items-center"
-              >
-                <div className="mr-3 text-xl">🤖</div>
-                <div className="font-medium">AI that actually helps.</div>
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-                transition={{ duration: 0.5, delay: 0.7 }}
-                className="flex items-center"
-              >
-                <div className="mr-3 text-xl">🧠</div>
-                <div className="font-medium">CRM with memory.</div>
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-                className="flex items-center"
-              >
-                <div className="mr-3 text-xl">💼</div>
-                <div className="font-medium">Hustle, minus the overhead.</div>
-              </motion.div>
-            </div>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <Link href="/auth/signup">
-                <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg font-medium">
+              <Link href="/pricing">
+                <Button className="w-full sm:w-auto bg-[#0047AB] hover:bg-[#003d91] text-white px-8 py-6 text-lg font-medium">
                   Get Started
                 </Button>
               </Link>
@@ -111,9 +81,9 @@ export default function Hero() {
               </Link>
             </motion.div>
           </motion.div>
-          
+
           {/* Right column - Visual element */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: isVisible ? 1 : 0, x: isVisible ? 0 : 20 }}
             transition={{ duration: 0.8, delay: 0.5 }}
@@ -158,10 +128,8 @@ export default function Hero() {
                 </div>
               </div>
             </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-amber-400/20 rounded-full blur-xl"></div>
-            <div className="absolute -top-6 -left-6 w-32 h-32 bg-blue-400/20 rounded-full blur-xl"></div>
+
+            {/* Decorative elements removed */}
           </motion.div>
         </div>
       </div>

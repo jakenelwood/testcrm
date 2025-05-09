@@ -25,7 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import supabase from '@/utils/supabase/client';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2 } from 'lucide-react';
+import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OtherInsuredForm } from '@/components/forms/other-insured-form';
 import { VehicleForm } from '@/components/forms/vehicle-form';
@@ -64,90 +65,394 @@ export default function LeadDetailsPage() {
   const [newHome, setNewHome] = useState<any>({});
   const [newSpecialtyItem, setNewSpecialtyItem] = useState<any>({});
 
+  // State for tracking errors
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isDevelopmentMode, setIsDevelopmentMode] = useState<boolean>(false);
+
+  // Mock data for development mode
+  const mockLead: Lead = {
+    id: params.id as string,
+    first_name: 'Demo',
+    last_name: 'User',
+    email: 'demo@example.com',
+    phone_number: '555-123-4567',
+    status: 'New',
+    insurance_type: 'Auto',
+    current_carrier: 'State Farm',
+    premium: 1200,
+    notes: 'This is a demo lead for development purposes.',
+    assigned_to: 'Brian B',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    client: {
+      id: '123',
+      name: 'Demo User',
+      email: 'demo@example.com',
+      phone_number: '555-123-4567',
+      address: {
+        street: '123 Main St',
+        city: 'Anytown',
+        state: 'CA',
+        zip_code: '12345'
+      },
+      date_of_birth: '1990-01-01',
+      gender: 'Male',
+      marital_status: 'Single',
+      drivers_license: 'DL12345',
+      license_state: 'CA',
+      referred_by: 'Website'
+    }
+  };
+
   // Fetch lead data
   useEffect(() => {
     const fetchLead = async () => {
       setIsLoading(true);
+      setFetchError(null);
+
+      // Check if we're in development mode
+      const isDev = process.env.NODE_ENV === 'development';
+      setIsDevelopmentMode(isDev);
+
       try {
-        const { data, error } = await supabase
-          .from('leads')
-          .select(`
-            *,
-            client:client_id(*),
-            status:lead_statuses!inner(value),
-            insurance_type:insurance_types!inner(name)
-          `)
-          .eq('id', params.id)
-          .single();
+        // First check if the leads table exists and has the required structure
+        try {
+          const { data: tableCheck, error: tableError } = await supabase
+            .from('leads')
+            .select('id')
+            .limit(1);
 
-        if (error) {
-          console.error('Error fetching lead:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load lead details.",
-            variant: "destructive"
-          });
-        } else if (data) {
-          // Process the data before setting it
-          const processedLead: Lead = {
-            ...data,
-            // Map joined fields to their expected properties
-            status: typeof data.status === 'object' && data.status?.value ? data.status.value : 'New',
-            insurance_type: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name : 'Auto',
+          if (tableError) {
+            if (tableError.code === '42P01') { // Table doesn't exist
+              if (isDev) {
+                console.log('Using mock data in development mode because leads table does not exist');
+                setLead(mockLead);
 
-            // Add legacy fields from client data for backward compatibility
-            first_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ')[0] : '',
-            last_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ').slice(1).join(' ') : '',
-            email: typeof data.client === 'object' ? data.client?.email || '' : '',
-            phone_number: typeof data.client === 'object' ? data.client?.phone_number || '' : '',
+                // Initialize form data with mock data
+                setFormData({
+                  status: mockLead.status,
+                  insurance_type: mockLead.insurance_type,
+                  current_carrier: mockLead.current_carrier || '',
+                  premium: mockLead.premium ? mockLead.premium.toString() : '',
+                  notes: mockLead.notes || '',
+                  assigned_to: mockLead.assigned_to || '',
+                  first_name: mockLead.first_name,
+                  last_name: mockLead.last_name,
+                  email: mockLead.email,
+                  phone_number: mockLead.phone_number,
+                  street_address: mockLead.client?.address?.street || '',
+                  city: mockLead.client?.address?.city || '',
+                  state: mockLead.client?.address?.state || '',
+                  zip_code: mockLead.client?.address?.zip_code || '',
+                  date_of_birth: mockLead.client?.date_of_birth || '',
+                  gender: mockLead.client?.gender || '',
+                  marital_status: mockLead.client?.marital_status || '',
+                  drivers_license: mockLead.client?.drivers_license || '',
+                  license_state: mockLead.client?.license_state || '',
+                  education_occupation: '',
+                  referred_by: mockLead.client?.referred_by || '',
+                  client_name: mockLead.client?.name || `${mockLead.first_name} ${mockLead.last_name}`,
+                });
 
-            // Ensure we have status_legacy and insurance_type_legacy for compatibility
-            status_legacy: typeof data.status === 'object' && data.status?.value ? data.status.value : 'New',
-            insurance_type_legacy: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name : 'Auto'
-          };
+                setIsLoading(false);
+                return;
+              } else {
+                setFetchError('The leads table does not exist in the database. Please set up the database schema first.');
+                setIsLoading(false);
+                return;
+              }
+            }
+          }
+        } catch (tableCheckError) {
+          console.error('Error checking leads table:', tableCheckError);
+        }
 
-          setLead(processedLead);
+        // Try to fetch with joins first
+        try {
+          const { data, error } = await supabase
+            .from('leads')
+            .select(`
+              *,
+              client:client_id(*)
+            `)
+            .eq('id', params.id)
+            .single();
 
-          // Initialize form data
-          setFormData({
-            // Lead fields
-            status: processedLead?.status || processedLead?.status_legacy || 'New',
-            insurance_type: processedLead?.insurance_type || processedLead?.insurance_type_legacy || 'Auto',
-            current_carrier: processedLead?.current_carrier || '',
-            premium: processedLead?.premium ? processedLead.premium.toString() : '',
-            notes: processedLead?.notes || '',
-            assigned_to: processedLead?.assigned_to || '',
+          if (error) {
+            // If the join fails, try a simpler query
+            console.warn('Join query failed, trying simple query:', error);
 
-            // Client fields (from joined client or legacy fields)
-            client_name: processedLead?.client?.name || `${processedLead?.first_name || ''} ${processedLead?.last_name || ''}`.trim(),
-            first_name: processedLead?.first_name || processedLead?.client?.name?.split(' ')[0] || '',
-            last_name: processedLead?.last_name || (processedLead?.client?.name?.split(' ').slice(1).join(' ') || ''),
-            email: processedLead?.client?.email || processedLead?.email || '',
-            phone_number: processedLead?.client?.phone_number || processedLead?.phone_number || '',
+            // Check if this is a 400 error (likely schema mismatch)
+            if (error.code === '400' || error.code === 400) {
+              if (isDev) {
+                console.log('Using mock data in development mode due to schema mismatch');
+                setLead(mockLead);
 
-            // Address fields (from joined address or empty)
-            street_address: processedLead?.client?.address?.street || '',
-            city: processedLead?.client?.address?.city || '',
-            state: processedLead?.client?.address?.state || '',
-            zip_code: processedLead?.client?.address?.zip_code || '',
+                // Initialize form data with mock data
+                setFormData({
+                  status: mockLead.status,
+                  insurance_type: mockLead.insurance_type,
+                  current_carrier: mockLead.current_carrier || '',
+                  premium: mockLead.premium ? mockLead.premium.toString() : '',
+                  notes: mockLead.notes || '',
+                  assigned_to: mockLead.assigned_to || '',
+                  first_name: mockLead.first_name,
+                  last_name: mockLead.last_name,
+                  email: mockLead.email,
+                  phone_number: mockLead.phone_number,
+                  street_address: mockLead.client?.address?.street || '',
+                  city: mockLead.client?.address?.city || '',
+                  state: mockLead.client?.address?.state || '',
+                  zip_code: mockLead.client?.address?.zip_code || '',
+                  date_of_birth: mockLead.client?.date_of_birth || '',
+                  gender: mockLead.client?.gender || '',
+                  marital_status: mockLead.client?.marital_status || '',
+                  drivers_license: mockLead.client?.drivers_license || '',
+                  license_state: mockLead.client?.license_state || '',
+                  education_occupation: '',
+                  referred_by: mockLead.client?.referred_by || '',
+                  client_name: mockLead.client?.name || `${mockLead.first_name} ${mockLead.last_name}`,
+                });
 
-            // Individual-specific fields
-            date_of_birth: processedLead?.client?.date_of_birth || '',
-            gender: processedLead?.client?.gender || '',
-            marital_status: processedLead?.client?.marital_status || '',
-            drivers_license: processedLead?.client?.drivers_license || '',
-            license_state: processedLead?.client?.license_state || '',
-            education_occupation: processedLead?.client?.education_occupation || '',
-            referred_by: processedLead?.client?.referred_by || '',
-          });
+                setIsLoading(false);
+                return;
+              }
+            }
+
+            // Try a simpler query without joins
+            const { data: simpleData, error: simpleError } = await supabase
+              .from('leads')
+              .select('*')
+              .eq('id', params.id)
+              .single();
+
+            if (simpleError) {
+              // If simple query also fails and we're in dev mode, use mock data
+              if (isDev) {
+                console.log('Using mock data in development mode due to failed queries');
+                setLead(mockLead);
+
+                // Initialize form data with mock data
+                setFormData({
+                  status: mockLead.status,
+                  insurance_type: mockLead.insurance_type,
+                  current_carrier: mockLead.current_carrier || '',
+                  premium: mockLead.premium ? mockLead.premium.toString() : '',
+                  notes: mockLead.notes || '',
+                  assigned_to: mockLead.assigned_to || '',
+                  first_name: mockLead.first_name,
+                  last_name: mockLead.last_name,
+                  email: mockLead.email,
+                  phone_number: mockLead.phone_number,
+                  street_address: mockLead.client?.address?.street || '',
+                  city: mockLead.client?.address?.city || '',
+                  state: mockLead.client?.address?.state || '',
+                  zip_code: mockLead.client?.address?.zip_code || '',
+                  date_of_birth: mockLead.client?.date_of_birth || '',
+                  gender: mockLead.client?.gender || '',
+                  marital_status: mockLead.client?.marital_status || '',
+                  drivers_license: mockLead.client?.drivers_license || '',
+                  license_state: mockLead.client?.license_state || '',
+                  education_occupation: '',
+                  referred_by: mockLead.client?.referred_by || '',
+                  client_name: mockLead.client?.name || `${mockLead.first_name} ${mockLead.last_name}`,
+                });
+
+                setIsLoading(false);
+                return;
+              }
+
+              throw simpleError;
+            } else if (simpleData) {
+              // Process the simple data
+              const processedLead: Lead = {
+                ...simpleData,
+                status: simpleData.status || 'New',
+                insurance_type: simpleData.insurance_type || 'Auto',
+                first_name: simpleData.first_name || '',
+                last_name: simpleData.last_name || '',
+                email: simpleData.email || '',
+                phone_number: simpleData.phone_number || '',
+              };
+
+              setLead(processedLead);
+
+              // Initialize form data with simple data
+              setFormData({
+                status: processedLead.status || 'New',
+                insurance_type: processedLead.insurance_type || 'Auto',
+                current_carrier: processedLead.current_carrier || '',
+                premium: processedLead.premium ? processedLead.premium.toString() : '',
+                notes: processedLead.notes || '',
+                assigned_to: processedLead.assigned_to || '',
+                first_name: processedLead.first_name || '',
+                last_name: processedLead.last_name || '',
+                email: processedLead.email || '',
+                phone_number: processedLead.phone_number || '',
+                street_address: '',
+                city: '',
+                state: '',
+                zip_code: '',
+                date_of_birth: '',
+                gender: '',
+                marital_status: '',
+                drivers_license: '',
+                license_state: '',
+                education_occupation: '',
+                referred_by: '',
+                client_name: `${processedLead.first_name || ''} ${processedLead.last_name || ''}`.trim(),
+              });
+            }
+          } else if (data) {
+            // Process the data with joins
+            const processedLead: Lead = {
+              ...data,
+              // Try to get status from joined table or fallback to direct property
+              status: typeof data.status === 'object' && data.status?.value
+                ? data.status.value
+                : (data.status || 'New'),
+
+              // Try to get insurance_type from joined table or fallback to direct property
+              insurance_type: typeof data.insurance_type === 'object' && data.insurance_type?.name
+                ? data.insurance_type.name
+                : (data.insurance_type || 'Auto'),
+
+              // Add legacy fields from client data for backward compatibility
+              first_name: typeof data.client === 'object' && data.client?.name
+                ? data.client.name.split(' ')[0]
+                : (data.first_name || ''),
+
+              last_name: typeof data.client === 'object' && data.client?.name
+                ? data.client.name.split(' ').slice(1).join(' ')
+                : (data.last_name || ''),
+
+              email: typeof data.client === 'object'
+                ? data.client?.email || ''
+                : (data.email || ''),
+
+              phone_number: typeof data.client === 'object'
+                ? data.client?.phone_number || ''
+                : (data.phone_number || ''),
+            };
+
+            setLead(processedLead);
+
+            // Initialize form data
+            setFormData({
+              // Lead fields
+              status: processedLead?.status || 'New',
+              insurance_type: processedLead?.insurance_type || 'Auto',
+              current_carrier: processedLead?.current_carrier || '',
+              premium: processedLead?.premium ? processedLead.premium.toString() : '',
+              notes: processedLead?.notes || '',
+              assigned_to: processedLead?.assigned_to || '',
+
+              // Client fields (from joined client or legacy fields)
+              client_name: processedLead?.client?.name || `${processedLead?.first_name || ''} ${processedLead?.last_name || ''}`.trim(),
+              first_name: processedLead?.first_name || processedLead?.client?.name?.split(' ')[0] || '',
+              last_name: processedLead?.last_name || (processedLead?.client?.name?.split(' ').slice(1).join(' ') || ''),
+              email: processedLead?.client?.email || processedLead?.email || '',
+              phone_number: processedLead?.client?.phone_number || processedLead?.phone_number || '',
+
+              // Address fields (from joined address or empty)
+              street_address: processedLead?.client?.address?.street || '',
+              city: processedLead?.client?.address?.city || '',
+              state: processedLead?.client?.address?.state || '',
+              zip_code: processedLead?.client?.address?.zip_code || '',
+
+              // Individual-specific fields
+              date_of_birth: processedLead?.client?.date_of_birth || '',
+              gender: processedLead?.client?.gender || '',
+              marital_status: processedLead?.client?.marital_status || '',
+              drivers_license: processedLead?.client?.drivers_license || '',
+              license_state: processedLead?.client?.license_state || '',
+              education_occupation: processedLead?.client?.education_occupation || '',
+              referred_by: processedLead?.client?.referred_by || '',
+            });
+          }
+        } catch (joinError) {
+          console.error('Error with all query attempts:', joinError);
+
+          // If we're in development mode, use mock data
+          if (isDev) {
+            console.log('Using mock data in development mode due to query errors');
+            setLead(mockLead);
+
+            // Initialize form data with mock data
+            setFormData({
+              status: mockLead.status,
+              insurance_type: mockLead.insurance_type,
+              current_carrier: mockLead.current_carrier || '',
+              premium: mockLead.premium ? mockLead.premium.toString() : '',
+              notes: mockLead.notes || '',
+              assigned_to: mockLead.assigned_to || '',
+              first_name: mockLead.first_name,
+              last_name: mockLead.last_name,
+              email: mockLead.email,
+              phone_number: mockLead.phone_number,
+              street_address: mockLead.client?.address?.street || '',
+              city: mockLead.client?.address?.city || '',
+              state: mockLead.client?.address?.state || '',
+              zip_code: mockLead.client?.address?.zip_code || '',
+              date_of_birth: mockLead.client?.date_of_birth || '',
+              gender: mockLead.client?.gender || '',
+              marital_status: mockLead.client?.marital_status || '',
+              drivers_license: mockLead.client?.drivers_license || '',
+              license_state: mockLead.client?.license_state || '',
+              education_occupation: '',
+              referred_by: mockLead.client?.referred_by || '',
+              client_name: mockLead.client?.name || `${mockLead.first_name} ${mockLead.last_name}`,
+            });
+          } else {
+            setFetchError('Failed to load lead details. The database schema may not be properly set up.');
+            toast({
+              title: "Error",
+              description: "Failed to load lead details. The database schema may not be properly set up.",
+              variant: "destructive"
+            });
+          }
         }
       } catch (error) {
         console.error('Error fetching lead:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load lead details.",
-          variant: "destructive"
-        });
+
+        // If we're in development mode, use mock data
+        if (isDev) {
+          console.log('Using mock data in development mode due to error');
+          setLead(mockLead);
+
+          // Initialize form data with mock data
+          setFormData({
+            status: mockLead.status,
+            insurance_type: mockLead.insurance_type,
+            current_carrier: mockLead.current_carrier || '',
+            premium: mockLead.premium ? mockLead.premium.toString() : '',
+            notes: mockLead.notes || '',
+            assigned_to: mockLead.assigned_to || '',
+            first_name: mockLead.first_name,
+            last_name: mockLead.last_name,
+            email: mockLead.email,
+            phone_number: mockLead.phone_number,
+            street_address: mockLead.client?.address?.street || '',
+            city: mockLead.client?.address?.city || '',
+            state: mockLead.client?.address?.state || '',
+            zip_code: mockLead.client?.address?.zip_code || '',
+            date_of_birth: mockLead.client?.date_of_birth || '',
+            gender: mockLead.client?.gender || '',
+            marital_status: mockLead.client?.marital_status || '',
+            drivers_license: mockLead.client?.drivers_license || '',
+            license_state: mockLead.client?.license_state || '',
+            education_occupation: '',
+            referred_by: mockLead.client?.referred_by || '',
+            client_name: mockLead.client?.name || `${mockLead.first_name} ${mockLead.last_name}`,
+          });
+        } else {
+          setFetchError('Failed to load lead details. Please try again later.');
+          toast({
+            title: "Error",
+            description: "Failed to load lead details. Please try again later.",
+            variant: "destructive"
+          });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -158,34 +463,209 @@ export default function LeadDetailsPage() {
     }
   }, [params.id, toast]);
 
+  // Mock data for notes and communications
+  const mockNotes = [
+    {
+      id: '1',
+      lead_id: params?.id as string,
+      note_content: 'Initial contact made. Client is interested in auto insurance.',
+      created_by: 'Brian B',
+      created_at: new Date(Date.now() - 86400000 * 3).toISOString() // 3 days ago
+    },
+    {
+      id: '2',
+      lead_id: params?.id as string,
+      note_content: 'Followed up with client. Scheduled a call for next week.',
+      created_by: 'Brian B',
+      created_at: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+    }
+  ];
+
+  const mockCommunications = [
+    {
+      id: '1',
+      lead_id: params?.id as string,
+      type: 'Email',
+      direction: 'Outbound',
+      content: 'Sent initial quote information.',
+      created_by: 'Brian B',
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString() // 2 days ago
+    },
+    {
+      id: '2',
+      lead_id: params?.id as string,
+      type: 'Call',
+      direction: 'Inbound',
+      content: 'Client called with questions about coverage options.',
+      created_by: 'Brian B',
+      created_at: new Date(Date.now() - 43200000).toISOString() // 12 hours ago
+    }
+  ];
+
   // Fetch lead notes and communications
   useEffect(() => {
-    if (params.id) {
-      const fetchNotes = async () => {
-        const { data, error } = await supabase
-          .from('lead_notes')
-          .select('*')
-          .eq('lead_id', params.id)
-          .order('created_at', { ascending: false });
+    if (params?.id) {
+      const isDev = process.env.NODE_ENV === 'development';
 
-        if (error) {
-          console.error('Error fetching notes:', error);
-        } else {
-          setNotes(data || []);
+      const fetchNotes = async () => {
+        try {
+          // In development mode, use mock data if there are database issues
+          if (isDev) {
+            try {
+              // First check if the lead_notes table exists
+              try {
+                const { data: tableCheck, error: tableError } = await supabase
+                  .from('lead_notes')
+                  .select('count')
+                  .limit(1);
+
+                if (tableError && tableError.code === '42P01') { // Table doesn't exist
+                  console.log('lead_notes table does not exist yet, using mock data');
+                  setNotes(mockNotes);
+                  return;
+                }
+              } catch (tableCheckError) {
+                console.error('Error checking lead_notes table:', tableCheckError);
+              }
+
+              const { data, error } = await supabase
+                .from('lead_notes')
+                .select('*')
+                .eq('lead_id', params.id)
+                .order('created_at', { ascending: false });
+
+              if (error) {
+                console.error('Error fetching notes:', error);
+                // Use mock data in development mode
+                console.log('Using mock notes data due to error');
+                setNotes(mockNotes);
+              } else {
+                setNotes(data || []);
+              }
+            } catch (error) {
+              console.error('Error fetching notes:', error);
+              // Use mock data in development mode
+              console.log('Using mock notes data due to error');
+              setNotes(mockNotes);
+            }
+          } else {
+            // Production mode - normal behavior
+            try {
+              // First check if the lead_notes table exists
+              try {
+                const { data: tableCheck, error: tableError } = await supabase
+                  .from('lead_notes')
+                  .select('count')
+                  .limit(1);
+
+                if (tableError && tableError.code === '42P01') { // Table doesn't exist
+                  console.log('lead_notes table does not exist yet');
+                  return;
+                }
+              } catch (tableCheckError) {
+                console.error('Error checking lead_notes table:', tableCheckError);
+              }
+
+              const { data, error } = await supabase
+                .from('lead_notes')
+                .select('*')
+                .eq('lead_id', params.id)
+                .order('created_at', { ascending: false });
+
+              if (error) {
+                console.error('Error fetching notes:', error);
+                // Don't show an error toast here, just log it
+              } else {
+                setNotes(data || []);
+              }
+            } catch (error) {
+              console.error('Error fetching notes:', error);
+              // Don't show an error toast here, just log it
+            }
+          }
+        } catch (error) {
+          console.error('Error in fetchNotes:', error);
         }
       };
 
       const fetchCommunications = async () => {
-        const { data, error } = await supabase
-          .from('lead_communications')
-          .select('*')
-          .eq('lead_id', params.id)
-          .order('created_at', { ascending: false });
+        try {
+          // In development mode, use mock data if there are database issues
+          if (isDev) {
+            try {
+              // First check if the lead_communications table exists
+              try {
+                const { data: tableCheck, error: tableError } = await supabase
+                  .from('lead_communications')
+                  .select('count')
+                  .limit(1);
 
-        if (error) {
-          console.error('Error fetching communications:', error);
-        } else {
-          setCommunications(data || []);
+                if (tableError && tableError.code === '42P01') { // Table doesn't exist
+                  console.log('lead_communications table does not exist yet, using mock data');
+                  setCommunications(mockCommunications);
+                  return;
+                }
+              } catch (tableCheckError) {
+                console.error('Error checking lead_communications table:', tableCheckError);
+              }
+
+              const { data, error } = await supabase
+                .from('lead_communications')
+                .select('*')
+                .eq('lead_id', params.id)
+                .order('created_at', { ascending: false });
+
+              if (error) {
+                console.error('Error fetching communications:', error);
+                // Use mock data in development mode
+                console.log('Using mock communications data due to error');
+                setCommunications(mockCommunications);
+              } else {
+                setCommunications(data || []);
+              }
+            } catch (error) {
+              console.error('Error fetching communications:', error);
+              // Use mock data in development mode
+              console.log('Using mock communications data due to error');
+              setCommunications(mockCommunications);
+            }
+          } else {
+            // Production mode - normal behavior
+            try {
+              // First check if the lead_communications table exists
+              try {
+                const { data: tableCheck, error: tableError } = await supabase
+                  .from('lead_communications')
+                  .select('count')
+                  .limit(1);
+
+                if (tableError && tableError.code === '42P01') { // Table doesn't exist
+                  console.log('lead_communications table does not exist yet');
+                  return;
+                }
+              } catch (tableCheckError) {
+                console.error('Error checking lead_communications table:', tableCheckError);
+              }
+
+              const { data, error } = await supabase
+                .from('lead_communications')
+                .select('*')
+                .eq('lead_id', params.id)
+                .order('created_at', { ascending: false });
+
+              if (error) {
+                console.error('Error fetching communications:', error);
+                // Don't show an error toast here, just log it
+              } else {
+                setCommunications(data || []);
+              }
+            } catch (error) {
+              console.error('Error fetching communications:', error);
+              // Don't show an error toast here, just log it
+            }
+          }
+        } catch (error) {
+          console.error('Error in fetchCommunications:', error);
         }
       };
 
@@ -326,45 +806,272 @@ export default function LeadDetailsPage() {
     if (!newNote.trim() || !lead) return;
 
     setIsSubmittingNote(true);
+
+    // Check if we're in development mode
+    const isDev = process.env.NODE_ENV === 'development';
+
     try {
-      const { data, error } = await supabase
-        .from('lead_notes')
-        .insert({
-          lead_id: lead.id,
-          note_content: newNote,
-          created_by: 'Brian B',
-          created_at: new Date().toISOString(),
-        })
-        .select();
+      // In development mode, use optimistic updates if there are database issues
+      if (isDev) {
+        try {
+          // First check if the lead_notes table exists
+          try {
+            const { data: tableCheck, error: tableError } = await supabase
+              .from('lead_notes')
+              .select('count')
+              .limit(1);
 
-      if (error) {
-        console.error('Error adding note:', error);
-        toast({
-          title: "Error",
-          description: "Failed to add note. Please try again.",
-          variant: "destructive"
-        });
-      } else if (data) {
-        setNotes([data[0], ...notes]);
-        setNewNote('');
+            if (tableError && tableError.code === '42P01') { // Table doesn't exist
+              console.log('lead_notes table does not exist yet, using optimistic update');
 
-        // Also add to communications
-        const { error: commError } = await supabase
-          .from('lead_communications')
-          .insert({
+              // Create a mock note
+              const mockNote = {
+                id: `mock-${Date.now()}`,
+                lead_id: lead.id,
+                note_content: newNote,
+                created_by: 'Brian B',
+                created_at: new Date().toISOString(),
+              };
+
+              // Add the note to the local state
+              setNotes([mockNote, ...notes]);
+              setNewNote('');
+
+              toast({
+                title: "Development Mode",
+                description: "Note added locally (database tables don't exist yet).",
+              });
+
+              setIsSubmittingNote(false);
+              return;
+            }
+          } catch (tableCheckError) {
+            console.error('Error checking lead_notes table:', tableCheckError);
+          }
+
+          // Try to add the note
+          const { data, error } = await supabase
+            .from('lead_notes')
+            .insert({
+              lead_id: lead.id,
+              note_content: newNote,
+              created_by: 'Brian B',
+              created_at: new Date().toISOString(),
+            })
+            .select();
+
+          if (error) {
+            console.error('Error adding note:', error);
+
+            // In development mode, use optimistic updates
+            console.log('Using optimistic update in development mode due to error');
+
+            // Create a mock note
+            const mockNote = {
+              id: `mock-${Date.now()}`,
+              lead_id: lead.id,
+              note_content: newNote,
+              created_by: 'Brian B',
+              created_at: new Date().toISOString(),
+            };
+
+            // Add the note to the local state
+            setNotes([mockNote, ...notes]);
+            setNewNote('');
+
+            toast({
+              title: "Development Mode",
+              description: "Note added locally (database error occurred).",
+            });
+          } else if (data) {
+            // Add the note to the local state
+            const newNoteObj = {
+              id: data[0].id,
+              lead_id: lead.id,
+              note_content: newNote,
+              created_by: 'Brian B',
+              created_at: new Date().toISOString(),
+            };
+
+            setNotes([newNoteObj, ...notes]);
+            setNewNote('');
+
+            toast({
+              title: "Success",
+              description: "Note added successfully.",
+            });
+
+            // Try to add to communications if that table exists
+            try {
+              // Check if communications table exists
+              const { data: commTableCheck, error: commTableError } = await supabase
+                .from('lead_communications')
+                .select('count')
+                .limit(1);
+
+              if (commTableError && commTableError.code === '42P01') {
+                console.log('lead_communications table does not exist yet');
+                return;
+              }
+
+              // Add to communications
+              const { error: commError } = await supabase
+                .from('lead_communications')
+                .insert({
+                  lead_id: lead.id,
+                  type: 'Note',
+                  content: newNote,
+                  created_by: 'Brian B',
+                  created_at: new Date().toISOString(),
+                });
+
+              if (commError) {
+                console.error('Error adding communication:', commError);
+              }
+            } catch (commError) {
+              console.error('Error with communications table:', commError);
+            }
+          }
+        } catch (error) {
+          console.error('Error adding note:', error);
+
+          // In development mode, use optimistic updates
+          console.log('Using optimistic update in development mode due to error');
+
+          // Create a mock note
+          const mockNote = {
+            id: `mock-${Date.now()}`,
             lead_id: lead.id,
-            type: 'Note',
-            content: newNote,
+            note_content: newNote,
             created_by: 'Brian B',
             created_at: new Date().toISOString(),
-          });
+          };
 
-        if (commError) {
-          console.error('Error adding communication:', commError);
+          // Add the note to the local state
+          setNotes([mockNote, ...notes]);
+          setNewNote('');
+
+          toast({
+            title: "Development Mode",
+            description: "Note added locally (error occurred).",
+          });
+        }
+      } else {
+        // Production mode - normal behavior
+        try {
+          // First check if the lead_notes table exists
+          try {
+            const { data: tableCheck, error: tableError } = await supabase
+              .from('lead_notes')
+              .select('count')
+              .limit(1);
+
+            if (tableError && tableError.code === '42P01') { // Table doesn't exist
+              toast({
+                title: "Database Setup Required",
+                description: "The lead_notes table doesn't exist yet. Please contact your administrator to set up the database schema.",
+                variant: "destructive"
+              });
+              setIsSubmittingNote(false);
+              return;
+            }
+          } catch (tableCheckError) {
+            console.error('Error checking lead_notes table:', tableCheckError);
+          }
+
+          // Try to add the note
+          const { data, error } = await supabase
+            .from('lead_notes')
+            .insert({
+              lead_id: lead.id,
+              note_content: newNote,
+              created_by: 'Brian B',
+              created_at: new Date().toISOString(),
+            })
+            .select();
+
+          if (error) {
+            console.error('Error adding note:', error);
+
+            if (error.code === '42P01') {
+              toast({
+                title: "Database Setup Required",
+                description: "The lead_notes table doesn't exist yet. Please contact your administrator.",
+                variant: "destructive"
+              });
+            } else if (error.code === '23503') { // Foreign key violation
+              toast({
+                title: "Error",
+                description: "Failed to add note. The lead may not exist in the database.",
+                variant: "destructive"
+              });
+            } else {
+              toast({
+                title: "Error",
+                description: "Failed to add note. Please try again.",
+                variant: "destructive"
+              });
+            }
+          } else if (data) {
+            // Add the note to the local state
+            const newNoteObj = {
+              id: data[0].id,
+              lead_id: lead.id,
+              note_content: newNote,
+              created_by: 'Brian B',
+              created_at: new Date().toISOString(),
+            };
+
+            setNotes([newNoteObj, ...notes]);
+            setNewNote('');
+
+            toast({
+              title: "Success",
+              description: "Note added successfully.",
+            });
+
+            // Try to add to communications if that table exists
+            try {
+              // Check if communications table exists
+              const { data: commTableCheck, error: commTableError } = await supabase
+                .from('lead_communications')
+                .select('count')
+                .limit(1);
+
+              if (commTableError && commTableError.code === '42P01') {
+                console.log('lead_communications table does not exist yet');
+                return;
+              }
+
+              // Add to communications
+              const { error: commError } = await supabase
+                .from('lead_communications')
+                .insert({
+                  lead_id: lead.id,
+                  type: 'Note',
+                  content: newNote,
+                  created_by: 'Brian B',
+                  created_at: new Date().toISOString(),
+                });
+
+              if (commError) {
+                console.error('Error adding communication:', commError);
+              }
+            } catch (commError) {
+              console.error('Error with communications table:', commError);
+            }
+          }
+        } catch (error) {
+          console.error('Error adding note:', error);
+          toast({
+            title: "Error",
+            description: "Failed to add note. Please try again.",
+            variant: "destructive"
+          });
         }
       }
     } catch (error) {
-      console.error('Error adding note:', error);
+      console.error('Error in handleAddNote:', error);
       toast({
         title: "Error",
         description: "Failed to add note. Please try again.",
@@ -870,11 +1577,45 @@ export default function LeadDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-6">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-2">Loading...</h2>
-            <p className="text-muted-foreground">Please wait while we load the lead details.</p>
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="flex flex-col items-center">
+            <div className="h-12 w-12 rounded-full border-4 border-t-blue-600 border-b-blue-600 border-l-transparent border-r-transparent animate-spin mb-4"></div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Loading Lead Details</h2>
+            <p className="text-gray-500">Please wait while we fetch the lead information...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="text-center max-w-md">
+            <div className="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Database Error</h2>
+            <p className="text-gray-600 mb-6">{fetchError}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={() => router.push('/dashboard/leads')}
+                variant="outline"
+                className="border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+              >
+                Back to Leads
+              </Button>
+              <Button
+                onClick={() => window.location.reload()}
+                variant="gradient"
+              >
+                Try Again
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -883,12 +1624,20 @@ export default function LeadDetailsPage() {
 
   if (!lead) {
     return (
-      <div className="container mx-auto py-6">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-2">Lead Not Found</h2>
-            <p className="text-muted-foreground mb-4">The lead you're looking for doesn't exist or you don't have permission to view it.</p>
-            <Button onClick={() => router.push('/dashboard/leads')}>
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="text-center max-w-md">
+            <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Lead Not Found</h2>
+            <p className="text-gray-600 mb-6">The lead you're looking for doesn't exist or you don't have permission to view it.</p>
+            <Button
+              onClick={() => router.push('/dashboard/leads')}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md"
+            >
               Back to Leads
             </Button>
           </div>
@@ -897,60 +1646,137 @@ export default function LeadDetailsPage() {
     );
   }
 
+  // Check if we're in development mode
+  const isDev = process.env.NODE_ENV === 'development';
+
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
+    <div className="container mx-auto py-8">
+      {/* Development Mode Indicator */}
+      {isDev && (
+        <div className="bg-amber-100 border border-amber-300 rounded-lg p-3 mb-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <span className="font-medium text-amber-800">Development Mode</span>
+              <p className="text-sm text-amber-700">
+                Using mock data because database tables don't exist yet. Data changes won't be saved to the database.
+              </p>
+            </div>
+          </div>
           <Button
             variant="outline"
-            size="icon"
-            onClick={() => router.push('/dashboard/leads')}
+            size="sm"
+            className="border-amber-300 bg-white text-amber-700 hover:bg-amber-50"
+            onClick={() => window.location.reload()}
           >
-            <ArrowLeft className="h-4 w-4" />
+            Refresh
           </Button>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {lead.first_name} {lead.last_name}
-          </h1>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => router.push('/dashboard/leads')}>
-            Back to Leads
-          </Button>
-          <Button
-            variant={isEditing ? "default" : "outline"}
-            onClick={() => setIsEditing(!isEditing)}
-            disabled={isSaving}
-            className={isEditing ? "" : "bg-black hover:bg-gray-800 text-white"}
-          >
-            {isEditing ? "Cancel" : "Edit Lead"}
-          </Button>
-          {isEditing && (
+      )}
+
+      {/* Header with gradient background */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8 border border-gray-200 shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-md">
+              {lead.first_name ? lead.first_name.charAt(0).toUpperCase() : ''}
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                {lead.first_name} {lead.last_name}
+              </h1>
+              <div className="flex items-center gap-3 mt-1 text-gray-500">
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  {lead.email || 'No email'}
+                </div>
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  {lead.phone_number || 'No phone'}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 w-full md:w-auto">
             <Button
-              onClick={handleSaveChanges}
-              disabled={isSaving}
+              variant="outline"
+              onClick={() => router.push('/dashboard/leads')}
+              className="border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
             >
-              {isSaving ? "Saving..." : "Save Changes"}
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Leads
             </Button>
-          )}
+            <Button
+              variant={isEditing ? "outline" : "outline"}
+              onClick={() => setIsEditing(!isEditing)}
+              disabled={isSaving}
+              className={isEditing ? "" : "bg-black hover:bg-gray-800 text-white"}
+            >
+              {isEditing ? "Cancel" : "Edit Lead"}
+            </Button>
+            {isEditing && (
+              <Button
+                onClick={handleSaveChanges}
+                disabled={isSaving}
+                variant="gradient"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="mt-4">
-        <TabsList className="grid grid-cols-4">
-          <TabsTrigger value="basic">Basic Information</TabsTrigger>
-          <TabsTrigger value="insurance">Insurance Details</TabsTrigger>
-          <TabsTrigger value="communications">Communication History</TabsTrigger>
-          <TabsTrigger value="marketing">Marketing Automation</TabsTrigger>
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList className="grid grid-cols-4 bg-gray-100 p-1 rounded-lg">
+          <TabsTrigger
+            value="basic"
+            className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+          >
+            Basic Information
+          </TabsTrigger>
+          <TabsTrigger
+            value="insurance"
+            className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+          >
+            Insurance Details
+          </TabsTrigger>
+          <TabsTrigger
+            value="communications"
+            className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+          >
+            Communication History
+          </TabsTrigger>
+          <TabsTrigger
+            value="marketing"
+            className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+          >
+            Marketing Automation
+          </TabsTrigger>
         </TabsList>
 
         {/* Basic Information Tab */}
-        <TabsContent value="basic" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Lead Information</CardTitle>
-              <CardDescription className="text-sm">Basic details about this lead</CardDescription>
+        <TabsContent value="basic" className="space-y-6 mt-6">
+          <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+            <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+              <CardTitle className="text-xl font-bold text-gray-900">Lead Information</CardTitle>
+              <CardDescription className="text-gray-500">Basic details about this lead</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
               {isEditing ? (
                 // Editable form
                 <>
@@ -1180,53 +2006,69 @@ export default function LeadDetailsPage() {
               ) : (
                 // Read-only view
                 <>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Name</Label>
-                    <div>{lead.first_name} {lead.last_name}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Name</Label>
+                    <div className="font-medium text-gray-900">{lead.first_name} {lead.last_name}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Email</Label>
-                    <div>{lead.email || 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Email</Label>
+                    <div className="text-gray-700">{lead.email || 'N/A'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
-                    <div>{lead.phone_number || 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Phone</Label>
+                    <div className="text-gray-700">{lead.phone_number || 'N/A'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Insurance Type</Label>
-                    <div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Insurance Type</Label>
+                    <div className="text-gray-700">
                       {typeof lead.insurance_type === 'string'
                         ? lead.insurance_type
                         : (lead.insurance_type as any)?.name || 'Auto'}
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Current Carrier</Label>
-                    <div>{lead.current_carrier || 'None'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Current Carrier</Label>
+                    <div className="text-gray-700">{lead.current_carrier || 'None'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Premium</Label>
-                    <div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Premium</Label>
+                    <div className="text-gray-700 font-medium">
                       ${lead.premium
                         ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                         : '0.00'}
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Status</Label>
-                    <div>
-                      {typeof lead.status === 'string'
-                        ? lead.status
-                        : (lead.status as any)?.value || 'New'}
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Status</Label>
+                    <div className="text-gray-700">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium inline-flex items-center ${getStatusStyles(
+                        typeof lead.status === 'string' ? lead.status : (lead.status as any)?.value || 'New',
+                        'badge'
+                      )}`}>
+                        {typeof lead.status === 'string'
+                          ? lead.status
+                          : (lead.status as any)?.value || 'New'}
+                      </span>
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
-                    <div>{lead.assigned_to || 'Unassigned'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Assigned To</Label>
+                    <div className="text-gray-700">
+                      {lead.assigned_to ? (
+                        <div className="flex items-center">
+                          <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm mr-2">
+                            {lead.assigned_to.charAt(0).toUpperCase()}
+                          </div>
+                          <span>{lead.assigned_to}</span>
+                        </div>
+                      ) : (
+                        'Unassigned'
+                      )}
+                    </div>
                   </div>
-                  <div className="col-span-2">
-                    <Label className="text-xs font-medium text-muted-foreground">Address</Label>
-                    <div>
+                  <div className="col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Address</Label>
+                    <div className="text-gray-700">
                       {lead.client?.address?.street ? (
                         <>
                           {lead.client.address.street}<br />
@@ -1237,33 +2079,33 @@ export default function LeadDetailsPage() {
                       )}
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Date of Birth</Label>
-                    <div>{lead.client?.date_of_birth ? formatDateMMDDYYYY(lead.client.date_of_birth) : 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Date of Birth</Label>
+                    <div className="text-gray-700">{lead.client?.date_of_birth ? formatDateMMDDYYYY(lead.client.date_of_birth) : 'N/A'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Gender</Label>
-                    <div>{lead.client?.gender || 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Gender</Label>
+                    <div className="text-gray-700">{lead.client?.gender || 'N/A'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Marital Status</Label>
-                    <div>{lead.client?.marital_status || 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Marital Status</Label>
+                    <div className="text-gray-700">{lead.client?.marital_status || 'N/A'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Driver's License</Label>
-                    <div>{lead.client?.drivers_license || 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Driver's License</Label>
+                    <div className="text-gray-700">{lead.client?.drivers_license || 'N/A'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">License State</Label>
-                    <div>{lead.client?.license_state || 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">License State</Label>
+                    <div className="text-gray-700">{lead.client?.license_state || 'N/A'}</div>
                   </div>
-                  <div>
-                    <Label className="text-xs font-medium text-muted-foreground">Referred By</Label>
-                    <div>{lead.client?.referred_by || 'N/A'}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Referred By</Label>
+                    <div className="text-gray-700">{lead.client?.referred_by || 'N/A'}</div>
                   </div>
-                  <div className="col-span-2">
-                    <Label className="text-xs font-medium text-muted-foreground">Notes</Label>
-                    <div>{lead.notes || 'No notes'}</div>
+                  <div className="col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Notes</Label>
+                    <div className="text-gray-700 whitespace-pre-wrap">{lead.notes || 'No notes'}</div>
                   </div>
                 </>
               )}
@@ -2335,51 +3177,87 @@ export default function LeadDetailsPage() {
         </TabsContent>
 
         {/* Communication History Tab */}
-        <TabsContent value="communications" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Add Note</CardTitle>
-              <CardDescription className="text-sm">Add a note about this lead</CardDescription>
+        <TabsContent value="communications" className="space-y-6 mt-6">
+          <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+            <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+              <CardTitle className="text-xl font-bold text-gray-900">Add Note</CardTitle>
+              <CardDescription className="text-gray-500">Add a note about this lead</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="space-y-4">
                 <Textarea
                   placeholder="Enter your note here..."
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
+                  className="min-h-[100px] border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
                 />
-                <Button onClick={handleAddNote} disabled={isSubmittingNote || !newNote.trim()}>
-                  {isSubmittingNote ? 'Adding...' : 'Add Note'}
+                <Button
+                  onClick={handleAddNote}
+                  disabled={isSubmittingNote || !newNote.trim()}
+                  variant="gradient"
+                  className="w-full sm:w-auto"
+                >
+                  {isSubmittingNote ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Note
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Communication History</CardTitle>
-              <CardDescription className="text-sm">All interactions with this lead</CardDescription>
+          <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+            <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+              <CardTitle className="text-xl font-bold text-gray-900">Communication History</CardTitle>
+              <CardDescription className="text-gray-500">All interactions with this lead</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-6">
               {[...notes, ...communications].sort((a, b) =>
                 new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
               ).map((item, index) => (
-                <Card key={index} className="bg-muted/30">
-                  <CardContent className="pt-4">
+                <Card key={index} className="bg-gray-50 border border-gray-100 overflow-hidden">
+                  <div className={`h-1 w-full ${item.type === 'Email' ? 'bg-blue-500' : item.type === 'Call' ? 'bg-green-500' : item.type === 'SMS' ? 'bg-purple-500' : 'bg-gray-500'}`}></div>
+                  <CardContent className="p-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium text-gray-900 flex items-center">
+                          {item.type === 'Email' ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                          ) : item.type === 'Call' ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                          ) : item.type === 'SMS' ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                          )}
                           {item.type || 'Note'} {item.direction ? `(${item.direction})` : ''}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs text-gray-500 mt-1">
                           {formatDateTimeMMDDYYYY(item.created_at)}
                         </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600">
                         {item.created_by || 'System'}
                       </div>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-3 text-gray-700 border-t border-gray-100 pt-3 whitespace-pre-wrap">
                       {item.note_content || item.content}
                     </div>
                   </CardContent>
@@ -2387,8 +3265,16 @@ export default function LeadDetailsPage() {
               ))}
 
               {notes.length === 0 && communications.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No communication history yet
+                <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
+                  <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">No Communication History</h3>
+                  <p className="text-gray-500 max-w-md mx-auto">
+                    There are no notes or communications with this lead yet. Add a note to get started.
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -2398,17 +3284,29 @@ export default function LeadDetailsPage() {
 
 
         {/* Marketing Automation Tab */}
-        <TabsContent value="marketing" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Marketing Campaigns</CardTitle>
-              <CardDescription className="text-sm">
+        <TabsContent value="marketing" className="space-y-6 mt-6">
+          <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+            <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+              <CardTitle className="text-xl font-bold text-gray-900">Marketing Campaigns</CardTitle>
+              <CardDescription className="text-gray-500">
                 Enable or disable marketing campaigns for this lead
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                Marketing automation features coming soon
+            <CardContent className="p-6">
+              <div className="text-center py-16 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Coming Soon</h3>
+                <p className="text-gray-500 max-w-md mx-auto mb-6">
+                  Marketing automation features are currently in development and will be available soon.
+                </p>
+                <Button variant="outline" className="border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200">
+                  Join Waitlist
+                </Button>
               </div>
             </CardContent>
           </Card>

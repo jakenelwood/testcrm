@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/user-profile";
 import { useLogout } from "@/utils/auth";
+import GonzigoBrand from "@/components/gonzigo-brand";
 import {
   FileText,
   LayoutDashboard,
@@ -86,7 +87,15 @@ export function Sidebar() {
       active: false,
       iconColor: "text-red-500",
       variant: undefined,
-      onClick: () => logout()
+      onClick: async () => {
+        try {
+          await logout();
+        } catch (error) {
+          console.error('Error in sidebar logout:', error);
+          // Fallback direct navigation if the hook fails
+          window.location.href = '/auth/login';
+        }
+      }
     }
   ];
 
@@ -132,35 +141,40 @@ export function Sidebar() {
       onMouseLeave={handleMouseLeave}
     >
       <div className={cn(
-        "flex h-14 items-center border-b px-4 justify-between",
+        "flex h-16 items-center border-b px-4 justify-between bg-gradient-to-r from-blue-600/5 to-indigo-600/5",
         !showExpanded && "justify-center px-2"
       )}>
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           {showExpanded ? (
-            <span className="text-xl font-bold">Conzigo</span>
+            <div className="flex flex-col">
+              <GonzigoBrand size="md" showTagline={false} className="flex items-center" />
+            </div>
           ) : (
-            <span className="text-xl font-bold">C</span>
+            <div className="h-8 w-8 flex items-center justify-center">
+              <span className="font-bold text-xl text-[#0047AB]">G</span>
+            </div>
           )}
         </Link>
         {/* Always show the toggle button in a fixed position */}
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600 transition-colors"
           onClick={handleToggleClick}
         >
           {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="flex-1 py-2 overflow-y-auto scrollbar-hide">
-        <nav className={cn("grid gap-1", !showExpanded ? "px-1" : "px-2")}>
+      <div className="flex-1 py-4 overflow-y-auto scrollbar-hide">
+        <nav className={cn("grid gap-2", !showExpanded ? "px-1" : "px-2")}>
           {routes.map((route, i) => (
             <Button
               key={i}
               asChild
               variant={route.variant || (route.active ? "secondary" : "ghost")}
               className={cn(
-                "justify-start",
+                "justify-start transition-all duration-200 hover:bg-blue-50 hover:text-blue-600",
+                route.active && "bg-blue-50 text-blue-600 hover:bg-blue-100",
                 !showExpanded && "justify-center px-0"
               )}
               size="sm"
@@ -168,11 +182,14 @@ export function Sidebar() {
             >
               <Link href={route.href}>
                 <route.icon className={cn(
-                  "h-4 w-4",
-                  route.iconColor,
+                  "h-4 w-4 transition-transform duration-200",
+                  route.active ? "text-blue-600" : "text-gray-500",
                   showText ? "mr-2" : "mr-0"
                 )} />
-                {showText && <span className="font-bold">{route.label}</span>}
+                {showText && <span className={cn(
+                  "font-medium",
+                  route.active && "font-semibold"
+                )}>{route.label}</span>}
               </Link>
             </Button>
           ))}
@@ -277,7 +294,7 @@ export function Sidebar() {
         </nav>
 
         <nav className={cn(
-          "grid gap-1 mt-4 pt-4 border-t",
+          "grid gap-2 mt-6 pt-6 border-t border-gray-100",
           !showExpanded ? "px-1" : "px-2"
         )}>
           {secondaryRoutes.map((route, i) => (
@@ -285,7 +302,9 @@ export function Sidebar() {
               key={i}
               variant={route.active ? "secondary" : "ghost"}
               className={cn(
-                "justify-start",
+                "justify-start transition-all duration-200",
+                route.label === "Logout" ? "hover:bg-red-50 hover:text-red-600" : "hover:bg-blue-50 hover:text-blue-600",
+                route.active && "bg-blue-50 text-blue-600 hover:bg-blue-100",
                 !showExpanded && "justify-center px-0"
               )}
               size="sm"
@@ -296,27 +315,33 @@ export function Sidebar() {
               {route.onClick ? (
                 <>
                   <route.icon className={cn(
-                    "h-4 w-4",
-                    route.iconColor,
+                    "h-4 w-4 transition-transform duration-200",
+                    route.label === "Logout" ? "text-red-500" : (route.active ? "text-blue-600" : "text-gray-500"),
                     showText ? "mr-2" : "mr-0"
                   )} />
-                  {showText && <span className="font-bold">{route.label}</span>}
+                  {showText && <span className={cn(
+                    "font-medium",
+                    route.active && "font-semibold"
+                  )}>{route.label}</span>}
                 </>
               ) : (
                 <Link href={route.href}>
                   <route.icon className={cn(
-                    "h-4 w-4",
-                    route.iconColor,
+                    "h-4 w-4 transition-transform duration-200",
+                    route.label === "Logout" ? "text-red-500" : (route.active ? "text-blue-600" : "text-gray-500"),
                     showText ? "mr-2" : "mr-0"
                   )} />
-                  {showText && <span className="font-bold">{route.label}</span>}
+                  {showText && <span className={cn(
+                    "font-medium",
+                    route.active && "font-semibold"
+                  )}>{route.label}</span>}
                 </Link>
               )}
             </Button>
           ))}
         </nav>
       </div>
-      
+
       {/* User Profile */}
       <UserProfile showText={showText} />
     </div>

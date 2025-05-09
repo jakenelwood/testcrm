@@ -28,7 +28,7 @@ export default function PipelinesPage() {
         setIsLoading(true);
         const data = await fetchPipelines();
         setPipelines(data);
-        
+
         // Select the first pipeline by default if none is selected
         if (data.length > 0 && !selectedPipelineId) {
           setSelectedPipelineId(data[0].id);
@@ -62,7 +62,7 @@ export default function PipelinesPage() {
 
   // Handle pipeline update
   const handlePipelineUpdated = (updatedPipeline: Pipeline) => {
-    setPipelines(prev => 
+    setPipelines(prev =>
       prev.map(p => p.id === updatedPipeline.id ? updatedPipeline : p)
     );
     toast({
@@ -96,12 +96,16 @@ export default function PipelinesPage() {
   const selectedPipeline = pipelines.find(p => p.id === selectedPipelineId);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Pipeline Management</h1>
-        <Button 
-          onClick={() => router.push('/leads')}
+    <div className="container mx-auto py-8 space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-1">Pipeline Management</h1>
+          <p className="text-gray-500">Create and manage your sales pipelines</p>
+        </div>
+        <Button
+          onClick={() => router.push('/dashboard/leads')}
           variant="outline"
+          className="text-blue-600 border-blue-200 hover:bg-blue-50"
         >
           Back to Leads
         </Button>
@@ -110,30 +114,32 @@ export default function PipelinesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Pipeline List */}
         <div className="md:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pipelines</CardTitle>
-              <CardDescription>Manage your sales pipelines</CardDescription>
+          <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+            <CardHeader className="bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+              <CardTitle className="text-xl font-bold text-gray-900">Pipelines</CardTitle>
+              <CardDescription className="text-gray-500">Manage your sales pipelines</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
               {isLoading ? (
-                <div className="space-y-2">
+                <div className="space-y-3 py-2">
                   <Skeleton className="h-10 w-full" />
                   <Skeleton className="h-10 w-full" />
                   <Skeleton className="h-10 w-full" />
                 </div>
               ) : (
-                <PipelineList 
+                <PipelineList
                   pipelines={pipelines}
                   selectedPipelineId={selectedPipelineId}
                   onSelect={handlePipelineSelect}
                 />
               )}
             </CardContent>
-            <CardFooter>
-              <Button 
+            <CardFooter className="border-t border-gray-100 bg-gray-50 p-4">
+              <Button
                 onClick={handleCreateNew}
-                className="w-full bg-black hover:bg-gray-800 text-white"
+                variant="gradient"
+                className="w-full"
               >
                 <Plus className="mr-2 h-4 w-4" /> New Pipeline
               </Button>
@@ -144,12 +150,13 @@ export default function PipelinesPage() {
         {/* Pipeline Editor */}
         <div className="md:col-span-3">
           {isLoading ? (
-            <Card>
-              <CardHeader>
+            <Card className="border-gray-200 shadow-sm overflow-hidden">
+              <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+              <CardHeader className="bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
                 <Skeleton className="h-8 w-1/3" />
                 <Skeleton className="h-4 w-1/2" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="space-y-4">
                   <Skeleton className="h-10 w-full" />
                   <Skeleton className="h-10 w-full" />
@@ -158,23 +165,36 @@ export default function PipelinesPage() {
               </CardContent>
             </Card>
           ) : isCreatingNew ? (
-            <PipelineEditor 
+            <PipelineEditor
               mode="create"
               onPipelineCreated={handlePipelineCreated}
               onCancel={() => setIsCreatingNew(false)}
             />
           ) : selectedPipeline ? (
-            <PipelineEditor 
+            <PipelineEditor
               mode="edit"
               pipeline={selectedPipeline}
               onPipelineUpdated={handlePipelineUpdated}
               onPipelineDeleted={handlePipelineDeleted}
             />
           ) : (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-8 text-muted-foreground">
-                  Select a pipeline to edit or create a new one
+            <Card className="border-gray-200 shadow-sm overflow-hidden">
+              <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+              <CardContent className="p-12">
+                <div className="text-center py-12 flex flex-col items-center justify-center">
+                  <div className="h-16 w-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                    <Plus className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">No Pipeline Selected</h3>
+                  <p className="text-gray-500 mb-6 max-w-md">
+                    Select a pipeline from the list to edit or create a new one to get started
+                  </p>
+                  <Button
+                    onClick={handleCreateNew}
+                    variant="gradient"
+                  >
+                    <Plus className="mr-2 h-4 w-4" /> Create New Pipeline
+                  </Button>
                 </div>
               </CardContent>
             </Card>
