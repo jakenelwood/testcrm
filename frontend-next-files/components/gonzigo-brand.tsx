@@ -23,10 +23,10 @@ export default function GonzigoBrand({
   return (
     <div className={cn("flex flex-col", className)}>
       <div className={cn(
-        "font-bold lowercase text-[#D2042D] px-2 py-1",
+        "font-bold lowercase text-[#FD4807] px-2 py-1",
         sizeClasses[size]
       )}>
-        gonzigo
+        /gonzigo
       </div>
       {showTagline && (
         <div className="text-sm mt-1 text-gray-600">
