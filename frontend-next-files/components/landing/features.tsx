@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Particles, AnimatedGradient, Spotlight } from '@/components/ui/particles';
+import { AnimatedCard, TiltCard } from '@/components/ui/animated-card';
 
 export default function Features() {
   const ref = useRef<HTMLDivElement>(null);
@@ -66,10 +68,15 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="py-24 md:py-32" ref={ref}>
+    <section id="features" className="py-24 md:py-32 relative" ref={ref}>
+      {/* Add animated background elements */}
+      <AnimatedGradient className="z-0" />
+      <Particles className="z-0" count={30} />
+      <Spotlight className="z-0" />
+
       <motion.div
         style={{ opacity, y }}
-        className="container mx-auto px-4"
+        className="container mx-auto px-4 relative z-10"
       >
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">CRM with brains, not baggage</h2>
@@ -228,23 +235,23 @@ export default function Features() {
         {/* Feature Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.filter((_, i) => i !== 2 && i !== 4).map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: feature.delay }}
-            >
-              <Card className={`h-full border ${feature.color} hover:shadow-md transition-shadow`}>
-                <CardContent className="p-6">
-                  <div className={`w-12 h-12 ${feature.iconBg} rounded-full flex items-center justify-center text-2xl mb-4`}>
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
+            index % 2 === 0 ? (
+              <AnimatedCard key={index} delay={feature.delay}>
+                <div className={`w-12 h-12 ${feature.iconBg} rounded-full flex items-center justify-center text-2xl mb-4`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </AnimatedCard>
+            ) : (
+              <TiltCard key={index} delay={feature.delay}>
+                <div className={`w-12 h-12 ${feature.iconBg} rounded-full flex items-center justify-center text-2xl mb-4`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </TiltCard>
+            )
           ))}
         </div>
       </motion.div>

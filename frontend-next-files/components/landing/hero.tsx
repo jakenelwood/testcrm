@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { FloatingIcons } from '@/components/ui/flying-elements';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -19,7 +20,7 @@ export default function Hero() {
       {/* Background decorative elements */}
       <div className="absolute -z-10 top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-purple-500/10 to-blue-500/5 rounded-full blur-[120px]" />
       <div className="absolute -z-10 bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-amber-500/10 to-pink-500/5 rounded-full blur-[120px]" />
-      
+
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-16 items-center">
@@ -41,7 +42,7 @@ export default function Hero() {
                   </Badge>
                   <span className="ml-2 text-sm text-gray-600">No more missed opportunities. That's gonzigo.</span>
                 </motion.div>
-                
+
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
@@ -52,14 +53,14 @@ export default function Hero() {
                   <span className="text-[#3B28CC]">jump to better</span> <br />
                   sales pipelines
                 </motion.h1>
-                
+
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
                   transition={{ duration: 0.6, delay: 0.5 }}
                   className="text-xl text-gray-600 mb-8 leading-relaxed max-w-xl"
                 >
-                  Use the intelligent, proactive CRM that helps you close more deals. 
+                  Use the intelligent, proactive CRM that helps you close more deals.
                   gonzigo listens, learns, and nudges at just the right time.
                 </motion.p>
               </div>
@@ -90,9 +91,11 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="flex-1 relative"
             >
+              {/* Add floating icons around the dashboard */}
+              <FloatingIcons className="z-0" />
               {/* Screen texture overlay */}
               <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay z-10 bg-[url('https://res.cloudinary.com/dhgck7ebz/image/upload/f_auto,c_limit,w_3840,q_auto/Textures/screen-texture')] bg-cover"></div>
-              
+
               <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
                 <div className="absolute top-0 left-0 right-0 h-12 bg-gray-50 border-b border-gray-100 flex items-center px-4">
                   <div className="flex space-x-2">
@@ -136,7 +139,7 @@ export default function Hero() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[#3B28CC]/10 rounded-full blur-2xl"></div>
               <div className="absolute -top-6 -left-6 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>

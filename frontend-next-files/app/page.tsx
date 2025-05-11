@@ -5,10 +5,13 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import GonzigoBrand from '@/components/gonzigo-brand';
 import { ChevronDown } from 'lucide-react';
+import { FlyingElements, FloatingIcons } from '@/components/ui/flying-elements';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
+      {/* Add flying elements for visual interest */}
+      <FlyingElements className="z-0" />
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <nav className="container mx-auto py-4 flex justify-between items-center">

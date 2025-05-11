@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { AnimatedShapes, AnimatedText } from '@/components/ui/animated-shapes';
 
 export default function CTA() {
   const ref = useRef<HTMLDivElement>(null);
@@ -31,6 +32,9 @@ export default function CTA() {
       <div className="absolute -z-10 top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-[#3B28CC]/5 to-blue-500/5 rounded-full blur-[120px]" />
       <div className="absolute -z-10 bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-amber-500/5 to-pink-500/5 rounded-full blur-[120px]" />
 
+      {/* Add animated shapes */}
+      <AnimatedShapes className="z-0" />
+
       <motion.div
         className="container mx-auto px-4"
         variants={containerVariants}
@@ -49,9 +53,11 @@ export default function CTA() {
                   <span className="inline-block px-4 py-1 bg-[#3B28CC]/10 text-[#3B28CC] rounded-full text-sm font-medium mb-4">
                     Be unstoppable
                   </span>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                    Make the jump to better sales pipelines
-                  </h2>
+                  <AnimatedText
+                    text="Make the jump to better sales pipelines"
+                    className="text-4xl md:text-5xl font-bold mb-6"
+                    delay={0.3}
+                  />
                   <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                     gonzigo remembers everything, so you don't have to.
                     Start closing more deals with the CRM that works for you, not the other way around.
@@ -84,7 +90,12 @@ export default function CTA() {
           >
             <div className="mb-24">
               <div className="max-w-3xl mx-auto">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-800">Built different</h2>
+                <AnimatedText
+                  text="Built different"
+                  className="text-3xl md:text-4xl font-bold mb-6 text-gray-800"
+                  delay={0.2}
+                  speed={0.08}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                   <div className="p-6 rounded-xl bg-white border border-gray-100 shadow-sm">
