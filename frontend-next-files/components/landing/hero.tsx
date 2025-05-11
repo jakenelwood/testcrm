@@ -93,40 +93,40 @@ export default function Hero() {
               {/* Screen texture overlay */}
               <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay z-10 bg-[url('https://res.cloudinary.com/dhgck7ebz/image/upload/f_auto,c_limit,w_3840,q_auto/Textures/screen-texture')] bg-cover"></div>
 
-              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+              <div className="relative bg-white rounded-sm shadow-2xl overflow-hidden border border-gray-100">
                 <div className="absolute top-0 left-0 right-0 h-12 bg-gray-50 border-b border-gray-100 flex items-center px-4">
                   <div className="flex space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    <div className="w-3 h-3 bg-red-400"></div>
+                    <div className="w-3 h-3 bg-amber-400"></div>
+                    <div className="w-3 h-3 bg-green-400"></div>
                   </div>
                   <div className="mx-auto text-sm text-gray-500">gonzigo dashboard</div>
                 </div>
                 <div className="pt-12 pb-4 px-4">
-                  <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100 relative overflow-hidden">
+                  <div className="bg-blue-50 rounded-sm p-4 mb-4 border border-blue-100 relative overflow-hidden">
                     <div className="text-sm text-blue-800 font-medium flex items-center">
                       gonzigo says:
-                      <span className="ml-1 w-2 h-2 bg-[#3B28CC] rounded-full animate-pulse"></span>
+                      <span className="ml-1 w-2 h-2 bg-[#3B28CC] animate-pulse"></span>
                     </div>
                     <div className="text-gray-700">"That lead you forgot about? I didn't. They opened your proposal three times today."</div>
-                    <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-blue-100/50 rounded-full blur-xl"></div>
+                    <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-blue-100/50 blur-xl"></div>
                   </div>
                   <div className="space-y-3">
-                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div className="bg-gray-50 rounded-sm p-3 border border-gray-100">
                       <div className="flex justify-between">
                         <div className="font-medium">Acme Corp</div>
                         <div className="text-green-600 text-sm">Hot Lead</div>
                       </div>
                       <div className="text-sm text-gray-500">Last activity: 2 hours ago</div>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div className="bg-gray-50 rounded-sm p-3 border border-gray-100">
                       <div className="flex justify-between">
                         <div className="font-medium">Globex Industries</div>
                         <div className="text-amber-600 text-sm">Negotiation</div>
                       </div>
                       <div className="text-sm text-gray-500">Last activity: Yesterday</div>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <div className="bg-gray-50 rounded-sm p-3 border border-gray-100">
                       <div className="flex justify-between">
                         <div className="font-medium">Stark Enterprises</div>
                         <div className="text-blue-600 text-sm">New Contact</div>
@@ -138,8 +138,8 @@ export default function Hero() {
               </div>
 
               {/* Decorative elements */}
-              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[#3B28CC]/10 rounded-full blur-2xl"></div>
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[#3B28CC]/10 blur-2xl"></div>
+              <div className="absolute -top-6 -left-6 w-24 h-24 bg-amber-500/10 blur-2xl"></div>
             </motion.div>
           </div>
         </div>
