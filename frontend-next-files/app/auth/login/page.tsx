@@ -341,7 +341,7 @@ export default function LoginPage() {
                 {/* Gonzigo's been listening */}
                 <div className="mb-6 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                   <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
-                    <span className="text-[#FFA500] mr-2">🧠</span> gonzigo's been listening.
+                    <span className="text-[#0047AB] mr-2">🧠</span> gonzigo's been listening.
                   </h3>
                 </div>
 

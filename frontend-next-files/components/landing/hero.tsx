@@ -36,7 +36,7 @@ export default function Hero() {
                   animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 10 }}
                   transition={{ duration: 0.4, delay: 0.1 }}
                 >
-                  <Badge className="mb-6 bg-[#FFA50020] text-[#FFA500] hover:bg-[#FFA50030] px-3 py-1 text-sm rounded-full font-medium">
+                  <Badge className="mb-6 bg-[#0047AB20] text-[#0047AB] hover:bg-[#0047AB30] px-3 py-1 text-sm rounded-full font-medium">
                     New
                   </Badge>
                   <span className="ml-2 text-sm text-gray-600">No more missed opportunities. That's gonzigo.</span>
@@ -49,7 +49,7 @@ export default function Hero() {
                   className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight font-inter"
                 >
                   Make the <br />
-                  <span className="text-[#FFA500] font-bold">jump to better</span> <br />
+                  <span className="text-[#0047AB] font-bold">jump to better</span> <br />
                   sales pipelines
                 </motion.h1>
 
@@ -106,7 +106,7 @@ export default function Hero() {
                   <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100 relative overflow-hidden">
                     <div className="text-sm text-blue-800 font-medium flex items-center">
                       gonzigo says:
-                      <span className="ml-1 w-2 h-2 bg-[#FFA500] rounded-full animate-pulse"></span>
+                      <span className="ml-1 w-2 h-2 bg-[#0047AB] rounded-full animate-pulse"></span>
                     </div>
                     <div className="text-gray-700">"That lead you forgot about? I didn't. They opened your proposal three times today."</div>
                     <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-blue-100/50 rounded-full blur-xl"></div>
@@ -138,7 +138,7 @@ export default function Hero() {
               </div>
 
               {/* Decorative elements */}
-              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[#FFA50030] rounded-full blur-2xl"></div>
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[#0047AB30] rounded-full blur-2xl"></div>
               <div className="absolute -top-6 -left-6 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
             </motion.div>
           </div>
