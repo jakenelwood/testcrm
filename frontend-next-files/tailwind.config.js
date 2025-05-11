@@ -17,6 +17,7 @@ export default {
     extend: {
       fontFamily: {
         futura: ["var(--font-futura)"],
+        inter: ["var(--font-inter)"],
       },
       colors: {
         border: "var(--border)",

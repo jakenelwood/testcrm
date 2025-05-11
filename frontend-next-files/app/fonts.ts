@@ -1,4 +1,12 @@
+import { Inter } from 'next/font/google';
 import localFont from 'next/font/local';
+
+// Load Inter font (used by Notion)
+export const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 // Load Futura font
 export const futura = localFont({

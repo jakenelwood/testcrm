@@ -46,7 +46,7 @@ export default function Hero() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
-                  className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight font-futura"
+                  className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight font-inter"
                 >
                   Make the <br />
                   <span className="text-[#3B28CC]">jump to better</span> <br />
