@@ -9,11 +9,12 @@ interface ParticlesProps {
   color?: string;
 }
 
-export function Particles({ 
-  className = '', 
-  count = 40, 
-  color = '#3B28CC' 
+export function Particles({
+  className = '',
+  count = 40,
+  color = '#3B28CC'
 }: ParticlesProps) {
+  const [isClient, setIsClient] = useState(false);
   const [particles, setParticles] = useState<Array<{
     id: number;
     x: number;
@@ -22,22 +23,54 @@ export function Particles({
     opacity: number;
     duration: number;
     delay: number;
+    movements: {
+      x: number[];
+      y: number[];
+    };
   }>>([]);
 
   useEffect(() => {
+    setIsClient(true);
+
     // Generate random particles
-    const newParticles = Array.from({ length: count }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100, // Random x position (0-100%)
-      y: Math.random() * 100, // Random y position (0-100%)
-      size: Math.random() * 6 + 2, // Random size (2-8px)
-      opacity: Math.random() * 0.5 + 0.1, // Random opacity (0.1-0.6)
-      duration: Math.random() * 20 + 10, // Random animation duration (10-30s)
-      delay: Math.random() * 5, // Random delay (0-5s)
-    }));
-    
+    const newParticles = Array.from({ length: count }, (_, i) => {
+      // Pre-calculate random movements to avoid hydration mismatch
+      const xMovements = [
+        Math.random() * 100 - 50,
+        Math.random() * 100 - 50,
+        Math.random() * 100 - 50,
+        Math.random() * 100 - 50,
+      ];
+
+      const yMovements = [
+        Math.random() * 100 - 50,
+        Math.random() * 100 - 50,
+        Math.random() * 100 - 50,
+        Math.random() * 100 - 50,
+      ];
+
+      return {
+        id: i,
+        x: Math.random() * 100, // Random x position (0-100%)
+        y: Math.random() * 100, // Random y position (0-100%)
+        size: Math.random() * 6 + 2, // Random size (2-8px)
+        opacity: Math.random() * 0.5 + 0.1, // Random opacity (0.1-0.6)
+        duration: Math.random() * 20 + 10, // Random animation duration (10-30s)
+        delay: Math.random() * 5, // Random delay (0-5s)
+        movements: {
+          x: xMovements,
+          y: yMovements,
+        }
+      };
+    });
+
     setParticles(newParticles);
   }, [count]);
+
+  // Only render on client-side to avoid hydration mismatch
+  if (!isClient) {
+    return <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`} />;
+  }
 
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
@@ -54,18 +87,8 @@ export function Particles({
             opacity: particle.opacity,
           }}
           animate={{
-            x: [
-              Math.random() * 100 - 50, // Random movement in x direction
-              Math.random() * 100 - 50,
-              Math.random() * 100 - 50,
-              Math.random() * 100 - 50,
-            ],
-            y: [
-              Math.random() * 100 - 50, // Random movement in y direction
-              Math.random() * 100 - 50,
-              Math.random() * 100 - 50,
-              Math.random() * 100 - 50,
-            ],
+            x: particle.movements.x,
+            y: particle.movements.y,
             opacity: [
               particle.opacity,
               particle.opacity * 1.5,
@@ -89,6 +112,17 @@ export function Particles({
 
 // Animated gradient background
 export function AnimatedGradient({ className = '' }: { className?: string }) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Only render on client-side to avoid hydration mismatch
+  if (!isClient) {
+    return <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`} />;
+  }
+
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
       <motion.div
@@ -112,27 +146,37 @@ export function AnimatedGradient({ className = '' }: { className?: string }) {
 
 // Animated spotlight effect
 export function Spotlight({ className = '' }: { className?: string }) {
+  const [isClient, setIsClient] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      setIsActive(true);
-    };
+    setIsClient(true);
 
-    const handleMouseLeave = () => {
-      setIsActive(false);
-    };
+    if (typeof window !== 'undefined') {
+      const handleMouseMove = (e: MouseEvent) => {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+        setIsActive(true);
+      };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    document.body.addEventListener('mouseleave', handleMouseLeave);
+      const handleMouseLeave = () => {
+        setIsActive(false);
+      };
 
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.body.removeEventListener('mouseleave', handleMouseLeave);
-    };
+      window.addEventListener('mousemove', handleMouseMove);
+      document.body.addEventListener('mouseleave', handleMouseLeave);
+
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        document.body.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
   }, []);
+
+  // Only render on client-side to avoid hydration mismatch
+  if (!isClient) {
+    return <div className={`fixed inset-0 pointer-events-none overflow-hidden ${className}`} />;
+  }
 
   return (
     <div className={`fixed inset-0 pointer-events-none overflow-hidden ${className}`}>

@@ -9,9 +9,13 @@ interface FlyingElementProps {
 
 // Flying shapes component that adds animated elements to the page
 export function FlyingElements({ className }: FlyingElementProps) {
+  const [isClient, setIsClient] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Set client-side rendering flag
+    setIsClient(true);
+
     // Delay the animation start to ensure the page is loaded
     const timer = setTimeout(() => {
       setIsVisible(true);
@@ -50,7 +54,7 @@ export function FlyingElements({ className }: FlyingElementProps) {
       duration: 20,
       delay: 2,
     },
-    
+
     // Amber squares
     {
       element: <div className="w-8 h-8 rounded-md bg-amber-500/10 rotate-45"></div>,
@@ -70,7 +74,7 @@ export function FlyingElements({ className }: FlyingElementProps) {
       duration: 22,
       delay: 7,
     },
-    
+
     // Blue triangles (using clip-path)
     {
       element: <div className="w-12 h-12 bg-blue-500/10" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>,
@@ -90,7 +94,7 @@ export function FlyingElements({ className }: FlyingElementProps) {
       duration: 24,
       delay: 6,
     },
-    
+
     // Green diamonds
     {
       element: <div className="w-7 h-7 bg-green-500/15 rotate-45"></div>,
@@ -101,7 +105,7 @@ export function FlyingElements({ className }: FlyingElementProps) {
       duration: 32,
       delay: 4,
     },
-    
+
     // Pink plus signs
     {
       element: (
@@ -117,7 +121,7 @@ export function FlyingElements({ className }: FlyingElementProps) {
       duration: 29,
       delay: 8,
     },
-    
+
     // Teal rings
     {
       element: (
@@ -134,19 +138,24 @@ export function FlyingElements({ className }: FlyingElementProps) {
     },
   ];
 
+  // Only render on client-side to avoid hydration mismatch
+  if (!isClient) {
+    return <div className={`fixed inset-0 pointer-events-none overflow-hidden ${className}`} />;
+  }
+
   return (
     <div className={`fixed inset-0 pointer-events-none overflow-hidden ${className}`}>
       {shapes.map((shape, index) => (
         <motion.div
           key={index}
-          initial={{ 
-            x: shape.initialX, 
+          initial={{
+            x: shape.initialX,
             y: shape.initialY,
             opacity: 0,
             rotate: 0
           }}
-          animate={isVisible ? { 
-            x: shape.animateX, 
+          animate={isVisible ? {
+            x: shape.animateX,
             y: shape.animateY,
             opacity: [0, 1, 1, 0],
             rotate: 360
@@ -170,6 +179,12 @@ export function FlyingElements({ className }: FlyingElementProps) {
 
 // Floating icons that move slightly with a hover effect
 export function FloatingIcons({ className }: FlyingElementProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const icons = [
     {
       icon: "📊",
@@ -214,6 +229,11 @@ export function FloatingIcons({ className }: FlyingElementProps) {
       delay: 1,
     },
   ];
+
+  // Only render on client-side to avoid hydration mismatch
+  if (!isClient) {
+    return <div className={`absolute inset-0 overflow-hidden ${className}`} />;
+  }
 
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>

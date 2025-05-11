@@ -8,6 +8,36 @@ interface AnimatedShapesProps {
 }
 
 export function AnimatedShapes({ className }: AnimatedShapesProps) {
+  const [isClient, setIsClient] = React.useState(false);
+  const [dots, setDots] = React.useState<Array<{
+    id: number;
+    top: string;
+    left: string;
+    duration: number;
+    delay: number;
+  }>>([]);
+
+  // Only run on client-side to avoid hydration mismatch
+  React.useEffect(() => {
+    setIsClient(true);
+
+    // Generate random dots
+    const newDots = Array.from({ length: 10 }, (_, i) => ({
+      id: i,
+      top: `${Math.random() * 80 + 10}%`,
+      left: `${Math.random() * 80 + 10}%`,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 5,
+    }));
+
+    setDots(newDots);
+  }, []);
+
+  // Only render animations on the client
+  if (!isClient) {
+    return <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`} />;
+  }
+
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
       {/* Animated circle */}
@@ -25,7 +55,7 @@ export function AnimatedShapes({ className }: AnimatedShapesProps) {
           ease: "easeInOut",
         }}
       />
-      
+
       {/* Animated square */}
       <motion.div
         className="absolute w-48 h-48 border-4 border-amber-500/20"
@@ -40,12 +70,12 @@ export function AnimatedShapes({ className }: AnimatedShapesProps) {
           ease: "linear",
         }}
       />
-      
+
       {/* Animated triangle */}
       <motion.div
         className="absolute w-56 h-56 border-4 border-blue-500/20"
-        style={{ 
-          top: '40%', 
+        style={{
+          top: '40%',
           left: '60%',
           clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)'
         }}
@@ -59,15 +89,18 @@ export function AnimatedShapes({ className }: AnimatedShapesProps) {
           ease: "easeInOut",
         }}
       />
-      
+
       {/* Animated wave */}
-      <svg 
+      <svg
         className="absolute bottom-0 left-0 w-full h-32 opacity-10"
         viewBox="0 0 1440 320"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.path 
+        <motion.path
           fill="#3B28CC"
+          initial={{
+            d: "M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,197.3C672,224,768,224,864,197.3C960,171,1056,117,1152,96C1248,75,1344,85,1392,90.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          }}
           animate={{
             d: [
               "M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,197.3C672,224,768,224,864,197.3C960,171,1056,117,1152,96C1248,75,1344,85,1392,90.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z",
@@ -83,24 +116,24 @@ export function AnimatedShapes({ className }: AnimatedShapesProps) {
           }}
         />
       </svg>
-      
+
       {/* Animated dots */}
-      {[...Array(10)].map((_, i) => (
+      {dots.map((dot) => (
         <motion.div
-          key={i}
+          key={dot.id}
           className="absolute w-2 h-2 rounded-full bg-[#3B28CC]/30"
           style={{
-            top: `${Math.random() * 80 + 10}%`,
-            left: `${Math.random() * 80 + 10}%`,
+            top: dot.top,
+            left: dot.left,
           }}
           animate={{
             scale: [1, 1.5, 1],
             opacity: [0.3, 0.7, 0.3],
           }}
           transition={{
-            duration: Math.random() * 3 + 2,
+            duration: dot.duration,
             repeat: Infinity,
-            delay: Math.random() * 5,
+            delay: dot.delay,
           }}
         />
       ))}
@@ -109,19 +142,19 @@ export function AnimatedShapes({ className }: AnimatedShapesProps) {
 }
 
 // Animated text that appears to be typed
-export function AnimatedText({ 
-  text, 
+export function AnimatedText({
+  text,
   className = '',
   delay = 0.5,
   speed = 0.05
-}: { 
-  text: string; 
+}: {
+  text: string;
   className?: string;
   delay?: number;
   speed?: number;
 }) {
   const characters = Array.from(text);
-  
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: (i = 1) => ({
@@ -129,7 +162,7 @@ export function AnimatedText({
       transition: { staggerChildren: speed, delayChildren: delay * i }
     })
   };
-  
+
   const childVariants = {
     hidden: {
       opacity: 0,
@@ -145,7 +178,7 @@ export function AnimatedText({
       }
     }
   };
-  
+
   return (
     <motion.div
       className={className}
