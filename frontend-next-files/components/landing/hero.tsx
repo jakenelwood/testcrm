@@ -71,7 +71,7 @@ export default function Hero() {
                 className="flex flex-col sm:flex-row gap-4"
               >
                 <Link href="/pricing">
-                  <Button className="w-full sm:w-auto bg-[#3B28CC] hover:bg-[#2F1FA3] text-white px-8 py-6 text-lg font-medium rounded-sm">
+                  <Button className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white px-8 py-6 text-lg font-medium rounded-sm">
                     Let's Close
                   </Button>
                 </Link>
