@@ -1,6 +1,7 @@
 import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import React from "react";
+import { futura } from "./fonts";
 
 export const metadata = {
   title: "Gonzigo | The Pipeline Whisperer",
@@ -14,7 +15,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={futura.variable}>
       <head suppressHydrationWarning />
       <body className="min-h-screen bg-background font-sans antialiased" suppressHydrationWarning>
         {children}

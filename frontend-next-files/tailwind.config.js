@@ -15,6 +15,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        futura: ["var(--font-futura)"],
+      },
       colors: {
         border: "var(--border)",
         input: "var(--input)",
@@ -72,4 +75,4 @@ export default {
     },
   },
   plugins: [],
-} 
+}
