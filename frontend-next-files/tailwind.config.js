@@ -20,6 +20,11 @@ export default {
         inter: ["var(--font-inter)"],
       },
       colors: {
+        brand: {
+          DEFAULT: "#FFA500", // Orange
+          light: "#FFA50033", // Orange with 20% opacity
+          hover: "#E69500", // Slightly darker orange for hover states
+        },
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
