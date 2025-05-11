@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { FloatingIcons } from '@/components/ui/flying-elements';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -91,8 +90,6 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="flex-1 relative"
             >
-              {/* Add floating icons around the dashboard */}
-              <FloatingIcons className="z-0" />
               {/* Screen texture overlay */}
               <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay z-10 bg-[url('https://res.cloudinary.com/dhgck7ebz/image/upload/f_auto,c_limit,w_3840,q_auto/Textures/screen-texture')] bg-cover"></div>
 
