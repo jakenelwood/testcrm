@@ -23,7 +23,7 @@ export default function GonzigoBrand({
   return (
     <div className={cn("flex flex-col", className)}>
       <div className={cn(
-        "font-bold lowercase border-2 border-[#FFA500] px-2 py-1 rounded",
+        "font-bold lowercase text-[#FFA500] px-2 py-1",
         sizeClasses[size]
       )}>
         gonzigo
