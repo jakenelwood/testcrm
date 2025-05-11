@@ -60,12 +60,12 @@ export default function CTA() {
 
                 <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
                   <Link href="/pricing">
-                    <Button className="w-full sm:w-auto bg-[#3B28CC] hover:bg-[#2F1FA3] text-white px-8 py-6 text-lg font-medium transition-all duration-200 rounded-full">
+                    <Button className="w-full sm:w-auto bg-[#3B28CC] hover:bg-[#2F1FA3] text-white px-8 py-6 text-lg font-medium transition-all duration-200 rounded-sm">
                       Let's Close
                     </Button>
                   </Link>
                   <Link href="#features">
-                    <Button variant="outline" className="w-full sm:w-auto border-gray-300 hover:bg-gray-50 px-8 py-6 text-lg font-medium transition-all duration-200 rounded-full">
+                    <Button variant="outline" className="w-full sm:w-auto border-gray-300 hover:bg-gray-50 px-8 py-6 text-lg font-medium transition-all duration-200 rounded-sm">
                       See it in action
                     </Button>
                   </Link>
@@ -125,7 +125,7 @@ export default function CTA() {
 
             <div className="mb-8">
               <Link href="/pricing">
-                <Button className="bg-[#3B28CC] hover:bg-[#2F1FA3] text-white px-8 py-6 text-lg font-medium transition-all duration-200 rounded-full">
+                <Button className="bg-[#3B28CC] hover:bg-[#2F1FA3] text-white px-8 py-6 text-lg font-medium transition-all duration-200 rounded-sm">
                   Let's Close
                 </Button>
               </Link>

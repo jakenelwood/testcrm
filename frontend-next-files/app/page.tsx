@@ -36,10 +36,10 @@ export default function Home() {
           </div>
           <div className="flex gap-4 items-center">
             <Link href="/auth/login">
-              <Button variant="outline" className="font-medium border-gray-300 rounded-full">Log In</Button>
+              <Button variant="outline" className="font-medium border-gray-300 rounded-sm">Log In</Button>
             </Link>
             <Link href="/pricing">
-              <Button className="bg-[#3B28CC] hover:bg-[#2F1FA3] text-white font-medium rounded-full">Let's Close</Button>
+              <Button className="bg-[#3B28CC] hover:bg-[#2F1FA3] text-white font-medium rounded-sm">Let's Close</Button>
             </Link>
           </div>
         </nav>

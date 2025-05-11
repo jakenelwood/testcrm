@@ -71,12 +71,12 @@ export default function Hero() {
                 className="flex flex-col sm:flex-row gap-4"
               >
                 <Link href="/pricing">
-                  <Button className="w-full sm:w-auto bg-[#3B28CC] hover:bg-[#2F1FA3] text-white px-8 py-6 text-lg font-medium rounded-full">
+                  <Button className="w-full sm:w-auto bg-[#3B28CC] hover:bg-[#2F1FA3] text-white px-8 py-6 text-lg font-medium rounded-sm">
                     Let's Close
                   </Button>
                 </Link>
                 <Link href="#features">
-                  <Button variant="outline" className="w-full sm:w-auto px-8 py-6 text-lg font-medium rounded-full border-gray-300">
+                  <Button variant="outline" className="w-full sm:w-auto px-8 py-6 text-lg font-medium rounded-sm border-gray-300">
                     See how it works
                   </Button>
                 </Link>
