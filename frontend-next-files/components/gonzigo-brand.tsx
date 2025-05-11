@@ -23,12 +23,16 @@ export default function GonzigoBrand({
   return (
     <div className={cn("flex flex-col", className)}>
       <div className={cn(
-        "font-bold text-[#0047AB]",
+        "font-bold lowercase border border-[#3B28CC] px-2 py-1 rounded",
         sizeClasses[size]
       )}>
-        Gonzigo
+        gonzigo
       </div>
-      {/* Tagline removed as requested */}
+      {showTagline && (
+        <div className="text-sm mt-1 text-gray-600">
+          The pipeline whisperer
+        </div>
+      )}
     </div>
   );
 }
