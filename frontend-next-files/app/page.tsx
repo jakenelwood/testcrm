@@ -39,7 +39,7 @@ export default function Home() {
               <Button variant="outline" className="font-medium border-gray-300 rounded-sm">Log In</Button>
             </Link>
             <Link href="/pricing">
-              <Button className="bg-[#3B28CC] hover:bg-[#2F1FA3] text-white font-medium rounded-sm">Let's Close</Button>
+              <Button className="bg-black hover:bg-gray-800 text-white font-medium rounded-sm">Let's Close</Button>
             </Link>
           </div>
         </nav>
