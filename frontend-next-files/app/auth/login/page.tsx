@@ -161,11 +161,11 @@ export default function LoginPage() {
       {/* Top navigation */}
       <nav className="container mx-auto py-6 px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-[#0047AB]">Gonzigo</span>
+          <GonzigoBrand size="lg" className="h-10 flex items-center" />
         </Link>
         <div className="flex gap-4 items-center">
           <Link href="/pricing">
-            <Button className="bg-[#0047AB] hover:bg-[#003d91] text-white font-medium">Get Started</Button>
+            <Button className="bg-black hover:bg-gray-800 text-white font-medium rounded-sm">Let's Close</Button>
           </Link>
         </div>
       </nav>
@@ -264,7 +264,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-[#0047AB] hover:bg-[#003d91] text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium rounded-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 disabled={loading}
               >
                 {loading ? (
@@ -296,7 +296,7 @@ export default function LoginPage() {
                 variant="outline"
                 onClick={handleMagicLinkLogin}
                 disabled={loading || !email}
-                className="w-full h-12 bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 rounded-lg shadow-sm"
+                className="w-full h-12 bg-white border-gray-300 hover:bg-gray-50 transition-all duration-200 rounded-sm shadow-sm"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -325,15 +325,15 @@ export default function LoginPage() {
 
           {/* Right side - Dashboard Preview */}
           <div className="hidden md:block w-full">
-            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
               {/* Browser-like top bar with dots */}
-              <div className="bg-gray-50 border-b border-gray-100 h-10 flex items-center px-4">
+              <div className="bg-gray-50 border-b border-gray-100 h-12 flex items-center px-4">
                 <div className="flex space-x-2">
                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div className="mx-auto text-sm text-gray-500">Gonzigo Dashboard</div>
+                <div className="mx-auto text-sm text-gray-500">gonzigo dashboard</div>
               </div>
 
               {/* Dashboard content */}
@@ -341,7 +341,7 @@ export default function LoginPage() {
                 {/* Gonzigo's been listening */}
                 <div className="mb-6 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                   <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
-                    <span className="text-[#0047AB] mr-2">🧠</span> Gonzigo's been listening.
+                    <span className="text-[#3B28CC] mr-2">🧠</span> gonzigo's been listening.
                   </h3>
                 </div>
 
@@ -370,9 +370,10 @@ export default function LoginPage() {
                 </div>
 
                 {/* Quote */}
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 relative overflow-hidden animate-fadeIn" style={{ animationDelay: '0.6s' }}>
                   <p className="text-gray-700 italic mb-2">"This one's ready. You'll want your 'yes' voice."</p>
-                  <p className="text-sm text-gray-500">— Gonzigo, your AI assistant</p>
+                  <p className="text-sm text-gray-500">— gonzigo, your AI assistant</p>
+                  <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-blue-100/50 rounded-full blur-xl"></div>
                 </div>
               </div>
             </div>
@@ -383,9 +384,9 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="container mx-auto py-8 px-4 text-center text-gray-500 text-sm border-t border-gray-100 mt-8">
         <div className="flex justify-center mb-3">
-          <span className="text-xl font-bold text-[#0047AB]">Gonzigo</span>
+          <GonzigoBrand size="md" className="h-8 flex items-center" />
         </div>
-        <p>© {new Date().getFullYear()} Gonzigo. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} gonzigo. All rights reserved.</p>
       </footer>
     </div>
   )
