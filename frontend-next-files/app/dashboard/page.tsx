@@ -50,7 +50,7 @@ export default function Dashboard() {
         <div className="flex gap-2">
           <Button
             asChild
-            className="bg-black hover:bg-gray-800 text-white shadow-md hover:shadow-lg transition-all duration-200"
+            className="bg-[#0047AB] hover:bg-[#003d91] text-white shadow-md hover:shadow-lg transition-all duration-200"
           >
             <Link href="/dashboard/new">
               New Lead

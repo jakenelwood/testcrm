@@ -491,7 +491,7 @@ function LeadsPageContent() {
 
         <Button
           asChild
-          className="bg-black hover:bg-gray-800 text-white"
+          className="bg-[#0047AB] hover:bg-[#003d91] text-white"
         >
           <Link href="/dashboard/new">
             New Lead

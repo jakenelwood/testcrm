@@ -124,6 +124,7 @@ export function Sidebar() {
       setTempExpanded(false);
     }
     setIsCollapsed(!isCollapsed);
+    console.log('Toggled sidebar:', !isCollapsed);
   };
 
   // Determine if we should show the sidebar expanded
@@ -136,7 +137,7 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        "flex h-full flex-col border-r bg-white transition-all duration-300",
+        "flex h-full flex-col border-r bg-white transition-all duration-300 overflow-hidden",
         showExpanded ? "w-64" : "w-16"
       )}
       onMouseEnter={handleMouseEnter}
@@ -149,17 +150,24 @@ export function Sidebar() {
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           {showExpanded ? (
             <div className="flex flex-col">
-              <GLogoButton size="md" />
-            </div>
-          ) : (
-            <div className="h-8 w-8 flex items-center justify-center">
               <Image
-                src="/images/new_logo.svg"
-                alt="Gonzigo Logo"
-                width={32}
+                src="/images/helvetica_logo.svg"
+                alt="GONZIGO"
+                width={98}
                 height={32}
                 className="max-w-full max-h-full"
-                style={{ color: '#3366ff' }} // Apply the requested color
+                priority
+              />
+            </div>
+          ) : (
+            <div className="h-8 w-8 flex items-center justify-center overflow-hidden">
+              <Image
+                src="/images/g_only.svg"
+                alt="G"
+                width={24}
+                height={24}
+                className="max-w-full max-h-full"
+                priority
               />
             </div>
           )}
