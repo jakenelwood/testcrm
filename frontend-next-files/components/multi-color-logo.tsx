@@ -72,7 +72,7 @@ export default function MultiColorLogo({
               height: '100%',
               maxWidth: '100%',
               maxHeight: '100%',
-              marginLeft: '5px' // Added spacing between G and onzigo
+              marginLeft: '2px' // Reduced spacing between G and onzigo
             }}
             priority
           />
