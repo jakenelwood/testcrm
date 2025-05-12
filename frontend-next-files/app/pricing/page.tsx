@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/components/ui/use-toast";
 import Link from 'next/link';
-import GonzigoBrand from '@/components/gonzigo-brand';
+import GLogoButton from '@/components/g-logo-button';
 import {
   FaCcVisa,
   FaCcMastercard,
@@ -177,7 +177,7 @@ export default function PricingPage() {
       {/* Navigation */}
       <nav className="container mx-auto py-6 flex justify-between items-center">
         <Link href="/">
-          <GonzigoBrand size="lg" className="h-10 flex items-center" />
+          <GLogoButton size="lg" className="h-10 w-10" />
         </Link>
         <div className="flex gap-4 items-center">
           <Link href="/auth/login">
@@ -298,7 +298,7 @@ export default function PricingPage() {
                       <Button
                         onClick={handleApplyDiscount}
                         disabled={isApplyingDiscount || !discountCode || discountApplied}
-                        className="rounded-l-none bg-[#0047AB] hover:bg-[#003d91]"
+                        className="rounded-l-none bg-[#0073ee] hover:bg-[#0060c5]"
                       >
                         {isApplyingDiscount ? "Applying..." : discountApplied ? "Applied" : "Apply"}
                       </Button>
@@ -359,7 +359,7 @@ export default function PricingPage() {
                       <TabsContent value="paypal">
                         <div className="text-center py-8">
                           <p className="mb-4 text-gray-600">Click the button below to pay with PayPal</p>
-                          <Button type="button" className="bg-[#0047AB] hover:bg-[#003d91]">
+                          <Button type="button" className="bg-[#0073ee] hover:bg-[#0060c5]">
                             Continue with PayPal
                           </Button>
                         </div>
@@ -381,7 +381,7 @@ export default function PricingPage() {
                     <div className="mt-8">
                       <Button
                         type="submit"
-                        className="w-full bg-[#0047AB] hover:bg-[#003d91] text-white py-6 text-lg"
+                        className="w-full bg-[#0073ee] hover:bg-[#0060c5] text-white py-6 text-lg"
                         disabled={isProcessing}
                       >
                         {isProcessing ? "Processing..." : discountApplied ? "Activate Account" : `Pay $${totalPrice.toFixed(2)}`}

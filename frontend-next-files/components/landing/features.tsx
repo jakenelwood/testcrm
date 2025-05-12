@@ -84,7 +84,7 @@ export default function Features() {
           <div className="flex flex-col md:flex-row gap-16 items-center">
             <div className="flex-1 order-2 md:order-1">
               <div className="relative">
-                <div className="absolute -z-10 -bottom-10 -left-10 w-40 h-40 bg-[#3B28CC]/5 rounded-full blur-3xl"></div>
+                <div className="absolute -z-10 -bottom-10 -left-10 w-40 h-40 bg-[#0073ee]/5 rounded-full blur-3xl"></div>
                 <div className="absolute -z-10 -top-10 -right-10 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl"></div>
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative">
@@ -98,9 +98,9 @@ export default function Features() {
                   </div>
                   <div className="pt-16 pb-6 px-6">
                     <div className="flex gap-4 mb-6">
-                      <div className="flex-1 bg-[#3B28CC]/10 rounded-lg p-3 text-center">
+                      <div className="flex-1 bg-[#0073ee]/10 rounded-lg p-3 text-center">
                         <div className="text-sm text-gray-600">New Leads</div>
-                        <div className="text-2xl font-bold text-[#3B28CC]">24</div>
+                        <div className="text-2xl font-bold text-[#0073ee]">24</div>
                       </div>
                       <div className="flex-1 bg-amber-100 rounded-lg p-3 text-center">
                         <div className="text-sm text-gray-600">In Progress</div>
@@ -120,7 +120,7 @@ export default function Features() {
                           </div>
                           <div className="text-sm text-gray-500">Last activity: 2 hours ago</div>
                           <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-[#3B28CC] rounded-full" style={{ width: `${70 - i * 20}%` }}></div>
+                            <div className="h-full bg-[#0073ee] rounded-full" style={{ width: `${70 - i * 20}%` }}></div>
                           </div>
                         </div>
                       ))}
@@ -132,7 +132,7 @@ export default function Features() {
 
             <div className="flex-1 order-1 md:order-2">
               <div className="mb-2 inline-block">
-                <div className="w-12 h-12 bg-[#3B28CC]/10 rounded-full flex items-center justify-center text-2xl mb-4">
+                <div className="w-12 h-12 bg-[#0073ee]/10 rounded-full flex items-center justify-center text-2xl mb-4">
                   📊
                 </div>
               </div>
@@ -147,7 +147,7 @@ export default function Features() {
                   "Real-time deal progress tracking with smart alerts"
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <div className="mt-1 w-5 h-5 rounded-full bg-[#3B28CC]/10 text-[#3B28CC] flex items-center justify-center">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-[#0073ee]/10 text-[#0073ee] flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
                     <span className="text-gray-700">{item}</span>
@@ -190,7 +190,7 @@ export default function Features() {
             <div className="flex-1">
               <div className="relative">
                 <div className="absolute -z-10 -bottom-10 -right-10 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl"></div>
-                <div className="absolute -z-10 -top-10 -left-10 w-40 h-40 bg-[#3B28CC]/5 rounded-full blur-3xl"></div>
+                <div className="absolute -z-10 -top-10 -left-10 w-40 h-40 bg-[#0073ee]/5 rounded-full blur-3xl"></div>
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                   <div className="absolute top-0 left-0 right-0 h-12 bg-gray-50 border-b border-gray-100 flex items-center px-4">
@@ -205,13 +205,13 @@ export default function Features() {
                     <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100 relative overflow-hidden">
                       <div className="text-sm text-blue-800 font-medium flex items-center">
                         gonzigo says:
-                        <span className="ml-1 w-2 h-2 bg-[#3B28CC] rounded-full animate-pulse"></span>
+                        <span className="ml-1 w-2 h-2 bg-[#0073ee] rounded-full animate-pulse"></span>
                       </div>
                       <div className="text-gray-700">"Globex Industries has viewed your proposal 3 times in the last 24 hours. Their engagement pattern suggests they're ready for a follow-up call."</div>
                       <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-blue-100/50 rounded-full blur-xl"></div>
                     </div>
                     <div className="flex gap-3 mb-4">
-                      <button className="flex-1 bg-[#3B28CC] text-white py-2 px-4 rounded-lg text-sm font-medium">Schedule Call</button>
+                      <button className="flex-1 bg-[#0073ee] text-white py-2 px-4 rounded-lg text-sm font-medium">Schedule Call</button>
                       <button className="flex-1 bg-white border border-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium">Send Email</button>
                     </div>
                     <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">

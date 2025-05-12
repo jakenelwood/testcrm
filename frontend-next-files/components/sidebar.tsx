@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/user-profile";
 import { useLogout } from "@/utils/auth";
 import GonzigoBrand from "@/components/gonzigo-brand";
+import GLogoButton from "@/components/g-logo-button";
 import {
   FileText,
   LayoutDashboard,
@@ -147,11 +149,17 @@ export function Sidebar() {
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           {showExpanded ? (
             <div className="flex flex-col">
-              <GonzigoBrand size="md" showTagline={false} className="flex items-center" />
+              <GLogoButton size="md" />
             </div>
           ) : (
             <div className="h-8 w-8 flex items-center justify-center">
-              <span className="font-bold text-xl text-[#0047AB]">G</span>
+              <Image
+                src="/images/G_5-11.svg"
+                alt="Gonzigo Logo"
+                width={32}
+                height={32}
+                className="max-w-full max-h-full"
+              />
             </div>
           )}
         </Link>

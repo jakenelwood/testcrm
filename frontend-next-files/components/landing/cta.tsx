@@ -28,7 +28,7 @@ export default function CTA() {
   return (
     <section className="py-24 md:py-32 relative overflow-hidden" ref={ref}>
       {/* Background decorative elements */}
-      <div className="absolute -z-10 top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-[#3B28CC]/5 to-blue-500/5 rounded-full blur-[120px]" />
+      <div className="absolute -z-10 top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-[#0073ee]/5 to-blue-500/5 rounded-full blur-[120px]" />
       <div className="absolute -z-10 bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-amber-500/5 to-pink-500/5 rounded-full blur-[120px]" />
 
       <motion.div
@@ -41,12 +41,12 @@ export default function CTA() {
           <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 mb-24">
             <div className="relative p-8 md:p-16">
               {/* Subtle decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B28CC]/5 rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#0073ee]/5 rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/5 rounded-full translate-y-1/3 -translate-x-1/4 blur-3xl"></div>
 
               <div className="relative z-10 text-center">
                 <motion.div variants={itemVariants} className="mb-8">
-                  <span className="inline-block px-4 py-1 bg-[#3B28CC]/10 text-[#3B28CC] rounded-full text-sm font-medium mb-4">
+                  <span className="inline-block px-4 py-1 bg-[#0073ee]/10 text-[#0073ee] rounded-full text-sm font-medium mb-4">
                     Be unstoppable
                   </span>
                   <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -90,7 +90,7 @@ export default function CTA() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                   <div className="p-6 rounded-xl bg-white border border-gray-100 shadow-sm">
-                    <div className="w-12 h-12 bg-[#3B28CC]/10 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto">
+                    <div className="w-12 h-12 bg-[#0073ee]/10 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto">
                       🔒
                     </div>
                     <h3 className="text-xl font-semibold mb-3">Secure</h3>
