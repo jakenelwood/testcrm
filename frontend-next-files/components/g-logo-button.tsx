@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import MultiColorLogo from './multi-color-logo';
+import Image from 'next/image';
 
 interface GLogoButtonProps {
   className?: string;
@@ -20,14 +20,30 @@ export default function GLogoButton({
     lg: 'w-[180px] h-[60px]'
   };
 
+  const dimensions = {
+    sm: { width: 90, height: 30 },
+    md: { width: 135, height: 45 },
+    lg: { width: 180, height: 60 }
+  };
+
   const containerClasses = cn(
     "flex items-center justify-center",
     className
   );
 
+  const currentDimensions = dimensions[size];
+
   return (
     <div className={cn(containerClasses, sizeClasses[size])}>
-      <MultiColorLogo size={size} />
+      <Image
+        src="/images/new_logo.svg"
+        alt="Gonzigo Logo"
+        width={currentDimensions.width}
+        height={currentDimensions.height}
+        className="max-w-full max-h-full"
+        style={{ color: '#3366ff' }} // Apply the requested color
+        priority
+      />
     </div>
   );
 }

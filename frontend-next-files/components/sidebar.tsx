@@ -154,11 +154,12 @@ export function Sidebar() {
           ) : (
             <div className="h-8 w-8 flex items-center justify-center">
               <Image
-                src="/images/G_purple.svg"
+                src="/images/new_logo.svg"
                 alt="Gonzigo Logo"
                 width={32}
                 height={32}
                 className="max-w-full max-h-full"
+                style={{ color: '#3366ff' }} // Apply the requested color
               />
             </div>
           )}
