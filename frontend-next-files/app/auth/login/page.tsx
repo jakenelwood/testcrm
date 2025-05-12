@@ -341,7 +341,7 @@ export default function LoginPage() {
                 {/* Gonzigo's been listening */}
                 <div className="mb-6 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                   <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
-                    <span className="text-[#8A00C4] mr-2">🧠</span> gonzigo's been listening.
+                    <span className="text-[#8A00C4] mr-2">🧠</span> <span className="font-bold">gonzigo</span>'s been listening.
                   </h3>
                 </div>
 
@@ -386,7 +386,7 @@ export default function LoginPage() {
         <div className="flex justify-center mb-3">
           <GonzigoBrand size="md" className="h-8 flex items-center" />
         </div>
-        <p>© {new Date().getFullYear()} gonzigo. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} <span className="font-bold">gonzigo</span>. All rights reserved.</p>
       </footer>
     </div>
   )

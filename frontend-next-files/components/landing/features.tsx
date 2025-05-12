@@ -4,6 +4,18 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
+// Helper function to render text with bold Gonzigo
+const renderWithBoldGonzigo = (text: string) => {
+  if (!text.includes('**Gonzigo**')) return text;
+
+  const parts = text.split('**Gonzigo**');
+  return (
+    <>
+      {parts[0]}<span className="font-bold">Gonzigo</span>{parts[1]}
+    </>
+  );
+};
+
 export default function Features() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -17,7 +29,7 @@ export default function Features() {
   const features = [
     {
       title: "The Gentle Nudge",
-      description: "Already sent. Soft touch. Big win. Gonzigo automatically follows up with leads at the perfect time.",
+      description: "Already sent. Soft touch. Big win. **Gonzigo** automatically follows up with leads at the perfect time.",
       icon: "🔄",
       color: "bg-blue-50 border-blue-100",
       iconBg: "bg-blue-100",
@@ -33,7 +45,7 @@ export default function Features() {
     },
     {
       title: "Street-Smart AI",
-      description: "They opened it twice. Want to nudge again? Gonzigo's AI suggests the next best action based on real behavior.",
+      description: "They opened it twice. Want to nudge again? **Gonzigo**'s AI suggests the next best action based on real behavior.",
       icon: "🤖",
       color: "bg-amber-50 border-amber-100",
       iconBg: "bg-amber-100",
@@ -75,7 +87,7 @@ export default function Features() {
           <h2 className="text-4xl md:text-5xl font-bold mb-6">CRM with brains, not baggage</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             You don't need more dashboards. You need decisions.
-            gonzigo listens, remembers, and nudges—all without making you pay enterprise prices to keep up.
+            <span className="font-bold">gonzigo</span> listens, remembers, and nudges—all without making you pay enterprise prices to keep up.
           </p>
         </div>
 
@@ -94,7 +106,7 @@ export default function Features() {
                       <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                       <div className="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
-                    <div className="mx-auto text-sm text-gray-500">gonzigo pipeline view</div>
+                    <div className="mx-auto text-sm text-gray-500"><span className="font-bold">gonzigo</span> pipeline view</div>
                   </div>
                   <div className="pt-16 pb-6 px-6">
                     <div className="flex gap-4 mb-6">
@@ -169,7 +181,7 @@ export default function Features() {
               </div>
               <h3 className="text-3xl font-bold mb-6">Street-Smart AI</h3>
               <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                They opened it twice. Want to nudge again? gonzigo's AI suggests the next best action based on real behavior.
+                They opened it twice. Want to nudge again? <span className="font-bold">gonzigo</span>'s AI suggests the next best action based on real behavior.
               </p>
               <ul className="space-y-4">
                 {[
@@ -199,12 +211,12 @@ export default function Features() {
                       <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                       <div className="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
-                    <div className="mx-auto text-sm text-gray-500">gonzigo ai assistant</div>
+                    <div className="mx-auto text-sm text-gray-500"><span className="font-bold">gonzigo</span> ai assistant</div>
                   </div>
                   <div className="pt-16 pb-6 px-6">
                     <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100 relative overflow-hidden">
                       <div className="text-sm text-blue-800 font-medium flex items-center">
-                        gonzigo says:
+                        <span className="font-bold">gonzigo</span> says:
                         <span className="ml-1 w-2 h-2 bg-[#0073ee] rounded-full animate-pulse"></span>
                       </div>
                       <div className="text-gray-700">"Globex Industries has viewed your proposal 3 times in the last 24 hours. Their engagement pattern suggests they're ready for a follow-up call."</div>
@@ -241,7 +253,7 @@ export default function Features() {
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <p className="text-gray-600">{renderWithBoldGonzigo(feature.description)}</p>
                 </CardContent>
               </Card>
             </motion.div>

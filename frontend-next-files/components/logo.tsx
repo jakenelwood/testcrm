@@ -1,31 +1,23 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import TextLogo from './text-logo';
 
 interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  color?: string;
 }
 
-export default function Logo({ className, size = 'md' }: LogoProps) {
-  const sizeClasses = {
-    sm: 'h-4 w-auto', /* reduced by additional 15% */
-    md: 'h-6 w-auto', /* reduced by additional 15% */
-    lg: 'h-7 w-auto' /* reduced by additional 15% */
-  };
-
+export default function Logo({
+  className,
+  size = 'md',
+  color = '#0047AB'
+}: LogoProps) {
   return (
     <div className={cn("flex items-center", className)}>
-      <Image
-        src="/images/helvetica_logo.svg"
-        alt="GONZIGO"
-        width={102}
-        height={34}
-        className={cn(sizeClasses[size])}
-        priority
-      />
+      <TextLogo size={size} color={color} />
     </div>
   );
 }

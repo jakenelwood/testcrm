@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/user-profile";
 import { useLogout } from "@/utils/auth";
-import GonzigoBrand from "@/components/gonzigo-brand";
-import GLogoButton from "@/components/g-logo-button";
+import TextLogo from "@/components/text-logo";
+import GTextLogo from "@/components/g-text-logo";
 import {
   FileText,
   LayoutDashboard,
@@ -150,25 +150,11 @@ export function Sidebar() {
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           {showExpanded ? (
             <div className="flex flex-col">
-              <Image
-                src="/images/helvetica_logo.svg"
-                alt="GONZIGO"
-                width={98}
-                height={32}
-                className="max-w-full max-h-full"
-                priority
-              />
+              <TextLogo size="md" />
             </div>
           ) : (
-            <div className="h-8 w-8 flex items-center justify-center overflow-hidden">
-              <Image
-                src="/images/g_only.svg"
-                alt="G"
-                width={24}
-                height={24}
-                className="max-w-full max-h-full"
-                priority
-              />
+            <div className="h-10 w-10 flex items-center justify-center overflow-hidden">
+              <GTextLogo size="md" />
             </div>
           )}
         </Link>

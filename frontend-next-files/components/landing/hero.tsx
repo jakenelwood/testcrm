@@ -35,10 +35,10 @@ export default function Hero() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
-                  className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight font-inter"
+                  className="text-4xl md:text-5xl font-bold mb-6 leading-tight font-inter"
                 >
                   Make the jump to <br />
-                  <span className="text-[#FF9933] font-bold">smarter sales</span>
+                  <span className="text-[#D37122] font-bold">smarter sales</span>
                 </motion.h1>
 
                 <motion.p
@@ -90,7 +90,7 @@ export default function Hero() {
                     <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
                   </div>
-                  <div className="mx-auto text-sm text-gray-500">gonzigo dashboard</div>
+                  <div className="mx-auto text-sm text-gray-500"><span className="font-bold">gonzigo</span> dashboard</div>
                 </div>
                 <div className="pt-12 pb-4 px-4">
                   <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100 relative overflow-hidden">

@@ -1,19 +1,24 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import GTextLogo from './g-text-logo';
 
 interface GLogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  color?: string;
 }
 
-export default function GLogo({ className, size = 'md' }: GLogoProps) {
+export default function GLogo({
+  className,
+  size = 'md',
+  color = '#0047AB'
+}: GLogoProps) {
   const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-8 h-8',
-    lg: 'w-10 h-10'
+    sm: 'w-7 h-7',   // was w-6 h-6
+    md: 'w-10 h-10', // was w-8 h-8
+    lg: 'w-12 h-12'  // was w-10 h-10
   };
 
   return (
@@ -22,14 +27,7 @@ export default function GLogo({ className, size = 'md' }: GLogoProps) {
       sizeClasses[size],
       className
     )}>
-      <Image
-        src="/images/g_compressed.svg"
-        alt="G"
-        width={size === 'sm' ? 24 : size === 'md' ? 32 : 40}
-        height={size === 'sm' ? 24 : size === 'md' ? 32 : 40}
-        className="max-w-full max-h-full"
-        priority
-      />
+      <GTextLogo size={size} color={color} />
     </div>
   );
 }

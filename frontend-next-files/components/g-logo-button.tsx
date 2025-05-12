@@ -2,28 +2,24 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import TextLogo from './text-logo';
 
 interface GLogoButtonProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  color?: string;
 }
 
 export default function GLogoButton({
   className,
-  size = 'md'
+  size = 'md',
+  color = '#0047AB'
 }: GLogoButtonProps) {
-  // Use fixed width and height classes (reduced by additional 15%)
+  // Use fixed width and height classes (increased by 20% for larger text)
   const sizeClasses = {
-    sm: 'w-[65px] h-[21px]',
-    md: 'w-[98px] h-[32px]',
-    lg: 'w-[130px] h-[43px]'
-  };
-
-  const dimensions = {
-    sm: { width: 65, height: 21 },
-    md: { width: 98, height: 32 },
-    lg: { width: 130, height: 43 }
+    sm: 'w-[78px] h-[25px]',  // was w-[65px] h-[21px]
+    md: 'w-[118px] h-[38px]', // was w-[98px] h-[32px]
+    lg: 'w-[156px] h-[52px]'  // was w-[130px] h-[43px]
   };
 
   const containerClasses = cn(
@@ -31,18 +27,9 @@ export default function GLogoButton({
     className
   );
 
-  const currentDimensions = dimensions[size];
-
   return (
     <div className={cn(containerClasses, sizeClasses[size])}>
-      <Image
-        src="/images/helvetica_logo.svg"
-        alt="GONZIGO"
-        width={currentDimensions.width}
-        height={currentDimensions.height}
-        className="max-w-full max-h-full"
-        priority
-      />
+      <TextLogo size={size} color={color} />
     </div>
   );
 }
