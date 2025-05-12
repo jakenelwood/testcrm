@@ -154,7 +154,7 @@ export function Sidebar() {
           ) : (
             <div className="h-8 w-8 flex items-center justify-center">
               <Image
-                src="/images/G_5-11.svg"
+                src="/images/G_purple.svg"
                 alt="Gonzigo Logo"
                 width={32}
                 height={32}

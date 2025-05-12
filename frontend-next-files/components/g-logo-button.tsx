@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import MultiColorLogo from './multi-color-logo';
 
 interface GLogoButtonProps {
   className?: string;
@@ -13,13 +13,6 @@ export default function GLogoButton({
   className,
   size = 'md'
 }: GLogoButtonProps) {
-  // Fixed dimensions for the logo
-  const dimensions = {
-    sm: { width: 90, height: 30 },
-    md: { width: 135, height: 45 },
-    lg: { width: 180, height: 60 }
-  };
-
   // Use fixed width and height classes
   const sizeClasses = {
     sm: 'w-[90px] h-[30px]',
@@ -32,24 +25,9 @@ export default function GLogoButton({
     className
   );
 
-  const currentDimensions = dimensions[size];
-
   return (
     <div className={cn(containerClasses, sizeClasses[size])}>
-      <Image
-        src="/images/gonzigo-blue.svg"
-        alt="Gonzigo Logo"
-        width={currentDimensions.width}
-        height={currentDimensions.height}
-        className="max-w-full max-h-full"
-        style={{
-          width: 'auto',
-          height: 'auto',
-          maxWidth: '100%',
-          maxHeight: '100%'
-        }}
-        priority
-      />
+      <MultiColorLogo size={size} />
     </div>
   );
 }
