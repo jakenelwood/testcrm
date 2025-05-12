@@ -33,10 +33,10 @@ export default function MultiColorLogo({
   );
 
   const currentDimensions = dimensions[size];
-  
-  // Calculate G width as approximately 25% of the total width
-  const gWidth = Math.round(currentDimensions.width * 0.25);
-  const onzigoWidth = Math.round(currentDimensions.width * 0.75);
+
+  // Calculate G width as approximately 22% of the total width to allow for spacing
+  const gWidth = Math.round(currentDimensions.width * 0.22);
+  const onzigoWidth = Math.round(currentDimensions.width * 0.73); // Reduced slightly to account for spacing
 
   return (
     <div className={cn(containerClasses, sizeClasses[size])}>
@@ -58,7 +58,7 @@ export default function MultiColorLogo({
             priority
           />
         </div>
-        
+
         {/* onzigo in dark gray */}
         <div className="relative" style={{ width: `${onzigoWidth}px`, height: '100%' }}>
           <Image
@@ -72,7 +72,7 @@ export default function MultiColorLogo({
               height: '100%',
               maxWidth: '100%',
               maxHeight: '100%',
-              marginLeft: '-10px' // Adjust this value to make the letters connect properly
+              marginLeft: '5px' // Added spacing between G and onzigo
             }}
             priority
           />
