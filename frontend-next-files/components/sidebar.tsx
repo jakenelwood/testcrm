@@ -124,7 +124,7 @@ export function Sidebar() {
       setTempExpanded(false);
     }
     setIsCollapsed(!isCollapsed);
-    console.log('Toggled sidebar:', !isCollapsed);
+    // Removed console.log to clean up code
   };
 
   // Determine if we should show the sidebar expanded

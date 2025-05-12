@@ -165,7 +165,7 @@ export default function LoginPage() {
         </Link>
         <div className="flex gap-4 items-center">
           <Link href="/pricing">
-            <Button className="bg-black hover:bg-gray-800 text-white font-medium rounded-sm">Let's Close</Button>
+            <Button className="bg-[#0047AB] hover:bg-[#003d91] text-white font-medium rounded-sm">Let's Close</Button>
           </Link>
         </div>
       </nav>
@@ -264,7 +264,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium rounded-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                className="w-full h-12 bg-[#0047AB] hover:bg-[#003d91] text-white font-medium rounded-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 disabled={loading}
               >
                 {loading ? (

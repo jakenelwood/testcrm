@@ -31,26 +31,14 @@ export default function Hero() {
               className="flex-1 flex flex-col"
             >
               <div className="mb-8">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 10 }}
-                  transition={{ duration: 0.4, delay: 0.1 }}
-                >
-                  <Badge className="mb-6 bg-[#0073ee20] text-[#0073ee] hover:bg-[#0073ee30] px-3 py-1 text-sm rounded-full font-medium">
-                    New
-                  </Badge>
-                  <span className="ml-2 text-sm text-gray-600">No more missed opportunities. That's gonzigo.</span>
-                </motion.div>
-
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
                   className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight font-inter"
                 >
-                  Make the <br />
-                  <span className="text-[#0073ee] font-bold">jump to better</span> <br />
-                  sales pipelines
+                  Make the jump to <br />
+                  <span className="text-[#FF9933] font-bold">smarter sales</span>
                 </motion.h1>
 
                 <motion.p
@@ -59,8 +47,10 @@ export default function Hero() {
                   transition={{ duration: 0.6, delay: 0.5 }}
                   className="text-xl text-gray-600 mb-8 leading-relaxed max-w-xl"
                 >
-                  Use the intelligent, proactive CRM that helps you close more deals.
-                  gonzigo listens, learns, and nudges at just the right time.
+                  Meet Gonzigo — your AI-powered force multiplier. This isn't just a CRM.
+                  Gonzigo gives you full marketing automation and a team of AI agents that handle
+                  follow-ups, track deals, and nudge you when it counts. It listens. It learns.
+                  It helps you close—faster, smoother, and without the noise.
                 </motion.p>
               </div>
 
@@ -71,7 +61,7 @@ export default function Hero() {
                 className="flex flex-col sm:flex-row gap-4"
               >
                 <Link href="/pricing">
-                  <Button className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white px-8 py-6 text-lg font-medium rounded-sm">
+                  <Button className="w-full sm:w-auto bg-[#0047AB] hover:bg-[#003d91] text-white px-8 py-6 text-lg font-medium rounded-sm">
                     Let's Close
                   </Button>
                 </Link>
@@ -104,9 +94,9 @@ export default function Hero() {
                 </div>
                 <div className="pt-12 pb-4 px-4">
                   <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100 relative overflow-hidden">
-                    <div className="text-sm text-blue-800 font-medium flex items-center">
+                    <div className="text-sm text-[#0047AB] font-medium flex items-center">
                       gonzigo says:
-                      <span className="ml-1 w-2 h-2 bg-[#0073ee] rounded-full animate-pulse"></span>
+                      <span className="ml-1 w-2 h-2 bg-[#0047AB] rounded-full animate-pulse"></span>
                     </div>
                     <div className="text-gray-700">"That lead you forgot about? I didn't. They opened your proposal three times today."</div>
                     <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-blue-100/50 rounded-full blur-xl"></div>

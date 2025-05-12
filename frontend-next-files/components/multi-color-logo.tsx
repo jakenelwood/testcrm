@@ -13,18 +13,18 @@ export default function MultiColorLogo({
   className,
   size = 'md'
 }: MultiColorLogoProps) {
-  // Fixed dimensions for the logo
+  // Fixed dimensions for the logo (reduced by additional 15%)
   const dimensions = {
-    sm: { width: 90, height: 30 },
-    md: { width: 135, height: 45 },
-    lg: { width: 180, height: 60 }
+    sm: { width: 65, height: 21 },
+    md: { width: 98, height: 32 },
+    lg: { width: 130, height: 43 }
   };
 
-  // Use fixed width and height classes
+  // Use fixed width and height classes (reduced by additional 15%)
   const sizeClasses = {
-    sm: 'w-[90px] h-[30px]',
-    md: 'w-[135px] h-[45px]',
-    lg: 'w-[180px] h-[60px]'
+    sm: 'w-[65px] h-[21px]',
+    md: 'w-[98px] h-[32px]',
+    lg: 'w-[130px] h-[43px]'
   };
 
   const containerClasses = cn(
@@ -34,50 +34,16 @@ export default function MultiColorLogo({
 
   const currentDimensions = dimensions[size];
 
-  // Calculate G width as approximately 22% of the total width to allow for spacing
-  const gWidth = Math.round(currentDimensions.width * 0.22);
-  const onzigoWidth = Math.round(currentDimensions.width * 0.73); // Reduced slightly to account for spacing
-
   return (
     <div className={cn(containerClasses, sizeClasses[size])}>
-      <div className="flex items-center justify-start w-full h-full">
-        {/* G in purple */}
-        <div className="relative" style={{ width: `${gWidth}px`, height: '100%' }}>
-          <Image
-            src="/images/G_purple.svg"
-            alt="G"
-            width={gWidth}
-            height={currentDimensions.height}
-            className="max-w-full max-h-full"
-            style={{
-              width: 'auto',
-              height: '100%',
-              maxWidth: '100%',
-              maxHeight: '100%'
-            }}
-            priority
-          />
-        </div>
-
-        {/* onzigo in dark gray */}
-        <div className="relative" style={{ width: `${onzigoWidth}px`, height: '100%' }}>
-          <Image
-            src="/images/onzigo_dark.svg"
-            alt="onzigo"
-            width={onzigoWidth}
-            height={currentDimensions.height}
-            className="max-w-full max-h-full"
-            style={{
-              width: 'auto',
-              height: '100%',
-              maxWidth: '100%',
-              maxHeight: '100%',
-              marginLeft: '2px' // Reduced spacing between G and onzigo
-            }}
-            priority
-          />
-        </div>
-      </div>
+      <Image
+        src="/images/helvetica_logo.svg"
+        alt="GONZIGO"
+        width={currentDimensions.width}
+        height={currentDimensions.height}
+        className="max-w-full max-h-full"
+        priority
+      />
     </div>
   );
 }

@@ -13,17 +13,17 @@ export default function GLogoButton({
   className,
   size = 'md'
 }: GLogoButtonProps) {
-  // Use fixed width and height classes
+  // Use fixed width and height classes (reduced by additional 15%)
   const sizeClasses = {
-    sm: 'w-[90px] h-[30px]',
-    md: 'w-[135px] h-[45px]',
-    lg: 'w-[180px] h-[60px]'
+    sm: 'w-[65px] h-[21px]',
+    md: 'w-[98px] h-[32px]',
+    lg: 'w-[130px] h-[43px]'
   };
 
   const dimensions = {
-    sm: { width: 90, height: 30 },
-    md: { width: 135, height: 45 },
-    lg: { width: 180, height: 60 }
+    sm: { width: 65, height: 21 },
+    md: { width: 98, height: 32 },
+    lg: { width: 130, height: 43 }
   };
 
   const containerClasses = cn(
@@ -36,12 +36,11 @@ export default function GLogoButton({
   return (
     <div className={cn(containerClasses, sizeClasses[size])}>
       <Image
-        src="/images/new_logo.svg"
-        alt="Gonzigo Logo"
+        src="/images/helvetica_logo.svg"
+        alt="GONZIGO"
         width={currentDimensions.width}
         height={currentDimensions.height}
         className="max-w-full max-h-full"
-        style={{ color: '#3366ff' }} // Apply the requested color
         priority
       />
     </div>

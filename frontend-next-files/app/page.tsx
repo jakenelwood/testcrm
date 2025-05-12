@@ -40,7 +40,7 @@ export default function Home() {
               <Button variant="outline" className="font-medium border-gray-300 rounded-sm">Log In</Button>
             </Link>
             <Link href="/pricing">
-              <Button className="bg-black hover:bg-gray-800 text-white font-medium rounded-sm">Let's Close</Button>
+              <Button className="bg-[#0047AB] hover:bg-[#003d91] text-white font-medium rounded-sm">Let's Close</Button>
             </Link>
           </div>
         </nav>
@@ -115,7 +115,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-gray-200 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-500 mb-4 md:mb-0">© {new Date().getFullYear()} gonzigo. All rights reserved.</div>
+            <div className="text-gray-500 mb-4 md:mb-0">© {new Date().getFullYear()} GONZIGO. All rights reserved.</div>
             <div className="flex gap-6">
               <Link href="#" className="text-gray-500 hover:text-[#8A00C4] transition-colors">Privacy Policy</Link>
               <Link href="#" className="text-gray-500 hover:text-[#8A00C4] transition-colors">Terms of Service</Link>

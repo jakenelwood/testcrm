@@ -42,6 +42,8 @@ const nextConfig = {
   // We've addressed the CSR bailout issues by wrapping components in Suspense boundaries
   experimental: {
     // Add any valid experimental options here if needed in the future
+    // This helps with hydration issues
+    optimizePackageImports: ['react-icons'],
   },
 };
 
