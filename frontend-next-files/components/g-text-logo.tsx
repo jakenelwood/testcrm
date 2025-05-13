@@ -7,12 +7,14 @@ interface GTextLogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   color?: string;
+  animate?: boolean;
 }
 
 export default function GTextLogo({
   className,
   size = 'md',
-  color = '#0047AB' // Default to the medium blue color
+  color = '#0047AB', // Default to the medium blue color
+  animate = true
 }: GTextLogoProps) {
   // Size classes for the text (increased by 30% total)
   const sizeClasses = {
@@ -28,10 +30,11 @@ export default function GTextLogo({
     )}>
       <span
         className={cn(
-          "font-inter font-bold tracking-tight", // Changed from font-medium to font-bold
-          sizeClasses[size]
+          "font-inter font-bold tracking-tight",
+          sizeClasses[size],
+          animate && "animate-text-pulse"
         )}
-        style={{ color }}
+        style={!animate ? { color } : undefined}
       >
         g
       </span>
