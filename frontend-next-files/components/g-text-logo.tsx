@@ -14,11 +14,11 @@ export default function GTextLogo({
   size = 'md',
   color = '#0047AB' // Default to the medium blue color
 }: GTextLogoProps) {
-  // Size classes for the text (increased by 20%)
+  // Size classes for the text (increased by 30% total)
   const sizeClasses = {
-    sm: 'text-3xl', // was text-2xl
-    md: 'text-4xl', // was text-3xl
-    lg: 'text-5xl'  // was text-4xl
+    sm: 'text-3xl scale-110', // additional 10% scale
+    md: 'text-4xl scale-110', // additional 10% scale
+    lg: 'text-5xl scale-110'  // additional 10% scale
   };
 
   return (

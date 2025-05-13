@@ -73,10 +73,17 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "pulse-colors": {
+          "0%, 100%": { backgroundColor: "#0047AB" }, // Medium blue
+          "25%": { backgroundColor: "#D37122" },      // Burnt orange
+          "50%": { backgroundColor: "#663399" },      // Purple
+          "75%": { backgroundColor: "#55D43F" },      // Green
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-colors": "pulse-colors 4s infinite",
       },
     },
   },
