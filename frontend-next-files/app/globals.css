@@ -89,6 +89,18 @@
     opacity: 0;
   }
 
+  /* Animation for pulsing colors on the dot */
+  @keyframes pulseColors {
+    0%, 100% { background-color: #0047AB; } /* Medium blue */
+    25% { background-color: #D37122; }      /* Burnt orange */
+    50% { background-color: #663399; }      /* Purple */
+    75% { background-color: #55D43F; }      /* Green */
+  }
+
+  .animate-pulse-colors {
+    animation: pulseColors 4s infinite;
+  }
+
   /* Prevent text selection during drag operations */
   .dragging * {
     user-select: none !important;

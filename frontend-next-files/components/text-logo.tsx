@@ -25,12 +25,18 @@ export default function TextLogo({
     <div className={cn("flex items-center", className)}>
       <span
         className={cn(
-          "font-inter font-bold tracking-tight relative", // Added relative positioning
+          "font-inter font-bold tracking-tight relative",
           sizeClasses[size]
         )}
         style={{ color }}
       >
-        gonz<span className="relative inline-block">i<span className="absolute -top-1 left-[0.35em] w-[0.3em] h-[0.3em] rounded-full animate-pulse-colors"></span></span>go
+        gonz<span className="relative inline-block">i
+          <span
+            className={cn(
+              "absolute -top-1 left-[0.35em] w-[0.25em] h-[0.25em] rounded-full animate-pulse-colors"
+            )}
+          ></span>
+        </span>go
       </span>
     </div>
   );
