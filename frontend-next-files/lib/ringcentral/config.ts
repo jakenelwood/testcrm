@@ -18,17 +18,16 @@ export const RINGCENTRAL_PASSWORD = process.env.RINGCENTRAL_PASSWORD;
 // Phone Numbers
 export const RINGCENTRAL_FROM_NUMBER = process.env.RINGCENTRAL_FROM_NUMBER || process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER;
 
-// OAuth
-export const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/oauth-callback';
-export const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+// OAuth - Always use a stable base URL for OAuth redirects
+// In production, we always use the same domain regardless of the actual deployment URL
+// This ensures that the redirect URI is always the same and matches what's configured in RingCentral
+const BASE_DOMAIN = process.env.NODE_ENV === 'production'
+  ? 'https://crm-sepia-alpha.vercel.app'  // Production stable URL
+  : 'http://localhost:3000';              // Local development
 
-// Alternative deployment URL for Vercel
-export const VERCEL_DEPLOYMENT_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : undefined;
-export const VERCEL_DEPLOYMENT_REDIRECT_URI = VERCEL_DEPLOYMENT_URL
-  ? `${VERCEL_DEPLOYMENT_URL}/oauth-callback`
-  : undefined;
+// Use the stable base domain for OAuth redirects
+export const REDIRECT_URI = `${BASE_DOMAIN}/oauth-callback`;
+export const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || BASE_DOMAIN;
 
 // Client-side config (for WebRTC)
 export const NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID = process.env.NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID;
