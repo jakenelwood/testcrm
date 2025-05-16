@@ -16,7 +16,6 @@ export default {
     },
     extend: {
       fontFamily: {
-        futura: ["var(--font-futura)"],
         inter: ["var(--font-inter)"],
       },
       colors: {
@@ -73,6 +72,14 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "collapsible-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-collapsible-content-height)" },
+        },
+        "collapsible-up": {
+          from: { height: "var(--radix-collapsible-content-height)" },
+          to: { height: "0" },
+        },
         "pulse-colors": {
           "0%, 100%": { backgroundColor: "#0047AB" }, // Medium blue
           "25%": { backgroundColor: "#D37122" },      // Burnt orange
@@ -83,6 +90,8 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "collapsible-down": "collapsible-down 0.2s ease-out",
+        "collapsible-up": "collapsible-up 0.2s ease-out",
         "pulse-colors": "pulse-colors 4s infinite",
       },
     },

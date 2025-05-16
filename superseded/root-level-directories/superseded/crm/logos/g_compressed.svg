@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="40"
+   height="40"
+   viewBox="0 0 40 40"
+   xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <!-- "G" letter in a compressed style -->
+    <path d="M20,5c-8.3,0-15,6.7-15,15s6.7,15,15,15c4.1,0,7.8-1.6,10.5-4.3v-8.2h-10v-5h15V25c0,0-0.1,5.5-5.5,10.5
+      C25.5,39.5,20,40,20,40c-11,0-20-9-20-20S9,0,20,0s20,9,20,20h-5C35,11.7,28.3,5,20,5z" fill="#000000"/>
+  </g>
+</svg>

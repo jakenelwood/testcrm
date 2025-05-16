@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="884.52"
+   height="285.01"
+   viewBox="0 0 884.52 285.01"
+   xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @font-face {
+      font-family: 'Helvetica Compressed';
+      src: local('Helvetica Compressed');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .helvetica-text {
+      font-family: 'Helvetica Compressed', 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+      font-stretch: condensed;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+    }
+  </style>
+  <text
+     x="50%"
+     y="55%"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     class="helvetica-text"
+     fill="#000000"
+     font-size="180">GONZIGO</text>
+</svg>

@@ -52,6 +52,11 @@ export function Sidebar() {
     };
 
     loadPipelines();
+
+    // Initialize Development section to be expanded by default
+    if (localStorage.getItem('expanded-Development') === null) {
+      localStorage.setItem('expanded-Development', 'true');
+    }
   }, []);
 
   const routes = [
@@ -78,9 +83,80 @@ export function Sidebar() {
       label: "Settings",
       icon: Settings,
       href: "/dashboard/settings",
-      active: pathname.startsWith("/dashboard/settings"),
+      active: pathname.startsWith("/dashboard/settings") && !pathname.startsWith("/dashboard/settings/development"),
       iconColor: "text-[#615F48]",
       variant: undefined
+    },
+    {
+      label: "Development",
+      icon: Settings2,
+      href: "/dashboard/settings/development",
+      active: pathname.startsWith("/dashboard/settings/development"),
+      iconColor: "text-[#0047AB]",
+      variant: undefined,
+      children: [
+        {
+          label: "Telephony/SMS",
+          href: "/dashboard/settings/development/telephony",
+          active: pathname.startsWith("/dashboard/settings/development/telephony"),
+          children: [
+            {
+              label: "RingCentral",
+              href: "/dashboard/settings/development/telephony/ringcentral",
+              active: pathname.startsWith("/dashboard/settings/development/telephony/ringcentral") ||
+                     pathname === "/dashboard/settings/development/ringcentral-test-call" ||
+                     pathname === "/dashboard/settings/development/ringout-demo" ||
+                     pathname === "/dashboard/settings/development/ringcentral-diagnostics" ||
+                     pathname === "/dashboard/settings/development/supabase-test" ||
+                     pathname === "/dashboard/settings/development/auth-test",
+              children: [
+                {
+                  label: "Test Call",
+                  href: "/dashboard/settings/development/ringcentral-test-call",
+                  active: pathname === "/dashboard/settings/development/ringcentral-test-call",
+                },
+                {
+                  label: "Test SMS",
+                  href: "/dashboard/settings/development/ringcentral-test-sms",
+                  active: pathname === "/dashboard/settings/development/ringcentral-test-sms",
+                },
+                {
+                  label: "RingOut Demo",
+                  href: "/dashboard/settings/development/ringout-demo",
+                  active: pathname === "/dashboard/settings/development/ringout-demo",
+                },
+                {
+                  label: "Diagnostics",
+                  href: "/dashboard/settings/development/ringcentral-diagnostics",
+                  active: pathname === "/dashboard/settings/development/ringcentral-diagnostics",
+                },
+                {
+                  label: "Database Test",
+                  href: "/dashboard/settings/development/supabase-test",
+                  active: pathname === "/dashboard/settings/development/supabase-test",
+                },
+                {
+                  label: "Auth Test",
+                  href: "/dashboard/settings/development/auth-test",
+                  active: pathname === "/dashboard/settings/development/auth-test",
+                }
+              ]
+            },
+            {
+              label: "Twilio",
+              href: "/dashboard/settings/development/telephony/twilio",
+              active: pathname.startsWith("/dashboard/settings/development/telephony/twilio"),
+              children: []
+            },
+            {
+              label: "Telnyx",
+              href: "/dashboard/settings/development/telephony/telnyx",
+              active: pathname.startsWith("/dashboard/settings/development/telephony/telnyx"),
+              children: []
+            }
+          ]
+        }
+      ]
     },
     {
       label: "Logout",
@@ -301,46 +377,144 @@ export function Sidebar() {
           !showExpanded ? "px-1" : "px-2"
         )}>
           {secondaryRoutes.map((route, i) => (
-            <Button
-              key={i}
-              variant={route.active ? "secondary" : "ghost"}
-              className={cn(
-                "justify-start transition-all duration-200",
-                route.label === "Logout" ? "hover:bg-red-50 hover:text-red-600" : "hover:bg-blue-50 hover:text-blue-600",
-                route.active && "bg-blue-50 text-blue-600 hover:bg-blue-100",
-                !showExpanded && "justify-center px-0"
+            <div key={i} className="space-y-1">
+              {/* Main route button */}
+              <Button
+                variant={route.active ? "secondary" : "ghost"}
+                className={cn(
+                  "justify-start transition-all duration-200 w-full",
+                  route.label === "Logout" ? "hover:bg-red-50 hover:text-red-600" : "hover:bg-blue-50 hover:text-blue-600",
+                  route.active && "bg-blue-50 text-blue-600 hover:bg-blue-100",
+                  !showExpanded && "justify-center px-0"
+                )}
+                size="sm"
+                title={!showExpanded ? route.label : undefined}
+                onClick={route.children ? () => {
+                  // Toggle the expanded state for this route
+                  const routeKey = `expanded-${route.label}`;
+                  const isExpanded = localStorage.getItem(routeKey) === 'true';
+                  localStorage.setItem(routeKey, (!isExpanded).toString());
+                  // Force a re-render
+                  setIsPipelinesOpen(!isPipelinesOpen); // Just using this state to trigger re-render
+                } : route.onClick}
+                asChild={!route.onClick && !route.children}
+              >
+                {route.onClick && !route.children ? (
+                  <>
+                    <route.icon className={cn(
+                      "h-4 w-4 transition-transform duration-200",
+                      route.label === "Logout" ? "text-red-500" : (route.active ? "text-blue-600" : "text-gray-500"),
+                      showText ? "mr-2" : "mr-0"
+                    )} />
+                    {showText && <span className={cn(
+                      "font-medium",
+                      route.active && "font-semibold"
+                    )}>{route.label}</span>}
+                  </>
+                ) : route.children ? (
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center">
+                      <route.icon className={cn(
+                        "h-4 w-4 transition-transform duration-200",
+                        route.active ? "text-blue-600" : "text-gray-500",
+                        showText ? "mr-2" : "mr-0"
+                      )} />
+                      {showText && <span className={cn(
+                        "font-medium",
+                        route.active && "font-semibold"
+                      )}>{route.label}</span>}
+                    </div>
+                    {showText && (
+                      localStorage.getItem(`expanded-${route.label}`) === 'true' ?
+                        <ChevronDown className="h-4 w-4" /> :
+                        <ChevronRight className="h-4 w-4" />
+                    )}
+                  </div>
+                ) : (
+                  <Link href={route.href}>
+                    <route.icon className={cn(
+                      "h-4 w-4 transition-transform duration-200",
+                      route.label === "Logout" ? "text-red-500" : (route.active ? "text-blue-600" : "text-gray-500"),
+                      showText ? "mr-2" : "mr-0"
+                    )} />
+                    {showText && <span className={cn(
+                      "font-medium",
+                      route.active && "font-semibold"
+                    )}>{route.label}</span>}
+                  </Link>
+                )}
+              </Button>
+
+              {/* Child routes if any */}
+              {route.children && showExpanded && localStorage.getItem(`expanded-${route.label}`) === 'true' && (
+                <div className="ml-6 space-y-1">
+                  {route.children.map((child, childIndex) => (
+                    <div key={childIndex}>
+                      <Button
+                        asChild={!child.children?.length}
+                        variant={child.active ? "secondary" : "ghost"}
+                        className={cn(
+                          "justify-start transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 w-full",
+                          child.active && "bg-blue-50 text-blue-600 hover:bg-blue-100",
+                          "h-8 px-2"
+                        )}
+                        size="sm"
+                        onClick={child.children?.length ? () => {
+                          // Toggle the expanded state for this child
+                          const childKey = `expanded-${route.label}-${child.label}`;
+                          const isExpanded = localStorage.getItem(childKey) === 'true';
+                          localStorage.setItem(childKey, (!isExpanded).toString());
+                          // Force a re-render
+                          setIsPipelinesOpen(!isPipelinesOpen); // Just using this state to trigger re-render
+                        } : undefined}
+                      >
+                        {child.children?.length ? (
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center">
+                              <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                              <span className="text-sm">{child.label}</span>
+                            </div>
+                            {localStorage.getItem(`expanded-${route.label}-${child.label}`) === 'true' ?
+                              <ChevronDown className="h-3 w-3" /> :
+                              <ChevronRight className="h-3 w-3" />
+                            }
+                          </div>
+                        ) : (
+                          <Link href={child.href} className="flex items-center">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                            <span className="text-sm">{child.label}</span>
+                          </Link>
+                        )}
+                      </Button>
+
+                      {/* Grandchild routes if any */}
+                      {child.children?.length > 0 && localStorage.getItem(`expanded-${route.label}-${child.label}`) === 'true' && (
+                        <div className="ml-4 space-y-1 mt-1">
+                          {child.children.map((grandchild, grandchildIndex) => (
+                            <Button
+                              key={grandchildIndex}
+                              asChild
+                              variant={grandchild.active ? "secondary" : "ghost"}
+                              className={cn(
+                                "justify-start transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 w-full",
+                                grandchild.active && "bg-blue-50 text-blue-600 hover:bg-blue-100",
+                                "h-7 px-2"
+                              )}
+                              size="sm"
+                            >
+                              <Link href={grandchild.href} className="flex items-center">
+                                <div className="w-1 h-1 rounded-full bg-gray-400 mr-2"></div>
+                                <span className="text-xs">{grandchild.label}</span>
+                              </Link>
+                            </Button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
-              size="sm"
-              title={!showExpanded ? route.label : undefined}
-              onClick={route.onClick}
-              asChild={!route.onClick}
-            >
-              {route.onClick ? (
-                <>
-                  <route.icon className={cn(
-                    "h-4 w-4 transition-transform duration-200",
-                    route.label === "Logout" ? "text-red-500" : (route.active ? "text-blue-600" : "text-gray-500"),
-                    showText ? "mr-2" : "mr-0"
-                  )} />
-                  {showText && <span className={cn(
-                    "font-medium",
-                    route.active && "font-semibold"
-                  )}>{route.label}</span>}
-                </>
-              ) : (
-                <Link href={route.href}>
-                  <route.icon className={cn(
-                    "h-4 w-4 transition-transform duration-200",
-                    route.label === "Logout" ? "text-red-500" : (route.active ? "text-blue-600" : "text-gray-500"),
-                    showText ? "mr-2" : "mr-0"
-                  )} />
-                  {showText && <span className={cn(
-                    "font-medium",
-                    route.active && "font-semibold"
-                  )}>{route.label}</span>}
-                </Link>
-              )}
-            </Button>
+            </div>
           ))}
         </nav>
       </div>

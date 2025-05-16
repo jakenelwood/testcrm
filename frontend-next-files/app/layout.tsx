@@ -1,7 +1,7 @@
 import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import React from "react";
-import { futura, inter } from "./fonts";
+import { inter } from "./fonts";
 
 export const metadata = {
   title: "Gonzigo | The Pipeline Whisperer",
@@ -15,9 +15,19 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${futura.variable}`}>
+    // Add suppressHydrationWarning to the html tag to fix hydration errors
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable}`}
+    >
+      {/* Add suppressHydrationWarning to the head tag */}
       <head suppressHydrationWarning />
-      <body className="min-h-screen bg-background font-sans antialiased" suppressHydrationWarning>
+      {/* Add suppressHydrationWarning to the body tag */}
+      <body
+        className="min-h-screen bg-background font-sans antialiased"
+        suppressHydrationWarning
+      >
         {children}
         <ToastProvider />
       </body>

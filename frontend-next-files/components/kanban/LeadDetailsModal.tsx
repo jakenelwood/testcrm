@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { formatDateMMDDYYYY, formatDateTimeMMDDYYYY } from "@/utils/date-format";
 import {
@@ -16,7 +16,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Lead, LeadNote, LeadCommunication, InsuranceType, LeadStatus, Client, Address } from "@/types/lead";
+import { Lead, LeadNote, InsuranceType, LeadStatus } from "@/types/lead";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -185,7 +185,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           .from('lead_communications')
           .insert({
             lead_id: lead.id,
-            type: 'Note',
+            type_id: 4, // 4 is the ID for 'Note' in communication_types
+            direction: 'Outbound',
             content: newNote,
             created_by: 'Brian B',
             created_at: new Date().toISOString(),
@@ -397,8 +398,11 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       }}
     >
       <DialogContent
-        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl rounded-lg"
+        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl rounded-lg fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50"
       >
+        <DialogDescription id="lead-details-description" className="sr-only">
+          Lead details and communication history for {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+        </DialogDescription>
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-lg"></div>
 
         <DialogHeader className="border-b border-gray-200 pb-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50/30 -mx-6 px-6 pt-6 rounded-t-lg">
@@ -525,11 +529,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                   });
 
                                   // Make the call via RingCentral API
+                                  // Use the correct parameter order: toNumber, fromNumber
                                   makeRingCentralCall(
-                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
-                                    formData.phone_number || ''
+                                    formData.phone_number || '',
+                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || ''
                                   )
-                                    .then(response => {
+                                    .then(() => {
                                       // Show success toast
                                       toast({
                                         title: "Call initiated",
@@ -541,7 +546,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                         .from('lead_communications')
                                         .insert({
                                           lead_id: lead.id,
-                                          type: 'Call',
+                                          type_id: 3, // 3 is the ID for 'Call' in communication_types
+                                          direction: 'Outbound',
                                           content: `RingCentral call initiated to ${formData.phone_number}`,
                                           created_by: 'User',
                                           created_at: new Date().toISOString(),
@@ -594,7 +600,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                       formData.phone_number || '',
                                       messageText
                                     )
-                                      .then(response => {
+                                      .then(() => {
                                         // Show success toast
                                         toast({
                                           title: "Message sent",
@@ -606,7 +612,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                           .from('lead_communications')
                                           .insert({
                                             lead_id: lead.id,
-                                            type: 'SMS',
+                                            type_id: 2, // 2 is the ID for 'SMS' in communication_types
+                                            direction: 'Outbound',
                                             content: `SMS sent to ${formData.phone_number}: ${messageText}`,
                                             created_by: 'User',
                                             created_at: new Date().toISOString(),
@@ -854,11 +861,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                   });
 
                                   // Make the call via RingCentral API
+                                  // Use the correct parameter order: toNumber, fromNumber
                                   makeRingCentralCall(
-                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
-                                    lead.phone_number || ''
+                                    lead.phone_number || '',
+                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || ''
                                   )
-                                    .then(response => {
+                                    .then(() => {
                                       // Show success toast
                                       toast({
                                         title: "Call initiated",
@@ -870,7 +878,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                         .from('lead_communications')
                                         .insert({
                                           lead_id: lead.id,
-                                          type: 'Call',
+                                          type_id: 3, // 3 is the ID for 'Call' in communication_types
+                                          direction: 'Outbound',
                                           content: `RingCentral call initiated to ${lead.phone_number}`,
                                           created_by: 'User',
                                           created_at: new Date().toISOString(),
@@ -923,7 +932,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                       lead.phone_number || '',
                                       messageText
                                     )
-                                      .then(response => {
+                                      .then(() => {
                                         // Show success toast
                                         toast({
                                           title: "Message sent",
@@ -935,7 +944,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                                           .from('lead_communications')
                                           .insert({
                                             lead_id: lead.id,
-                                            type: 'SMS',
+                                            type_id: 2, // 2 is the ID for 'SMS' in communication_types
+                                            direction: 'Outbound',
                                             content: `SMS sent to ${lead.phone_number}: ${messageText}`,
                                             created_by: 'User',
                                             created_at: new Date().toISOString(),

@@ -9,9 +9,11 @@ const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
-export const createClient = async () => {
+export const createClient = async (cookieStore?: any) => {
   // In Next.js 15.3.2, cookies() returns a Promise that needs to be awaited
-  const cookieStore = await cookies()
+  if (!cookieStore) {
+    cookieStore = await cookies()
+  }
 
   return createServerClient(
     supabaseUrl,
