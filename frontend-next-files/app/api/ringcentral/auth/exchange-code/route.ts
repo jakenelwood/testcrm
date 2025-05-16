@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
-
-// RingCentral OAuth configuration
-const RINGCENTRAL_CLIENT_ID = process.env.RINGCENTRAL_CLIENT_ID;
-const RINGCENTRAL_CLIENT_SECRET = process.env.RINGCENTRAL_CLIENT_SECRET;
-const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com';
-const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/oauth-callback';
+import {
+  RINGCENTRAL_CLIENT_ID,
+  RINGCENTRAL_CLIENT_SECRET,
+  RINGCENTRAL_SERVER,
+  REDIRECT_URI
+} from '@/lib/ringcentral/config';
 
 /**
  * Handle GET requests to exchange the authorization code for tokens
@@ -49,6 +49,20 @@ export async function GET(request: NextRequest) {
     console.log('Step 1: Exchanging authorization code for tokens with PKCE');
     console.log('Code verifier available (length):', codeVerifier.length);
 
+    // Log the redirect URI for debugging
+    console.log('REDIRECT_URI from config:', REDIRECT_URI);
+    console.log('REDIRECT_URI from env directly:', process.env.REDIRECT_URI);
+
+    // Create the URL params for better debugging
+    const params = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: codeVerifier
+    });
+
+    console.log('redirect_uri in token request:', params.get('redirect_uri'));
+
     // Exchange the authorization code for tokens using PKCE
     const tokenResponse = await fetch(`${RINGCENTRAL_SERVER}/restapi/oauth/token`, {
       method: 'POST',
@@ -56,12 +70,7 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': `Basic ${Buffer.from(`${RINGCENTRAL_CLIENT_ID}:${RINGCENTRAL_CLIENT_SECRET}`).toString('base64')}`
       },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: codeVerifier
-      }).toString()
+      body: params.toString()
     });
 
     if (!tokenResponse.ok) {

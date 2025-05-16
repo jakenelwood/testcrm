@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
-import { formatScopesForOAuth } from '@/lib/ringcentral/config';
+import {
+  RINGCENTRAL_CLIENT_ID,
+  RINGCENTRAL_CLIENT_SECRET,
+  RINGCENTRAL_SERVER,
+  REDIRECT_URI,
+  formatScopesForOAuth
+} from '@/lib/ringcentral/config';
 
 /**
  * Generate a random string for PKCE code_verifier
@@ -18,12 +24,6 @@ function generateCodeChallenge(codeVerifier: string) {
   const hash = crypto.createHash('sha256').update(codeVerifier).digest();
   return hash.toString('base64url');
 }
-
-// RingCentral OAuth configuration
-const RINGCENTRAL_CLIENT_ID = process.env.RINGCENTRAL_CLIENT_ID;
-const RINGCENTRAL_CLIENT_SECRET = process.env.RINGCENTRAL_CLIENT_SECRET;
-const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com';
-const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/oauth-callback';
 
 /**
  * Handle GET requests to the RingCentral auth endpoint
@@ -90,10 +90,14 @@ async function handleAuthorize(request: NextRequest) {
 
     // Construct the authorization URL with PKCE
     console.log('Step 2: Creating authorization URL with PKCE');
+    console.log('REDIRECT_URI from config:', REDIRECT_URI);
+    console.log('REDIRECT_URI from env directly:', process.env.REDIRECT_URI);
+
     const authUrl = new URL(`${RINGCENTRAL_SERVER}/restapi/oauth/authorize`);
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('client_id', RINGCENTRAL_CLIENT_ID);
     authUrl.searchParams.append('redirect_uri', REDIRECT_URI);
+    console.log('redirect_uri after URL encoding:', authUrl.searchParams.get('redirect_uri'));
     authUrl.searchParams.append('state', state);
 
     // Add PKCE parameters
