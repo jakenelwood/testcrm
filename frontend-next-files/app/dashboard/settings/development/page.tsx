@@ -38,6 +38,11 @@ export default function DevelopmentPage() {
                   Diagnostics Tool
                 </Link>
               </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/dashboard/settings/development/ringcentral-debug">
+                  OAuth Debug Tool
+                </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
