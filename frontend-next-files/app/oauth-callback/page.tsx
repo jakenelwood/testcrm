@@ -16,14 +16,26 @@ function OAuthCallbackContent() {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
     const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+
+    // Log all query parameters for debugging
+    console.log('OAuth callback received with params:', {
+      code: code ? `${code.substring(0, 5)}...` : null, // Only log part of the code for security
+      state,
+      error,
+      errorDescription,
+      allParams: Object.fromEntries(searchParams.entries())
+    });
 
     if (error) {
+      console.error('OAuth error:', error, errorDescription);
       setStatus('error');
-      setMessage(`Authentication failed: ${error}`);
+      setMessage(`Authentication failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
       return;
     }
 
     if (!code) {
+      console.error('No authorization code received');
       setStatus('error');
       setMessage('No authorization code received');
       return;
@@ -32,20 +44,37 @@ function OAuthCallbackContent() {
     // Process the OAuth callback
     const processCallback = async () => {
       try {
-        // Call our API to exchange the code for tokens
-        const response = await fetch(`/api/ringcentral/auth/exchange-code?code=${code}&state=${state}`);
+        console.log('Exchanging code for tokens...');
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to exchange code for tokens');
+        // Call our API to exchange the code for tokens
+        const exchangeUrl = `/api/ringcentral/auth/exchange-code?code=${code}&state=${state}`;
+        console.log('Exchange URL:', exchangeUrl);
+
+        const response = await fetch(exchangeUrl);
+        console.log('Exchange response status:', response.status);
+
+        const responseText = await response.text();
+        console.log('Exchange response text:', responseText);
+
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          console.error('Failed to parse response as JSON:', e);
+          throw new Error('Invalid response format from server');
         }
 
-        const data = await response.json();
+        if (!response.ok) {
+          console.error('Exchange request failed:', data);
+          throw new Error(data.error || 'Failed to exchange code for tokens');
+        }
 
+        console.log('Exchange successful:', data);
         setStatus('success');
         setMessage('Authentication successful! You can now make calls and send SMS messages.');
 
         // Redirect back to the RingCentral Test Call page after a short delay
+        console.log('Redirecting to test call page in 3 seconds...');
         setTimeout(() => {
           router.push('/dashboard/settings/development/ringcentral-test-call');
         }, 3000);

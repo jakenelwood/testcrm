@@ -53,6 +53,9 @@ export async function GET(request: NextRequest) {
 async function handleAuthorize(request: NextRequest) {
   console.log('========== RINGCENTRAL AUTH API - START ==========');
   console.log('Timestamp:', new Date().toISOString());
+  console.log('Request URL:', request.url);
+  console.log('Request headers:', Object.fromEntries(request.headers));
+  console.log('Query params:', Object.fromEntries(new URL(request.url).searchParams));
 
   if (!RINGCENTRAL_CLIENT_ID) {
     console.error('RINGCENTRAL_CLIENT_ID not configured');

@@ -15,10 +15,20 @@ import {
 export async function GET(request: NextRequest) {
   console.log('========== RINGCENTRAL EXCHANGE CODE API - START ==========');
   console.log('Timestamp:', new Date().toISOString());
+  console.log('Request URL:', request.url);
+  console.log('Request headers:', Object.fromEntries(request.headers));
 
   const { searchParams } = new URL(request.url);
+  console.log('Query params:', Object.fromEntries(searchParams));
+
   const code = searchParams.get('code');
   const state = searchParams.get('state');
+  const error = searchParams.get('error');
+  const errorDescription = searchParams.get('error_description');
+
+  if (error) {
+    console.error('OAuth error:', error, errorDescription);
+  }
 
   if (!code) {
     console.log('Missing authorization code');
