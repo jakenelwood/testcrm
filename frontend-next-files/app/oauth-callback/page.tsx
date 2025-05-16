@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export default function OAuthCallbackPage() {
+// Create a separate component that uses useSearchParams
+function OAuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -84,5 +85,26 @@ export default function OAuthCallbackPage() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+// Main component that wraps the content in a Suspense boundary
+export default function OAuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-8">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle>RingCentral Authentication</CardTitle>
+            <CardDescription>Processing your authentication...</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600">Please wait while we process your authentication...</p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <OAuthCallbackContent />
+    </Suspense>
   );
 }
