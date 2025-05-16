@@ -41,12 +41,14 @@ export const API_ENDPOINTS = {
 };
 
 // Required OAuth Scopes
-// We need RingOut for making calls and CallControl for ending calls
-export const REQUIRED_SCOPES = ['RingOut'];
+// These scopes match what's configured in the RingCentral developer console
+export const REQUIRED_SCOPES = process.env.RINGCENTRAL_OAUTH_SCOPES
+  ? process.env.RINGCENTRAL_OAUTH_SCOPES.split(' ')
+  : ['ReadAccounts', 'ReadCallLog', 'ReadMessages', 'ReadPresence', 'RingOut', 'SMS'];
 
 // Format scopes for OAuth URL (space-separated string)
 export function formatScopesForOAuth() {
-  return REQUIRED_SCOPES.join(' ');
+  return process.env.RINGCENTRAL_OAUTH_SCOPES || REQUIRED_SCOPES.join(' ');
 }
 
 // Utility function to validate configuration
@@ -56,6 +58,9 @@ export function validateConfig() {
     { name: 'RINGCENTRAL_CLIENT_SECRET', value: RINGCENTRAL_CLIENT_SECRET },
     { name: 'RINGCENTRAL_SERVER', value: RINGCENTRAL_SERVER },
     { name: 'RINGCENTRAL_FROM_NUMBER', value: RINGCENTRAL_FROM_NUMBER },
+    { name: 'RINGCENTRAL_OAUTH_SCOPES', value: process.env.RINGCENTRAL_OAUTH_SCOPES },
+    { name: 'REDIRECT_URI', value: REDIRECT_URI },
+    { name: 'NEXT_PUBLIC_APP_URL', value: NEXT_PUBLIC_APP_URL },
   ];
 
   const missingVars = requiredVars.filter(v => !v.value);
