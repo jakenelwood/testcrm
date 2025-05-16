@@ -4,8 +4,11 @@ export async function initializeWebPhone(accessToken: string) {
   console.log('🔄 Initializing RingCentral WebPhone...');
 
   // Dynamically import the RingCentral SDK
-  const RingCentral = (await import('ringcentral')).default;
-  const WebPhone = (await import('ringcentral-web-phone')).default;
+  const RingCentralModule = await import('ringcentral');
+  const RingCentral = RingCentralModule.SDK || RingCentralModule.default;
+
+  const WebPhoneModule = await import('ringcentral-web-phone');
+  const WebPhone = WebPhoneModule.default || WebPhoneModule;
 
   const sdk = new RingCentral({
     server: process.env.NEXT_PUBLIC_RINGCENTRAL_SERVER || 'https://platform.ringcentral.com',
