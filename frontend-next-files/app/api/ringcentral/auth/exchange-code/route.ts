@@ -5,7 +5,8 @@ import {
   RINGCENTRAL_CLIENT_ID,
   RINGCENTRAL_CLIENT_SECRET,
   RINGCENTRAL_SERVER,
-  REDIRECT_URI
+  REDIRECT_URI,
+  VERCEL_DEPLOYMENT_REDIRECT_URI
 } from '@/lib/ringcentral/config';
 
 /**
@@ -52,12 +53,19 @@ export async function GET(request: NextRequest) {
     // Log the redirect URI for debugging
     console.log('REDIRECT_URI from config:', REDIRECT_URI);
     console.log('REDIRECT_URI from env directly:', process.env.REDIRECT_URI);
+    console.log('VERCEL_DEPLOYMENT_URL:', process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'Not set');
+    console.log('VERCEL_DEPLOYMENT_REDIRECT_URI:', VERCEL_DEPLOYMENT_REDIRECT_URI || 'Not set');
+
+    // Determine which redirect URI to use
+    // We need to use the same redirect URI that was used in the authorization request
+    // Try both possibilities and see which one works
+    const redirectUri = REDIRECT_URI;
 
     // Create the URL params for better debugging
     const params = new URLSearchParams({
       grant_type: 'authorization_code',
       code: code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: redirectUri,
       code_verifier: codeVerifier
     });
 

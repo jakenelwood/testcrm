@@ -4,6 +4,8 @@ import {
   RINGCENTRAL_SERVER,
   REDIRECT_URI,
   NEXT_PUBLIC_APP_URL,
+  VERCEL_DEPLOYMENT_URL,
+  VERCEL_DEPLOYMENT_REDIRECT_URI,
   formatScopesForOAuth
 } from '@/lib/ringcentral/config';
 
@@ -46,6 +48,11 @@ export async function GET(request: NextRequest) {
         REDIRECT_URI_CHAR_CODES: REDIRECT_URI?.split('').map(c => c.charCodeAt(0)),
         NEXT_PUBLIC_APP_URL,
         NEXT_PUBLIC_APP_URL_LENGTH: NEXT_PUBLIC_APP_URL?.length || 0,
+        VERCEL_DEPLOYMENT_URL,
+        VERCEL_DEPLOYMENT_URL_LENGTH: VERCEL_DEPLOYMENT_URL?.length || 0,
+        VERCEL_DEPLOYMENT_REDIRECT_URI,
+        VERCEL_DEPLOYMENT_REDIRECT_URI_LENGTH: VERCEL_DEPLOYMENT_REDIRECT_URI?.length || 0,
+        VERCEL_DEPLOYMENT_REDIRECT_URI_CHAR_CODES: VERCEL_DEPLOYMENT_REDIRECT_URI?.split('').map(c => c.charCodeAt(0)),
       },
       env_direct: {
         REDIRECT_URI: process.env.REDIRECT_URI,

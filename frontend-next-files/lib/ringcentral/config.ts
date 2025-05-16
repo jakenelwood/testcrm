@@ -22,6 +22,14 @@ export const RINGCENTRAL_FROM_NUMBER = process.env.RINGCENTRAL_FROM_NUMBER || pr
 export const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/oauth-callback';
 export const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+// Alternative deployment URL for Vercel
+export const VERCEL_DEPLOYMENT_URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : undefined;
+export const VERCEL_DEPLOYMENT_REDIRECT_URI = VERCEL_DEPLOYMENT_URL
+  ? `${VERCEL_DEPLOYMENT_URL}/oauth-callback`
+  : undefined;
+
 // Client-side config (for WebRTC)
 export const NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID = process.env.NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID;
 export const NEXT_PUBLIC_RINGCENTRAL_SERVER = process.env.NEXT_PUBLIC_RINGCENTRAL_SERVER;
