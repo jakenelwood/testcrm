@@ -30,8 +30,8 @@ export const REDIRECT_URI = `${BASE_DOMAIN}/oauth-callback`;
 export const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || BASE_DOMAIN;
 
 // Client-side config (for WebRTC)
-export const NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID = process.env.NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID;
-export const NEXT_PUBLIC_RINGCENTRAL_SERVER = process.env.NEXT_PUBLIC_RINGCENTRAL_SERVER;
+export const NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID = RINGCENTRAL_CLIENT_ID;
+export const NEXT_PUBLIC_RINGCENTRAL_SERVER = process.env.NEXT_PUBLIC_RINGCENTRAL_SERVER || RINGCENTRAL_SERVER;
 export const NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER = process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER;
 export const NEXT_PUBLIC_RINGCENTRAL_DOMAIN = process.env.NEXT_PUBLIC_RINGCENTRAL_DOMAIN;
 
@@ -43,19 +43,22 @@ export const API_ENDPOINTS = {
   ACCOUNT_INFO: '/restapi/v1.0/account/~',
   EXTENSION_INFO: '/restapi/v1.0/account/~/extension/~',
   PHONE_NUMBERS: '/restapi/v1.0/account/~/extension/~/phone-number',
-  CLIENT_INFO: '/restapi/v1.0/client-info',
-  ACTIVE_CALLS: '/restapi/v1.0/account/~/extension/~/active-calls',
+  CLIENT_INFO: '/restapi/v1.0/client-info/sip-provision',
+  ACTIVE_CALLS: '/restapi/v1.0/account/~/active-calls',
+  AUTHZ_PROFILE: '/restapi/oauth/userinfo',
+  SIP_PROVISION: '/restapi/v1.0/client-info/sip-provision',
+  TELEPHONY_SESSION: (sessionId: string) => `/restapi/v1.0/account/~/telephony/sessions/${sessionId}`,
 };
 
 // Required OAuth Scopes
 // These scopes match what's configured in the RingCentral developer console
 export const REQUIRED_SCOPES = process.env.RINGCENTRAL_OAUTH_SCOPES
   ? process.env.RINGCENTRAL_OAUTH_SCOPES.split(' ')
-  : ['ReadAccounts', 'ReadCallLog', 'ReadMessages', 'ReadPresence', 'RingOut', 'SMS'];
+  : ['RingOut', 'SMS'];
 
 // Format scopes for OAuth URL (space-separated string)
 export function formatScopesForOAuth() {
-  return process.env.RINGCENTRAL_OAUTH_SCOPES || REQUIRED_SCOPES.join(' ');
+  return REQUIRED_SCOPES.join(' ');
 }
 
 // Utility function to validate configuration
@@ -65,7 +68,7 @@ export function validateConfig() {
     { name: 'RINGCENTRAL_CLIENT_SECRET', value: RINGCENTRAL_CLIENT_SECRET },
     { name: 'RINGCENTRAL_SERVER', value: RINGCENTRAL_SERVER },
     { name: 'RINGCENTRAL_FROM_NUMBER', value: RINGCENTRAL_FROM_NUMBER },
-    { name: 'RINGCENTRAL_OAUTH_SCOPES', value: process.env.RINGCENTRAL_OAUTH_SCOPES },
+    { name: 'RINGCENTRAL_OAUTH_SCOPES', value: REQUIRED_SCOPES.join(' ') },
     { name: 'REDIRECT_URI', value: REDIRECT_URI },
     { name: 'NEXT_PUBLIC_APP_URL', value: NEXT_PUBLIC_APP_URL },
   ];

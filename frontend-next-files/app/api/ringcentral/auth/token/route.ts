@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR } from '@/lib/constants';
+import { UNKNOWN_ERROR_OCCURRED, FAILED_TO_GET_TOKEN } from '@/lib/constants';
 
 /**
  * Get the access token for API calls
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
     if (!accessToken) {
       return NextResponse.json({ 
         authenticated: false, 
-        message: 'Not authenticated with RingCentral' 
+        message: RINGCENTRAL_NOT_AUTHENTICATED_ERROR
       });
     }
 
@@ -31,10 +33,9 @@ export async function GET(request: NextRequest) {
       access_token: accessToken
     });
   } catch (error: any) {
-    console.error('Get token error:', error);
-    return NextResponse.json({
-      authenticated: false,
-      message: error.message || 'Unknown error occurred'
-    });
+    console.error('Error getting token:', error);
+    console.log('Error stack:', error.stack);
+    console.log('========== RINGCENTRAL TOKEN API - END (ERROR) ==========');
+    return NextResponse.json({ error: error.message || FAILED_TO_GET_TOKEN }, { status: 500 });
   }
 }

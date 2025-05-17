@@ -1,5 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 // Hardcoded values as fallback (same as in client.ts)
 const FALLBACK_SUPABASE_URL = 'https://vpwvdfrxvvuxojejnegm.supabase.co';
@@ -9,26 +8,34 @@ const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
-export const createClient = async (cookieStore?: any) => {
-  // In Next.js 15.3.2, cookies() returns a Promise that needs to be awaited
-  if (!cookieStore) {
-    cookieStore = await cookies()
-  }
-
+export const createClient = (cookieStore: any) => {
   return createServerClient(
     supabaseUrl,
     supabaseAnonKey,
     {
       cookies: {
-        get: async (name: string) => {
-          const cookie = await cookieStore.get(name)
-          return cookie?.value
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-        set: async (name: string, value: string, options: any) => {
-          await cookieStore.set({ name, value, ...options })
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch (error) {
+            // The `set` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+            console.warn(`Supabase server client failed to set cookie '${name}':`, error);
+          }
         },
-        remove: async (name: string, options: any) => {
-          await cookieStore.set({ name, value: '', ...options })
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch (error) {
+            // The `delete` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+            console.warn(`Supabase server client failed to remove cookie '${name}':`, error);
+          }
         },
       },
     }

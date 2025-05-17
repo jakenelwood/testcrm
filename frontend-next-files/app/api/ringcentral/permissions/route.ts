@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-
-// RingCentral API configuration
-const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com';
+import { RingCentralClient } from '@/utils/ringcentral-client';
+import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
 
 /**
  * Handle GET requests to fetch permissions
@@ -12,34 +11,34 @@ export async function GET(request: NextRequest) {
   console.log('Timestamp:', new Date().toISOString());
 
   try {
-    // Get the access token from cookies
-    console.log('Getting access token from cookies');
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('ringcentral_access_token')?.value;
+    const cookieStore = cookies();
+    const client = new RingCentralClient(cookieStore, request);
 
-    if (!accessToken) {
-      console.log('Error: No access token found');
-      return NextResponse.json({ error: 'Not authenticated with RingCentral' }, { status: 401 });
+    // Get the access token, triggering refresh if necessary
+    const currentAccessToken = await client.getValidAccessToken();
+
+    if (!currentAccessToken) {
+      console.log(`Error: ${RINGCENTRAL_NOT_AUTHENTICATED_ERROR} (token not available or refresh failed)`);
+      return NextResponse.json({ error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR, permissions: [] }, { status: 401 });
     }
 
-    // Instead of making an API call, we'll extract the scopes from the token
     console.log('Extracting permissions from token');
-
-    // Extract the scopes from the token
-    const cookieToken = cookieStore.get('ringcentral_access_token')?.value || '';
     let scopes: string[] = [];
 
     try {
-      // Access token is a JWT, split by dots and decode the middle part (payload)
-      const tokenParts = cookieToken.split('.');
+      const tokenParts = currentAccessToken.split('.');
       if (tokenParts.length >= 2) {
-        const payload = JSON.parse(atob(tokenParts[1]));
+        // Ensure atob is available or use Buffer for Node.js environments if running outside edge/browser-like
+        const payloadDecoded = Buffer.from(tokenParts[1], 'base64url').toString('utf8');
+        const payload = JSON.parse(payloadDecoded);
         if (payload.scope) {
           scopes = payload.scope.split(' ');
         }
       }
     } catch (e) {
       console.error('Error parsing token scopes:', e);
+      // Do not let parsing error fail the entire request if token was otherwise valid
+      // Return empty scopes or handle as appropriate
     }
 
     console.log('Token scopes:', scopes);
@@ -54,8 +53,12 @@ export async function GET(request: NextRequest) {
     console.error('Permissions error:', error);
     console.log('Error stack:', error.stack);
     console.log('========== RINGCENTRAL PERMISSIONS API - END (WITH ERROR) ==========');
+    // If the error is a known "not authenticated" error from the client, ensure 401 status
+    if (error.message && error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR)) {
+        return NextResponse.json({ error: error.message, permissions: [] }, { status: 401 });
+    }
     return NextResponse.json({
-      error: error.message || 'Unknown error occurred',
+      error: error.message || UNKNOWN_ERROR_OCCURRED,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }, { status: 500 });
   }

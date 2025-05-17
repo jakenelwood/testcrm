@@ -6,6 +6,8 @@ import {
   NEXT_PUBLIC_APP_URL,
   formatScopesForOAuth
 } from '@/lib/ringcentral/config';
+import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
+import { cookies } from 'next/headers';
 
 /**
  * Debug endpoint to check RingCentral configuration
@@ -74,12 +76,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(debugInfo);
   } catch (error: any) {
-    console.error('Error in debug endpoint:', error);
+    console.error('Debug endpoint error:', error);
     console.log('Error stack:', error.stack);
     console.log('========== RINGCENTRAL DEBUG API - END (WITH ERROR) ==========');
 
     return NextResponse.json({
-      error: error.message || 'Unknown error occurred',
+      error: error.message || UNKNOWN_ERROR_OCCURRED,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }, { status: 500 });
   }

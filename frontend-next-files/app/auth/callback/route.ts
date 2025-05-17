@@ -8,8 +8,8 @@ export async function GET(request: Request) {
   const callbackUrl = requestUrl.searchParams.get('callbackUrl')
 
   if (code) {
-    const cookieStore = cookies()
-    const supabase = await createClient()
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
 
     await supabase.auth.exchangeCodeForSession(code)
   }

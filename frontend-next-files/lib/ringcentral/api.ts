@@ -7,6 +7,7 @@
 
 import { cookies } from 'next/headers';
 import { RINGCENTRAL_SERVER, API_ENDPOINTS } from './config';
+import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR } from '../constants';
 
 /**
  * Get the RingCentral access token from cookies
@@ -33,8 +34,8 @@ export async function callRingCentralApi(
 ) {
   const { token, isValid } = await getAccessToken();
   
-  if (!isValid) {
-    throw new Error('Not authenticated with RingCentral');
+  if (!isValid || !token) {
+    throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR);
   }
   
   const url = `${RINGCENTRAL_SERVER}${endpoint}`;

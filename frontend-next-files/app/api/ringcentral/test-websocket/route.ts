@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import WebSocket from 'ws';
+import { UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
 
 /**
  * Test WebSocket connectivity to a RingCentral SIP server
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: error.message || UNKNOWN_ERROR_OCCURRED
     }, { status: 500 });
   }
 }

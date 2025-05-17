@@ -1,63 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { RingCentralClient } from '@/utils/ringcentral-client';
+import { API_ENDPOINTS, RINGCENTRAL_SERVER } from '@/lib/ringcentral/config';
+import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
 
 // RingCentral API configuration
-const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com';
+// const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com'; // Remove redundant const
 
 /**
  * Handle GET requests to test the RingCentral API
  */
 export async function GET(request: NextRequest) {
+  console.log('========== RINGCENTRAL TEST API - START ==========');
   try {
-    // Get the access token from cookies
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('ringcentral_access_token')?.value;
+    const cookieStore = cookies();
+    const client = new RingCentralClient(cookieStore, request);
 
-    if (!accessToken) {
-      return NextResponse.json({ error: 'Not authenticated with RingCentral' }, { status: 401 });
-    }
+    // No explicit isAuthenticated check needed here, client methods will handle it.
+    // const currentAccessToken = await client.getValidAccessToken(); // Get token if needed
+    // if (!currentAccessToken) {
+    //   return NextResponse.json({ error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR, data: null }, { status: 401 });
+    // }
 
-    // Make a simple API call to get extension info (should work with our permissions)
-    const response = await fetch(`${RINGCENTRAL_SERVER}/restapi/v1.0/account/~/extension/~`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      }
-    });
+    console.log('Making API call to RingCentral using client.get()');
+    // Use a specific, simple endpoint like AUTHZ_PROFILE (userinfo)
+    const data = await client.get(API_ENDPOINTS.AUTHZ_PROFILE);
 
-    if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch (e) {
-        // If the response is not JSON, get the text instead
-        const errorText = await response.text();
-        console.error('RingCentral API test error (text):', errorText);
-        return NextResponse.json({
-          error: 'Failed to call RingCentral API',
-          details: { message: errorText, status: response.status }
-        }, { status: response.status });
-      }
-
-      console.error('RingCentral API test error (JSON):', errorData);
-      return NextResponse.json({
-        error: 'Failed to call RingCentral API',
-        details: errorData
-      }, { status: response.status });
-    }
-
-    const accountData = await response.json();
+    console.log('Test API response data:', data);
 
     return NextResponse.json({
       success: true,
-      message: 'RingCentral API call successful',
-      account: accountData
+      message: 'RingCentral API test successful',
+      accountInfo: data,
+      permissions: client.isAuthenticated() ? data.permissions : []
     });
   } catch (error: any) {
     console.error('API test error:', error);
     return NextResponse.json({
-      error: error.message || 'Unknown error occurred'
+      error: error.message || UNKNOWN_ERROR_OCCURRED
     }, { status: 500 });
   }
 }

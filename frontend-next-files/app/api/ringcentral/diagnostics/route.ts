@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { REQUIRED_SCOPES } from '@/lib/ringcentral/config';
+import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, FAILED_TO_GENERATE_DIAGNOSTICS } from '@/lib/constants';
+import { RingCentralClient } from '@/utils/ringcentral-client';
 
 /**
  * Comprehensive RingCentral Diagnostics API
@@ -50,73 +52,67 @@ export async function GET(request: NextRequest) {
 
     // 2. Check for authentication tokens
     console.log('Checking authentication tokens');
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('ringcentral_access_token')?.value;
-    const refreshToken = cookieStore.get('ringcentral_refresh_token')?.value;
-    const tokenExpiry = cookieStore.get('ringcentral_token_expiry')?.value;
+    const cookieStore = cookies();
+    const client = new RingCentralClient(cookieStore, request);
 
-    // Check token scopes if available
-    let tokenScopes: string[] = [];
-    let hasRequiredScopes = false;
+    // Using getValidAccessToken to ensure token is fresh before checking or using it.
+    const currentAccessToken = await client.getValidAccessToken();
 
-    if (accessToken) {
-      try {
-        // Access token is a JWT, split by dots and decode the middle part (payload)
-        const tokenParts = accessToken.split('.');
-        if (tokenParts.length >= 2) {
-          const payload = JSON.parse(atob(tokenParts[1]));
-          if (payload.scope) {
-            tokenScopes = payload.scope.split(' ');
-            console.log('Token scopes:', tokenScopes);
-
-            // Check if all required scopes are present
-            hasRequiredScopes = REQUIRED_SCOPES.every(scope =>
-              tokenScopes.includes(scope) ||
-              // Handle case sensitivity and format differences
-              tokenScopes.includes(scope.toLowerCase()) ||
-              tokenScopes.includes(scope.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase())
-            );
-          }
-        }
-      } catch (e) {
-        console.error('Error parsing token scopes:', e);
-      }
+    if (!currentAccessToken) {
+      console.log(`Error: ${RINGCENTRAL_NOT_AUTHENTICATED_ERROR} (token not available or refresh failed)`);
+      return NextResponse.json(
+        { 
+          error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
+          diagnostics: { isAuthenticated: false, tokenError: 'No valid token or refresh failed' }
+        },
+        { status: 401 }
+      );
     }
 
-    const authStatus = {
-      accessTokenPresent: !!accessToken,
-      accessTokenLength: accessToken?.length || 0,
-      refreshTokenPresent: !!refreshToken,
-      refreshTokenLength: refreshToken?.length || 0,
-      tokenExpiry: tokenExpiry ? new Date(parseInt(tokenExpiry)).toISOString() : 'Not set',
-      tokenExpired: tokenExpiry ? new Date(parseInt(tokenExpiry)) < new Date() : true,
-      tokenExpiresIn: tokenExpiry
-        ? `${Math.round((new Date(parseInt(tokenExpiry)).getTime() - new Date().getTime()) / 1000 / 60)} minutes`
-        : 'N/A',
-      scopes: tokenScopes,
-      hasRequiredScopes
+    // If we reach here, token is considered valid for the checks below.
+    const diagnostics: any = {
+      isAuthenticated: true, // Based on successful getValidAccessToken
+      token: {
+        hasAccessToken: !!currentAccessToken,
+        accessTokenLength: currentAccessToken?.length || 0,
+        // Note: We don't have direct access to the parsed token expiry here unless client exposes it
+        // or we re-parse the cookie. client.isAuthenticated() uses internal expiry.
+        isAccessTokenValidSyncCheck: client.isAuthenticated(), // Synchronous check based on client's internal state
+        hasRefreshToken: !!cookieStore.get('ringcentral_refresh_token')?.value,
+        accessTokenCookie: cookieStore.get('ringcentral_access_token')?.value?.substring(0, 15) + '...', // Show partial for debug
+        refreshTokenCookie: cookieStore.get('ringcentral_refresh_token')?.value?.substring(0, 15) + '...',
+        accessTokenExpiryCookie: cookieStore.get('ringcentral_access_token_expiry_time')?.value,
+        refreshTokenExpiryCookie: cookieStore.get('ringcentral_refresh_token_expiry_time')?.value,
+      },
+      config: {
+        serverUrlValid: !!process.env.RINGCENTRAL_SERVER && process.env.RINGCENTRAL_SERVER.startsWith('https://'),
+        clientIdPresent: !!process.env.RINGCENTRAL_CLIENT_ID,
+        clientSecretPresent: !!process.env.RINGCENTRAL_CLIENT_SECRET,
+        fromNumberPresent: !!(process.env.RINGCENTRAL_FROM_NUMBER || process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER),
+        fromNumberFormat: validatePhoneNumber(process.env.RINGCENTRAL_FROM_NUMBER || process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || ''),
+        redirectUriPresent: !!process.env.REDIRECT_URI,
+        redirectUriValid: !!process.env.REDIRECT_URI && (
+          process.env.REDIRECT_URI.startsWith('http://localhost') ||
+          process.env.REDIRECT_URI.startsWith('https://')
+        ),
+      },
+      inconsistencies: [],
+      recommendations: [],
+      serverInfo: {
+        nodeVersion: process.version,
+        platform: process.platform,
+        nextJsVersion: process.env.NEXT_PUBLIC_VERSION || 'Unknown'
+      }
     };
 
-    console.log('Authentication status:', authStatus);
+    console.log('Authentication status:', diagnostics.token);
+    console.log('Configuration validation:', diagnostics.config);
 
     // 3. Validate environment configuration
-    const configValidation = {
-      serverUrlValid: !!process.env.RINGCENTRAL_SERVER && process.env.RINGCENTRAL_SERVER.startsWith('https://'),
-      clientIdPresent: !!process.env.RINGCENTRAL_CLIENT_ID,
-      clientSecretPresent: !!process.env.RINGCENTRAL_CLIENT_SECRET,
-      fromNumberPresent: !!(process.env.RINGCENTRAL_FROM_NUMBER || process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER),
-      fromNumberFormat: validatePhoneNumber(process.env.RINGCENTRAL_FROM_NUMBER || process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || ''),
-      redirectUriPresent: !!process.env.REDIRECT_URI,
-      redirectUriValid: !!process.env.REDIRECT_URI && (
-        process.env.REDIRECT_URI.startsWith('http://localhost') ||
-        process.env.REDIRECT_URI.startsWith('https://')
-      ),
-    };
-
-    console.log('Configuration validation:', configValidation);
+    const configValidation = diagnostics.config;
 
     // 4. Check for inconsistencies
-    const inconsistencies = [];
+    const inconsistencies: any[] = [];
 
     if (process.env.RINGCENTRAL_FROM_NUMBER !== process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER) {
       inconsistencies.push({
@@ -151,7 +147,7 @@ export async function GET(request: NextRequest) {
     console.log('Configuration inconsistencies:', inconsistencies);
 
     // 5. Prepare recommendations based on findings
-    const recommendations = [];
+    const recommendations: any[] = [];
 
     if (!configValidation.fromNumberPresent) {
       recommendations.push({
@@ -176,20 +172,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    if (!authStatus.accessTokenPresent) {
-      recommendations.push({
-        issue: 'Not authenticated with RingCentral',
-        action: 'Complete the OAuth authentication flow',
-        severity: 'HIGH'
-      });
-    } else if (authStatus.tokenExpired) {
-      recommendations.push({
-        issue: 'RingCentral token has expired',
-        action: 'Re-authenticate with RingCentral',
-        severity: 'HIGH'
-      });
-    }
-
     console.log('Recommendations:', recommendations);
     console.log('========== RINGCENTRAL DIAGNOSTICS API - END ==========');
 
@@ -197,7 +179,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       timestamp: new Date().toISOString(),
       environment: envVars,
-      authentication: authStatus,
+      authentication: diagnostics.token,
       configuration: configValidation,
       inconsistencies,
       recommendations,
@@ -213,7 +195,7 @@ export async function GET(request: NextRequest) {
     console.log('========== RINGCENTRAL DIAGNOSTICS API - END (WITH ERROR) ==========');
 
     return NextResponse.json({
-      error: 'Failed to generate RingCentral diagnostics',
+      error: FAILED_TO_GENERATE_DIAGNOSTICS,
       message: error.message,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       timestamp: new Date().toISOString()

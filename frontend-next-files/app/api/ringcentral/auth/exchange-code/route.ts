@@ -7,6 +7,7 @@ import {
   RINGCENTRAL_SERVER,
   REDIRECT_URI
 } from '@/lib/ringcentral/config';
+import { UNKNOWN_ERROR_OCCURRED, FAILED_TO_EXCHANGE_CODE_FOR_TOKENS } from '@/lib/constants';
 
 /**
  * Handle GET requests to exchange the authorization code for tokens
@@ -94,7 +95,7 @@ export async function GET(request: NextRequest) {
       console.error('Token exchange error:', errorData);
       console.log('========== RINGCENTRAL EXCHANGE CODE API - END (TOKEN ERROR) ==========');
       return NextResponse.json({
-        error: 'Failed to exchange authorization code for tokens',
+        error: FAILED_TO_EXCHANGE_CODE_FOR_TOKENS,
         details: errorData
       }, { status: 500 });
     }
@@ -136,134 +137,83 @@ export async function GET(request: NextRequest) {
 
     // Store tokens in Supabase
     console.log('Step 3: Storing tokens in Supabase');
-    const supabase = await createClient(cookieStore);
+    const supabase = createClient(cookieStore);
 
     // Get the current user
-    const { data, error: userError } = await supabase.auth.getUser();
-    console.log('Supabase auth.getUser() response:', {
-      hasUser: !!data?.user,
-      userId: data?.user?.id,
-      userEmail: data?.user?.email,
-      error: userError
-    });
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError) {
-      console.error('Error getting Supabase user:', userError);
-      console.log('Full error object:', JSON.stringify(userError));
+      console.error('Error getting Supabase user during token exchange:', userError);
+      // This is a critical error, as we need a user to associate tokens with.
+      return NextResponse.json({ error: 'Failed to retrieve user session.', details: userError.message }, { status: 500 });
     }
 
-    if (!data?.user) {
-      console.log('No authenticated user found, creating a new anonymous user');
-
-      // Create a new anonymous user
-      const { data: newUserData, error: signUpError } = await supabase.auth.signUp({
-        email: `anonymous-${Date.now()}@gonzigo.com`,
-        password: `Anonymous${Date.now()}!`,
-        options: {
-          data: {
-            is_anonymous: true,
-            created_via: 'ringcentral_auth'
-          }
-        }
-      });
-
-      if (signUpError) {
-        console.error('Error creating anonymous user:', signUpError);
-        console.log('Full error object:', JSON.stringify(signUpError));
-        throw new Error(`Failed to create anonymous user: ${signUpError.message}`);
-      }
-
-      if (!newUserData?.user) {
-        console.error('No user returned after sign up');
-        throw new Error('Failed to create anonymous user: No user returned');
-      }
-
-      console.log('Successfully created anonymous user:', {
-        id: newUserData.user.id,
-        email: newUserData.user.email,
-        created_at: newUserData.user.created_at
-      });
-
-      // Use the newly created user
-      data = newUserData;
+    if (!user) {
+      console.error('No Supabase user session found during token exchange. OAuth flow cannot complete without a user.');
+      // This indicates a broken or state-loss scenario. The user should re-authenticate with the app first.
+      return NextResponse.json({ error: 'User session not found. Please sign in and try connecting to RingCentral again.' }, { status: 403 }); // 403 Forbidden or 401 Unauthorized
+    }
+    
+    // If user is anonymous, this is also an issue. OAuth should be tied to a non-anonymous identity.
+    if (user.user_metadata?.is_anonymous) {
+        console.error('Attempted to associate RingCentral tokens with an anonymous Supabase user. This is not allowed.', { userId: user.id });
+        return NextResponse.json({ error: 'Cannot link RingCentral account to an anonymous user. Please sign in with a regular account.' }, { status: 403 });
     }
 
-    // Now we definitely have a user
-    {
-      console.log('User found, storing tokens in database');
-      console.log('User details:', {
-        id: data.user.id,
-        email: data.user.email,
-        created_at: data.user.created_at
+    // At this point, 'user' is a valid, non-anonymous Supabase user.
+    console.log('User found, storing tokens in database for user_id:', user.id);
+
+    // Verify the token data
+    console.log('Token data to store:', {
+      hasAccessToken: !!tokenData.access_token,
+      accessTokenLength: tokenData.access_token?.length,
+      hasRefreshToken: !!tokenData.refresh_token,
+      refreshTokenLength: tokenData.refresh_token?.length,
+      tokenType: tokenData.token_type,
+      expiresIn: tokenData.expires_in,
+      expiresAt: new Date(expiresAt).toISOString(),
+      scope: tokenData.scope
+    });
+
+    // Try direct upsert approach
+    console.log('Attempting direct upsert to ringcentral_tokens table');
+    const { error: upsertError } = await supabase
+      .from('ringcentral_tokens')
+      .upsert({
+        user_id: user.id,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        token_type: tokenData.token_type,
+        expires_at: new Date(expiresAt).toISOString(),
+        scope: tokenData.scope,
+        created_at: new Date().toISOString(), // It's good practice to set these on upsert
+        updated_at: new Date().toISOString()
       });
 
-      const user = data.user;
-
-      // Verify the token data
-      console.log('Token data to store:', {
-        hasAccessToken: !!tokenData.access_token,
-        accessTokenLength: tokenData.access_token?.length,
-        hasRefreshToken: !!tokenData.refresh_token,
-        refreshTokenLength: tokenData.refresh_token?.length,
-        tokenType: tokenData.token_type,
-        expiresIn: tokenData.expires_in,
-        expiresAt: new Date(expiresAt).toISOString(),
-        scope: tokenData.scope
-      });
-
-      // Try direct upsert approach
-      console.log('Attempting direct upsert to ringcentral_tokens table');
-      const { error: upsertError } = await supabase
+    if (upsertError) {
+      console.error('Error upserting token record:', upsertError);
+      console.log('Full error object:', JSON.stringify(upsertError));
+      // Further debugging for table existence was here, can be kept if useful
+    } else {
+      console.log('✅ Token record upserted successfully');
+      // Verification logic (can be kept)
+      const { data: verifyData, error: verifyError } = await supabase
         .from('ringcentral_tokens')
-        .upsert({
-          user_id: user.id,
-          access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token,
-          token_type: tokenData.token_type,
-          expires_at: new Date(expiresAt).toISOString(),
-          scope: tokenData.scope,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
+        .select('*')
+        .eq('user_id', user.id)
+        .limit(1);
 
-      if (upsertError) {
-        console.error('Error upserting token record:', upsertError);
-        console.log('Full error object:', JSON.stringify(upsertError));
-
-        // Check if the table exists
-        console.log('Checking if ringcentral_tokens table exists');
-        const { data: tableData, error: tableError } = await supabase
-          .from('ringcentral_tokens')
-          .select('count(*)', { count: 'exact', head: true });
-
-        if (tableError) {
-          console.error('Error checking table:', tableError);
-          console.log('Full error object:', JSON.stringify(tableError));
-        } else {
-          console.log('Table check result:', tableData);
-        }
+      if (verifyError) {
+        console.error('Error verifying token storage:', verifyError);
+      } else if (!verifyData || verifyData.length === 0) {
+        console.error('❌ No token record found after upsert!');
       } else {
-        console.log('✅ Token record upserted successfully');
-
-        // Verify the record was actually stored
-        const { data: verifyData, error: verifyError } = await supabase
-          .from('ringcentral_tokens')
-          .select('*')
-          .eq('user_id', user.id)
-          .limit(1);
-
-        if (verifyError) {
-          console.error('Error verifying token storage:', verifyError);
-        } else if (!verifyData || verifyData.length === 0) {
-          console.error('❌ No token record found after upsert!');
-        } else {
-          console.log('✅ Verified token record exists:', {
-            id: verifyData[0].id,
-            user_id: verifyData[0].user_id,
-            hasAccessToken: !!verifyData[0].access_token,
-            expires_at: verifyData[0].expires_at
-          });
-        }
+        console.log('✅ Verified token record exists:', {
+          id: verifyData[0].id,
+          user_id: verifyData[0].user_id,
+          hasAccessToken: !!verifyData[0].access_token,
+          expires_at: verifyData[0].expires_at
+        });
       }
     }
 
@@ -273,11 +223,9 @@ export async function GET(request: NextRequest) {
       message: 'Authentication successful'
     });
   } catch (error: any) {
-    console.error('Error exchanging code for tokens:', error);
+    console.error('Token exchange error:', error);
     console.log('Error stack:', error.stack);
     console.log('========== RINGCENTRAL EXCHANGE CODE API - END (ERROR) ==========');
-    return NextResponse.json({
-      error: error.message || 'Unknown error occurred'
-    }, { status: 500 });
+    return NextResponse.json({ error: error.message || UNKNOWN_ERROR_OCCURRED }, { status: 500 });
   }
 }

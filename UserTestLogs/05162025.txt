@@ -1,0 +1,476 @@
+cd frontend-next-files && next dev -p 3000
+
+   ▲ Next.js 15.3.2
+   - Local:        http://localhost:3000
+   - Network:      http://10.0.0.74:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1276ms
+ ✓ Compiled /middleware in 411ms (185 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 3.6s (1580 modules)
+ GET / 200 in 3890ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 1292ms (1780 modules)
+ GET /auth/login 200 in 1397ms
+ GET /auth/login 200 in 12ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 687ms (1951 modules)
+ GET /dashboard 200 in 759ms
+ GET /dashboard 200 in 11ms
+ ○ Compiling /dashboard/settings ...
+ ✓ Compiled /dashboard/settings in 1743ms (2704 modules)
+ GET /dashboard/settings 200 in 1867ms
+ GET /dashboard/settings 200 in 9ms
+ ○ Compiling /api/ringcentral/auth ...
+ ✓ Compiled /api/ringcentral/auth in 588ms (2823 modules)
+========== RINGCENTRAL AUTH CHECK API - START ==========
+Timestamp: 2025-05-16T22:58:22.995Z
+Error: Route "/api/ringcentral/auth" used `cookies().get('ringcentral_access_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at handleCheckAuth (app/api/ringcentral/auth/route.ts:147:36)
+    at GET (app/api/ringcentral/auth/route.ts:40:13)
+  145 |   try {
+  146 |     const cookieStore = cookies(); // Changed from await cookies()
+> 147 |     const accessToken = cookieStore.get('ringcentral_access_token')?.value;
+      |                                    ^
+  148 |     const tokenExpiryString = cookieStore.get('ringcentral_access_token_expiry_time')?.value; // Use the correct cookie name
+  149 |     const tokenExpiry = tokenExpiryString ? parseInt(tokenExpiryString, 10) : null;
+  150 |
+Error: Route "/api/ringcentral/auth" used `cookies().get('ringcentral_access_token_expiry_time')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at handleCheckAuth (app/api/ringcentral/auth/route.ts:148:42)
+    at GET (app/api/ringcentral/auth/route.ts:40:13)
+  146 |     const cookieStore = cookies(); // Changed from await cookies()
+  147 |     const accessToken = cookieStore.get('ringcentral_access_token')?.value;
+> 148 |     const tokenExpiryString = cookieStore.get('ringcentral_access_token_expiry_time')?.value; // Use the correct cookie name
+      |                                          ^
+  149 |     const tokenExpiry = tokenExpiryString ? parseInt(tokenExpiryString, 10) : null;
+  150 |
+  151 |     console.log('Cookie Access token available:', !!accessToken);
+Cookie Access token available: false
+Cookie Token expiry available: false
+No valid RingCentral token in cookies, checking Supabase for existing user session.
+Error during authentication check:
+Check auth error: TypeError: Cannot read properties of undefined (reading 'getUser')
+    at handleCheckAuth (app/api/ringcentral/auth/route.ts:170:69)
+    at GET (app/api/ringcentral/auth/route.ts:40:13)
+  168 |       console.log('No valid RingCentral token in cookies, checking Supabase for existing user session.');
+  169 |       const supabase = createClient(cookieStore); // Changed from await createClient
+> 170 |       let { data: { user }, error: userError } = await supabase.auth.getUser();
+      |                                                                     ^
+  171 |
+  172 |       if (userError) {
+  173 |         console.error("Error fetching Supabase user:", userError);
+Error stack: TypeError: Cannot read properties of undefined (reading 'getUser')
+    at handleCheckAuth (webpack-internal:///(rsc)/./app/api/ringcentral/auth/route.ts:158:76)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/auth/route.ts:38:20)
+    at AsyncLocalStorage.run (node:async_hooks:327:14)
+    at AppRouteRouteModule.do (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:338:14)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:338:14)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:338:14)
+    at AppRouteRouteModule.handle (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian/Dev/crm/node_modules/next/dist/server/base-server.js:1513:42)
+========== RINGCENTRAL AUTH CHECK API - END (ERROR) ==========
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.0')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.1')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.0')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.2')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.1')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.3')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.2')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.4')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.3')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.4')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+ GET /api/ringcentral/auth?action=check 200 in 1371ms
+========== RINGCENTRAL AUTH CHECK API - START ==========
+Timestamp: 2025-05-16T22:58:23.751Z
+Error: Route "/api/ringcentral/auth" used `cookies().get('ringcentral_access_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at handleCheckAuth (app/api/ringcentral/auth/route.ts:147:36)
+    at GET (app/api/ringcentral/auth/route.ts:40:13)
+  145 |   try {
+  146 |     const cookieStore = cookies(); // Changed from await cookies()
+> 147 |     const accessToken = cookieStore.get('ringcentral_access_token')?.value;
+      |                                    ^
+  148 |     const tokenExpiryString = cookieStore.get('ringcentral_access_token_expiry_time')?.value; // Use the correct cookie name
+  149 |     const tokenExpiry = tokenExpiryString ? parseInt(tokenExpiryString, 10) : null;
+  150 |
+Error: Route "/api/ringcentral/auth" used `cookies().get('ringcentral_access_token_expiry_time')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at handleCheckAuth (app/api/ringcentral/auth/route.ts:148:42)
+    at GET (app/api/ringcentral/auth/route.ts:40:13)
+  146 |     const cookieStore = cookies(); // Changed from await cookies()
+  147 |     const accessToken = cookieStore.get('ringcentral_access_token')?.value;
+> 148 |     const tokenExpiryString = cookieStore.get('ringcentral_access_token_expiry_time')?.value; // Use the correct cookie name
+      |                                          ^
+  149 |     const tokenExpiry = tokenExpiryString ? parseInt(tokenExpiryString, 10) : null;
+  150 |
+  151 |     console.log('Cookie Access token available:', !!accessToken);
+Cookie Access token available: false
+Cookie Token expiry available: false
+No valid RingCentral token in cookies, checking Supabase for existing user session.
+Error during authentication check:
+Check auth error: TypeError: Cannot read properties of undefined (reading 'getUser')
+    at handleCheckAuth (app/api/ringcentral/auth/route.ts:170:69)
+    at GET (app/api/ringcentral/auth/route.ts:40:13)
+  168 |       console.log('No valid RingCentral token in cookies, checking Supabase for existing user session.');
+  169 |       const supabase = createClient(cookieStore); // Changed from await createClient
+> 170 |       let { data: { user }, error: userError } = await supabase.auth.getUser();
+      |                                                                     ^
+  171 |
+  172 |       if (userError) {
+  173 |         console.error("Error fetching Supabase user:", userError);
+Error stack: TypeError: Cannot read properties of undefined (reading 'getUser')
+    at handleCheckAuth (webpack-internal:///(rsc)/./app/api/ringcentral/auth/route.ts:158:76)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/auth/route.ts:38:20)
+    at AsyncLocalStorage.run (node:async_hooks:327:14)
+    at AppRouteRouteModule.do (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:338:14)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:338:14)
+    at /home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:338:14)
+    at AppRouteRouteModule.handle (/home/brian/Dev/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian/Dev/crm/node_modules/next/dist/server/base-server.js:1513:42)
+========== RINGCENTRAL AUTH CHECK API - END (ERROR) ==========
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.0')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.1')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.0')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.2')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.1')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.3')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.2')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.4')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.3')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+Error: Route "/api/ringcentral/auth" used `cookies().get('sb-vpwvdfrxvvuxojejnegm-auth-token.4')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at Object.get (utils/supabase/server.ts:24:43)
+  22 |       cookies: {
+  23 |         get: async (name: string) => {
+> 24 |           const cookie = await cookieStore.get(name)
+     |                                           ^
+  25 |           return cookie?.value
+  26 |         },
+  27 |         set: async (name: string, value: string, options: any) => {
+ GET /api/ringcentral/auth?action=check 200 in 586ms
+========== RINGCENTRAL AUTH API - START ==========
+Timestamp: 2025-05-16T22:58:27.159Z
+Request URL: http://localhost:3000/api/ringcentral/auth?action=authorize&redirect=%2Fdashboard%2Fsettings
+Request headers: {
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'en-US,en;q=0.9',
+  connection: 'keep-alive',
+  cookie: 'ringcentral_refresh_token=U0pDMDFQMDFQQVMwMHxBQUJHY1dncjhzSHBtQjRIM1RWaVFKU1NuMHFnckZhRUE2Yzlwa3lRVi1MZVNrMndUX0V5UXVOdkJrQUFzc2JtUjNoUnBMQkkzWnlOOFd4UWpueU1nQmRsTE0wVDNxZ1V1bnZFWGQ5TzlEYVg0V1llTWYxMlNDekhOSUM2ZGswVWZNQktteXYtMGFKbXBpekd4WTZjcEhTSW5XYWZTa0hadEFXLWZNSGN5SU82bE4wbkF0Yjg0LUdhRXlGengzT0VSeU5QdndpOWR0SWF6cUlNVmVDMmdtSXI0bnhiMEF8QnZEWHJRfEhVU2VGWkNPLTd0clgtZlA4Yk84UFF8QVF8QUF8QUFBQUFCRHdfdm8; __next_hmr_refresh_hash__=aed346f45f695cf6f9f5737735a52be90ec06d8de798b94f; sb-vpwvdfrxvvuxojejnegm-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWtsdk0wMDVhMWRhZGxkUFQySXpSbUlpTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDNad2QzWmtabko0ZG5aMWVHOXFaV3B1WldkdExuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXdNRFkyTWpJNVppMWlOVEk0TFRRek9UQXRZalUwTmkxalpqVXlNVEV6TURKaE9UZ2lMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRM05ETTVPRGsxTENKcFlYUWlPakUzTkRjME16WXlPVFVzSW1WdFlXbHNJam9pWW5KcFlXNHVhQzVpWlhKblpVQm5iV0ZwYkM1amIyMGlMQ0p3YUc5dVpTSTZJaUlzSW1Gd2NGOXRaWFJoWkdGMFlTSTZleUp3Y205MmFXUmxjaUk2SW1WdFlXbHNJaXdpY0hKdmRtbGtaWEp6SWpwYkltVnRZV2xzSWwxOUxDSjFjMlZ5WDIxbGRHRmtZWFJoSWpwN0ltVnRZV2xzSWpvaVluSnBZVzR1YUM1aVpYSm5aVUJuYldGcGJDNWpiMjBpTENKbGJXRnBiRjkyWlhKcFptbGxaQ0k2ZEhKMVpTd2lablZzYkY5dVlXMWxJam9pUW5KcFlXNGdRbVZ5WjJVaUxDSndhRzl1WlY5MlpYSnBabWxsWkNJNlptRnNjMlVzSW5OMVlpSTZJakF3TmpZeU1qbG1MV0kxTWpndE5ETTVNQzFpTlRRMkxXTm1OVEl4TVRNd01tRTVPQ0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW5CaGMzTjNiM0prSWl3aWRHbHRaWE4wWVcxd0lqb3hOelEzTkRNMk1qazFmVjBzSW5ObGMzTnBiMjVmYVdRaU9pSmtOMk0xWXpGaFpTMDRZamxpTFRRNU1Ea3RZak00WWkweU1XVXhaVEE0WkdRM1pUTWlMQ0pwYzE5aGJtOXVlVzF2ZFhNaU9tWmhiSE5sZlEuRVZwOUE5U0JoTUg1aHI3VERtN3lrT0hiQ3VxM3BOQ2E1dEI5X2xLQ2xmQSIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ3NDM5ODk1LCJyZWZyZXNoX3Rva2VuIjoia3hka2J0NGphdmVhIiwidXNlciI6eyJpZCI6IjAwNjYyMjlmLWI1MjgtNDM5MC1iNTQ2LWNmNTIxMTMwMmE5OCIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoiYnJpYW4uaC5iZXJnZUBnbWFpbC5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xOTM1NFoiLCJjb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJyZWNvdmVyeV9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjo0NzozMS4yMDg5MDlaIiwibGFzdF9zaWduX2luX2F0IjoiMjAyNS0wNS0xNlQyMjo1ODoxNS41NDI1MDk3MzZaIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmdWxsX25hbWUiOiJCcmlhbiBCZXJnZSIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4In0sImlkZW50aXRpZXMiOlt7ImlkZW50aXR5X2lkIjoiZWI1YzZiYmQtZGU1My00NDBjLTk3YTAtZWIzMWVhZjFiOGJkIiwiaWQiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgiLCJ1c2VyX2lkIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4IiwiaWRlbnRpdHlfZGF0YSI6eyJlbWFpbCI6ImJyaWFuLmguYmVyZ2VAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IkJyaWFuIEJlcmdlIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTcwNjk3WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEyOjMzLjE3MDc1NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xNzA3NTZaIiwiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTQyNjUxWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA1LTE2VDIyOjU4OjE1LjU0NTEzWiIsImlzX2Fub255bW91cyI6ZmFsc2V9fQ',
+  host: 'localhost:3000',
+  referer: 'http://localhost:3000/dashboard/settings',
+  'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"Linux"',
+  'sec-fetch-dest': 'document',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-user': '?1',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+  'x-forwarded-for': '::1',
+  'x-forwarded-host': 'localhost:3000',
+  'x-forwarded-port': '3000',
+  'x-forwarded-proto': 'http'
+}
+Query params: { action: 'authorize', redirect: '/dashboard/settings' }
+Step 1: Generating PKCE code_verifier and code_challenge
+Code verifier generated (length): 43
+Code challenge generated (length): 43
+Step 2: Creating authorization URL with PKCE
+REDIRECT_URI from config: http://localhost:3000/oauth-callback
+REDIRECT_URI from env directly: undefined
+NODE_ENV: development
+VERCEL_URL: Not set
+redirect_uri after URL encoding: http://localhost:3000/oauth-callback
+Using scope: ReadCallLog ReadMessages RingOut SMS
+Authorization URL: https://platform.ringcentral.com/restapi/oauth/authorize?response_type=code&client_id=9NGTe08cOAJakQ7ZSuJh01&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth-callback&state=6iuple4446o&code_challenge=ReHtvI4eRiIJf39rQNv5B3uigNb7esMCkGA449vgTLE&code_challenge_method=S256&scope=ReadCallLog+ReadMessages+RingOut+SMS
+========== RINGCENTRAL AUTH API - END (REDIRECT) ==========
+ GET /api/ringcentral/auth?action=authorize&redirect=%2Fdashboard%2Fsettings 307 in 11ms
+ ○ Compiling /oauth-callback ...
+ ✓ Compiled /oauth-callback in 574ms (2830 modules)
+ GET /oauth-callback?code=U0pDMDFQMDFQQVMwMHxBQUJOVEpMRXd6MnBpZ3pCb01QQ3A2VlYwc3h3bklXY2xZeDVVbXNVbUNpbmc1VmxZUFlKVzFjenFPNDB1SE11YzZOUDVBUG5aVmZoQkE0NW43U3ROMUxsZTM2QnZPVGxmQnpXcjBVdTlPWm5Eb2c3TmdKcW9IVDBpbi1oaTc2Y00yYjhfdkRVeDZpMjlkRkx0a0hBbklGaXZucnZuM3VaV2pRLUVDQ0hwU2pzYjMtN0trbDJ5R0dxSW9kcFdCZXp8QnZEWHJRfFFJWEE1WXNKVHdTOHBYVF9qVm52WkF8QVF8QUF8QUFBQUFMLW1UQWc&state=6iuple4446o 200 in 689ms
+ ✓ Compiled /api/ringcentral/auth/exchange-code in 331ms (2832 modules)
+========== RINGCENTRAL EXCHANGE CODE API - START ==========
+Timestamp: 2025-05-16T22:58:36.065Z
+Request URL: http://localhost:3000/api/ringcentral/auth/exchange-code?code=U0pDMDFQMDFQQVMwMHxBQUJOVEpMRXd6MnBpZ3pCb01QQ3A2VlYwc3h3bklXY2xZeDVVbXNVbUNpbmc1VmxZUFlKVzFjenFPNDB1SE11YzZOUDVBUG5aVmZoQkE0NW43U3ROMUxsZTM2QnZPVGxmQnpXcjBVdTlPWm5Eb2c3TmdKcW9IVDBpbi1oaTc2Y00yYjhfdkRVeDZpMjlkRkx0a0hBbklGaXZucnZuM3VaV2pRLUVDQ0hwU2pzYjMtN0trbDJ5R0dxSW9kcFdCZXp8QnZEWHJRfFFJWEE1WXNKVHdTOHBYVF9qVm52WkF8QVF8QUF8QUFBQUFMLW1UQWc&state=6iuple4446o
+Request headers: {
+  accept: '*/*',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'en-US,en;q=0.9',
+  connection: 'keep-alive',
+  cookie: 'ringcentral_refresh_token=U0pDMDFQMDFQQVMwMHxBQUJHY1dncjhzSHBtQjRIM1RWaVFKU1NuMHFnckZhRUE2Yzlwa3lRVi1MZVNrMndUX0V5UXVOdkJrQUFzc2JtUjNoUnBMQkkzWnlOOFd4UWpueU1nQmRsTE0wVDNxZ1V1bnZFWGQ5TzlEYVg0V1llTWYxMlNDekhOSUM2ZGswVWZNQktteXYtMGFKbXBpekd4WTZjcEhTSW5XYWZTa0hadEFXLWZNSGN5SU82bE4wbkF0Yjg0LUdhRXlGengzT0VSeU5QdndpOWR0SWF6cUlNVmVDMmdtSXI0bnhiMEF8QnZEWHJRfEhVU2VGWkNPLTd0clgtZlA4Yk84UFF8QVF8QUF8QUFBQUFCRHdfdm8; __next_hmr_refresh_hash__=aed346f45f695cf6f9f5737735a52be90ec06d8de798b94f; sb-vpwvdfrxvvuxojejnegm-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWtsdk0wMDVhMWRhZGxkUFQySXpSbUlpTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDNad2QzWmtabko0ZG5aMWVHOXFaV3B1WldkdExuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXdNRFkyTWpJNVppMWlOVEk0TFRRek9UQXRZalUwTmkxalpqVXlNVEV6TURKaE9UZ2lMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRM05ETTVPRGsxTENKcFlYUWlPakUzTkRjME16WXlPVFVzSW1WdFlXbHNJam9pWW5KcFlXNHVhQzVpWlhKblpVQm5iV0ZwYkM1amIyMGlMQ0p3YUc5dVpTSTZJaUlzSW1Gd2NGOXRaWFJoWkdGMFlTSTZleUp3Y205MmFXUmxjaUk2SW1WdFlXbHNJaXdpY0hKdmRtbGtaWEp6SWpwYkltVnRZV2xzSWwxOUxDSjFjMlZ5WDIxbGRHRmtZWFJoSWpwN0ltVnRZV2xzSWpvaVluSnBZVzR1YUM1aVpYSm5aVUJuYldGcGJDNWpiMjBpTENKbGJXRnBiRjkyWlhKcFptbGxaQ0k2ZEhKMVpTd2lablZzYkY5dVlXMWxJam9pUW5KcFlXNGdRbVZ5WjJVaUxDSndhRzl1WlY5MlpYSnBabWxsWkNJNlptRnNjMlVzSW5OMVlpSTZJakF3TmpZeU1qbG1MV0kxTWpndE5ETTVNQzFpTlRRMkxXTm1OVEl4TVRNd01tRTVPQ0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW5CaGMzTjNiM0prSWl3aWRHbHRaWE4wWVcxd0lqb3hOelEzTkRNMk1qazFmVjBzSW5ObGMzTnBiMjVmYVdRaU9pSmtOMk0xWXpGaFpTMDRZamxpTFRRNU1Ea3RZak00WWkweU1XVXhaVEE0WkdRM1pUTWlMQ0pwYzE5aGJtOXVlVzF2ZFhNaU9tWmhiSE5sZlEuRVZwOUE5U0JoTUg1aHI3VERtN3lrT0hiQ3VxM3BOQ2E1dEI5X2xLQ2xmQSIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ3NDM5ODk1LCJyZWZyZXNoX3Rva2VuIjoia3hka2J0NGphdmVhIiwidXNlciI6eyJpZCI6IjAwNjYyMjlmLWI1MjgtNDM5MC1iNTQ2LWNmNTIxMTMwMmE5OCIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoiYnJpYW4uaC5iZXJnZUBnbWFpbC5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xOTM1NFoiLCJjb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJyZWNvdmVyeV9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjo0NzozMS4yMDg5MDlaIiwibGFzdF9zaWduX2luX2F0IjoiMjAyNS0wNS0xNlQyMjo1ODoxNS41NDI1MDk3MzZaIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmdWxsX25hbWUiOiJCcmlhbiBCZXJnZSIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4In0sImlkZW50aXRpZXMiOlt7ImlkZW50aXR5X2lkIjoiZWI1YzZiYmQtZGU1My00NDBjLTk3YTAtZWIzMWVhZjFiOGJkIiwiaWQiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgiLCJ1c2VyX2lkIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4IiwiaWRlbnRpdHlfZGF0YSI6eyJlbWFpbCI6ImJyaWFuLmguYmVyZ2VAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IkJyaWFuIEJlcmdlIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTcwNjk3WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEyOjMzLjE3MDc1NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xNzA3NTZaIiwiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTQyNjUxWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA1LTE2VDIyOjU4OjE1LjU0NTEzWiIsImlzX2Fub255bW91cyI6ZmFsc2V9fQ; rc_oauth_state=6iuple4446o; rc_code_verifier=-HCUfDIIVolPKYBp9VLoJpkzR18RgVNFHSsx2JxDpdw',
+  host: 'localhost:3000',
+  referer: 'http://localhost:3000/oauth-callback?code=U0pDMDFQMDFQQVMwMHxBQUJOVEpMRXd6MnBpZ3pCb01QQ3A2VlYwc3h3bklXY2xZeDVVbXNVbUNpbmc1VmxZUFlKVzFjenFPNDB1SE11YzZOUDVBUG5aVmZoQkE0NW43U3ROMUxsZTM2QnZPVGxmQnpXcjBVdTlPWm5Eb2c3TmdKcW9IVDBpbi1oaTc2Y00yYjhfdkRVeDZpMjlkRkx0a0hBbklGaXZucnZuM3VaV2pRLUVDQ0hwU2pzYjMtN0trbDJ5R0dxSW9kcFdCZXp8QnZEWHJRfFFJWEE1WXNKVHdTOHBYVF9qVm52WkF8QVF8QUF8QUFBQUFMLW1UQWc&state=6iuple4446o',
+  'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"Linux"',
+  'sec-fetch-dest': 'empty',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-site': 'same-origin',
+  'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+  'x-forwarded-for': '::1',
+  'x-forwarded-host': 'localhost:3000',
+  'x-forwarded-port': '3000',
+  'x-forwarded-proto': 'http'
+}
+Query params: {
+  code: 'U0pDMDFQMDFQQVMwMHxBQUJOVEpMRXd6MnBpZ3pCb01QQ3A2VlYwc3h3bklXY2xZeDVVbXNVbUNpbmc1VmxZUFlKVzFjenFPNDB1SE11YzZOUDVBUG5aVmZoQkE0NW43U3ROMUxsZTM2QnZPVGxmQnpXcjBVdTlPWm5Eb2c3TmdKcW9IVDBpbi1oaTc2Y00yYjhfdkRVeDZpMjlkRkx0a0hBbklGaXZucnZuM3VaV2pRLUVDQ0hwU2pzYjMtN0trbDJ5R0dxSW9kcFdCZXp8QnZEWHJRfFFJWEE1WXNKVHdTOHBYVF9qVm52WkF8QVF8QUF8QUFBQUFMLW1UQWc',
+  state: '6iuple4446o'
+}
+Step 1: Exchanging authorization code for tokens with PKCE
+Code verifier available (length): 43
+REDIRECT_URI from config: http://localhost:3000/oauth-callback
+REDIRECT_URI from env directly: undefined
+NODE_ENV: development
+VERCEL_URL: Not set
+redirect_uri in token request: http://localhost:3000/oauth-callback
+Token exchange successful
+Token data received: {
+  hasAccessToken: true,
+  hasRefreshToken: true,
+  expiresIn: 3600,
+  tokenType: 'bearer',
+  scope: 'ReadMessages ReadAccounts RingOut SMS ReadCallLog'
+}
+Step 2: Storing tokens in cookies
+Step 3: Storing tokens in Supabase
+User found, storing tokens in database for user_id: 0066229f-b528-4390-b546-cf5211302a98
+Token data to store: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  refreshTokenLength: 379,
+  tokenType: 'bearer',
+  expiresIn: 3600,
+  expiresAt: '2025-05-16T23:58:36.304Z',
+  scope: 'ReadMessages ReadAccounts RingOut SMS ReadCallLog'
+}
+Attempting direct upsert to ringcentral_tokens table
+✅ Token record upserted successfully
+✅ Verified token record exists: {
+  id: 'fb97aa02-d9bf-43b4-add9-0199ea19f6de',
+  user_id: '0066229f-b528-4390-b546-cf5211302a98',
+  hasAccessToken: true,
+  expires_at: '2025-05-16T01:31:58.585+00:00'
+}
+========== RINGCENTRAL EXCHANGE CODE API - END (SUCCESS) ==========
+ GET /api/ringcentral/auth/exchange-code?code=U0pDMDFQMDFQQVMwMHxBQUJOVEpMRXd6MnBpZ3pCb01QQ3A2VlYwc3h3bklXY2xZeDVVbXNVbUNpbmc1VmxZUFlKVzFjenFPNDB1SE11YzZOUDVBUG5aVmZoQkE0NW43U3ROMUxsZTM2QnZPVGxmQnpXcjBVdTlPWm5Eb2c3TmdKcW9IVDBpbi1oaTc2Y00yYjhfdkRVeDZpMjlkRkx0a0hBbklGaXZucnZuM3VaV2pRLUVDQ0hwU2pzYjMtN0trbDJ5R0dxSW9kcFdCZXp8QnZEWHJRfFFJWEE1WXNKVHdTOHBYVF9qVm52WkF8QVF8QUF8QUFBQUFMLW1UQWc&state=6iuple4446o 200 in 853ms
+ ○ Compiling /dashboard/settings/development/ringcentral-test-call ...
+ ✓ Compiled /dashboard/settings/development/ringcentral-test-call in 589ms (2854 modules)
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 654ms

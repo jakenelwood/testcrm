@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { logStep, validateSipInfo } from '@/utils/ringcentral-webrtc-debug';
-
-// RingCentral OAuth configuration
-const RINGCENTRAL_CLIENT_ID = process.env.RINGCENTRAL_CLIENT_ID;
-const RINGCENTRAL_CLIENT_SECRET = process.env.RINGCENTRAL_CLIENT_SECRET;
-const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com';
+import { RINGCENTRAL_SERVER } from '@/lib/ringcentral/config';
+import { API_ENDPOINTS } from '@/lib/ringcentral/config';
+import { RingCentralClient } from '@/utils/ringcentral-client';
+import {
+  RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
+  UNKNOWN_ERROR_OCCURRED,
+  FAILED_TO_GET_CLIENT_INFO
+} from '@/lib/constants';
 
 /**
  * Handle GET requests to get the client info for WebRTC
@@ -31,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Make the request to RingCentral's client-info/sip-provision endpoint
     console.log('Step 2: Making request to RingCentral client-info/sip-provision endpoint');
-    const clientInfoResponse = await fetch(`${RINGCENTRAL_SERVER}/restapi/v1.0/client-info/sip-provision`, {
+    const clientInfoResponse = await fetch(`${RINGCENTRAL_SERVER}${API_ENDPOINTS.SIP_PROVISION}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,22 +48,25 @@ export async function GET(request: NextRequest) {
     });
 
     if (!clientInfoResponse.ok) {
-      console.error('Failed to get client info:', clientInfoResponse.statusText);
+      console.error('Failed to get client info status:', clientInfoResponse.statusText);
       console.log('Response status:', clientInfoResponse.status);
-      console.log('Request URL:', `${RINGCENTRAL_SERVER}/restapi/v1.0/client-info/sip-provision`);
+      console.log('Request URL:', `${RINGCENTRAL_SERVER}${API_ENDPOINTS.SIP_PROVISION}`);
 
-      let errorMessage = `Failed to get client info: ${clientInfoResponse.status} ${clientInfoResponse.statusText}`;
-      let errorData = null;
+      let errorMessage = FAILED_TO_GET_CLIENT_INFO; // Used constant as base
+      if (clientInfoResponse.status && clientInfoResponse.statusText) {
+        errorMessage += `: ${clientInfoResponse.status} ${clientInfoResponse.statusText}`;
+      }
+      let errorData: any = null;
 
       try {
         errorData = await clientInfoResponse.json();
         console.error('Error data:', errorData);
 
-        if (errorData.errorCode) {
+        if (errorData && errorData.errorCode) {
           errorMessage += ` - ${errorData.errorCode}`;
         }
 
-        if (errorData.message) {
+        if (errorData && errorData.message) {
           errorMessage += `: ${errorData.message}`;
         }
       } catch (e) {
@@ -181,11 +187,10 @@ export async function GET(request: NextRequest) {
       _debug: debugInfo
     });
   } catch (error: any) {
-    console.error('Error getting client info:', error);
-    console.log('Error stack:', error.stack);
-    console.log('========== RINGCENTRAL CLIENT INFO API - END (ERROR) ==========');
+    console.error('Error fetching client info:', error);
     return NextResponse.json({
-      error: error.message || 'Unknown error occurred'
+      error: error.message || UNKNOWN_ERROR_OCCURRED,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     }, { status: 500 });
   }
 }

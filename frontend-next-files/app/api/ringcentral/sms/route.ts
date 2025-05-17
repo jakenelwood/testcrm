@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { RingCentralClient } from '@/utils/ringcentral-client';
-
-// RingCentral API configuration
-const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com';
-const RINGCENTRAL_FROM_NUMBER = process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER;
+import { API_ENDPOINTS, RINGCENTRAL_FROM_NUMBER } from '@/lib/ringcentral/config';
+import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, FAILED_TO_SEND_SMS } from '@/lib/constants';
 
 /**
  * Handle POST requests to send an SMS
@@ -16,62 +14,54 @@ export async function POST(request: NextRequest) {
   try {
     // Step 1: Parse the request body
     console.log('Step 1: Parsing request body');
-    const body = await request.json();
-    const { to, from, text } = body;
+    const { to, text } = await request.json();
 
-    // Support both parameter naming conventions
-    const toNumber = to || body.phoneNumber;
-    const message = text || body.message;
-    const fromNumber = from || RINGCENTRAL_FROM_NUMBER;
-
-    if (!toNumber || !message) {
+    if (!to || !text) {
       console.log('Error: Missing required parameters');
-      return NextResponse.json({ error: 'To number and message text are required' }, { status: 400 });
+      return NextResponse.json({ error: '"to" and "text" are required' }, { status: 400 });
     }
 
     console.log('SMS parameters:', {
-      to: toNumber,
-      from: fromNumber,
-      text: message.substring(0, 20) + (message.length > 20 ? '...' : '') // Log only the beginning of the message for privacy
+      to: to,
+      text: text.substring(0, 20) + (text.length > 20 ? '...' : '') // Log only the beginning of the message for privacy
     });
 
     // Step 2: Initialize RingCentral client
     console.log('Step 2: Initializing RingCentral client');
-    const cookieStore = await cookies();
-    const client = new RingCentralClient(cookieStore);
+    const cookieStore = cookies();
+    const client = new RingCentralClient(cookieStore, request);
 
-    if (!client.isAuthenticated()) {
-      console.log('Error: Not authenticated with RingCentral');
-      return NextResponse.json({ error: 'Not authenticated with RingCentral' }, { status: 401 });
+    const fromNumber = RINGCENTRAL_FROM_NUMBER;
+    if (!fromNumber) {
+      console.log('Error: RINGCENTRAL_FROM_NUMBER is not configured on the server.');
+      return NextResponse.json({ error: 'RINGCENTRAL_FROM_NUMBER is not configured on the server.' }, { status: 500 });
     }
 
     // Step 3: Send SMS
     console.log('Step 3: Sending SMS');
-    const platform = client.getPlatform();
 
-    // Send the SMS using the client directly
-    const responseData = await client.post('/restapi/v1.0/account/~/extension/~/sms', {
+    const payload = {
+      to: [{ phoneNumber: to }],
       from: { phoneNumber: fromNumber },
-      to: [{ phoneNumber: toNumber }],
-      text: message
-    });
-    console.log('SMS sent successfully:', {
-      id: responseData.id,
-      status: 'Sent'
-    });
+      text: text,
+    };
+
+    console.log('Sending SMS with payload:', payload);
+    const response = await client.post(API_ENDPOINTS.SMS, payload);
+
+    console.log('SMS API response:', response);
+    console.log('SMS sent successfully:', response);
 
     console.log('========== RINGCENTRAL SMS API - END (SUCCESS) ==========');
     return NextResponse.json({
-      id: responseData.id,
+      id: response.id,
       status: 'Sent',
       timestamp: new Date().toISOString()
     });
 
   } catch (error: any) {
-    console.error('Error sending SMS:', error);
-
-    // Extract error details
-    let errorMessage = 'Failed to send SMS';
+    console.error('SMS error:', error);
+    let errorMessage = error.message || FAILED_TO_SEND_SMS;
     let errorDetails = null;
 
     if (error.response) {
@@ -83,8 +73,6 @@ export async function POST(request: NextRequest) {
       } catch (e) {
         console.error('Error parsing error response:', e);
       }
-    } else {
-      errorMessage = error.message || errorMessage;
     }
 
     console.log(`========== RINGCENTRAL SMS API - END (ERROR: ${errorMessage}) ==========`);

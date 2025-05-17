@@ -21,7 +21,7 @@ export async function GET() {
     // If not in cookies or expired, check the database
     if (!tokensValid) {
       console.log('Tokens not valid in cookies, checking database');
-      const supabase = await createClient(cookieStore);
+      const supabase = createClient(cookieStore);
 
       // Get the current user
       const { data, error: userError } = await supabase.auth.getUser();
