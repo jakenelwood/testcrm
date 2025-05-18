@@ -7,24 +7,18 @@ import {
   RINGCENTRAL_FROM_NUMBER // Used for constructing verbose output
 } from '@/lib/ringcentral/config';
 import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
+import { RingCentralResourceNotFoundError } from '@/utils/ringcentral-client';
 
-interface CallStatusRequestBody {
+interface CallStatusParams {
   callId?: string;
   ringSessionId?: string;
   verbose?: boolean;
 }
 
-export async function POST(request: NextRequest) {
-  console.log('========== RINGCENTRAL CALL STATUS API - START ==========');
-  let requestBody: CallStatusRequestBody;
-  try {
-    requestBody = await request.json();
-  } catch (e) {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-  }
-
-  const { callId, ringSessionId, verbose } = requestBody;
-  const troubleshooting: string[] = []; // Ensure explicit typing
+async function handleCallStatus(params: CallStatusParams, clientRequest: NextRequest) {
+  console.log('========== RINGCENTRAL CALL STATUS API - PROCESSING ==========');
+  const { callId, ringSessionId, verbose } = params;
+  const troubleshooting: string[] = [];
 
   try {
     if (!callId && !ringSessionId) {
@@ -32,8 +26,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'callId or ringSessionId is required', troubleshooting }, { status: 400 });
     }
 
-    const cookieStore = cookies();
-    const client = new RingCentralClient(cookieStore, request);
+    const cookieStore = await cookies();
+    // Pass the original clientRequest to RingCentralClient for origin detection if needed
+    const client = new RingCentralClient(cookieStore, clientRequest); 
 
     let endpoint: string;
     if (ringSessionId) {
@@ -41,12 +36,10 @@ export async function POST(request: NextRequest) {
       troubleshooting.push(`Using telephony session status endpoint for ringSessionId: ${ringSessionId}`);
       console.log(`Using telephony session status endpoint for ringSessionId: ${ringSessionId}`);
     } else if (callId) {
-      // Assuming callId without ringSessionId refers to a RingOut call ID for status
       endpoint = API_ENDPOINTS.RING_OUT_CALL(callId);
       troubleshooting.push(`Using RingOut status endpoint for callId: ${callId}`);
       console.log(`Using RingOut status endpoint for callId: ${callId}`);
     } else {
-      // Should be caught by the initial check, but as a safeguard:
       return NextResponse.json({ error: 'Internal error: callId or ringSessionId became undefined' }, { status: 500 });
     }
 
@@ -56,34 +49,77 @@ export async function POST(request: NextRequest) {
 
     console.log('Call status data:', callData);
     troubleshooting.push('Successfully fetched call status data.');
-    // Log headers for troubleshooting if needed, carefully to avoid large outputs or sensitive info
-    // console.log('Response headers:', Object.fromEntries(callDataResponse.headers));
 
-    console.log('========== RINGCENTRAL CALL STATUS API - END ==========');
+    console.log('========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========');
     return NextResponse.json({
       success: true,
       data: callData,
       troubleshooting,
       timestamp: new Date().toISOString(),
-      ...(verbose && { // Conditionally add verbose block
+      ...(verbose && { 
         verbose: {
             fromNumber: RINGCENTRAL_FROM_NUMBER,
             server: RINGCENTRAL_SERVER,
-            tokenAvailable: client.isAuthenticated(), // Check current state, might not reflect if refresh just happened
-            clientUsesRequestOrigin: (client as any).requestOrigin, // For debugging client construction
+            tokenAvailable: client.isAuthenticated(),
+            clientUsesRequestOrigin: (client as any).requestOrigin,
         }
       })
     });
   } catch (error: any) {
     console.log('Caught exception in main try/catch block for call status');
-    console.error('Call status error:', error.message, error.stack);
     troubleshooting.push(`Error occurred: ${error.message}`);
-    console.log('========== RINGCENTRAL CALL STATUS API - END (WITH ERROR) ==========');
-    const status = error.message && error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR) ? 401 : 500;
-    return NextResponse.json({
-      error: error.message || UNKNOWN_ERROR_OCCURRED,
-      troubleshooting,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    }, { status });
+
+    if (error instanceof RingCentralResourceNotFoundError) {
+      console.log('Call status error: Resource not found (404 from RingCentral).');
+      troubleshooting.push('RingCentral reported resource not found (likely call ended and cleaned up).');
+      console.log('========== RINGCENTRAL CALL STATUS API - END (RESOURCE NOT FOUND) ==========');
+      return NextResponse.json({
+        success: true,
+        data: { callStatus: 'NotFound', message: error.message },
+        troubleshooting,
+        timestamp: new Date().toISOString(),
+        ...(verbose && { 
+          verbose: {
+              fromNumber: RINGCENTRAL_FROM_NUMBER,
+              server: RINGCENTRAL_SERVER,
+              originalError: error.originalErrorData
+          }
+        })
+      }, { status: 200 });
+    } else {
+      console.error('Call status error:', error.message, error.stack);
+      console.log('========== RINGCENTRAL CALL STATUS API - END (WITH ERROR) ==========');
+      const status = error.message && error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR) ? 401 : 500;
+      return NextResponse.json({
+        error: error.message || UNKNOWN_ERROR_OCCURRED,
+        troubleshooting,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      }, { status });
+    }
   }
+}
+
+export async function GET(request: NextRequest) {
+  console.log('========== RINGCENTRAL CALL STATUS API - GET START ==========');
+  const { searchParams } = new URL(request.url);
+  const callId = searchParams.get('callId') || undefined;
+  const ringSessionId = searchParams.get('ringSessionId') || undefined;
+  const verbose = searchParams.get('verbose') === 'true';
+
+  if (!callId && !ringSessionId) {
+    return NextResponse.json({ error: 'callId or ringSessionId query parameter is required' }, { status: 400 });
+  }
+  
+  return handleCallStatus({ callId, ringSessionId, verbose }, request);
+}
+
+export async function POST(request: NextRequest) {
+  console.log('========== RINGCENTRAL CALL STATUS API - POST START ==========');
+  let requestBody: CallStatusParams;
+  try {
+    requestBody = await request.json();
+  } catch (e) {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+  return handleCallStatus(requestBody, request);
 }

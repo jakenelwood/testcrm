@@ -5,8 +5,20 @@ import {
   API_ENDPOINTS
 } from '@/lib/ringcentral/config';
 import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
+// Removed: import { cookies } from 'next/headers';
 
 const REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+
+export class RingCentralResourceNotFoundError extends Error {
+  public originalErrorData: any;
+  constructor(message: string, originalErrorData?: any) {
+    super(message);
+    this.name = 'RingCentralResourceNotFoundError';
+    this.originalErrorData = originalErrorData;
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, RingCentralResourceNotFoundError.prototype);
+  }
+}
 
 /**
  * RingCentral client wrapper for server-side API calls
@@ -16,31 +28,28 @@ export class RingCentralClient {
   private refreshToken: string | null = null;
   private accessTokenExpiryTime: number | null = null;
   private authenticated: boolean = false;
-  private cookieStore: ReadonlyRequestCookies;
+  private cookieStore: ReadonlyRequestCookies; // Instance variable to hold the cookie store
   private requestOrigin: string; // To build absolute URLs for internal API calls
 
   /**
    * Create a new RingCentral client
-   * @param cookieStore Next.js cookie store
+   * @param cookieStore Deprecated: Next.js cookie store, no longer used directly by constructor for instance storage.
    * @param request The incoming NextRequest, used to get the origin for internal API calls
    */
   constructor(cookieStore: ReadonlyRequestCookies, request?: NextRequest) {
-    this.cookieStore = cookieStore;
-    // Determine origin: VERCEL_URL for production/preview, or localhost for development
-    // Fallback to a sensible default if request is not provided, though it's preferred.
+    this.cookieStore = cookieStore; // Store the passed-in cookie store
+    
     if (process.env.VERCEL_URL) {
         this.requestOrigin = `https://${process.env.VERCEL_URL}`;
     } else if (request) {
         this.requestOrigin = request.nextUrl.origin;
     } else {
-        // Fallback for environments where request might not be available or VERCEL_URL is not set
-        // This might be common in cron jobs or server-side scripts not directly tied to a request.
-        // Ensure this fallback is appropriate for your deployment or make `request` mandatory.
         this.requestOrigin = 'http://localhost:3000'; 
-        console.warn('RingCentralClient: request object not provided and VERCEL_URL not set, defaulting origin to http://localhost:3000 for internal API calls. This may not work in production.')
+        console.warn('RingCentralClient: request object not provided and VERCEL_URL not set, defaulting origin to http://localhost:3000 for internal API calls. This may not work in production.');
     }
 
     try {
+      // Use the stored cookieStore for initial setup
       this.accessToken = this.cookieStore.get('ringcentral_access_token')?.value || null;
       this.refreshToken = this.cookieStore.get('ringcentral_refresh_token')?.value || null;
       const expiryTimeStr = this.cookieStore.get('ringcentral_access_token_expiry_time')?.value;
@@ -50,7 +59,7 @@ export class RingCentralClient {
         this.authenticated = true;
       } else {
         this.authenticated = false;
-        if (this.accessToken) { // Token exists but is expired
+        if (this.accessToken) {
             console.log('RingCentralClient: Access token found but expired on construction.');
         }
       }
@@ -64,25 +73,27 @@ export class RingCentralClient {
   }
 
   private async _ensureTokenIsValid(): Promise<void> {
-    if (this.authenticated && this.accessTokenExpiryTime && (this.accessTokenExpiryTime - Date.now() > REFRESH_THRESHOLD_MS)) {
-      // Token is valid and not nearing expiry
+    // Always read fresh values from the cookieStore for the current state
+    // This assumes the cookieStore passed to the constructor is THE live one for the request.
+    this.accessToken = this.cookieStore.get('ringcentral_access_token')?.value || null;
+    this.refreshToken = this.cookieStore.get('ringcentral_refresh_token')?.value || null;
+    const expiryTimeStr = this.cookieStore.get('ringcentral_access_token_expiry_time')?.value;
+    this.accessTokenExpiryTime = expiryTimeStr ? parseInt(expiryTimeStr, 10) : null;
+
+    if (this.accessToken && this.accessTokenExpiryTime && (this.accessTokenExpiryTime - Date.now() > REFRESH_THRESHOLD_MS)) {
+      this.authenticated = true;
       return;
     }
 
-    // Token is either not present, expired, or nearing expiry. Attempt refresh if refresh token is available.
     if (!this.refreshToken) {
       this.authenticated = false;
-      this.accessToken = null;
       console.log('RingCentralClient: No refresh token available. Cannot refresh.');
-      // No error thrown here, subsequent calls will fail if auth is required.
-      // Or, uncomment to throw immediately:
-      // throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (no refresh token)');
       return;
     }
 
     console.log('RingCentralClient: Access token expired or nearing expiry. Attempting refresh...');
     try {
-      // Construct Cookie header for the internal fetch call
+      // Use this.cookieStore to construct the Cookie header for the internal fetch call
       const cookieHeader = Array.from(this.cookieStore.getAll())
         .map(c => `${c.name}=${c.value}`)
         .join('; ');
@@ -91,50 +102,40 @@ export class RingCentralClient {
       console.log(`RingCentralClient: Calling internal refresh URL: ${refreshUrl}`);
 
       const response = await fetch(refreshUrl, {
-        method: 'GET', // Matches the current implementation in auth/route.ts
+        method: 'GET',
         headers: {
           'Cookie': cookieHeader,
         },
-        cache: 'no-store', // Ensure no caching for this sensitive request
+        cache: 'no-store',
       });
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Failed to get error text from refresh response');
         console.error(`RingCentralClient: Token refresh API call failed with status ${response.status}. Response: ${errorText}`);
         this.authenticated = false;
-        this.accessToken = null; 
-        // Consider clearing this.refreshToken if the refresh attempt invalidates it (e.g. 400/401 from refresh endpoint)
-        // For now, retain it for potential future manual re-auth.
         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (refresh API call failed)');
       }
 
       const data = await response.json();
 
-      if (data.success && data.refreshed && data.access_token && data.expires_in) {
-        this.accessToken = data.access_token;
-        this.accessTokenExpiryTime = Date.now() + data.expires_in * 1000;
+      if (data.success && data.accessToken && data.expiresAt) {
+        this.accessToken = data.accessToken;
+        this.accessTokenExpiryTime = data.expiresAt;
         this.authenticated = true;
-        // The auth/route.ts already updated the cookies. RingCentralClient now has the latest token internally.
-        // If the refresh response included a new refresh_token, we could update this.refreshToken too.
-        if (data.refresh_token) {
-            this.refreshToken = data.refresh_token; 
-            // Note: The cookie for refresh_token would have been set by the API endpoint.
-            // This internal update is for the client's current session consistency.
-        }
+        // The refresh API route is responsible for updating cookies.
+        // We should re-read the refresh token from the cookie store in case it was updated.
+        this.refreshToken = this.cookieStore.get('ringcentral_refresh_token')?.value || this.refreshToken;
         console.log('RingCentralClient: Token refreshed successfully via internal API call.');
       } else {
-        console.error('RingCentralClient: Token refresh failed. API response indicates failure:', data.error || 'Unknown refresh error');
+        console.error('RingCentralClient: Token refresh failed. API response indicates failure:', data.error || data.message || 'Unknown refresh error');
         this.authenticated = false;
-        this.accessToken = null;
         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (refresh failed, invalid response data)');
       }
     } catch (error: any) {
       console.error('RingCentralClient: Exception during token refresh process:', error.message, error.stack);
       this.authenticated = false;
-      this.accessToken = null;
-      // Re-throw or throw a specific error
       if (error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR)) {
-        throw error; // Propagate the specific error
+        throw error;
       }
       throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ` (exception during refresh: ${error.message})`);
     }
@@ -146,11 +147,10 @@ export class RingCentralClient {
    * Prefer relying on API calls to throw if not authenticated after attempting refresh.
    */
   isAuthenticated(): boolean {
-    // For a more accurate synchronous check, re-evaluate based on current token and expiry
     if (this.accessToken && this.accessTokenExpiryTime && this.accessTokenExpiryTime > Date.now()) {
         return true;
     }
-    return false; // Less reliable; _ensureTokenIsValid is the key before API calls.
+    return false;
   }
 
   /**
@@ -181,6 +181,10 @@ export class RingCentralClient {
         errorData = { message: errorText || 'Failed to make RingCentral API GET request' };
       }
       console.error(`RingCentral GET ${endpoint} failed:`, response.status, errorData);
+
+      if (response.status === 404) {
+        throw new RingCentralResourceNotFoundError(errorData.message || `Resource not found at ${endpoint}`, errorData);
+      }
       throw new Error(errorData.message || `Failed to make RingCentral API GET request to ${endpoint}`);
     }
 
@@ -233,7 +237,7 @@ export class RingCentralClient {
     } else {
       return {
         status: response.status,
-        statusText: response.text(), // Consume text to avoid unconsumed body issues
+        statusText: await response.text(), // Consume text to avoid unconsumed body issues
         success: true
       };
     }
@@ -284,11 +288,8 @@ export class RingCentralClient {
     if (contentType && contentType.includes('application/json')) {
       return response.json();
     } else {
-      return {
-        status: response.status,
-        statusText: await response.text(), // Consume text to avoid unconsumed body issues
-        success: true // Assuming non-JSON POST response is still a success if status is ok
-      };
+      if (response.status === 204) return { success: true }; 
+      return response.text(); 
     }
   }
 
@@ -310,6 +311,6 @@ export class RingCentralClient {
    */
   async getValidAccessToken(): Promise<string | null> {
     await this._ensureTokenIsValid();
-    return this.accessToken; // this.accessToken would be updated by _ensureTokenIsValid
+    return this.authenticated ? this.accessToken : null;
   }
 }

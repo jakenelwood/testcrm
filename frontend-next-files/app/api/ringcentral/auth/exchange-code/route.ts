@@ -177,43 +177,66 @@ export async function GET(request: NextRequest) {
 
     // Try direct upsert approach
     console.log('Attempting direct upsert to ringcentral_tokens table');
-    const { error: upsertError } = await supabase
+    const refreshTokenExpiresIn = tokenData.refresh_token_expires_in; // Standard field, might be undefined
+    const refreshTokenExpiresAt = refreshTokenExpiresIn ? new Date(Date.now() + refreshTokenExpiresIn * 1000).toISOString() : null; // Or a default far future date
+
+    const upsertData = {
+      user_id: user.id,
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token,
+      token_type: tokenData.token_type,
+      expires_at: new Date(expiresAt).toISOString(),
+      refresh_token_expires_at: refreshTokenExpiresAt,
+      scope: tokenData.scope,
+      updated_at: new Date().toISOString() 
+      // created_at will be set on insert by Supabase or by the upsert if not present
+    };
+
+    const { data: upsertedData, error: upsertError } = await supabase
       .from('ringcentral_tokens')
-      .upsert({
-        user_id: user.id,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        token_type: tokenData.token_type,
-        expires_at: new Date(expiresAt).toISOString(),
-        scope: tokenData.scope,
-        created_at: new Date().toISOString(), // It's good practice to set these on upsert
-        updated_at: new Date().toISOString()
-      });
+      .upsert(upsertData, { 
+        onConflict: 'user_id', // Assumes 'user_id' has a UNIQUE constraint
+      })
+      .select(); // Select the upserted/updated record
 
     if (upsertError) {
       console.error('Error upserting token record:', upsertError);
       console.log('Full error object:', JSON.stringify(upsertError));
-      // Further debugging for table existence was here, can be kept if useful
+      // Consider more specific error handling or re-throwing if critical
     } else {
-      console.log('✅ Token record upserted successfully');
-      // Verification logic (can be kept)
-      const { data: verifyData, error: verifyError } = await supabase
-        .from('ringcentral_tokens')
-        .select('*')
-        .eq('user_id', user.id)
-        .limit(1);
-
-      if (verifyError) {
-        console.error('Error verifying token storage:', verifyError);
-      } else if (!verifyData || verifyData.length === 0) {
-        console.error('❌ No token record found after upsert!');
-      } else {
-        console.log('✅ Verified token record exists:', {
-          id: verifyData[0].id,
-          user_id: verifyData[0].user_id,
-          hasAccessToken: !!verifyData[0].access_token,
-          expires_at: verifyData[0].expires_at
+      console.log('✅ Token record upserted successfully.');
+      if (upsertedData && upsertedData.length > 0) {
+        console.log('✅ Verified token record (from upsert response):', {
+          id: upsertedData[0].id,
+          user_id: upsertedData[0].user_id,
+          hasAccessToken: !!upsertedData[0].access_token,
+          expires_at: upsertedData[0].expires_at,
+          refresh_token_expires_at: upsertedData[0].refresh_token_expires_at
         });
+      } else {
+        // This case should ideally not happen if upsertError is null
+        console.warn('Upsert reported success but returned no data. Verification step will run next.');
+        // Fallback verification (as was present before)
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('ringcentral_tokens')
+          .select('id, user_id, access_token, expires_at, refresh_token_expires_at')
+          .eq('user_id', user.id)
+          .limit(1)
+          .single(); // Use single() for cleaner handling if exactly one record is expected
+
+        if (verifyError) {
+          console.error('Error verifying token storage after upsert (fallback):', verifyError);
+        } else if (!verifyData) {
+          console.error('❌ No token record found after upsert (fallback verification)!');
+        } else {
+          console.log('✅ Verified token record exists (fallback verification):', {
+            id: verifyData.id,
+            user_id: verifyData.user_id,
+            hasAccessToken: !!verifyData.access_token,
+            expires_at: verifyData.expires_at,
+            refresh_token_expires_at: verifyData.refresh_token_expires_at
+          });
+        }
       }
     }
 

@@ -107,7 +107,7 @@ export default function RingCentralTestCallPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phoneNumber: formattedNumber })
+        body: JSON.stringify({ to: formattedNumber })
       });
 
       const data = await response.json();

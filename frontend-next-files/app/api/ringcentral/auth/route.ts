@@ -178,7 +178,7 @@ async function handleCheckAuth(request: NextRequest) {
         console.log('Authenticated Supabase user found (not anonymous). Checking DB for RingCentral tokens for user_id:', user.id);
         const { data: tokens, error: dbTokenError } = await supabase
           .from('ringcentral_tokens')
-          .select('access_token, refresh_token, access_token_expires_at, refresh_token_expires_at') // Use new expiry field names
+          .select('access_token, refresh_token, expires_at, refresh_token_expires_at')
           .eq('user_id', user.id)
           .limit(1)
           .single();
@@ -186,8 +186,12 @@ async function handleCheckAuth(request: NextRequest) {
         if (dbTokenError && dbTokenError.code !== 'PGRST116') { // PGRST116: no rows found, not an error here
           console.error('Error retrieving RingCentral tokens from database:', dbTokenError);
         } else if (tokens) {
-          console.log('RingCentral tokens found in database for user.');
-          const dbAccessTokenExpiry = tokens.access_token_expires_at ? new Date(tokens.access_token_expires_at).getTime() : null;
+          console.log('Retrieved tokens from DB:', {
+            hasAccessToken: !!tokens.access_token,
+            expiresAt: tokens.expires_at,
+            hasRefreshToken: !!tokens.refresh_token,
+          });
+          const dbAccessTokenExpiry = tokens.expires_at ? new Date(tokens.expires_at).getTime() : null;
 
           if (tokens.access_token && dbAccessTokenExpiry && dbAccessTokenExpiry > Date.now()) {
             console.log('Database RingCentral token is valid. Setting cookies.');
@@ -266,7 +270,6 @@ async function handleLogout(request: NextRequest) {
     cookieStore.delete('ringcentral_access_token');
     cookieStore.delete('ringcentral_refresh_token');
     cookieStore.delete('ringcentral_access_token_expiry_time');
-    cookieStore.delete('ringcentral_refresh_token_expiry_time');
     cookieStore.delete('rc_oauth_state'); // Also clear PKCE related cookies if any
     cookieStore.delete('rc_code_verifier');
 
@@ -349,45 +352,51 @@ async function handleTokenRefresh(request: NextRequest) {
   console.log('Request headers:', Object.fromEntries(request.headers));
 
   const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: { user } , error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error('Error fetching Supabase user during token refresh or no user found:', userError?.message || 'No user');
+    return NextResponse.json({ error: 'User session not found or invalid.', reauthorize: true }, { status: 401 });
+  }
+  if (user.user_metadata?.is_anonymous) {
+    console.warn('Attempting token refresh for an anonymous user. This should typically not happen.', { userId: user.id });
+    // Depending on policy, you might allow or deny this. Denying is safer for RingCentral tokens.
+    return NextResponse.json({ error: 'Token refresh not allowed for anonymous users.', reauthorize: true }, { status: 403 });
+  }
+
   const refreshToken = cookieStore.get('ringcentral_refresh_token')?.value;
 
   if (!refreshToken) {
-    console.log('No refresh token found in cookies.');
+    console.log('No RingCentral refresh token found in cookies.');
+    await clearStaleTokens(supabase, user.id, cookieStore, 'No refresh token in cookies');
     console.log('========== RINGCENTRAL TOKEN REFRESH API - END (NO REFRESH TOKEN) ==========');
-    return NextResponse.json({ error: 'Refresh token not found. Please re-authorize.' }, { status: 401 });
-  }
-
-  if (!RINGCENTRAL_CLIENT_ID || !RINGCENTRAL_CLIENT_SECRET) {
-    console.error('RingCentral client ID or secret not configured for token refresh.');
-    console.log('========== RINGCENTRAL TOKEN REFRESH API - END (CONFIG ERROR) ==========');
-    return NextResponse.json({ error: 'Server configuration error for token refresh.' }, { status: 500 });
+    return NextResponse.json({ error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR, reauthorize: true, details: 'No refresh token available' }, { status: 401 });
   }
 
   console.log('Step 1: Attempting to refresh token with RingCentral');
   try {
-    const tokenUrl = new URL(`${RINGCENTRAL_SERVER}/restapi/oauth/token`);
-    const basicAuth = Buffer.from(`${RINGCENTRAL_CLIENT_ID}:${RINGCENTRAL_CLIENT_SECRET}`).toString('base64');
+    const params = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: RINGCENTRAL_CLIENT_ID as string,
+      // client_secret: RINGCENTRAL_CLIENT_SECRET as string, // Not always needed for refresh with PKCE-issued tokens but good for explicit confidential client
+    });
 
     console.log('Refresh token request details:');
-    console.log(' Token URL:', tokenUrl.toString());
-    console.log(' Grant Type: refresh_token');
-    // console.log(' Refresh Token:', refreshToken); // Sensitive, careful with logging
-    console.log(' Client ID:', RINGCENTRAL_CLIENT_ID);
-    // console.log(' Client Secret:', RINGCENTRAL_CLIENT_SECRET); // Sensitive
+    console.log(' Token URL:', `${RINGCENTRAL_SERVER}/restapi/oauth/token`);
+    console.log(' Grant Type:', params.get('grant_type'));
+    console.log(' Client ID:', params.get('client_id'));
+    // Avoid logging refresh token itself unless absolutely necessary for deep debugging
 
-    const response = await fetch(tokenUrl.toString(), {
+    const response = await fetch(`${RINGCENTRAL_SERVER}/restapi/oauth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${basicAuth}`,
+        'Authorization': `Basic ${Buffer.from(`${RINGCENTRAL_CLIENT_ID}:${RINGCENTRAL_CLIENT_SECRET}`).toString('base64')}`
       },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        // The redirect_uri is not typically required for refresh_token grant by RingCentral,
-        // but if it were, it should match the one used in the initial auth code flow.
-        // redirect_uri: REDIRECT_URI, 
-      }),
+      body: params.toString(),
     });
 
     const tokenData = await response.json();
@@ -395,125 +404,119 @@ async function handleTokenRefresh(request: NextRequest) {
     if (!response.ok) {
       console.error('RingCentral token refresh failed. Status:', response.status);
       console.error('Response body:', tokenData);
-      let errorMessage = 'Failed to refresh RingCentral token.';
-      if (tokenData.error_description) {
-        errorMessage += ` Details: ${tokenData.error_description}`;
-      } else if (tokenData.message) {
-        errorMessage += ` Details: ${tokenData.message}`;
+      if (tokenData.error === 'invalid_grant') {
+        console.log('Refresh token is invalid or revoked. Clearing stale tokens.');
+        await clearStaleTokens(supabase, user.id, cookieStore, 'invalid_grant on refresh');
+        return NextResponse.json({ error: 'RingCentral refresh token is invalid or expired. Please re-authenticate.', reauthorize: true }, { status: 401 });
       }
-      // If refresh fails due to invalid grant (e.g., refresh token expired/revoked),
-      // the user needs to re-authorize.
-      if (response.status === 400 && tokenData.error === 'invalid_grant') {
-         // Clear out the bad refresh token
-        cookieStore.delete('ringcentral_refresh_token');
-        cookieStore.delete('ringcentral_refresh_token_expiry_time');
-        // Also clear access token as it's likely invalid too
-        cookieStore.delete('ringcentral_access_token');
-        cookieStore.delete('ringcentral_access_token_expiry_time');
-        
-        // Remove from Supabase as well
-        const supabase = createClient(cookieStore);
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user && !user.is_anonymous) {
-            await supabase.from('ringcentral_tokens').delete().eq('user_id', user.id);
-            console.log("Cleared stale tokens from DB for user", user.id, "after invalid_grant on refresh");
-        }
-
-        errorMessage = 'RingCentral refresh token is invalid or expired. Please re-authenticate.';
-        return NextResponse.json({ error: errorMessage, reauthorize: true }, { status: 401 });
-      }
-      console.log('========== RINGCENTRAL TOKEN REFRESH API - END (RINGCENTRAL ERROR) ==========');
-      return NextResponse.json({ error: errorMessage, details: tokenData }, { status: response.status });
+      return NextResponse.json({ error: tokenData.error_description || 'Failed to refresh RingCentral token', details: tokenData }, { status: response.status });
     }
 
     console.log('Token refresh successful from RingCentral.');
     console.log('Received token data:', {
-      hasAccessToken: !!tokenData.access_token,
-      hasRefreshToken: !!tokenData.refresh_token, // RingCentral might return a new refresh token
-      expiresIn: tokenData.expires_in,
-      scope: tokenData.scope,
-      tokenType: tokenData.token_type,
-      ownerId: tokenData.owner_id,
-      endpointId: tokenData.endpoint_id,
+        hasAccessToken: !!tokenData.access_token,
+        hasRefreshToken: !!tokenData.refresh_token, // RC usually returns a new refresh token
+        expiresIn: tokenData.expires_in,
+        scope: tokenData.scope,
+        tokenType: tokenData.token_type,
+        ownerId: tokenData.owner_id, // Present in refresh response
+        endpointId: tokenData.endpoint_id // Present in refresh response
     });
-    
-    const newAccessToken = tokenData.access_token;
-    const newRefreshToken = tokenData.refresh_token || refreshToken; // Use new refresh token if provided, else old one
-    const expiresIn = tokenData.expires_in; // in seconds
-    const accessTokenExpiryTime = Date.now() + expiresIn * 1000;
-    
-    // RingCentral refresh tokens can also expire. The new response might include refresh_token_expires_in
-    const refreshTokenExpiresIn = tokenData.refresh_token_expires_in; // in seconds
-    const refreshTokenExpiryTime = refreshTokenExpiresIn ? Date.now() + refreshTokenExpiresIn * 1000 : undefined;
-
 
     console.log('Step 2: Storing new tokens in cookies.');
-    cookieStore.set('ringcentral_access_token', newAccessToken, {
-      httpOnly: true, secure: process.env.NODE_ENV === 'production', expires: new Date(accessTokenExpiryTime), path: '/', sameSite: 'lax'
-    });
-    cookieStore.set('ringcentral_access_token_expiry_time', accessTokenExpiryTime.toString(), {
-      httpOnly: true, secure: process.env.NODE_ENV === 'production', expires: new Date(accessTokenExpiryTime), path: '/', sameSite: 'lax'
-    });
-    cookieStore.set('ringcentral_refresh_token', newRefreshToken, {
-      httpOnly: true, secure: process.env.NODE_ENV === 'production', expires: refreshTokenExpiryTime ? new Date(refreshTokenExpiryTime) : undefined, path: '/', sameSite: 'lax'
-    });
-    if (refreshTokenExpiryTime) {
-        cookieStore.set('ringcentral_refresh_token_expiry_time', refreshTokenExpiryTime.toString(), {
-            httpOnly: true, secure: process.env.NODE_ENV === 'production', expires: new Date(refreshTokenExpiryTime), path: '/', sameSite: 'lax'
-        });
+    const newAccessToken = tokenData.access_token;
+    const newRefreshToken = tokenData.refresh_token; // RingCentral may issue a new refresh token
+    const expiresIn = tokenData.expires_in;
+    const newExpiresAt = Date.now() + (expiresIn * 1000);
+
+    cookieStore.set('ringcentral_access_token', newAccessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: expiresIn, path: '/', sameSite: 'lax' });
+    cookieStore.set('ringcentral_token_expiry', newExpiresAt.toString(), { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: expiresIn, path: '/', sameSite: 'lax' });
+    
+    // Handle refresh token and its expiry from cookies
+    const newRefreshTokenExpiresIn = tokenData.refresh_token_expires_in; // Standard field from RC
+    let newRefreshTokenServerExpiryTime: number | undefined = undefined;
+    if (newRefreshTokenExpiresIn) {
+        newRefreshTokenServerExpiryTime = Date.now() + (newRefreshTokenExpiresIn * 1000);
+        console.log(`New refresh token expires in ${newRefreshTokenExpiresIn}s, at ${new Date(newRefreshTokenServerExpiryTime).toISOString()}`);
     }
 
-
-    console.log('Step 3: Storing new tokens in Supabase.');
-    const supabase = createClient(cookieStore);
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user && !user.is_anonymous) {
-      console.log('User found, updating tokens in database for user_id:', user.id);
-      const tokenRecord = {
-        user_id: user.id,
-        access_token: newAccessToken,
-        refresh_token: newRefreshToken,
-        access_token_expires_at: new Date(accessTokenExpiryTime).toISOString(),
-        refresh_token_expires_at: refreshTokenExpiryTime ? new Date(refreshTokenExpiryTime).toISOString() : null,
-        scope: tokenData.scope,
-        owner_id: tokenData.owner_id,
-        endpoint_id: tokenData.endpoint_id,
-        token_type: tokenData.token_type,
-        updated_at: new Date().toISOString(),
-      };
-
-      const { error: upsertError } = await supabase
-        .from('ringcentral_tokens')
-        .upsert(tokenRecord, { onConflict: 'user_id' });
-
-      if (upsertError) {
-        console.error('Error upserting new RingCentral tokens to database:', upsertError);
-        // Continue, as cookies are set, but log this failure.
-      } else {
-        console.log('Successfully upserted new RingCentral tokens to database for user_id:', user.id);
+    if (newRefreshToken) {
+      cookieStore.set('ringcentral_refresh_token', newRefreshToken, {
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        // Use actual expiry from RC if available, otherwise a long default like 30-90 days
+        maxAge: newRefreshTokenExpiresIn || (60 * 60 * 24 * 90), 
+        path: '/', 
+        sameSite: 'lax' 
+      });
+      if (newRefreshTokenServerExpiryTime) {
+        cookieStore.set('ringcentral_refresh_token_expiry_time', newRefreshTokenServerExpiryTime.toString(), {
+            httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: newRefreshTokenExpiresIn, path: '/', sameSite: 'lax'
+        });
       }
     } else {
-      console.log('No authenticated Supabase user or user is anonymous, skipping database token update.');
+      console.warn('RingCentral did not return a new refresh token. The existing one might still be valid or might need to be cleared if rotation is enforced.');
     }
-    
+
+    console.log('Step 3: Storing new tokens in Supabase.');
+    console.log('User found, updating tokens in database for user_id:', user.id);
+
+    const upsertData: any = {
+      user_id: user.id,
+      access_token: newAccessToken,
+      expires_at: new Date(newExpiresAt).toISOString(),
+      scope: tokenData.scope,
+      token_type: tokenData.token_type,
+      // owner_id: tokenData.owner_id, // We removed these before
+      // endpoint_id: tokenData.endpoint_id, // We removed these before
+      updated_at: new Date().toISOString(),
+    };
+
+    if (newRefreshToken) {
+      upsertData.refresh_token = newRefreshToken;
+    }
+    if (newRefreshTokenServerExpiryTime) {
+        upsertData.refresh_token_expires_at = new Date(newRefreshTokenServerExpiryTime).toISOString();
+    } else if (upsertData.refresh_token) {
+        // If we have a refresh token but no explicit expiry from RC, 
+        // set a far future date or null, depending on db column constraints.
+        // Setting to null if column allows, or a very distant date.
+        // For now, if undefined, it won't be included, existing DB value for this field might persist if not overwritten.
+        // To be safe, if newRefreshToken is present but no newRefreshTokenServerExpiryTime, 
+        // explicitly set refresh_token_expires_at to null or a default future date.
+        upsertData.refresh_token_expires_at = null; 
+    }
+
+    const { data: upsertedDbData, error: dbError } = await supabase
+      .from('ringcentral_tokens')
+      .upsert(upsertData, { 
+          onConflict: 'user_id', // Assumes 'user_id' has a UNIQUE constraint
+        })
+      .select(); // Select the data to confirm the write
+
+    if (dbError) {
+      console.error('Error upserting new RingCentral tokens to database:', dbError);
+      // Even if DB store fails, cookies are set, so client might proceed. Log and monitor.
+    } else {
+      console.log('Successfully upserted new RingCentral tokens to Supabase.', upsertedDbData);
+    }
+
     console.log('========== RINGCENTRAL TOKEN REFRESH API - END (SUCCESS) ==========');
-    // Return the new token details (or just a success message)
-    // The client will typically make a new API call to get what it needs,
-    // now with the refreshed token handled by RingCentralClient
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Token refreshed successfully.',
-      accessToken: newAccessToken, // Send new token so client can update its state if needed
-      expiresAt: accessTokenExpiryTime,
-      // newRefreshToken: newRefreshToken, // Usually not sent back to client
-      // refreshTokenExpiresAt: refreshTokenExpiryTime,
+      accessToken: newAccessToken, // Send back for RingCentralClient to update itself
+      expiresAt: newExpiresAt,     // Send back for RingCentralClient to update itself
+      // refreshToken: newRefreshToken // Optionally send back if client needs to update it too
     });
 
   } catch (error: any) {
-    console.error('Error during token refresh:', error);
-    console.log('Error stack:', error.stack);
+    console.error('Token refresh error (outer catch block):', error.message, error.stack);
     console.log('========== RINGCENTRAL TOKEN REFRESH API - END (ERROR) ==========');
-    return NextResponse.json({ error: error.message || UNKNOWN_ERROR_OCCURRED }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'An unexpected error occurred during token refresh.', reauthorize: true }, { status: 500 });
   }
+}
+
+async function clearStaleTokens(supabase: any, userId: string, cookieStore: any, reason: string) {
+  // ... existing code ...
 }

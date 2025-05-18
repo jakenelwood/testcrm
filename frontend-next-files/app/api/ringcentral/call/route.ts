@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '"to" number is required' }, { status: 400 });
     }
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const client = new RingCentralClient(cookieStore, request);
 
     const fromNumber = from || RINGCENTRAL_FROM_NUMBER;
