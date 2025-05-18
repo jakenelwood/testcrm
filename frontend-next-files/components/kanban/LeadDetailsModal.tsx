@@ -31,7 +31,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
-import { Phone, MessageSquare } from "lucide-react";
+import { Phone, MessageSquare, PhoneOff } from "lucide-react";
 import { makeRingCentralCall, sendRingCentralSMS } from "@/utils/ringcentral";
 import supabase from '@/utils/supabase/client';
 
@@ -51,6 +51,14 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+
+  // State for new interfaces
+  const [showCallConfirm, setShowCallConfirm] = useState(false);
+  const [showSmsInterface, setShowSmsInterface] = useState(false);
+  const [smsMessage, setSmsMessage] = useState('');
+  const [callId, setCallId] = useState<string | null>(null);
+  const [activePhoneNumber, setActivePhoneNumber] = useState<string | null>(null);
+  const [activeCall, setActiveCall] = useState<{ callId: string, phoneNumber: string } | null>(null);
 
   // Create a form state for the lead data based on the normalized schema
   const [formData, setFormData] = useState({
@@ -201,6 +209,323 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       alert('Failed to add note. Please try again.');
     } finally {
       setIsSubmittingNote(false);
+    }
+  };
+
+  // Function to initiate RingCentral Call
+  const initiateRingCentralCall = async () => {
+    let targetPhoneNumber = formData.phone_number || lead?.phone_number || '';
+    
+    // Standardize phone number format (assuming US numbers)
+    if (targetPhoneNumber) {
+      // Remove any non-digit characters
+      const digitsOnly = targetPhoneNumber.replace(/\D/g, '');
+      
+      // If it's a 10-digit number, add +1 prefix (US)
+      if (digitsOnly.length === 10) {
+        targetPhoneNumber = `+1${digitsOnly}`;
+      }
+      // If it already has country code (11 digits starting with 1)
+      else if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
+        targetPhoneNumber = `+${digitsOnly}`;
+      }
+      // Other cases - just add + if missing
+      else if (!targetPhoneNumber.startsWith('+')) {
+        targetPhoneNumber = `+${digitsOnly}`;
+      }
+    }
+    
+    if (!targetPhoneNumber) {
+      toast({
+        title: "Error",
+        description: "Phone number is not available.",
+        variant: "destructive",
+      });
+      setShowCallConfirm(false);
+      return;
+    }
+
+    toast({
+      title: "Initiating call...",
+      description: `Calling ${targetPhoneNumber} via RingCentral`,
+    });
+
+    const hardcodedFromNumber = '+16124643934'; // YOUR ACTUAL RingCentral From Number
+    console.log('[LeadDetailsModal] Attempting call. To:', targetPhoneNumber, 'Using Hardcoded From:', hardcodedFromNumber);
+    
+    // SUPER-ROBUST DEBUGGING APPROACH
+    console.log('======================= DEBUGGING =======================');
+    console.log('1. VARIABLES BEING PASSED:');
+    console.log('   To number:', targetPhoneNumber);
+    console.log('   From number:', hardcodedFromNumber);
+    
+    try {
+      // *** DIRECT API APPROACH - MATCHING THE TEST PAGE ***
+      console.log('Using direct API call with the same parameter names as the test page');
+      
+      // Create the payload with the EXACT SAME parameter names as the test page
+      const payload = {
+        to: targetPhoneNumber,  // IMPORTANT: 'to' not 'toNumber'
+        from: hardcodedFromNumber  // IMPORTANT: 'from' not 'fromNumber'
+      };
+      
+      console.log('   Payload:', payload);
+      
+      const response = await fetch('/api/ringcentral/call', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      
+      console.log('   Direct API response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('   Direct API error response:', errorText);
+        throw new Error(`Call failed: ${response.status} ${response.statusText}`);
+      }
+      
+      const responseData = await response.json();
+      console.log('   Direct API success response:', responseData);
+      
+      // IMPORTANT: Set callId and activePhoneNumber separately like the test page does
+      const newCallId = responseData.callId || responseData.id;
+      
+      if (newCallId) {
+        console.log('Setting call ID to:', newCallId);
+        // Set both the new state variables and the legacy activeCall object
+        setCallId(newCallId);
+        setActivePhoneNumber(targetPhoneNumber);
+        setActiveCall({ callId: newCallId, phoneNumber: targetPhoneNumber });
+        
+        toast({
+          title: "Call initiated",
+          description: "You should receive a call on your phone shortly. Call ID: " + newCallId,
+        });
+        
+        await supabase
+          .from('lead_communications')
+          .insert({
+            lead_id: lead.id,
+            type_id: 3, // 3 is the ID for 'Call' in communication_types
+            direction: 'Outbound',
+            content: `RingCentral call initiated to ${targetPhoneNumber}. Call ID: ${newCallId}`,
+            created_by: 'User',
+            created_at: new Date().toISOString(),
+          });
+        
+        const { data: newComms } = await supabase
+          .from('lead_communications')
+          .select('*')
+          .eq('lead_id', lead.id)
+          .order('created_at', { ascending: false });
+        if (newComms) setCommunications(newComms);
+      } else {
+        throw new Error("Failed to retrieve Call ID from RingCentral call initiation.");
+      }
+    } catch (error: any) {
+      console.error('RingCentral call error:', error);
+      toast({
+        title: "Call failed",
+        description: error.message || "Failed to initiate RingCentral call. See console for details.",
+        variant: "destructive"
+      });
+      setShowCallConfirm(false); // Close dialog on failure
+    }
+    console.log('===================== END DEBUGGING =====================');
+  };
+
+  // Function to hang up RingCentral Call
+  const hangUpRingCentralCall = async () => {
+    if (!callId) {
+      toast({
+        title: "No active call",
+        description: "There is no active call to hang up.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Ending call...",
+      description: `Hanging up call to ${activePhoneNumber || "unknown number"}`,
+    });
+
+    try {
+      // Using direct API approach to mirror our successful call initiation
+      console.log('Attempting to end call with ID:', callId);
+      
+      const response = await fetch('/api/ringcentral/end-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callId: callId }),
+      });
+      
+      console.log('End call response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('End call error response:', errorText);
+        throw new Error(`Failed to hang up call: ${response.status} ${response.statusText}`);
+      }
+      
+      const responseData = await response.json();
+      console.log('End call success response:', responseData);
+      
+      toast({
+        title: "Call Ended",
+        description: `Call to ${activePhoneNumber || "destination"} has been ended.`,
+      });
+      
+      await supabase
+        .from('lead_communications')
+        .insert({
+          lead_id: lead.id,
+          type_id: 3, 
+          direction: 'Outbound',
+          content: `RingCentral call to ${activePhoneNumber || "unknown number"} ended. Call ID: ${callId}`,
+          created_by: 'User',
+          created_at: new Date().toISOString(),
+          status: 'Completed' // Optional: Add a status for ended calls
+        });
+
+      // Clear ALL call state
+      setCallId(null);
+      setActivePhoneNumber(null);
+      setActiveCall(null);
+      setShowCallConfirm(false); // Close the dialog after hanging up
+      
+      const { data: newComms } = await supabase
+          .from('lead_communications')
+          .select('*')
+          .eq('lead_id', lead.id)
+          .order('created_at', { ascending: false });
+      if (newComms) setCommunications(newComms);
+
+    } catch (error: any) {
+      console.error('RingCentral hang up error:', error);
+      toast({
+        title: "Hang Up Failed",
+        description: error.message || "Failed to end RingCentral call. See console for details.",
+        variant: "destructive"
+      });
+      // Even if the API call fails, we'll consider the call ended from UI perspective
+      // This prevents the user from getting stuck with a call they can't hang up
+      setCallId(null);
+      setActivePhoneNumber(null);
+      setActiveCall(null);
+      setShowCallConfirm(false);
+    }
+  };
+
+  // Function to initiate RingCentral SMS
+  const initiateRingCentralSMS = async () => {
+    let targetPhoneNumber = formData.phone_number || lead?.phone_number || '';
+    
+    // Standardize phone number format (assuming US numbers) - same logic as test page
+    if (targetPhoneNumber) {
+      // Remove any non-digit characters
+      const digitsOnly = targetPhoneNumber.replace(/\D/g, '');
+      
+      // If it's a 10-digit number, add +1 prefix (US)
+      if (digitsOnly.length === 10) {
+        targetPhoneNumber = `+1${digitsOnly}`;
+      }
+      // If it already has country code (11 digits starting with 1)
+      else if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
+        targetPhoneNumber = `+${digitsOnly}`;
+      }
+      // Other cases - just add + if missing
+      else if (!targetPhoneNumber.startsWith('+')) {
+        targetPhoneNumber = `+${digitsOnly}`;
+      }
+    }
+    
+    // Check for formatting issues specific to our area code
+    if (targetPhoneNumber.startsWith('+612')) {
+      targetPhoneNumber = `+1${targetPhoneNumber.substring(4)}`;
+      console.log(`Reformatted number from +612... to +1612... format: ${targetPhoneNumber}`);
+    }
+    
+    const leadFirstName = formData.first_name || lead?.first_name || 'Customer';
+
+    if (!targetPhoneNumber) {
+       toast({ title: "Error", description: "Phone number is not available.", variant: "destructive" });
+       setShowSmsInterface(false);
+       return;
+    }
+    if (!smsMessage.trim()) {
+      toast({ title: "Error", description: "SMS message cannot be empty.", variant: "destructive" });
+      return;
+    }
+
+    toast({
+      title: "Sending message...",
+      description: `Texting ${targetPhoneNumber} via RingCentral`,
+    });
+
+    const hardcodedFromNumber = '+16124643934'; // YOUR ACTUAL RingCentral From Number
+    console.log('[LeadDetailsModal] Attempting to send SMS. To:', targetPhoneNumber, 'From:', hardcodedFromNumber, 'Message:', smsMessage);
+    
+    try {
+      // Using the exact same API call structure as the test page
+      const response = await fetch('/api/ringcentral/sms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          to: targetPhoneNumber,
+          from: hardcodedFromNumber,
+          text: smsMessage
+        })
+      });
+      
+      console.log('SMS API response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error('SMS API error response:', errorData);
+        throw new Error(errorData.error || errorData.message || `Failed to send SMS: ${response.status} ${response.statusText}`);
+      }
+      
+      const responseData = await response.json();
+      console.log('SMS API success response:', responseData);
+      
+      toast({
+        title: "Message sent",
+        description: "Your message has been sent via RingCentral.",
+      });
+      await supabase
+        .from('lead_communications')
+        .insert({
+          lead_id: lead.id,
+          type_id: 2, // 2 is the ID for 'SMS' in communication_types
+          direction: 'Outbound',
+          content: `SMS sent to ${targetPhoneNumber}: ${smsMessage}`,
+          created_by: 'User',
+          created_at: new Date().toISOString(),
+        });
+      
+      const { data: newComms } = await supabase
+        .from('lead_communications')
+        .select('*')
+        .eq('lead_id', lead.id)
+        .order('created_at', { ascending: false });
+      if (newComms) setCommunications(newComms);
+      
+      setShowSmsInterface(false); 
+      setSmsMessage(''); 
+    } catch (error: any) {
+      console.error('RingCentral SMS error:', error);
+      toast({
+        title: "Message failed",
+        description: error.message || "Failed to send RingCentral SMS. See console for details.",
+        variant: "destructive"
+      });
+      // Don't close the interface on error so user can try again
     }
   };
 
@@ -388,818 +713,708 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   // Use the utility function for date formatting
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        // Only call onClose when the dialog is being closed
-        if (!open) {
-          onClose();
-        }
-      }}
-    >
-      <DialogContent
-        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl rounded-lg fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50"
+    <>
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          // Only call onClose when the dialog is being closed
+          if (!open) {
+            onClose();
+          }
+        }}
       >
-        <DialogDescription id="lead-details-description" className="sr-only">
-          Lead details and communication history for {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
-        </DialogDescription>
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-lg"></div>
+        <DialogContent
+          className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl rounded-lg fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50"
+        >
+          <DialogDescription id="lead-details-description" className="sr-only">
+            Lead details and communication history for {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+          </DialogDescription>
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-lg"></div>
 
-        <DialogHeader className="border-b border-gray-200 pb-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50/30 -mx-6 px-6 pt-6 rounded-t-lg">
-          <div className="flex items-start justify-between">
-            <div>
-              <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
-                {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
-              </DialogTitle>
-              <div className="text-sm text-blue-600 hover:text-blue-800 mt-1 flex items-center">
-                <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
-                  e.preventDefault();
-                  onClose(); // Close the modal first
-                  window.location.href = `/dashboard/leads/${lead.id}`; // Navigate to the full lead details page
-                }} className="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  View full lead details
-                </a>
+          <DialogHeader className="border-b border-gray-200 pb-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50/30 -mx-6 px-6 pt-6 rounded-t-lg">
+            <div className="flex items-start justify-between">
+              <div>
+                <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
+                  {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+                </DialogTitle>
+                <div className="text-sm text-blue-600 hover:text-blue-800 mt-1 flex items-center">
+                  <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
+                    e.preventDefault();
+                    onClose(); // Close the modal first
+                    window.location.href = `/dashboard/leads/${lead.id}`; // Navigate to the full lead details page
+                  }} className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    View full lead details
+                  </a>
+                </div>
+              </div>
+
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-bold shadow-sm">
+                {typeof lead.first_name === 'string' && lead.first_name ? lead.first_name.charAt(0).toUpperCase() : ''}
               </div>
             </div>
+          </DialogHeader>
 
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-bold shadow-sm">
-              {typeof lead.first_name === 'string' && lead.first_name ? lead.first_name.charAt(0).toUpperCase() : ''}
-            </div>
-          </div>
-        </DialogHeader>
+          <Tabs defaultValue="data" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+            <TabsList className="grid grid-cols-3 bg-gray-100 p-1 rounded-lg">
+              <TabsTrigger
+                value="data"
+                className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                Lead Data
+              </TabsTrigger>
+              <TabsTrigger
+                value="communications"
+                className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                Communication History
+              </TabsTrigger>
+              <TabsTrigger
+                value="marketing"
+                className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                Marketing Automation
+              </TabsTrigger>
+            </TabsList>
 
-        <Tabs defaultValue="data" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid grid-cols-3 bg-gray-100 p-1 rounded-lg">
-            <TabsTrigger
-              value="data"
-              className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
-            >
-              Lead Data
-            </TabsTrigger>
-            <TabsTrigger
-              value="communications"
-              className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
-            >
-              Communication History
-            </TabsTrigger>
-            <TabsTrigger
-              value="marketing"
-              className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
-            >
-              Marketing Automation
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Lead Data Tab */}
-          <TabsContent value="data" className="space-y-4 mt-4">
-            <Card className="border border-gray-200 shadow-sm bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
-                <CardTitle className="text-lg font-medium text-gray-900">Basic Information</CardTitle>
-                <Button
-                  variant={isEditing ? "default" : "outline"}
-                  onClick={() => setIsEditing(!isEditing)}
-                  disabled={isSaving}
-                  className={isEditing ? "" : "bg-black hover:bg-gray-800 text-white"}
-                >
-                  {isEditing ? "Cancel" : "Edit"}
-                </Button>
-              </CardHeader>
-              <ScrollArea className="h-[500px] bg-white">
-                <CardContent className="grid grid-cols-2 gap-4 pt-4 bg-white">
-                  {isEditing ? (
-                    // Editable form
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="first_name">First Name</Label>
-                        <Input
-                          id="first_name"
-                          name="first_name"
-                          value={formData.first_name}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="last_name">Last Name</Label>
-                        <Input
-                          id="last_name"
-                          name="last_name"
-                          value={formData.last_name}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone_number">Phone</Label>
-                        <div className="flex space-x-2">
+            {/* Lead Data Tab */}
+            <TabsContent value="data" className="space-y-4 mt-4">
+              <Card className="border border-gray-200 shadow-sm bg-white">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardTitle className="text-lg font-medium text-gray-900">Basic Information</CardTitle>
+                  <Button
+                    variant={isEditing ? "default" : "outline"}
+                    onClick={() => setIsEditing(!isEditing)}
+                    disabled={isSaving}
+                    className={isEditing ? "" : "bg-black hover:bg-gray-800 text-white"}
+                  >
+                    {isEditing ? "Cancel" : "Edit"}
+                  </Button>
+                </CardHeader>
+                <ScrollArea className="h-[500px] bg-white">
+                  <CardContent className="grid grid-cols-2 gap-4 pt-4 bg-white">
+                    {isEditing ? (
+                      // Editable form
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="first_name">First Name</Label>
                           <Input
-                            id="phone_number"
-                            name="phone_number"
-                            value={formData.phone_number}
+                            id="first_name"
+                            name="first_name"
+                            value={formData.first_name}
                             onChange={handleInputChange}
-                            className="flex-1"
+                            required
                           />
-                          {formData.phone_number && (
-                            <>
-                              <a
-                                href="#"
-                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
-                                title="Call via RingCentral"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-
-                                  // Show a toast notification that we're initiating the call
-                                  toast({
-                                    title: "Initiating call...",
-                                    description: `Calling ${formData.phone_number} via RingCentral`,
-                                  });
-
-                                  // Make the call via RingCentral API
-                                  // Use the correct parameter order: toNumber, fromNumber
-                                  makeRingCentralCall(
-                                    formData.phone_number || '',
-                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || ''
-                                  )
-                                    .then(() => {
-                                      // Show success toast
-                                      toast({
-                                        title: "Call initiated",
-                                        description: "You should receive a call on your phone shortly.",
-                                      });
-
-                                      // Log this communication to the database
-                                      return supabase
-                                        .from('lead_communications')
-                                        .insert({
-                                          lead_id: lead.id,
-                                          type_id: 3, // 3 is the ID for 'Call' in communication_types
-                                          direction: 'Outbound',
-                                          content: `RingCentral call initiated to ${formData.phone_number}`,
-                                          created_by: 'User',
-                                          created_at: new Date().toISOString(),
-                                        });
-                                    })
-                                    .then(() => {
-                                      // Refresh communications list
-                                      return supabase
-                                        .from('lead_communications')
-                                        .select('*')
-                                        .eq('lead_id', lead.id)
-                                        .order('created_at', { ascending: false });
-                                    })
-                                    .then(({ data }) => {
-                                      if (data) setCommunications(data);
-                                    })
-                                    .catch(error => {
-                                      console.error('RingCentral call error:', error);
-                                      toast({
-                                        title: "Call failed",
-                                        description: "Failed to initiate RingCentral call. See console for details.",
-                                        variant: "destructive"
-                                      });
-                                    });
-                                }}
-                              >
-                                <Phone className="h-4 w-4" />
-                              </a>
-                              <a
-                                href="#"
-                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                                title="Message via RingCentral"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-
-                                  // Show a prompt for the message text
-                                  const messageText = prompt("Enter your message:", `Hi ${formData.first_name || ''}, this is regarding your insurance quote.`);
-
-                                  if (messageText) {
-                                    // Show a toast notification that we're sending the message
-                                    toast({
-                                      title: "Sending message...",
-                                      description: `Texting ${formData.phone_number} via RingCentral`,
-                                    });
-
-                                    // Send the message via RingCentral API
-                                    sendRingCentralSMS(
-                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
-                                      formData.phone_number || '',
-                                      messageText
-                                    )
-                                      .then(() => {
-                                        // Show success toast
-                                        toast({
-                                          title: "Message sent",
-                                          description: "Your message has been sent via RingCentral.",
-                                        });
-
-                                        // Log this communication to the database
-                                        return supabase
-                                          .from('lead_communications')
-                                          .insert({
-                                            lead_id: lead.id,
-                                            type_id: 2, // 2 is the ID for 'SMS' in communication_types
-                                            direction: 'Outbound',
-                                            content: `SMS sent to ${formData.phone_number}: ${messageText}`,
-                                            created_by: 'User',
-                                            created_at: new Date().toISOString(),
-                                          });
-                                      })
-                                      .then(() => {
-                                        // Refresh communications list
-                                        return supabase
-                                          .from('lead_communications')
-                                          .select('*')
-                                          .eq('lead_id', lead.id)
-                                          .order('created_at', { ascending: false });
-                                      })
-                                      .then(({ data }) => {
-                                        if (data) setCommunications(data);
-                                      })
-                                      .catch(error => {
-                                        console.error('RingCentral SMS error:', error);
-                                        toast({
-                                          title: "Message failed",
-                                          description: "Failed to send RingCentral SMS. See console for details.",
-                                          variant: "destructive"
-                                        });
-                                      });
-                                  }
-                                }}
-                              >
-                                <MessageSquare className="h-4 w-4" />
-                              </a>
-                            </>
-                          )}
                         </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="insurance_type">Insurance Type</Label>
-                        <Select
-                          value={formData.insurance_type}
-                          onValueChange={(value) => handleSelectChange('insurance_type', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select insurance type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Auto">Auto</SelectItem>
-                            <SelectItem value="Home">Home</SelectItem>
-                            <SelectItem value="Specialty">Specialty</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="current_carrier">Current Carrier</Label>
-                        <Input
-                          id="current_carrier"
-                          name="current_carrier"
-                          value={formData.current_carrier}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="premium">Premium</Label>
-                        <Input
-                          id="premium"
-                          name="premium"
-                          type="number"
-                          step="0.01"
-                          value={formData.premium}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select
-                          value={formData.status}
-                          onValueChange={(value) => handleSelectChange('status', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="New">New</SelectItem>
-                            <SelectItem value="Contacted">Contacted</SelectItem>
-                            <SelectItem value="Quoted">Quoted</SelectItem>
-                            <SelectItem value="Sold">Sold</SelectItem>
-                            <SelectItem value="Lost">Lost</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="assigned_to">Assigned To</Label>
-                        <Input
-                          id="assigned_to"
-                          name="assigned_to"
-                          value={formData.assigned_to}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      {/* Address Information */}
-                      <div className="col-span-2 space-y-2">
-                        <Label htmlFor="street_address">Street Address</Label>
-                        <Input
-                          id="street_address"
-                          name="street_address"
-                          value={formData.street_address}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          id="city"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="state">State</Label>
-                        <Input
-                          id="state"
-                          name="state"
-                          value={formData.state}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="zip_code">ZIP Code</Label>
-                        <Input
-                          id="zip_code"
-                          name="zip_code"
-                          value={formData.zip_code}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="date_of_birth">Date of Birth</Label>
-                        <Input
-                          id="date_of_birth"
-                          name="date_of_birth"
-                          type="date"
-                          value={formData.date_of_birth}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="gender">Gender</Label>
-                        <Select
-                          value={formData.gender || ''}
-                          onValueChange={(value) => handleSelectChange('gender', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Male">Male</SelectItem>
-                            <SelectItem value="Female">Female</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                            <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="marital_status">Marital Status</Label>
-                        <Select
-                          value={formData.marital_status || ''}
-                          onValueChange={(value) => handleSelectChange('marital_status', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select marital status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Single">Single</SelectItem>
-                            <SelectItem value="Married">Married</SelectItem>
-                            <SelectItem value="Divorced">Divorced</SelectItem>
-                            <SelectItem value="Widowed">Widowed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="drivers_license">Driver's License</Label>
-                        <Input
-                          id="drivers_license"
-                          name="drivers_license"
-                          value={formData.drivers_license}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="license_state">License State</Label>
-                        <Input
-                          id="license_state"
-                          name="license_state"
-                          value={formData.license_state}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="referred_by">Referred By</Label>
-                        <Input
-                          id="referred_by"
-                          name="referred_by"
-                          value={formData.referred_by}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div className="col-span-2 space-y-2">
-                        <Label htmlFor="notes">Notes</Label>
-                        <Textarea
-                          id="notes"
-                          name="notes"
-                          value={formData.notes}
-                          onChange={handleInputChange}
-                          rows={4}
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    // Read-only view
-                    <>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Name</Label>
-                        <div>{typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Email</Label>
-                        <div>{lead.email || 'N/A'}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
-                        <div className="flex items-center">
-                          <span className="mr-3">{lead.phone_number || 'N/A'}</span>
-                          {lead.phone_number && (
-                            <>
-                              <a
-                                href="#"
-                                className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
-                                title="Call via RingCentral"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-
-                                  // Show a toast notification that we're initiating the call
-                                  toast({
-                                    title: "Initiating call...",
-                                    description: `Calling ${lead.phone_number} via RingCentral`,
-                                  });
-
-                                  // Make the call via RingCentral API
-                                  // Use the correct parameter order: toNumber, fromNumber
-                                  makeRingCentralCall(
-                                    lead.phone_number || '',
-                                    process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || ''
-                                  )
-                                    .then(() => {
-                                      // Show success toast
-                                      toast({
-                                        title: "Call initiated",
-                                        description: "You should receive a call on your phone shortly.",
-                                      });
-
-                                      // Log this communication to the database
-                                      return supabase
-                                        .from('lead_communications')
-                                        .insert({
-                                          lead_id: lead.id,
-                                          type_id: 3, // 3 is the ID for 'Call' in communication_types
-                                          direction: 'Outbound',
-                                          content: `RingCentral call initiated to ${lead.phone_number}`,
-                                          created_by: 'User',
-                                          created_at: new Date().toISOString(),
-                                        });
-                                    })
-                                    .then(() => {
-                                      // Refresh communications list
-                                      return supabase
-                                        .from('lead_communications')
-                                        .select('*')
-                                        .eq('lead_id', lead.id)
-                                        .order('created_at', { ascending: false });
-                                    })
-                                    .then(({ data }) => {
-                                      if (data) setCommunications(data);
-                                    })
-                                    .catch(error => {
-                                      console.error('RingCentral call error:', error);
-                                      toast({
-                                        title: "Call failed",
-                                        description: "Failed to initiate RingCentral call. See console for details.",
-                                        variant: "destructive"
-                                      });
-                                    });
-                                }}
-                              >
-                                <Phone className="h-4 w-4" />
-                              </a>
-                              <a
-                                href="#"
-                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                                title="Message via RingCentral"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-
-                                  // Show a prompt for the message text
-                                  const messageText = prompt("Enter your message:", `Hi ${lead.first_name || ''}, this is regarding your insurance quote.`);
-
-                                  if (messageText) {
-                                    // Show a toast notification that we're sending the message
-                                    toast({
-                                      title: "Sending message...",
-                                      description: `Texting ${lead.phone_number} via RingCentral`,
-                                    });
-
-                                    // Send the message via RingCentral API
-                                    sendRingCentralSMS(
-                                      process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER || '',
-                                      lead.phone_number || '',
-                                      messageText
-                                    )
-                                      .then(() => {
-                                        // Show success toast
-                                        toast({
-                                          title: "Message sent",
-                                          description: "Your message has been sent via RingCentral.",
-                                        });
-
-                                        // Log this communication to the database
-                                        return supabase
-                                          .from('lead_communications')
-                                          .insert({
-                                            lead_id: lead.id,
-                                            type_id: 2, // 2 is the ID for 'SMS' in communication_types
-                                            direction: 'Outbound',
-                                            content: `SMS sent to ${lead.phone_number}: ${messageText}`,
-                                            created_by: 'User',
-                                            created_at: new Date().toISOString(),
-                                          });
-                                      })
-                                      .then(() => {
-                                        // Refresh communications list
-                                        return supabase
-                                          .from('lead_communications')
-                                          .select('*')
-                                          .eq('lead_id', lead.id)
-                                          .order('created_at', { ascending: false });
-                                      })
-                                      .then(({ data }) => {
-                                        if (data) setCommunications(data);
-                                      })
-                                      .catch(error => {
-                                        console.error('RingCentral SMS error:', error);
-                                        toast({
-                                          title: "Message failed",
-                                          description: "Failed to send RingCentral SMS. See console for details.",
-                                          variant: "destructive"
-                                        });
-                                      });
-                                  }
-                                }}
-                              >
-                                <MessageSquare className="h-4 w-4" />
-                              </a>
-                            </>
-                          )}
+                        <div className="space-y-2">
+                          <Label htmlFor="last_name">Last Name</Label>
+                          <Input
+                            id="last_name"
+                            name="last_name"
+                            value={formData.last_name}
+                            onChange={handleInputChange}
+                            required
+                          />
                         </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Insurance Type</Label>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone_number">Phone</Label>
+                          <div className="flex space-x-2">
+                            <Input
+                              id="phone_number"
+                              name="phone_number"
+                              value={formData.phone_number}
+                              onChange={handleInputChange}
+                              className="flex-1"
+                            />
+                            {formData.phone_number && (
+                              <>
+                                <a
+                                  href="#"
+                                  className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
+                                  title="Call via RingCentral"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setShowCallConfirm(true);
+                                  }}
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </a>
+                                <a
+                                  href="#"
+                                  className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                  title="Message via RingCentral"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const leadFirstName = formData.first_name || lead?.first_name || 'Customer';
+                                    setSmsMessage(`Hi ${leadFirstName}, this is regarding your insurance quote.`);
+                                    setShowSmsInterface(true);
+                                  }}
+                                >
+                                  <MessageSquare className="h-4 w-4" />
+                                </a>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="insurance_type">Insurance Type</Label>
+                          <Select
+                            value={formData.insurance_type}
+                            onValueChange={(value) => handleSelectChange('insurance_type', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select insurance type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Auto">Auto</SelectItem>
+                              <SelectItem value="Home">Home</SelectItem>
+                              <SelectItem value="Specialty">Specialty</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="current_carrier">Current Carrier</Label>
+                          <Input
+                            id="current_carrier"
+                            name="current_carrier"
+                            value={formData.current_carrier}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="premium">Premium</Label>
+                          <Input
+                            id="premium"
+                            name="premium"
+                            type="number"
+                            step="0.01"
+                            value={formData.premium}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="status">Status</Label>
+                          <Select
+                            value={formData.status}
+                            onValueChange={(value) => handleSelectChange('status', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="New">New</SelectItem>
+                              <SelectItem value="Contacted">Contacted</SelectItem>
+                              <SelectItem value="Quoted">Quoted</SelectItem>
+                              <SelectItem value="Sold">Sold</SelectItem>
+                              <SelectItem value="Lost">Lost</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="assigned_to">Assigned To</Label>
+                          <Input
+                            id="assigned_to"
+                            name="assigned_to"
+                            value={formData.assigned_to}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        {/* Address Information */}
+                        <div className="col-span-2 space-y-2">
+                          <Label htmlFor="street_address">Street Address</Label>
+                          <Input
+                            id="street_address"
+                            name="street_address"
+                            value={formData.street_address}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            id="city"
+                            name="city"
+                            value={formData.city}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="state">State</Label>
+                          <Input
+                            id="state"
+                            name="state"
+                            value={formData.state}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="zip_code">ZIP Code</Label>
+                          <Input
+                            id="zip_code"
+                            name="zip_code"
+                            value={formData.zip_code}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="date_of_birth">Date of Birth</Label>
+                          <Input
+                            id="date_of_birth"
+                            name="date_of_birth"
+                            type="date"
+                            value={formData.date_of_birth}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="gender">Gender</Label>
+                          <Select
+                            value={formData.gender || ''}
+                            onValueChange={(value) => handleSelectChange('gender', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Male">Male</SelectItem>
+                              <SelectItem value="Female">Female</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                              <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="marital_status">Marital Status</Label>
+                          <Select
+                            value={formData.marital_status || ''}
+                            onValueChange={(value) => handleSelectChange('marital_status', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select marital status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Single">Single</SelectItem>
+                              <SelectItem value="Married">Married</SelectItem>
+                              <SelectItem value="Divorced">Divorced</SelectItem>
+                              <SelectItem value="Widowed">Widowed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="drivers_license">Driver's License</Label>
+                          <Input
+                            id="drivers_license"
+                            name="drivers_license"
+                            value={formData.drivers_license}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="license_state">License State</Label>
+                          <Input
+                            id="license_state"
+                            name="license_state"
+                            value={formData.license_state}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="referred_by">Referred By</Label>
+                          <Input
+                            id="referred_by"
+                            name="referred_by"
+                            value={formData.referred_by}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="col-span-2 space-y-2">
+                          <Label htmlFor="notes">Notes</Label>
+                          <Textarea
+                            id="notes"
+                            name="notes"
+                            value={formData.notes}
+                            onChange={handleInputChange}
+                            rows={4}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      // Read-only view
+                      <>
                         <div>
-                          {typeof lead.insurance_type === 'string'
-                            ? lead.insurance_type
-                            : (lead.insurance_type as any)?.name || 'Auto'}
+                          <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                          <div>{typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}</div>
                         </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Current Carrier</Label>
-                        <div>{lead.current_carrier || 'None'}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Premium</Label>
                         <div>
-                          ${lead.premium
-                            ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                            : '0.00'}
+                          <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                          <div>{lead.email || 'N/A'}</div>
                         </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Status</Label>
                         <div>
-                          <span className={`${statusBadgeStyles} ${getStatusStyles(
-                            typeof lead.status === 'string'
-                              ? lead.status
-                              : (lead.status as any)?.value || 'New'
-                          )}`}>
-                            {typeof lead.status === 'string'
-                              ? lead.status.charAt(0).toUpperCase() + lead.status.slice(1)
-                              : (lead.status as any)?.value || 'New'}
-                          </span>
+                          <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                          <div className="flex items-center">
+                            <span className="mr-3">{lead.phone_number || 'N/A'}</span>
+                            {lead.phone_number && (
+                              <>
+                                <a
+                                  href="#"
+                                  className="inline-flex items-center justify-center mr-2 h-8 w-8 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
+                                  title="Call via RingCentral"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setShowCallConfirm(true);
+                                  }}
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </a>
+                                <a
+                                  href="#"
+                                  className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                  title="Message via RingCentral"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const leadFirstName = lead?.first_name || formData.first_name || 'Customer';
+                                    setSmsMessage(`Hi ${leadFirstName}, this is regarding your insurance quote.`);
+                                    setShowSmsInterface(true);
+                                  }}
+                                >
+                                  <MessageSquare className="h-4 w-4" />
+                                </a>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
-                        <div>{lead.assigned_to || 'Unassigned'}</div>
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs font-medium text-muted-foreground">Address</Label>
                         <div>
-                          {lead.client?.address?.street ? (
-                            <>
-                              {lead.client.address.street}<br />
-                              {lead.client.address.city}{lead.client.address.city && lead.client.address.state ? ', ' : ''}{lead.client.address.state} {lead.client.address.zip_code}
-                            </>
-                          ) : (
-                            'No address'
-                          )}
+                          <Label className="text-xs font-medium text-muted-foreground">Insurance Type</Label>
+                          <div>
+                            {typeof lead.insurance_type === 'string'
+                              ? lead.insurance_type
+                              : (lead.insurance_type as any)?.name || 'Auto'}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Date of Birth</Label>
-                        <div>{lead.client?.date_of_birth ? formatDateMMDDYYYY(lead.client.date_of_birth) : 'N/A'}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Gender</Label>
-                        <div>{lead.client?.gender || 'N/A'}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Marital Status</Label>
-                        <div>{lead.client?.marital_status || 'N/A'}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Driver's License</Label>
-                        <div>{lead.client?.drivers_license || 'N/A'}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">License State</Label>
-                        <div>{lead.client?.license_state || 'N/A'}</div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Referred By</Label>
-                        <div>{lead.client?.referred_by || 'N/A'}</div>
-                      </div>
-                      <div className="col-span-2">
-                        <Label className="text-xs font-medium text-muted-foreground">Notes</Label>
-                        <div>{lead.notes || 'No notes'}</div>
-                      </div>
-                    </>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Current Carrier</Label>
+                          <div>{lead.current_carrier || 'None'}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Premium</Label>
+                          <div>
+                            ${lead.premium
+                              ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                              : '0.00'}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Status</Label>
+                          <div>
+                            <span className={`${statusBadgeStyles} ${getStatusStyles(
+                              typeof lead.status === 'string'
+                                ? lead.status
+                                : (lead.status as any)?.value || 'New'
+                            )}`}>
+                              {typeof lead.status === 'string'
+                                ? lead.status.charAt(0).toUpperCase() + lead.status.slice(1)
+                                : (lead.status as any)?.value || 'New'}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Assigned To</Label>
+                          <div>{lead.assigned_to || 'Unassigned'}</div>
+                        </div>
+                        <div className="col-span-2">
+                          <Label className="text-xs font-medium text-muted-foreground">Address</Label>
+                          <div>
+                            {lead.client?.address?.street ? (
+                              <>
+                                {lead.client.address.street}<br />
+                                {lead.client.address.city}{lead.client.address.city && lead.client.address.state ? ', ' : ''}{lead.client.address.state} {lead.client.address.zip_code}
+                              </>
+                            ) : (
+                              'No address'
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Date of Birth</Label>
+                          <div>{lead.client?.date_of_birth ? formatDateMMDDYYYY(lead.client.date_of_birth) : 'N/A'}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Gender</Label>
+                          <div>{lead.client?.gender || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Marital Status</Label>
+                          <div>{lead.client?.marital_status || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Driver's License</Label>
+                          <div>{lead.client?.drivers_license || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">License State</Label>
+                          <div>{lead.client?.license_state || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Referred By</Label>
+                          <div>{lead.client?.referred_by || 'N/A'}</div>
+                        </div>
+                        <div className="col-span-2">
+                          <Label className="text-xs font-medium text-muted-foreground">Notes</Label>
+                          <div>{lead.notes || 'No notes'}</div>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </ScrollArea>
+                {isEditing && (
+                  <CardFooter className="flex justify-end space-x-2 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditing(false)}
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSaveChanges}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </CardFooter>
+                )}
+              </Card>
+
+              {lead.insurance_type === 'Auto' && lead.auto_data && (
+                <Card className="border border-gray-200 shadow-sm bg-white">
+                  <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                    <CardTitle className="text-lg font-medium text-gray-900">Auto Insurance Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="bg-white pt-4">
+                    <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
+                      {JSON.stringify(lead.auto_data, null, 2)}
+                    </pre>
+                  </CardContent>
+                </Card>
+              )}
+
+              {lead.insurance_type === 'Home' && lead.home_data && (
+                <Card className="border border-gray-200 shadow-sm bg-white">
+                  <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                    <CardTitle className="text-lg font-medium text-gray-900">Home Insurance Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="bg-white pt-4">
+                    <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
+                      {JSON.stringify(lead.home_data, null, 2)}
+                    </pre>
+                  </CardContent>
+                </Card>
+              )}
+
+              {lead.insurance_type === 'Specialty' && lead.specialty_data && (
+                <Card className="border border-gray-200 shadow-sm bg-white">
+                  <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                    <CardTitle className="text-lg font-medium text-gray-900">Specialty Insurance Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="bg-white pt-4">
+                    <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
+                      {JSON.stringify(lead.specialty_data, null, 2)}
+                    </pre>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* Communication History Tab */}
+            <TabsContent value="communications" className="space-y-4 mt-4">
+              <Card className="border border-gray-200 shadow-sm bg-white">
+                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardTitle className="text-lg font-medium text-gray-900">Add Note</CardTitle>
+                  <CardDescription className="text-sm">Add a note about this lead</CardDescription>
+                </CardHeader>
+                <CardContent className="bg-white pt-4">
+                  <div className="space-y-4">
+                    <Textarea
+                      placeholder="Enter your note here..."
+                      value={newNote}
+                      onChange={(e) => setNewNote(e.target.value)}
+                    />
+                    <Button onClick={handleAddNote} disabled={isSubmittingNote || !newNote.trim()}>
+                      {isSubmittingNote ? 'Adding...' : 'Add Note'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border border-gray-200 shadow-sm bg-white">
+                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardTitle className="text-lg font-medium text-gray-900">Communication History</CardTitle>
+                  <CardDescription className="text-sm">All interactions with this lead</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 bg-white pt-4">
+                  {[...notes, ...communications].sort((a, b) =>
+                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                  ).map((item, index) => (
+                    <Card key={index} className="bg-gray-50 border border-gray-200">
+                      <CardContent className="pt-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="text-sm font-medium text-black">
+                              {item.type || 'Note'} {item.direction ? `(${item.direction})` : ''}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {formatDateTimeMMDDYYYY(item.created_at)}
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {item.created_by || 'System'}
+                          </div>
+                        </div>
+                        <div className="mt-2 text-black">
+                          {item.note_content || item.content}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  {notes.length === 0 && communications.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No communication history yet
+                    </div>
                   )}
                 </CardContent>
-              </ScrollArea>
-              {isEditing && (
-                <CardFooter className="flex justify-end space-x-2 pt-4">
+              </Card>
+            </TabsContent>
+
+            {/* Marketing Automation Tab */}
+            <TabsContent value="marketing" className="space-y-4 mt-4">
+              <Card className="border border-gray-200 shadow-sm bg-white">
+                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardTitle className="text-lg font-medium text-gray-900">Marketing Campaigns</CardTitle>
+                  <CardDescription className="text-sm">
+                    Enable or disable marketing campaigns for this lead
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="bg-white pt-4">
+                  <div className="text-center py-8 text-muted-foreground">
+                    Marketing automation features coming soon
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      {/* Call Confirmation Dialog */}
+      {showCallConfirm && (
+        <Dialog
+          open={showCallConfirm}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              setShowCallConfirm(false);
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-md z-60 bg-white" aria-describedby="call-confirm-description">
+            <DialogHeader>
+              <DialogTitle>
+                {callId ? 
+                  <div className="flex items-center">
+                    <span className="relative flex h-3 w-3 mr-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    Call in Progress
+                  </div> 
+                  : "Confirm Call"
+                }
+              </DialogTitle>
+              <DialogDescription id="call-confirm-description">
+                {callId
+                  ? `Call to ${activePhoneNumber || formData.phone_number || lead?.phone_number} is currently active. (ID: ${callId})`
+                  : `Are you sure you want to call ${formData.phone_number || lead?.phone_number || ''}?`}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCallConfirm(false);
+                }}
+              >
+                {callId ? "Close" : "Cancel"}
+              </Button>
+              {callId ? (
+                <Button onClick={hangUpRingCentralCall} variant="destructive" className="bg-red-600 hover:bg-red-700">
+                  <PhoneOff className="mr-2 h-4 w-4" />
+                  Hang Up
+                </Button>
+              ) : (
+                <Button onClick={initiateRingCentralCall} disabled={!(formData.phone_number || lead?.phone_number)}>
+                  <Phone className="mr-2 h-4 w-4" />
+                  Call
+                </Button>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* SMS Interface Dialog */}
+      {showSmsInterface &&
+        (() => {
+          const currentPhoneNumber = formData.phone_number || lead?.phone_number || '';
+          return (
+            <Dialog open={showSmsInterface} onOpenChange={setShowSmsInterface}>
+              <DialogContent className="sm:max-w-md z-60 bg-white" aria-describedby="sms-compose-description">
+                <DialogHeader>
+                  <DialogTitle>Send SMS</DialogTitle>
+                  <DialogDescription id="sms-compose-description">
+                    Compose and send an SMS to {currentPhoneNumber}.
+                  </DialogDescription>
+                </DialogHeader>
+                <Textarea
+                  value={smsMessage}
+                  onChange={(e) => setSmsMessage(e.target.value)}
+                  placeholder="Enter your message..."
+                  rows={4}
+                  className="mt-4"
+                />
+                <div className="flex justify-end space-x-2 mt-4">
                   <Button
                     variant="outline"
-                    onClick={() => setIsEditing(false)}
-                    disabled={isSaving}
+                    onClick={() => {
+                      setShowSmsInterface(false);
+                      setSmsMessage(''); // Reset message on cancel
+                    }}
                   >
                     Cancel
                   </Button>
-                  <Button
-                    onClick={handleSaveChanges}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </Button>
-                </CardFooter>
-              )}
-            </Card>
-
-            {lead.insurance_type === 'Auto' && lead.auto_data && (
-              <Card className="border border-gray-200 shadow-sm bg-white">
-                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                  <CardTitle className="text-lg font-medium text-gray-900">Auto Insurance Details</CardTitle>
-                </CardHeader>
-                <CardContent className="bg-white pt-4">
-                  <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
-                    {JSON.stringify(lead.auto_data, null, 2)}
-                  </pre>
-                </CardContent>
-              </Card>
-            )}
-
-            {lead.insurance_type === 'Home' && lead.home_data && (
-              <Card className="border border-gray-200 shadow-sm bg-white">
-                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                  <CardTitle className="text-lg font-medium text-gray-900">Home Insurance Details</CardTitle>
-                </CardHeader>
-                <CardContent className="bg-white pt-4">
-                  <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
-                    {JSON.stringify(lead.home_data, null, 2)}
-                  </pre>
-                </CardContent>
-              </Card>
-            )}
-
-            {lead.insurance_type === 'Specialty' && lead.specialty_data && (
-              <Card className="border border-gray-200 shadow-sm bg-white">
-                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                  <CardTitle className="text-lg font-medium text-gray-900">Specialty Insurance Details</CardTitle>
-                </CardHeader>
-                <CardContent className="bg-white pt-4">
-                  <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
-                    {JSON.stringify(lead.specialty_data, null, 2)}
-                  </pre>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* Communication History Tab */}
-          <TabsContent value="communications" className="space-y-4 mt-4">
-            <Card className="border border-gray-200 shadow-sm bg-white">
-              <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                <CardTitle className="text-lg font-medium text-gray-900">Add Note</CardTitle>
-                <CardDescription className="text-sm">Add a note about this lead</CardDescription>
-              </CardHeader>
-              <CardContent className="bg-white pt-4">
-                <div className="space-y-4">
-                  <Textarea
-                    placeholder="Enter your note here..."
-                    value={newNote}
-                    onChange={(e) => setNewNote(e.target.value)}
-                  />
-                  <Button onClick={handleAddNote} disabled={isSubmittingNote || !newNote.trim()}>
-                    {isSubmittingNote ? 'Adding...' : 'Add Note'}
+                  <Button onClick={initiateRingCentralSMS} disabled={!smsMessage.trim() || !currentPhoneNumber}>
+                    Send SMS
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-gray-200 shadow-sm bg-white">
-              <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                <CardTitle className="text-lg font-medium text-gray-900">Communication History</CardTitle>
-                <CardDescription className="text-sm">All interactions with this lead</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 bg-white pt-4">
-                {[...notes, ...communications].sort((a, b) =>
-                  new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-                ).map((item, index) => (
-                  <Card key={index} className="bg-gray-50 border border-gray-200">
-                    <CardContent className="pt-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="text-sm font-medium text-black">
-                            {item.type || 'Note'} {item.direction ? `(${item.direction})` : ''}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {formatDateTimeMMDDYYYY(item.created_at)}
-                          </div>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {item.created_by || 'System'}
-                        </div>
-                      </div>
-                      <div className="mt-2 text-black">
-                        {item.note_content || item.content}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {notes.length === 0 && communications.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No communication history yet
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Marketing Automation Tab */}
-          <TabsContent value="marketing" className="space-y-4 mt-4">
-            <Card className="border border-gray-200 shadow-sm bg-white">
-              <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                <CardTitle className="text-lg font-medium text-gray-900">Marketing Campaigns</CardTitle>
-                <CardDescription className="text-sm">
-                  Enable or disable marketing campaigns for this lead
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="bg-white pt-4">
-                <div className="text-center py-8 text-muted-foreground">
-                  Marketing automation features coming soon
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+              </DialogContent>
+            </Dialog>
+          );
+        })()}
+    </>
   );
 }

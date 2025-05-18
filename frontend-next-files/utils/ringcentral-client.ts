@@ -48,96 +48,127 @@ export class RingCentralClient {
         console.warn('RingCentralClient: request object not provided and VERCEL_URL not set, defaulting origin to http://localhost:3000 for internal API calls. This may not work in production.');
     }
 
-    try {
-      // Use the stored cookieStore for initial setup
-      this.accessToken = this.cookieStore.get('ringcentral_access_token')?.value || null;
-      this.refreshToken = this.cookieStore.get('ringcentral_refresh_token')?.value || null;
-      const expiryTimeStr = this.cookieStore.get('ringcentral_access_token_expiry_time')?.value;
-      this.accessTokenExpiryTime = expiryTimeStr ? parseInt(expiryTimeStr, 10) : null;
-
-      if (this.accessToken && this.accessTokenExpiryTime && this.accessTokenExpiryTime > Date.now()) {
-        this.authenticated = true;
-      } else {
-        this.authenticated = false;
-        if (this.accessToken) {
-            console.log('RingCentralClient: Access token found but expired on construction.');
-        }
-      }
-    } catch (error) {
-      console.error('RingCentralClient: Error accessing cookies during construction:', error);
-      this.accessToken = null;
-      this.refreshToken = null;
-      this.accessTokenExpiryTime = null;
-      this.authenticated = false;
-    }
+    // Initialize authentication state dynamically
+    // Actual token access will be handled asynchronously in _ensureTokenIsValid
+    this.authenticated = false;
   }
 
   private async _ensureTokenIsValid(): Promise<void> {
-    // Always read fresh values from the cookieStore for the current state
-    // This assumes the cookieStore passed to the constructor is THE live one for the request.
-    this.accessToken = this.cookieStore.get('ringcentral_access_token')?.value || null;
-    this.refreshToken = this.cookieStore.get('ringcentral_refresh_token')?.value || null;
-    const expiryTimeStr = this.cookieStore.get('ringcentral_access_token_expiry_time')?.value;
-    this.accessTokenExpiryTime = expiryTimeStr ? parseInt(expiryTimeStr, 10) : null;
-
-    if (this.accessToken && this.accessTokenExpiryTime && (this.accessTokenExpiryTime - Date.now() > REFRESH_THRESHOLD_MS)) {
-      this.authenticated = true;
-      return;
-    }
-
-    if (!this.refreshToken) {
-      this.authenticated = false;
-      console.log('RingCentralClient: No refresh token available. Cannot refresh.');
-      return;
-    }
-
-    console.log('RingCentralClient: Access token expired or nearing expiry. Attempting refresh...');
     try {
-      // Use this.cookieStore to construct the Cookie header for the internal fetch call
-      const cookieHeader = Array.from(this.cookieStore.getAll())
-        .map(c => `${c.name}=${c.value}`)
-        .join('; ');
+      console.log('RingCentralClient: Ensuring token is valid...');
+      // Always read fresh values from the cookieStore for the current state
+      const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+      const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+      const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+      
+      const oldAccessToken = this.accessToken;
+      this.accessToken = accessTokenCookie?.value || null;
+      this.refreshToken = refreshTokenCookie?.value || null;
+      const expiryTimeStr = expiryTimeCookie?.value;
+      this.accessTokenExpiryTime = expiryTimeStr ? parseInt(expiryTimeStr, 10) : null;
 
-      const refreshUrl = `${this.requestOrigin}/api/ringcentral/auth?action=refresh`;
-      console.log(`RingCentralClient: Calling internal refresh URL: ${refreshUrl}`);
-
-      const response = await fetch(refreshUrl, {
-        method: 'GET',
-        headers: {
-          'Cookie': cookieHeader,
-        },
-        cache: 'no-store',
+      const tokenChanged = oldAccessToken !== this.accessToken;
+      const now = Date.now();
+      const isExpired = this.accessTokenExpiryTime ? now > this.accessTokenExpiryTime : true;
+      const isNearExpiry = this.accessTokenExpiryTime ? (this.accessTokenExpiryTime - now < REFRESH_THRESHOLD_MS) : true;
+      
+      console.log('RingCentralClient: Token state:', {
+        hasAccessToken: !!this.accessToken,
+        accessTokenLength: this.accessToken?.length || 0,
+        hasRefreshToken: !!this.refreshToken,
+        expiryTime: this.accessTokenExpiryTime ? new Date(this.accessTokenExpiryTime).toISOString() : null,
+        isExpired,
+        isNearExpiry,
+        nowTime: new Date(now).toISOString(),
+        tokenChanged,
+        timeRemaining: this.accessTokenExpiryTime ? `${Math.floor((this.accessTokenExpiryTime - now) / 1000 / 60)} minutes` : 'unknown'
       });
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Failed to get error text from refresh response');
-        console.error(`RingCentralClient: Token refresh API call failed with status ${response.status}. Response: ${errorText}`);
-        this.authenticated = false;
-        throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (refresh API call failed)');
+      if (this.accessToken && this.accessTokenExpiryTime && !isNearExpiry) {
+        this.authenticated = true;
+        console.log('RingCentralClient: Token is valid and not near expiry.');
+        return;
       }
 
-      const data = await response.json();
-
-      if (data.success && data.accessToken && data.expiresAt) {
-        this.accessToken = data.accessToken;
-        this.accessTokenExpiryTime = data.expiresAt;
-        this.authenticated = true;
-        // The refresh API route is responsible for updating cookies.
-        // We should re-read the refresh token from the cookie store in case it was updated.
-        this.refreshToken = this.cookieStore.get('ringcentral_refresh_token')?.value || this.refreshToken;
-        console.log('RingCentralClient: Token refreshed successfully via internal API call.');
-      } else {
-        console.error('RingCentralClient: Token refresh failed. API response indicates failure:', data.error || data.message || 'Unknown refresh error');
+      if (!this.refreshToken) {
         this.authenticated = false;
-        throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (refresh failed, invalid response data)');
+        console.log('RingCentralClient: No refresh token available. Cannot refresh.');
+        throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (no refresh token)');
+      }
+
+      if (isExpired || isNearExpiry) {
+        console.log(`RingCentralClient: Access token ${isExpired ? 'expired' : 'nearing expiry'}. Attempting refresh...`);
+      } else if (tokenChanged) {
+        console.log('RingCentralClient: Token changed since last check, validating...');
+      }
+      
+      // Use the refresh token to get a new access token
+      try {
+        // Use this.cookieStore to construct the Cookie header for the internal fetch call
+        // Collect all cookies
+        const allCookies = this.cookieStore.getAll();
+        const cookieHeader = allCookies
+          .map(c => `${c.name}=${c.value}`)
+          .join('; ');
+
+        const refreshUrl = `${this.requestOrigin}/api/ringcentral/auth?action=refresh`;
+        console.log(`RingCentralClient: Calling internal refresh URL: ${refreshUrl}`);
+
+        const response = await fetch(refreshUrl, {
+          method: 'GET',
+          headers: {
+            'Cookie': cookieHeader,
+          },
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          let errorText = 'Unknown error';
+          try {
+            errorText = await response.text();
+          } catch (e) {
+            errorText = 'Failed to get error text from refresh response';
+          }
+          
+          console.error(`RingCentralClient: Token refresh API call failed with status ${response.status}. Response: ${errorText}`);
+          this.authenticated = false;
+          throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ` (refresh API call failed: ${response.status})`);
+        }
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (e) {
+          console.error('RingCentralClient: Failed to parse JSON from refresh response');
+          throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (invalid JSON in refresh response)');
+        }
+
+        if (data.success && data.accessToken && data.expiresAt) {
+          this.accessToken = data.accessToken;
+          this.accessTokenExpiryTime = data.expiresAt;
+          this.authenticated = true;
+          // The refresh API route is responsible for updating cookies.
+          // We should re-read the refresh token from the cookie store in case it was updated.
+          const newRefreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+          this.refreshToken = newRefreshTokenCookie?.value || this.refreshToken;
+          console.log('RingCentralClient: Token refreshed successfully via internal API call.');
+        } else {
+          console.error('RingCentralClient: Token refresh failed. API response indicates failure:', 
+            data.error || data.message || 'Unknown refresh error');
+          this.authenticated = false;
+          throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ' (refresh failed, invalid response data)');
+        }
+      } catch (refreshError: any) {
+        console.error('RingCentralClient: Exception during token refresh process:', 
+          refreshError.message, refreshError.stack);
+        this.authenticated = false;
+        throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + 
+          ` (exception during refresh: ${refreshError.message})`);
       }
     } catch (error: any) {
-      console.error('RingCentralClient: Exception during token refresh process:', error.message, error.stack);
+      console.error('RingCentralClient: Exception in _ensureTokenIsValid:', error.message, error.stack);
       this.authenticated = false;
-      if (error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR)) {
-        throw error;
-      }
-      throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + ` (exception during refresh: ${error.message})`);
+      throw error;
     }
   }
 

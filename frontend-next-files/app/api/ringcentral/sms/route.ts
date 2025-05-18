@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Step 2: Initialize RingCentral client
     console.log('Step 2: Initializing RingCentral client');
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const client = new RingCentralClient(cookieStore, request);
 
     const fromNumber = RINGCENTRAL_FROM_NUMBER;
