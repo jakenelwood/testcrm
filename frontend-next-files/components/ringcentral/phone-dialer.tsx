@@ -107,6 +107,9 @@ export function PhoneDialer({
       // Poll the call status to provide real-time updates
       let statusCheckCount = 0;
       const maxStatusChecks = 10; // Check for up to 30 seconds (10 checks * 3 seconds)
+      let consecutiveErrors = 0;
+      let isRateLimited = false;
+      let rateLimitBackoff = 5000; // Start with 5 seconds backoff
 
       const checkStatus = async () => {
         if (statusCheckCount >= maxStatusChecks) {
@@ -116,12 +119,31 @@ export function PhoneDialer({
         }
 
         try {
-          const statusResponse = await fetch(`/api/ringcentral/call-status?callId=${callId}`);
-          if (statusResponse.ok) {
-            const statusData = await statusResponse.json();
-            const status = statusData.callDetails.status;
+          // If we're rate limited, use exponential backoff
+          if (isRateLimited) {
+            console.log(`[${new Date().toISOString()}] Rate limited, waiting ${rateLimitBackoff/1000} seconds before retry`);
+            await new Promise(resolve => setTimeout(resolve, rateLimitBackoff));
+            // Increase backoff for next time (exponential backoff)
+            rateLimitBackoff = Math.min(rateLimitBackoff * 2, 30000); // Max 30 seconds
+            isRateLimited = false;
+          }
 
-            console.log('Call status:', status);
+          const statusResponse = await fetch(`/api/ringcentral/call-status?callId=${callId}&verbose=true`);
+
+          if (statusResponse.ok) {
+            consecutiveErrors = 0; // Reset error counter on success
+            const statusData = await statusResponse.json();
+
+            // Check if we have valid status data
+            if (!statusData.data || !statusData.data.status) {
+              console.log('Call status data incomplete:', statusData);
+              statusCheckCount++;
+              setTimeout(checkStatus, 3000);
+              return;
+            }
+
+            const status = statusData.data.status;
+            console.log(`[${new Date().toISOString()}] Call status:`, status);
 
             if (status.callStatus === 'Success') {
               setCallStatus('Call connected');
@@ -154,14 +176,47 @@ export function PhoneDialer({
               setTimeout(checkStatus, 3000); // Check again in 3 seconds
             }
           } else {
-            // If we can't check the status, just continue polling
+            // Check for rate limiting (429 status)
+            if (statusResponse.status === 429) {
+              console.log(`[${new Date().toISOString()}] Rate limited by RingCentral API`);
+              isRateLimited = true;
+              statusCheckCount++;
+              setTimeout(checkStatus, 1000); // Try again soon with backoff applied
+              return;
+            }
+
+            // Handle authentication errors
+            if (statusResponse.status === 401) {
+              console.log(`[${new Date().toISOString()}] Authentication error checking call status`);
+              setCallStatus('Authentication error. Please try again.');
+
+              // If we get multiple auth errors, end the call status checking
+              consecutiveErrors++;
+              if (consecutiveErrors >= 3) {
+                setIsCallInProgress(false);
+                toast({
+                  title: "Authentication error",
+                  description: "Could not verify call status due to authentication issues.",
+                  variant: "destructive"
+                });
+                return;
+              }
+            }
+
+            // For other errors, continue polling with increasing delay
+            console.log(`[${new Date().toISOString()}] Error checking call status: ${statusResponse.status}`);
             statusCheckCount++;
-            setTimeout(checkStatus, 3000);
+            setTimeout(checkStatus, 3000 + (consecutiveErrors * 1000)); // Increase delay with each error
           }
         } catch (error) {
-          console.error('Error checking call status:', error);
+          console.error(`[${new Date().toISOString()}] Error checking call status:`, error);
+          consecutiveErrors++;
           statusCheckCount++;
-          setTimeout(checkStatus, 3000);
+
+          // Use longer delay after errors
+          const delay = 3000 + (consecutiveErrors * 1000);
+          console.log(`Retrying in ${delay/1000} seconds...`);
+          setTimeout(checkStatus, delay);
         }
       };
 

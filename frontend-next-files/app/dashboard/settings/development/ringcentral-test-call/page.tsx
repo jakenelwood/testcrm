@@ -11,7 +11,53 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { isRingCentralAuthenticated, authenticateWithRingCentral } from "@/utils/ringcentral";
 
+// New Child Component for the Embeddable Widget
+/*
+interface RingCentralEmbeddableWidgetProps {
+  clientId?: string;
+  appServer?: string;
+  redirectUri?: string;
+}
+
+const RingCentralEmbeddableWidget: React.FC<RingCentralEmbeddableWidgetProps> = ({ clientId, appServer, redirectUri }) => {
+  console.log('Widget Props - Client ID:', clientId);
+  console.log('Widget Props - App Server:', appServer);
+  console.log('Widget Props - Redirect URI:', redirectUri);
+
+  if (!clientId || !appServer || !redirectUri) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>RingCentral Widget Configuration Error</AlertTitle>
+        <AlertDescription>
+          Missing required configuration (Client ID, App Server, or Redirect URI).
+          Please check environment variables and server logs.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  const iframeSrc = `https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html?clientId=${clientId}&appServer=${appServer}&redirectUri=${encodeURIComponent(redirectUri)}`;
+
+  return (
+    <iframe
+      width="350"
+      height="600"
+      allow="microphone"
+      src={iframeSrc}
+      style={{ border: 'none' }}
+      title="RingCentral Phone"
+    />
+  );
+};
+*/
+
 export default function RingCentralTestCallPage() {
+  // Log the Client ID to verify it's loaded
+  console.log('RingCentral Client ID (from env):', process.env.NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID);
+  console.log('RingCentral Server (from env):', process.env.NEXT_PUBLIC_RINGCENTRAL_SERVER);
+  console.log('RingCentral Redirect URI (from env):', process.env.NEXT_PUBLIC_RINGCENTRAL_REDIRECT_URI);
+
   const [isLoading, setIsLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [callId, setCallId] = useState<string | null>(null);
@@ -20,6 +66,12 @@ export default function RingCentralTestCallPage() {
   const [logs, setLogs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [fromNumber, setFromNumber] = useState<string | null>(null);
+  const [isAuthError, setIsAuthError] = useState(false);
+
+  // Environment variables for the widget (commented out as widget is removed)
+  // const rcClientId = process.env.NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID;
+  // const rcAppServer = process.env.NEXT_PUBLIC_RINGCENTRAL_SERVER;
+  // const rcRedirectUri = process.env.NEXT_PUBLIC_RINGCENTRAL_REDIRECT_URI || 'http://localhost:3000/oauth-callback';
 
   // Add a log entry
   const addLog = (message: string) => {
@@ -119,11 +171,10 @@ export default function RingCentralTestCallPage() {
       addLog(`Call initiated successfully with ID: ${data.callId}`);
       setCallId(data.callId);
 
-      // Start polling for call status
+      // Start polling for call status with throttling and backoff
       const interval = setInterval(() => {
         pollCallStatus(data.callId);
-      }, 2000);
-
+      }, 5000); // Start with 5 seconds
       setStatusPolling(interval);
 
       // Initial status check
@@ -131,7 +182,8 @@ export default function RingCentralTestCallPage() {
 
     } catch (err: any) {
       addLog(`Error making call: ${err.message}`);
-
+      setIsAuthError(false); // Reset auth error flag initially
+      
       // Check for specific error types
       if (err.message && err.message.includes('InternationalCalls')) {
         // International calling error
@@ -142,6 +194,17 @@ export default function RingCentralTestCallPage() {
         // Feature not available error
         addLog('Error: A required feature is not available for your RingCentral account');
         setError('A required feature is not available for your RingCentral account. Please check your subscription.');
+      } else if (err.message && (
+        err.message.includes('Not authenticated with RingCentral') || 
+        err.message.includes('authentication required') ||
+        err.message.includes('invalid_grant') ||
+        err.message.includes('Token is revoked') ||
+        err.message.includes('401')
+      )) {
+        // Authentication error
+        addLog('Error: RingCentral authentication issue detected');
+        setError('Authentication issue detected. Please re-authenticate with RingCentral.');
+        setIsAuthError(true);
       } else {
         // Generic error
         setError(err.message || 'An error occurred while making the call');
@@ -152,41 +215,82 @@ export default function RingCentralTestCallPage() {
   };
 
   // Poll for call status
-  const pollCallStatus = async (id: string) => {
-    if (!id) return;
+  const pollCallStatus = (() => {
+    let pollInterval = 5000; // Start with 5 seconds
+    let consecutiveErrors = 0;
+    let backoffMultiplier = 1;
+    let lastCallId: string | null = null;
 
-    try {
-      const response = await fetch(`/api/ringcentral/call-status?callId=${id}&verbose=true`);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        addLog(`Error checking call status: ${errorData.error || 'Unknown error'}`);
-        return;
+    return async function innerPollCallStatus(id: string) {
+      if (!id) return;
+      if (lastCallId !== id) {
+        // Reset backoff if new call
+        pollInterval = 5000;
+        consecutiveErrors = 0;
+        backoffMultiplier = 1;
+        lastCallId = id;
       }
-
-      const data = await response.json();
-      setCallStatus(data);
-
-      // Log status changes
-      if (data.statusDescription) {
-        addLog(`Call status: ${data.statusDescription}`);
-      }
-
-      // Stop polling if call is complete
-      if (data.callDetails?.status?.callStatus === 'Success' ||
-          data.callDetails?.status?.callStatus === 'Failed' ||
-          data.callDetails?.status?.callStatus === 'Busy') {
-        if (statusPolling) {
-          clearInterval(statusPolling);
-          setStatusPolling(null);
-          addLog('Call completed, stopped status polling');
+      try {
+        const response = await fetch(`/api/ringcentral/call-status?callId=${id}&verbose=true`);
+        if (!response.ok) {
+          let errorData = {};
+          try { errorData = await response.json(); } catch {}
+          const errorMsg = errorData.error || 'Unknown error';
+          addLog(`Error checking call status: ${errorMsg}`);
+          // Handle rate limiting
+          if (errorMsg.includes('Rate limited')) {
+            backoffMultiplier = Math.min(backoffMultiplier * 2, 6); // Cap at 32s
+            pollInterval = 5000 * backoffMultiplier;
+            addLog(`Rate limited. Increasing poll interval to ${pollInterval / 1000}s.`);
+          } else if (errorMsg.includes('Resource for parameter [ringOutId] is not found')) {
+            addLog('Call resource not found. Stopping polling.');
+            if (statusPolling) {
+              clearInterval(statusPolling);
+              setStatusPolling(null);
+            }
+            return;
+          } else {
+            consecutiveErrors++;
+            pollInterval = 5000 + consecutiveErrors * 2000;
+          }
+          return;
+        }
+        const data = await response.json();
+        setCallStatus(data);
+        // Log status changes
+        if (data.statusDescription) {
+          addLog(`Call status: ${data.statusDescription}`);
+        }
+        // Stop polling if call is complete
+        if (data.callDetails?.status?.callStatus === 'Success' ||
+            data.callDetails?.status?.callStatus === 'Failed' ||
+            data.callDetails?.status?.callStatus === 'Busy') {
+          if (statusPolling) {
+            clearInterval(statusPolling);
+            setStatusPolling(null);
+            addLog('Call completed, stopped status polling');
+          }
+          return;
+        }
+        // Reset backoff on success
+        pollInterval = 5000;
+        consecutiveErrors = 0;
+        backoffMultiplier = 1;
+      } catch (err: any) {
+        addLog(`Error polling call status: ${err.message}`);
+        consecutiveErrors++;
+        pollInterval = 5000 + consecutiveErrors * 2000;
+        if (consecutiveErrors >= 5) {
+          addLog('Too many consecutive errors. Stopping polling.');
+          if (statusPolling) {
+            clearInterval(statusPolling);
+            setStatusPolling(null);
+          }
+          return;
         }
       }
-
-    } catch (err: any) {
-      addLog(`Error polling call status: ${err.message}`);
-    }
-  };
+    };
+  })();
 
   // Cancel call status polling
   const cancelStatusPolling = () => {
@@ -280,6 +384,12 @@ export default function RingCentralTestCallPage() {
     }
   };
 
+  // Re-authenticate with RingCentral
+  const handleReAuthenticate = () => {
+    addLog('Initiating re-authentication with RingCentral...');
+    authenticateWithRingCentral(window.location.pathname);
+  };
+
   // Clean up on unmount
   useEffect(() => {
     return () => {
@@ -290,7 +400,16 @@ export default function RingCentralTestCallPage() {
   }, [statusPolling]);
 
   return (
-    <>
+    <div>
+      {/* RingCentral Embeddable 2.0 Widget */}
+      <div style={{ marginBottom: 32 }}>
+        {/* <RingCentralEmbeddableWidget 
+          clientId={rcClientId} 
+          appServer={rcAppServer} 
+          redirectUri={rcRedirectUri} 
+        /> */}
+      </div>
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold tracking-tight">RingCentral RingOut Test</h1>
       </div>
@@ -388,10 +507,15 @@ export default function RingCentralTestCallPage() {
               </div>
 
               {error && (
-                <Alert variant="destructive">
-                  <XCircle className="h-4 w-4" />
+                <Alert variant="destructive" className="mt-4">
+                  <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
+                  {isAuthError && (
+                    <Button variant="outline" className="mt-2" onClick={handleReAuthenticate}>
+                      Re-authenticate with RingCentral
+                    </Button>
+                  )}
                 </Alert>
               )}
 
@@ -517,6 +641,6 @@ export default function RingCentralTestCallPage() {
           </CardContent>
         </Card>
       )}
-    </>
+    </div>
   );
 }

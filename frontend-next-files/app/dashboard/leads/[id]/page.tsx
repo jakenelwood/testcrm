@@ -32,6 +32,7 @@ import { OtherInsuredForm } from '@/components/forms/other-insured-form';
 import { VehicleForm } from '@/components/forms/vehicle-form';
 import { HomeForm } from '@/components/forms/home-form';
 import { SpecialtyItemForm } from '@/components/forms/specialty-item-form';
+import { DevelopmentModeBanner } from "@/components/ui/development-mode-banner";
 
 export default function LeadDetailsPage() {
   const params = useParams();
@@ -502,6 +503,82 @@ export default function LeadDetailsPage() {
     }
   ];
 
+  // Mock data for other insureds, vehicles, homes, and specialty items
+  const mockOtherInsureds = [
+    {
+      id: '1',
+      lead_id: params?.id as string,
+      client_id: '123',
+      first_name: 'Jane',
+      last_name: 'User',
+      relationship: 'Spouse',
+      date_of_birth: '1992-05-15',
+      gender: 'Female',
+      drivers_license: 'DL67890',
+      license_state: 'CA',
+      marital_status: 'Married',
+      education_occupation: 'Teacher',
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString() // 2 days ago
+    }
+  ];
+
+  const mockVehicles = [
+    {
+      id: '1',
+      lead_id: params?.id as string,
+      client_id: '123',
+      year: '2020',
+      make: 'Toyota',
+      model: 'RAV4',
+      vin: 'JTMWFREV2ND123456',
+      usage: 'Commute',
+      annual_mileage: '12000',
+      ownership: 'Owned',
+      primary_driver: 'Demo User',
+      collision: true,
+      comprehensive: true,
+      gap_coverage: false,
+      glass_coverage: true,
+      rental_coverage: true,
+      towing_coverage: false,
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString() // 2 days ago
+    }
+  ];
+
+  const mockHomes = [
+    {
+      id: '1',
+      lead_id: params?.id as string,
+      client_id: '123',
+      address_street: '123 Main St',
+      address_city: 'Anytown',
+      address_state: 'CA',
+      address_zip: '12345',
+      year_built: '1995',
+      square_feet: '2200',
+      construction_type: 'Frame',
+      roof_type: 'Composite Shingle',
+      number_of_stories: '2',
+      ownership_type: 'Owned',
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString() // 2 days ago
+    }
+  ];
+
+  const mockSpecialtyItems = [
+    {
+      id: '1',
+      lead_id: params?.id as string,
+      client_id: '123',
+      type: 'Boat',
+      year: '2018',
+      make: 'Sea Ray',
+      model: 'Sundancer 320',
+      identification_number: 'BOAT123456789XYZ',
+      value: '120000',
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString() // 2 days ago
+    }
+  ];
+
   // Fetch lead notes and communications
   useEffect(() => {
     if (params?.id) {
@@ -670,19 +747,19 @@ export default function LeadDetailsPage() {
       };
 
       const fetchOtherInsureds = async () => {
-        try {
-          // First check if the table exists
-          const { error: tableError } = await supabase
-            .from('other_insureds')
-            .select('count')
-            .limit(1)
-            .single();
+        // In development mode, use mock data by default
+        if (isDev) {
+          // Check if we should attempt to connect to the database
+          const shouldTryDatabase = localStorage.getItem('crm_try_database') === 'true';
 
-          if (tableError && tableError.code === '42P01') { // Table doesn't exist
-            console.log('other_insureds table does not exist yet');
-            return; // Exit early
+          if (!shouldTryDatabase) {
+            console.log('Using mock other insureds data in development mode');
+            setOtherInsureds(mockOtherInsureds);
+            return;
           }
+        }
 
+        try {
           const { data, error } = await supabase
             .from('other_insureds')
             .select('*')
@@ -690,28 +767,47 @@ export default function LeadDetailsPage() {
             .order('created_at', { ascending: false });
 
           if (error) {
-            console.error('Error fetching other insureds:', error);
+            if (isDev) {
+              console.log('Using mock other insureds data due to database error');
+              setOtherInsureds(mockOtherInsureds);
+            } else {
+              console.error('Error fetching other insureds:', error);
+              setOtherInsureds([]);
+            }
           } else {
             setOtherInsureds(data || []);
           }
         } catch (err) {
-          console.log('Could not fetch other insureds, table may not exist yet');
-          setOtherInsureds([]);
+          if (isDev) {
+            console.log('Using mock other insureds data due to exception');
+            setOtherInsureds(mockOtherInsureds);
+          } else {
+            console.error('Error fetching other insureds:', err);
+            setOtherInsureds([]);
+          }
         }
       };
 
       const fetchVehicles = async () => {
         try {
-          // First check if the table exists
-          const { error: tableError } = await supabase
-            .from('vehicles')
-            .select('count')
-            .limit(1)
-            .single();
+          // In development mode, check if the table exists
+          if (isDev) {
+            try {
+              // First check if the table exists
+              const { error: tableError } = await supabase
+                .from('vehicles')
+                .select('count')
+                .limit(1)
+                .single();
 
-          if (tableError && tableError.code === '42P01') { // Table doesn't exist
-            console.log('vehicles table does not exist yet');
-            return; // Exit early
+              if (tableError && tableError.code === '42P01') { // Table doesn't exist
+                console.log('vehicles table does not exist yet, using mock data');
+                setVehicles(mockVehicles);
+                return; // Exit early
+              }
+            } catch (tableCheckError) {
+              console.error('Error checking vehicles table:', tableCheckError);
+            }
           }
 
           const { data, error } = await supabase
@@ -722,27 +818,46 @@ export default function LeadDetailsPage() {
 
           if (error) {
             console.error('Error fetching vehicles:', error);
+            // Use mock data in development mode
+            if (isDev) {
+              console.log('Using mock vehicles data due to error');
+              setVehicles(mockVehicles);
+            }
           } else {
             setVehicles(data || []);
           }
         } catch (err) {
-          console.log('Could not fetch vehicles, table may not exist yet');
-          setVehicles([]);
+          console.error('Error fetching vehicles:', err);
+          // Use mock data in development mode
+          if (isDev) {
+            console.log('Using mock vehicles data due to error');
+            setVehicles(mockVehicles);
+          } else {
+            setVehicles([]);
+          }
         }
       };
 
       const fetchHomes = async () => {
         try {
-          // First check if the table exists
-          const { error: tableError } = await supabase
-            .from('homes')
-            .select('count')
-            .limit(1)
-            .single();
+          // In development mode, check if the table exists
+          if (isDev) {
+            try {
+              // First check if the table exists
+              const { error: tableError } = await supabase
+                .from('homes')
+                .select('count')
+                .limit(1)
+                .single();
 
-          if (tableError && tableError.code === '42P01') { // Table doesn't exist
-            console.log('homes table does not exist yet');
-            return; // Exit early
+              if (tableError && tableError.code === '42P01') { // Table doesn't exist
+                console.log('homes table does not exist yet, using mock data');
+                setHomes(mockHomes);
+                return; // Exit early
+              }
+            } catch (tableCheckError) {
+              console.error('Error checking homes table:', tableCheckError);
+            }
           }
 
           const { data, error } = await supabase
@@ -753,27 +868,46 @@ export default function LeadDetailsPage() {
 
           if (error) {
             console.error('Error fetching homes:', error);
+            // Use mock data in development mode
+            if (isDev) {
+              console.log('Using mock homes data due to error');
+              setHomes(mockHomes);
+            }
           } else {
             setHomes(data || []);
           }
         } catch (err) {
-          console.log('Could not fetch homes, table may not exist yet');
-          setHomes([]);
+          console.error('Error fetching homes:', err);
+          // Use mock data in development mode
+          if (isDev) {
+            console.log('Using mock homes data due to error');
+            setHomes(mockHomes);
+          } else {
+            setHomes([]);
+          }
         }
       };
 
       const fetchSpecialtyItems = async () => {
         try {
-          // First check if the table exists
-          const { error: tableError } = await supabase
-            .from('specialty_items')
-            .select('count')
-            .limit(1)
-            .single();
+          // In development mode, check if the table exists
+          if (isDev) {
+            try {
+              // First check if the table exists
+              const { error: tableError } = await supabase
+                .from('specialty_items')
+                .select('count')
+                .limit(1)
+                .single();
 
-          if (tableError && tableError.code === '42P01') { // Table doesn't exist
-            console.log('specialty_items table does not exist yet');
-            return; // Exit early
+              if (tableError && tableError.code === '42P01') { // Table doesn't exist
+                console.log('specialty_items table does not exist yet, using mock data');
+                setSpecialtyItems(mockSpecialtyItems);
+                return; // Exit early
+              }
+            } catch (tableCheckError) {
+              console.error('Error checking specialty_items table:', tableCheckError);
+            }
           }
 
           const { data, error } = await supabase
@@ -784,12 +918,23 @@ export default function LeadDetailsPage() {
 
           if (error) {
             console.error('Error fetching specialty items:', error);
+            // Use mock data in development mode
+            if (isDev) {
+              console.log('Using mock specialty items data due to error');
+              setSpecialtyItems(mockSpecialtyItems);
+            }
           } else {
             setSpecialtyItems(data || []);
           }
         } catch (err) {
-          console.log('Could not fetch specialty items, table may not exist yet');
-          setSpecialtyItems([]);
+          console.error('Error fetching specialty items:', err);
+          // Use mock data in development mode
+          if (isDev) {
+            console.log('Using mock specialty items data due to error');
+            setSpecialtyItems(mockSpecialtyItems);
+          } else {
+            setSpecialtyItems([]);
+          }
         }
       };
 
@@ -1646,35 +1791,26 @@ export default function LeadDetailsPage() {
     );
   }
 
-  // Check if we're in development mode
-  const isDev = process.env.NODE_ENV === 'development';
-
   return (
     <div className="container mx-auto py-8">
-      {/* Development Mode Indicator */}
-      {isDev && (
-        <div className="bg-amber-100 border border-amber-300 rounded-lg p-3 mb-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-              <span className="font-medium text-amber-800">Development Mode</span>
-              <p className="text-sm text-amber-700">
-                Using mock data because database tables don't exist yet. Data changes won't be saved to the database.
-              </p>
-            </div>
-          </div>
+      {/* Development Mode Banner */}
+      <DevelopmentModeBanner
+        message="Connected to Supabase database. Some tables may be missing or have permission issues."
+        onRefresh={() => window.location.reload()}
+      />
+
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
           <Button
             variant="outline"
-            size="sm"
-            className="border-amber-300 bg-white text-amber-700 hover:bg-amber-50"
-            onClick={() => window.location.reload()}
+            onClick={() => router.push('/dashboard/leads')}
+            className="border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
           >
-            Refresh
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Leads
           </Button>
         </div>
-      )}
+      </div>
 
       {/* Header with gradient background */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8 border border-gray-200 shadow-sm">

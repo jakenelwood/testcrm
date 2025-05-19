@@ -12,9 +12,10 @@ export async function GET(req: NextRequest) {
   console.log('Timestamp:', new Date().toISOString());
 
   try {
+    let token_to_use: any;
     // Step 1: Get access token from cookies
     console.log('Step 1: Getting access token from cookies');
-    const cookiesObj = cookies();
+    const cookiesObj = await cookies();
     console.log('Cookies available:', cookiesObj.getAll().map(c => c.name));
 
     // Try to get the access token directly
@@ -66,7 +67,7 @@ export async function GET(req: NextRequest) {
         console.log('Access token from API found, length:', access_token_from_api.length);
 
         // Continue with the access token from the API
-        var token_to_use = access_token_from_api;
+        token_to_use = access_token_from_api;
         console.log('Using access token from API');
       } catch (error) {
         console.error('Error getting access token from auth API:', error);
@@ -77,7 +78,7 @@ export async function GET(req: NextRequest) {
       }
     } else {
       console.log('Access token found in cookies, length:', access_token.length);
-      var token_to_use = access_token;
+      token_to_use = access_token;
     }
 
     // Step 2: Make request to RingCentral sip-provision endpoint

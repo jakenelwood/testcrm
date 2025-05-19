@@ -8,6 +8,7 @@ import {
 } from '@/lib/ringcentral/config';
 import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
 import { RingCentralResourceNotFoundError } from '@/utils/ringcentral-client';
+import { RingCentralTokenRevokedError } from '@/utils/ringcentral-client';
 
 interface CallStatusParams {
   callId?: string;
@@ -30,38 +31,38 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
     console.log('Getting cookies for RingCentral client initialization');
     const cookieStore = await cookies();
     troubleshooting.push('Retrieved cookies for RingCentral client');
-    
+
     // Check if we have the access token before trying to use the client
     const accessToken = cookieStore.get('ringcentral_access_token')?.value;
     const tokenExpiry = cookieStore.get('ringcentral_access_token_expiry_time')?.value;
     const refreshToken = cookieStore.get('ringcentral_refresh_token')?.value;
-    
+
     troubleshooting.push(`Token status: accessToken exists: ${!!accessToken}, refreshToken exists: ${!!refreshToken}`);
-    
+
     if (!accessToken) {
       console.log('No access token found in cookies');
       troubleshooting.push('No access token found in cookies');
-      
+
       if (refreshToken) {
         troubleshooting.push('Refresh token found, will attempt to refresh during client initialization');
       } else {
         troubleshooting.push('No refresh token found, authentication will fail');
-        return NextResponse.json({ 
+        return NextResponse.json({
           error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
           troubleshooting,
           authenticated: false
         }, { status: 401 });
       }
     }
-    
+
     if (tokenExpiry && parseInt(tokenExpiry) < Date.now()) {
       console.log('Access token has expired');
       troubleshooting.push(`Access token has expired (expired at ${new Date(parseInt(tokenExpiry)).toISOString()})`);
     }
-    
+
     // Pass the original clientRequest to RingCentralClient for origin detection if needed
     console.log('Initializing RingCentralClient');
-    const client = new RingCentralClient(cookieStore, clientRequest); 
+    const client = new RingCentralClient(cookieStore, clientRequest);
     troubleshooting.push('RingCentralClient initialized');
 
     let endpoint: string;
@@ -79,7 +80,7 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
 
     console.log(`Fetching call status from endpoint: ${endpoint}`);
     troubleshooting.push(`Fetching call status from endpoint: ${endpoint}`);
-    
+
     try {
       const callData = await client.get(endpoint);
       console.log('Call status data:', callData);
@@ -91,7 +92,7 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
         data: callData,
         troubleshooting,
         timestamp: new Date().toISOString(),
-        ...(verbose && { 
+        ...(verbose && {
           verbose: {
               fromNumber: RINGCENTRAL_FROM_NUMBER,
               server: RINGCENTRAL_SERVER,
@@ -103,12 +104,41 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
     } catch (error: any) {
       console.error('Error fetching call status:', error);
       troubleshooting.push(`Error fetching call status: ${error.message}`);
-      
+
       if (error.message && error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR)) {
+        // Check if the error is due to rate limiting
+        if (error.message.includes('rate limit') || error.message.includes('rate limiting')) {
+          console.log('Rate limiting detected, adding delay before retry');
+          troubleshooting.push('Rate limiting detected, adding delay before retry');
+
+          // Add a longer delay for rate limiting (30 seconds)
+          await new Promise(resolve => setTimeout(resolve, 30000));
+
+          // Only retry once for rate limiting
+          if (retryCount < 1) {
+            console.log('Retrying after rate limit delay');
+            troubleshooting.push('Retrying after rate limit delay');
+            return handleCallStatus(params, clientRequest, retryCount + 1);
+          } else {
+            console.log('Maximum rate limit retries reached');
+            troubleshooting.push('Maximum rate limit retries reached');
+            return NextResponse.json({
+              error: 'RingCentral rate limit exceeded. Please try again later.',
+              troubleshooting,
+              authenticated: false,
+              rateLimited: true
+            }, { status: 429 });
+          }
+        }
+
+        // Normal authentication retry logic
         if (retryCount < 2 && refreshToken) {
           console.log(`Authentication failed, attempting to refresh token (retry ${retryCount + 1}/2)...`);
           troubleshooting.push(`Authentication failed, attempting to refresh token (retry ${retryCount + 1}/2)...`);
-          
+
+          // Add a delay before refreshing to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
           // Manually call the refresh API
           try {
             const refreshResponse = await fetch(`${clientRequest.nextUrl.origin}/api/ringcentral/auth?action=refresh`, {
@@ -118,17 +148,32 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
                   .map(c => `${c.name}=${c.value}`)
                   .join('; '),
               },
+              cache: 'no-store',
             });
-            
+
             if (refreshResponse.ok) {
               console.log('Token refreshed successfully, retrying call status request');
               troubleshooting.push('Token refreshed successfully, retrying call status request');
               // Wait a moment for cookies to be set properly
-              await new Promise(resolve => setTimeout(resolve, 500));
+              await new Promise(resolve => setTimeout(resolve, 1000));
               return handleCallStatus(params, clientRequest, retryCount + 1);
             } else {
+              // Check if we're being rate limited
+              if (refreshResponse.status === 429) {
+                console.error('Rate limited during token refresh');
+                troubleshooting.push('Rate limited during token refresh, backing off');
+
+                // Return a specific rate limiting error
+                return NextResponse.json({
+                  error: 'RingCentral rate limit exceeded. Please try again later.',
+                  troubleshooting,
+                  authenticated: false,
+                  rateLimited: true
+                }, { status: 429 });
+              }
+
               console.error('Failed to refresh token, status:', refreshResponse.status);
-              return NextResponse.json({ 
+              return NextResponse.json({
                 error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
                 troubleshooting,
                 authenticated: false
@@ -139,14 +184,14 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
             troubleshooting.push(`Error during token refresh attempt: ${refreshError}`);
           }
         }
-        
-        return NextResponse.json({ 
+
+        return NextResponse.json({
           error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
           troubleshooting,
           authenticated: false
         }, { status: 401 });
       }
-      
+
       // Rethrow for the outer catch to handle
       throw error;
     }
@@ -163,7 +208,7 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
         data: { callStatus: 'NotFound', message: error.message },
         troubleshooting,
         timestamp: new Date().toISOString(),
-        ...(verbose && { 
+        ...(verbose && {
           verbose: {
               fromNumber: RINGCENTRAL_FROM_NUMBER,
               server: RINGCENTRAL_SERVER,
@@ -171,6 +216,25 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
           }
         })
       }, { status: 200 });
+    } else if (error instanceof RingCentralTokenRevokedError) {
+      // Handle token revoked error specifically
+      console.log('Call status error: RingCentral token revoked or invalid.');
+      troubleshooting.push('RingCentral token is revoked or invalid. Please re-authenticate.');
+      console.log('========== RINGCENTRAL CALL STATUS API - END (TOKEN REVOKED) ==========');
+      return NextResponse.json({
+        error: error.message,
+        troubleshooting,
+        authenticated: false,
+        reauthorize: true, // Signal to client to re-authenticate
+        timestamp: new Date().toISOString(),
+        ...(verbose && {
+          verbose: {
+              fromNumber: RINGCENTRAL_FROM_NUMBER,
+              server: RINGCENTRAL_SERVER,
+              originalError: error.originalErrorData
+          }
+        })
+      }, { status: 401 });
     } else {
       console.error('Call status error:', error.message, error.stack);
       console.log('========== RINGCENTRAL CALL STATUS API - END (WITH ERROR) ==========');
@@ -194,7 +258,7 @@ export async function GET(request: NextRequest) {
   if (!callId && !ringSessionId) {
     return NextResponse.json({ error: 'callId or ringSessionId query parameter is required' }, { status: 400 });
   }
-  
+
   return handleCallStatus({ callId, ringSessionId, verbose }, request);
 }
 

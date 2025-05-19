@@ -1,0 +1,1017 @@
+Authentication test for Ring Central
+[03:35:25] RingCentral authentication successful
+[03:35:25] RingCentral authentication successful
+[03:35:23] Checking RingCentral authentication...
+[03:35:23] Found RingCentral tokens in database
+[03:35:23] Checking RingCentral authentication...
+[03:35:23] Found RingCentral tokens in database
+[03:35:23] Checking for RingCentral tokens in database...
+[03:35:23] Found Supabase user: 0066229f-b528-4390-b546-cf5211302a98 (brian.h.berge@gmail.com)
+[03:35:23] Checking for RingCentral tokens in database...
+[03:35:23] Found Supabase user: 0066229f-b528-4390-b546-cf5211302a98 (brian.h.berge@gmail.com)
+[03:35:23] Getting current user from Supabase...
+[03:35:23] Initializing Supabase client...
+[03:35:23] Testing authentication...
+[03:35:23] Getting current user from Supabase...
+[03:35:23] Initializing Supabase client...
+[03:35:23] Testing authentication...
+
+Supabase test
+
+[03:36:07] Token expires at: 5/18/2025, 11:26:29 PM
+[03:36:07] ✅ RingCentral tokens found for current user
+[03:36:07] Token expires at: 5/18/2025, 11:26:29 PM
+[03:36:07] ✅ RingCentral tokens found for current user
+[03:36:07] Checking for RingCentral tokens...
+[03:36:07] ✅ All required tables exist
+[03:36:07] Found 28 tables: addresses, ai_interactions, campaigns, clients, code_redemptions, communication_types, contacts, developer_notes, discount_codes, homes, insurance_types, invite_codes, lead_communications, lead_marketing_settings, lead_notes, lead_statuses, leads, opportunities, other_insureds, pipeline_statuses, pipelines, ringcentral_tokens, schema_versions, specialty_items, support_tickets, user_roles, users, vehicles
+[03:36:07] Checking for RingCentral tokens...
+[03:36:07] ✅ All required tables exist
+[03:36:07] Found 28 tables: addresses, ai_interactions, campaigns, clients, code_redemptions, communication_types, contacts, developer_notes, discount_codes, homes, insurance_types, invite_codes, lead_communications, lead_marketing_settings, lead_notes, lead_statuses, leads, opportunities, other_insureds, pipeline_statuses, pipelines, ringcentral_tokens, schema_versions, specialty_items, support_tickets, user_roles, users, vehicles
+[03:36:07] Fetching table list...
+[03:36:07] Database version: PostgreSQL 15.8 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+[03:36:06] Fetching table list...
+[03:36:06] Database version: PostgreSQL 15.8 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit
+[03:36:06] Fetching database version...
+[03:36:06] User Email: brian.h.berge@gmail.com
+[03:36:06] User ID: 0066229f-b528-4390-b546-cf5211302a98
+[03:36:06] Connection successful! User authenticated
+[03:36:06] Fetching database version...
+[03:36:06] User Email: brian.h.berge@gmail.com
+[03:36:06] User ID: 0066229f-b528-4390-b546-cf5211302a98
+[03:36:06] Connection successful! User authenticated
+[03:36:06] Testing connection with auth.getUser()...
+[03:36:06] Initializing Supabase client...
+[03:36:06] Testing Supabase connection...
+[03:36:06] Testing connection with auth.getUser()...
+[03:36:06] Initializing Supabase client...
+[03:36:06] Testing Supabase connection...
+
+RingCentral RingOut Diagnostics
+3)
+Caught exception in main try/catch block
+Phone numbers error: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:239:14)
+    at async RingCentralClient.get (utils/ringcentral-client.ts:266:4)
+    at async GET (app/api/ringcentral/phone-numbers/route.ts:26:29)
+  237 |           refreshError.message, refreshError.stack);
+  238 |         this.authenticated = false;
+> 239 |         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR +
+      |              ^
+  240 |           ` (exception during refresh: ${refreshError.message})`);
+  241 |       }
+  242 |     } catch (error: any) {
+Error stack: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async RingCentralClient.get (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:222:9)
+    at async GET (webpack-internal:///(rsc)/./app/api/ringcentral/phone-numbers/route.ts:30:34)
+    at async AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1915:28)
+    at async DevServer.renderPageComponent (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2440:32)
+    at async DevServer.pipeImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:899:17)
+    at async /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/start-server.js:158:13)
+========== RINGCENTRAL PHONE NUMBERS API - END (WITH ERROR) ==========
+ GET /api/ringcentral/phone-numbers 500 in 4550ms
+========== RINGCENTRAL PHONE NUMBERS API - START ==========
+Timestamp: 2025-05-19T03:36:46.619Z
+Making API call to RingCentral for phone numbers
+RingCentralClient: Ensuring token is valid...
+Error: Route "/api/ringcentral/phone-numbers" used `cookies().get('ringcentral_access_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:61:49)
+    at RingCentralClient.get (utils/ringcentral-client.ts:266:15)
+    at GET (app/api/ringcentral/phone-numbers/route.ts:26:42)
+  59 |       console.log('RingCentralClient: Ensuring token is valid...');
+  60 |       // Always read fresh values from the cookieStore for the current state
+> 61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+     |                                                 ^
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+Error: Route "/api/ringcentral/phone-numbers" used `cookies().get('ringcentral_refresh_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:62:50)
+    at RingCentralClient.get (utils/ringcentral-client.ts:266:15)
+    at GET (app/api/ringcentral/phone-numbers/route.ts:26:42)
+  60 |       // Always read fresh values from the cookieStore for the current state
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+> 62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+     |                                                  ^
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+Error: Route "/api/ringcentral/phone-numbers" used `cookies().get('ringcentral_access_token_expiry_time')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:63:48)
+    at RingCentralClient.get (utils/ringcentral-client.ts:266:15)
+    at GET (app/api/ringcentral/phone-numbers/route.ts:26:42)
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+> 63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+     |                                                ^
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+  66 |       this.accessToken = accessTokenCookie?.value || null;
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-19T03:57:24.009Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-19T03:36:46.888Z',
+  tokenChanged: true,
+  timeRemaining: '20 minutes'
+}
+RingCentralClient: Token changed since last check, validating...
+RingCentralClient: Still rate limited. Backoff period ends in 60 seconds
+RingCentralClient: Rate limiting protection active, cannot refresh token now
+RingCentralClient: Exception during token refresh process: Not authenticated with RingCentral (rate limiting protection active) Error: Not authenticated with RingCentral (rate limiting protection active)
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:103:27)
+    at RingCentralClient.get (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:222:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/phone-numbers/route.ts:30:47)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+RingCentralClient: Exception in _ensureTokenIsValid: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active)) Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at RingCentralClient.get (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:222:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/phone-numbers/route.ts:30:47)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+Caught exception in main try/catch block
+Phone numbers error: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:239:14)
+    at RingCentralClient.get (utils/ringcentral-client.ts:266:15)
+    at GET (app/api/ringcentral/phone-numbers/route.ts:26:42)
+  237 |           refreshError.message, refreshError.stack);
+  238 |         this.authenticated = false;
+> 239 |         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR +
+      |              ^
+  240 |           ` (exception during refresh: ${refreshError.message})`);
+  241 |       }
+  242 |     } catch (error: any) {
+Error stack: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at RingCentralClient.get (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:222:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/phone-numbers/route.ts:30:47)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+========== RINGCENTRAL PHONE NUMBERS API - END (WITH ERROR) ==========
+ GET /api/ringcentral/phone-numbers 500 in 371ms
+ ○ Compiling /api/ringcentral/permissions ...
+ ✓ Compiled /api/ringcentral/permissions in 671ms (2450 modules)
+========== RINGCENTRAL PERMISSIONS API - START ==========
+Timestamp: 2025-05-19T03:36:47.825Z
+RingCentralClient: Ensuring token is valid...
+Error: Route "/api/ringcentral/permissions" used `cookies().get('ringcentral_access_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:61:49)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  59 |       console.log('RingCentralClient: Ensuring token is valid...');
+  60 |       // Always read fresh values from the cookieStore for the current state
+> 61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+     |                                                 ^
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+Error: Route "/api/ringcentral/permissions" used `cookies().get('ringcentral_refresh_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:62:50)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  60 |       // Always read fresh values from the cookieStore for the current state
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+> 62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+     |                                                  ^
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+Error: Route "/api/ringcentral/permissions" used `cookies().get('ringcentral_access_token_expiry_time')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:63:48)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+> 63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+     |                                                ^
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+  66 |       this.accessToken = accessTokenCookie?.value || null;
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-19T03:57:24.009Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-19T03:36:48.098Z',
+  tokenChanged: true,
+  timeRemaining: '20 minutes'
+}
+RingCentralClient: Token changed since last check, validating...
+Error: Route "/api/ringcentral/permissions" used `cookies().getAll()`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:125:44)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  123 |         // Use this.cookieStore to construct the Cookie header for the internal fetch call
+  124 |         // Collect all cookies
+> 125 |         const allCookies = this.cookieStore.getAll();
+      |                                            ^
+  126 |         const cookieHeader = allCookies
+  127 |           .map(c => `${c.name}=${c.value}`)
+  128 |           .join('; ');
+RingCentralClient: Calling internal refresh URL: http://localhost:3000/api/ringcentral/auth?action=refresh
+========== RINGCENTRAL TOKEN REFRESH API - START ==========
+Timestamp: 2025-05-19T03:36:48.289Z
+Request URL: http://localhost:3000/api/ringcentral/auth?action=refresh
+Request headers: {
+  accept: '*/*',
+  'accept-encoding': 'gzip, deflate',
+  'accept-language': '*',
+  'cache-control': 'no-cache',
+  connection: 'keep-alive',
+  cookie: 'ajs_anonymous_id=0d631a5c-0901-4f52-84f8-c8302dcc8d0b; ringcentral_token_expiry=1747627030167; ringcentral_refresh_token_expiry_time=1748228244009; ringcentral_refresh_token=U0pDMDFQMDFQQVMwMHxBQUI4MWdUTWdlN1NlbXNEcWdqNWNxX2x1a3EyN2ZvUXlaLUl3MTVMVkI1QVVlVG4tbzlWZExxSW1Lck43RmxwRUVGa1J5aHNXWkYyMnNfeEV6WWZpYjdFbHpPUW5vNDVickhkMEJpS0M1UXEzWENkSVZhdHMwMTRuOWpDTlpkWmJwMUlqdHk1a1JpT0N4V2tnVUZITlRCYjViS2Q5LUpHWjI2X01BZVV0ZjllTlBOSWIzbEEwdkhZUzRGZk1SbmVYUVl4MkRGVUNlTGNlTFVuRG1nQmdjRGNUR2d4b0F8QnZEWHJRfG5rNGttSEowRXRqbHRHeWtpdjFCQmd8QVF8QUF8QUFBQUFKOHBlLUU; ringcentral_access_token=U0pDMDFQMDFQQVMwMHxBQUFyaGdtSk1KT24tTnFkWXIxQVFxbDB1Q3l6b0FXYlQ0dDN2WHRnMTk4ZVJNVkU3OEhXYmk0V1Y4Z3JNYjlyNHlLWDN1NmsyMjdPS0VSTE1QZDFPWDR0NENKTlZOM3BBdnNZd2U1LV9laEplUnFYdzlhRUhYRUdNV213UWZVSUEwRVJyOGNqRkNCeDFEVFFBRDFlcm5pMWFWSkFwM1g3SE42Z0d5R0NFUk4yRm1mdGdTQXp0RTJJclJmYmhRalBfcjRNSEJnTU8yVmtKVFNmOFVzdl9NTDhDZHZyYkF8QnZEWHJRfDRMNVJmSXQ0V3B4emI1MTVQcXQ2MHd8QVF8QUF8QUFBQUFNU0puOXc; ringcentral_access_token_expiry_time=1747627044009; __next_hmr_refresh_hash__=c6ea1db1c5bdfbc500542eb7db78aed046fa27693254fc75; sb-vpwvdfrxvvuxojejnegm-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWtsdk0wMDVhMWRhZGxkUFQySXpSbUlpTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDNad2QzWmtabko0ZG5aMWVHOXFaV3B1WldkdExuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXdNRFkyTWpJNVppMWlOVEk0TFRRek9UQXRZalUwTmkxalpqVXlNVEV6TURKaE9UZ2lMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRM05qSTVNekV5TENKcFlYUWlPakUzTkRjMk1qVTNNVElzSW1WdFlXbHNJam9pWW5KcFlXNHVhQzVpWlhKblpVQm5iV0ZwYkM1amIyMGlMQ0p3YUc5dVpTSTZJaUlzSW1Gd2NGOXRaWFJoWkdGMFlTSTZleUp3Y205MmFXUmxjaUk2SW1WdFlXbHNJaXdpY0hKdmRtbGtaWEp6SWpwYkltVnRZV2xzSWwxOUxDSjFjMlZ5WDIxbGRHRmtZWFJoSWpwN0ltVnRZV2xzSWpvaVluSnBZVzR1YUM1aVpYSm5aVUJuYldGcGJDNWpiMjBpTENKbGJXRnBiRjkyWlhKcFptbGxaQ0k2ZEhKMVpTd2lablZzYkY5dVlXMWxJam9pUW5KcFlXNGdRbVZ5WjJVaUxDSndhRzl1WlY5MlpYSnBabWxsWkNJNlptRnNjMlVzSW5OMVlpSTZJakF3TmpZeU1qbG1MV0kxTWpndE5ETTVNQzFpTlRRMkxXTm1OVEl4TVRNd01tRTVPQ0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW5CaGMzTjNiM0prSWl3aWRHbHRaWE4wWVcxd0lqb3hOelEzTmpJMU56RXlmVjBzSW5ObGMzTnBiMjVmYVdRaU9pSmtNMlJtTXpWbU9DMWxNRFV3TFRSaVpHRXRZVEJpWkMxa05HTTBNemRrWlRsbU5qSWlMQ0pwYzE5aGJtOXVlVzF2ZFhNaU9tWmhiSE5sZlEuNDc1ZVdLSHFVS0c1aG5ZbTBXMlBHWVg0b1dqeGNjd1RCR2hfSkNTSmVEZyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ3NjI5MzEyLCJyZWZyZXNoX3Rva2VuIjoiZG92c2toeWcyN3g1IiwidXNlciI6eyJpZCI6IjAwNjYyMjlmLWI1MjgtNDM5MC1iNTQ2LWNmNTIxMTMwMmE5OCIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoiYnJpYW4uaC5iZXJnZUBnbWFpbC5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xOTM1NFoiLCJjb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJyZWNvdmVyeV9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjo0NzozMS4yMDg5MDlaIiwibGFzdF9zaWduX2luX2F0IjoiMjAyNS0wNS0xOVQwMzozNToxMi4wOTY3Nzg4NTVaIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmdWxsX25hbWUiOiJCcmlhbiBCZXJnZSIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4In0sImlkZW50aXRpZXMiOlt7ImlkZW50aXR5X2lkIjoiZWI1YzZiYmQtZGU1My00NDBjLTk3YTAtZWIzMWVhZjFiOGJkIiwiaWQiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgiLCJ1c2VyX2lkIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4IiwiaWRlbnRpdHlfZGF0YSI6eyJlbWFpbCI6ImJyaWFuLmguYmVyZ2VAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IkJyaWFuIEJlcmdlIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTcwNjk3WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEyOjMzLjE3MDc1NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xNzA3NTZaIiwiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTQyNjUxWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA1LTE5VDAzOjM1OjEyLjA5OTkxNFoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  host: 'localhost:3000',
+  pragma: 'no-cache',
+  'sec-fetch-mode': 'cors',
+  'user-agent': 'node',
+  'x-forwarded-for': '::ffff:127.0.0.1',
+  'x-forwarded-host': 'localhost:3000',
+  'x-forwarded-port': '3000',
+  'x-forwarded-proto': 'http'
+}
+Step 1: Attempting to refresh token with RingCentral
+Refresh token info: { tokenLength: 379, firstFiveChars: 'U0pDM', lastFiveChars: 'BlLUU' }
+Refresh token request details:
+ Token URL: https://platform.ringcentral.com/restapi/oauth/token
+ Grant Type: refresh_token
+ Client ID: 9NGTe08cOAJakQ7ZSuJh01
+RingCentral token refresh failed. Status: 429
+Response body: {
+  errorCode: 'CMN-301',
+  message: 'Request rate exceeded',
+  errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ]
+}
+ GET /api/ringcentral/auth?action=refresh 429 in 183ms
+RingCentralClient: Rate limited by RingCentral (429 response)
+RingCentralClient: Rate limited by RingCentral. Backing off for 30 seconds until 2025-05-19T03:37:18.448Z
+RingCentralClient: Rate limiting detected in response
+RingCentralClient: Rate limited by RingCentral. Backing off for 60 seconds until 2025-05-19T03:37:48.449Z
+RingCentralClient: Exception during token refresh process: Not authenticated with RingCentral (rate limited by RingCentral) Error: Not authenticated with RingCentral (rate limited by RingCentral)
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:170:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:9)
+    at async GET (webpack-internal:///(rsc)/./app/api/ringcentral/permissions/route.ts:22:36)
+    at async AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1915:28)
+    at async DevServer.renderPageComponent (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2440:32)
+    at async DevServer.pipeImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:899:17)
+    at async /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/start-server.js:158:13)
+RingCentralClient: Exception in _ensureTokenIsValid: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral)) Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:9)
+    at async GET (webpack-internal:///(rsc)/./app/api/ringcentral/permissions/route.ts:22:36)
+    at async AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1915:28)
+    at async DevServer.renderPageComponent (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2440:32)
+    at async DevServer.pipeImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:899:17)
+    at async /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/start-server.js:158:13)
+Caught exception in main try/catch block
+Permissions error: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:239:14)
+    at async RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:4)
+    at async GET (app/api/ringcentral/permissions/route.ts:18:31)
+  237 |           refreshError.message, refreshError.stack);
+  238 |         this.authenticated = false;
+> 239 |         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR +
+      |              ^
+  240 |           ` (exception during refresh: ${refreshError.message})`);
+  241 |       }
+  242 |     } catch (error: any) {
+Error stack: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:9)
+    at async GET (webpack-internal:///(rsc)/./app/api/ringcentral/permissions/route.ts:22:36)
+    at async AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1915:28)
+    at async DevServer.renderPageComponent (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2440:32)
+    at async DevServer.pipeImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:899:17)
+    at async /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/start-server.js:158:13)
+========== RINGCENTRAL PERMISSIONS API - END (WITH ERROR) ==========
+ GET /api/ringcentral/permissions 401 in 1423ms
+ ○ Compiling /api/ringcentral/diagnostics ...
+ ✓ Compiled /api/ringcentral/diagnostics in 987ms (2452 modules)
+========== RINGCENTRAL DIAGNOSTICS API - START ==========
+Timestamp: 2025-05-19T03:36:49.656Z
+Environment variables: {
+  RINGCENTRAL_SERVER: 'https://platform.ringcentral.com',
+  RINGCENTRAL_CLIENT_ID: '[REDACTED]',
+  RINGCENTRAL_CLIENT_SECRET: '[REDACTED]',
+  RINGCENTRAL_USERNAME: '[REDACTED]',
+  RINGCENTRAL_EXTENSION: '101',
+  RINGCENTRAL_PASSWORD: '[REDACTED]',
+  RINGCENTRAL_FROM_NUMBER: '+16124643934',
+  NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER: undefined,
+  REDIRECT_URI: 'http://localhost:3000/oauth-callback',
+  NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+  NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID: 'Not set',
+  NEXT_PUBLIC_RINGCENTRAL_SERVER: undefined,
+  NEXT_PUBLIC_RINGCENTRAL_DOMAIN: undefined
+}
+Checking authentication tokens
+RingCentralClient: Ensuring token is valid...
+Error: Route "/api/ringcentral/diagnostics" used `cookies().get('ringcentral_access_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:61:49)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  59 |       console.log('RingCentralClient: Ensuring token is valid...');
+  60 |       // Always read fresh values from the cookieStore for the current state
+> 61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+     |                                                 ^
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+Error: Route "/api/ringcentral/diagnostics" used `cookies().get('ringcentral_refresh_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:62:50)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  60 |       // Always read fresh values from the cookieStore for the current state
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+> 62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+     |                                                  ^
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+Error: Route "/api/ringcentral/diagnostics" used `cookies().get('ringcentral_access_token_expiry_time')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:63:48)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+> 63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+     |                                                ^
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+  66 |       this.accessToken = accessTokenCookie?.value || null;
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-19T03:57:24.009Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-19T03:36:50.057Z',
+  tokenChanged: true,
+  timeRemaining: '20 minutes'
+}
+RingCentralClient: Token changed since last check, validating...
+Error: Route "/api/ringcentral/diagnostics" used `cookies().getAll()`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:125:44)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  123 |         // Use this.cookieStore to construct the Cookie header for the internal fetch call
+  124 |         // Collect all cookies
+> 125 |         const allCookies = this.cookieStore.getAll();
+      |                                            ^
+  126 |         const cookieHeader = allCookies
+  127 |           .map(c => `${c.name}=${c.value}`)
+  128 |           .join('; ');
+RingCentralClient: Calling internal refresh URL: http://localhost:3000/api/ringcentral/auth?action=refresh
+========== RINGCENTRAL PERMISSIONS API - START ==========
+Timestamp: 2025-05-19T03:36:50.169Z
+RingCentralClient: Ensuring token is valid...
+Error: Route "/api/ringcentral/permissions" used `cookies().get('ringcentral_access_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:61:49)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  59 |       console.log('RingCentralClient: Ensuring token is valid...');
+  60 |       // Always read fresh values from the cookieStore for the current state
+> 61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+     |                                                 ^
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+Error: Route "/api/ringcentral/permissions" used `cookies().get('ringcentral_refresh_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:62:50)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  60 |       // Always read fresh values from the cookieStore for the current state
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+> 62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+     |                                                  ^
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+Error: Route "/api/ringcentral/permissions" used `cookies().get('ringcentral_access_token_expiry_time')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:63:48)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+> 63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+     |                                                ^
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+  66 |       this.accessToken = accessTokenCookie?.value || null;
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-19T03:57:24.009Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-19T03:36:50.481Z',
+  tokenChanged: true,
+  timeRemaining: '20 minutes'
+}
+RingCentralClient: Token changed since last check, validating...
+RingCentralClient: Too many refresh attempts. Please wait 5 seconds
+RingCentralClient: Rate limiting protection active, cannot refresh token now
+RingCentralClient: Exception during token refresh process: Not authenticated with RingCentral (rate limiting protection active) Error: Not authenticated with RingCentral (rate limiting protection active)
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:103:27)
+    at RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/permissions/route.ts:22:49)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+RingCentralClient: Exception in _ensureTokenIsValid: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active)) Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/permissions/route.ts:22:49)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+Caught exception in main try/catch block
+Permissions error: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:239:14)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/permissions/route.ts:18:44)
+  237 |           refreshError.message, refreshError.stack);
+  238 |         this.authenticated = false;
+> 239 |         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR +
+      |              ^
+  240 |           ` (exception during refresh: ${refreshError.message})`);
+  241 |       }
+  242 |     } catch (error: any) {
+Error stack: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/permissions/route.ts:22:49)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+========== RINGCENTRAL PERMISSIONS API - END (WITH ERROR) ==========
+ GET /api/ringcentral/permissions 401 in 1968ms
+========== RINGCENTRAL TOKEN REFRESH API - START ==========
+Timestamp: 2025-05-19T03:36:50.693Z
+Request URL: http://localhost:3000/api/ringcentral/auth?action=refresh
+Request headers: {
+  accept: '*/*',
+  'accept-encoding': 'gzip, deflate',
+  'accept-language': '*',
+  'cache-control': 'no-cache',
+  connection: 'keep-alive',
+  cookie: 'ajs_anonymous_id=0d631a5c-0901-4f52-84f8-c8302dcc8d0b; ringcentral_token_expiry=1747627030167; ringcentral_refresh_token_expiry_time=1748228244009; ringcentral_refresh_token=U0pDMDFQMDFQQVMwMHxBQUI4MWdUTWdlN1NlbXNEcWdqNWNxX2x1a3EyN2ZvUXlaLUl3MTVMVkI1QVVlVG4tbzlWZExxSW1Lck43RmxwRUVGa1J5aHNXWkYyMnNfeEV6WWZpYjdFbHpPUW5vNDVickhkMEJpS0M1UXEzWENkSVZhdHMwMTRuOWpDTlpkWmJwMUlqdHk1a1JpT0N4V2tnVUZITlRCYjViS2Q5LUpHWjI2X01BZVV0ZjllTlBOSWIzbEEwdkhZUzRGZk1SbmVYUVl4MkRGVUNlTGNlTFVuRG1nQmdjRGNUR2d4b0F8QnZEWHJRfG5rNGttSEowRXRqbHRHeWtpdjFCQmd8QVF8QUF8QUFBQUFKOHBlLUU; ringcentral_access_token=U0pDMDFQMDFQQVMwMHxBQUFyaGdtSk1KT24tTnFkWXIxQVFxbDB1Q3l6b0FXYlQ0dDN2WHRnMTk4ZVJNVkU3OEhXYmk0V1Y4Z3JNYjlyNHlLWDN1NmsyMjdPS0VSTE1QZDFPWDR0NENKTlZOM3BBdnNZd2U1LV9laEplUnFYdzlhRUhYRUdNV213UWZVSUEwRVJyOGNqRkNCeDFEVFFBRDFlcm5pMWFWSkFwM1g3SE42Z0d5R0NFUk4yRm1mdGdTQXp0RTJJclJmYmhRalBfcjRNSEJnTU8yVmtKVFNmOFVzdl9NTDhDZHZyYkF8QnZEWHJRfDRMNVJmSXQ0V3B4emI1MTVQcXQ2MHd8QVF8QUF8QUFBQUFNU0puOXc; ringcentral_access_token_expiry_time=1747627044009; __next_hmr_refresh_hash__=c6ea1db1c5bdfbc500542eb7db78aed046fa27693254fc75; sb-vpwvdfrxvvuxojejnegm-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWtsdk0wMDVhMWRhZGxkUFQySXpSbUlpTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDNad2QzWmtabko0ZG5aMWVHOXFaV3B1WldkdExuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXdNRFkyTWpJNVppMWlOVEk0TFRRek9UQXRZalUwTmkxalpqVXlNVEV6TURKaE9UZ2lMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRM05qSTVNekV5TENKcFlYUWlPakUzTkRjMk1qVTNNVElzSW1WdFlXbHNJam9pWW5KcFlXNHVhQzVpWlhKblpVQm5iV0ZwYkM1amIyMGlMQ0p3YUc5dVpTSTZJaUlzSW1Gd2NGOXRaWFJoWkdGMFlTSTZleUp3Y205MmFXUmxjaUk2SW1WdFlXbHNJaXdpY0hKdmRtbGtaWEp6SWpwYkltVnRZV2xzSWwxOUxDSjFjMlZ5WDIxbGRHRmtZWFJoSWpwN0ltVnRZV2xzSWpvaVluSnBZVzR1YUM1aVpYSm5aVUJuYldGcGJDNWpiMjBpTENKbGJXRnBiRjkyWlhKcFptbGxaQ0k2ZEhKMVpTd2lablZzYkY5dVlXMWxJam9pUW5KcFlXNGdRbVZ5WjJVaUxDSndhRzl1WlY5MlpYSnBabWxsWkNJNlptRnNjMlVzSW5OMVlpSTZJakF3TmpZeU1qbG1MV0kxTWpndE5ETTVNQzFpTlRRMkxXTm1OVEl4TVRNd01tRTVPQ0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW5CaGMzTjNiM0prSWl3aWRHbHRaWE4wWVcxd0lqb3hOelEzTmpJMU56RXlmVjBzSW5ObGMzTnBiMjVmYVdRaU9pSmtNMlJtTXpWbU9DMWxNRFV3TFRSaVpHRXRZVEJpWkMxa05HTTBNemRrWlRsbU5qSWlMQ0pwYzE5aGJtOXVlVzF2ZFhNaU9tWmhiSE5sZlEuNDc1ZVdLSHFVS0c1aG5ZbTBXMlBHWVg0b1dqeGNjd1RCR2hfSkNTSmVEZyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ3NjI5MzEyLCJyZWZyZXNoX3Rva2VuIjoiZG92c2toeWcyN3g1IiwidXNlciI6eyJpZCI6IjAwNjYyMjlmLWI1MjgtNDM5MC1iNTQ2LWNmNTIxMTMwMmE5OCIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoiYnJpYW4uaC5iZXJnZUBnbWFpbC5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xOTM1NFoiLCJjb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJyZWNvdmVyeV9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjo0NzozMS4yMDg5MDlaIiwibGFzdF9zaWduX2luX2F0IjoiMjAyNS0wNS0xOVQwMzozNToxMi4wOTY3Nzg4NTVaIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmdWxsX25hbWUiOiJCcmlhbiBCZXJnZSIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4In0sImlkZW50aXRpZXMiOlt7ImlkZW50aXR5X2lkIjoiZWI1YzZiYmQtZGU1My00NDBjLTk3YTAtZWIzMWVhZjFiOGJkIiwiaWQiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgiLCJ1c2VyX2lkIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4IiwiaWRlbnRpdHlfZGF0YSI6eyJlbWFpbCI6ImJyaWFuLmguYmVyZ2VAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IkJyaWFuIEJlcmdlIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTcwNjk3WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEyOjMzLjE3MDc1NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xNzA3NTZaIiwiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTQyNjUxWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA1LTE5VDAzOjM1OjEyLjA5OTkxNFoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  host: 'localhost:3000',
+  pragma: 'no-cache',
+  'sec-fetch-mode': 'cors',
+  'user-agent': 'node',
+  'x-forwarded-for': '::ffff:127.0.0.1',
+  'x-forwarded-host': 'localhost:3000',
+  'x-forwarded-port': '3000',
+  'x-forwarded-proto': 'http'
+}
+Step 1: Attempting to refresh token with RingCentral
+Refresh token info: { tokenLength: 379, firstFiveChars: 'U0pDM', lastFiveChars: 'BlLUU' }
+Refresh token request details:
+ Token URL: https://platform.ringcentral.com/restapi/oauth/token
+ Grant Type: refresh_token
+ Client ID: 9NGTe08cOAJakQ7ZSuJh01
+RingCentral token refresh failed. Status: 429
+Response body: {
+  errorCode: 'CMN-301',
+  message: 'Request rate exceeded',
+  errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ]
+}
+ GET /api/ringcentral/auth?action=refresh 429 in 174ms
+RingCentralClient: Rate limited by RingCentral (429 response)
+RingCentralClient: Rate limited by RingCentral. Backing off for 30 seconds until 2025-05-19T03:37:20.843Z
+RingCentralClient: Rate limiting detected in response
+RingCentralClient: Rate limited by RingCentral. Backing off for 60 seconds until 2025-05-19T03:37:50.843Z
+RingCentralClient: Exception during token refresh process: Not authenticated with RingCentral (rate limited by RingCentral) Error: Not authenticated with RingCentral (rate limited by RingCentral)
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:170:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:9)
+    at async GET (webpack-internal:///(rsc)/./app/api/ringcentral/diagnostics/route.ts:56:36)
+    at async AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1915:28)
+    at async DevServer.renderPageComponent (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2440:32)
+    at async DevServer.pipeImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:899:17)
+    at async /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/start-server.js:158:13)
+RingCentralClient: Exception in _ensureTokenIsValid: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral)) Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:9)
+    at async GET (webpack-internal:///(rsc)/./app/api/ringcentral/diagnostics/route.ts:56:36)
+    at async AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1915:28)
+    at async DevServer.renderPageComponent (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2440:32)
+    at async DevServer.pipeImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:899:17)
+    at async /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/start-server.js:158:13)
+Error in RingCentral diagnostics: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:239:14)
+    at async RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:4)
+    at async GET (app/api/ringcentral/diagnostics/route.ts:59:31)
+  237 |           refreshError.message, refreshError.stack);
+  238 |         this.authenticated = false;
+> 239 |         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR +
+      |              ^
+  240 |           ` (exception during refresh: ${refreshError.message})`);
+  241 |       }
+  242 |     } catch (error: any) {
+Error stack: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:9)
+    at async GET (webpack-internal:///(rsc)/./app/api/ringcentral/diagnostics/route.ts:56:36)
+    at async AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1915:28)
+    at async DevServer.renderPageComponent (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:2440:32)
+    at async DevServer.pipeImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:899:17)
+    at async /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/start-server.js:158:13)
+========== RINGCENTRAL DIAGNOSTICS API - END (WITH ERROR) ==========
+ GET /api/ringcentral/diagnostics 500 in 2303ms
+========== RINGCENTRAL DIAGNOSTICS API - START ==========
+Timestamp: 2025-05-19T03:36:51.004Z
+Environment variables: {
+  RINGCENTRAL_SERVER: 'https://platform.ringcentral.com',
+  RINGCENTRAL_CLIENT_ID: '[REDACTED]',
+  RINGCENTRAL_CLIENT_SECRET: '[REDACTED]',
+  RINGCENTRAL_USERNAME: '[REDACTED]',
+  RINGCENTRAL_EXTENSION: '101',
+  RINGCENTRAL_PASSWORD: '[REDACTED]',
+  RINGCENTRAL_FROM_NUMBER: '+16124643934',
+  NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER: undefined,
+  REDIRECT_URI: 'http://localhost:3000/oauth-callback',
+  NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+  NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID: 'Not set',
+  NEXT_PUBLIC_RINGCENTRAL_SERVER: undefined,
+  NEXT_PUBLIC_RINGCENTRAL_DOMAIN: undefined
+}
+Checking authentication tokens
+RingCentralClient: Ensuring token is valid...
+Error: Route "/api/ringcentral/diagnostics" used `cookies().get('ringcentral_access_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:61:49)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  59 |       console.log('RingCentralClient: Ensuring token is valid...');
+  60 |       // Always read fresh values from the cookieStore for the current state
+> 61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+     |                                                 ^
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+Error: Route "/api/ringcentral/diagnostics" used `cookies().get('ringcentral_refresh_token')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:62:50)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  60 |       // Always read fresh values from the cookieStore for the current state
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+> 62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+     |                                                  ^
+  63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+Error: Route "/api/ringcentral/diagnostics" used `cookies().get('ringcentral_access_token_expiry_time')`. `cookies()` should be awaited before using its value. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:63:48)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  61 |       const accessTokenCookie = this.cookieStore.get('ringcentral_access_token');
+  62 |       const refreshTokenCookie = this.cookieStore.get('ringcentral_refresh_token');
+> 63 |       const expiryTimeCookie = this.cookieStore.get('ringcentral_access_token_expiry_time');
+     |                                                ^
+  64 |
+  65 |       const oldAccessToken = this.accessToken;
+  66 |       this.accessToken = accessTokenCookie?.value || null;
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-19T03:57:24.009Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-19T03:36:51.293Z',
+  tokenChanged: true,
+  timeRemaining: '20 minutes'
+}
+RingCentralClient: Token changed since last check, validating...
+RingCentralClient: Still rate limited. Backoff period ends in 60 seconds
+RingCentralClient: Rate limiting protection active, cannot refresh token now
+RingCentralClient: Exception during token refresh process: Not authenticated with RingCentral (rate limiting protection active) Error: Not authenticated with RingCentral (rate limiting protection active)
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:103:27)
+    at RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/diagnostics/route.ts:56:49)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+RingCentralClient: Exception in _ensureTokenIsValid: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active)) Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/diagnostics/route.ts:56:49)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+Error in RingCentral diagnostics: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (utils/ringcentral-client.ts:239:14)
+    at RingCentralClient.getValidAccessToken (utils/ringcentral-client.ts:418:15)
+    at GET (app/api/ringcentral/diagnostics/route.ts:59:44)
+  237 |           refreshError.message, refreshError.stack);
+  238 |         this.authenticated = false;
+> 239 |         throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR +
+      |              ^
+  240 |           ` (exception during refresh: ${refreshError.message})`);
+  241 |       }
+  242 |     } catch (error: any) {
+Error stack: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limiting protection active))
+    at RingCentralClient._ensureTokenIsValid (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:200:23)
+    at RingCentralClient.getValidAccessToken (webpack-internal:///(rsc)/./utils/ringcentral-client.ts:363:20)
+    at GET (webpack-internal:///(rsc)/./app/api/ringcentral/diagnostics/route.ts:56:49)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34191)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43872
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:169:36
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:103
+    at NoopContextManager.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/lib/trace/tracer.js:151:28)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at /home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41368)
+    at async doRender (/home/brian-berge/Dev/CRM-REPOSITORY/crm/frontend-next-files/node_modules/next/dist/server/base-server.js:1513:42)
+========== RINGCENTRAL DIAGNOSTICS API - END (WITH ERROR) ==========
+ GET /api/ringcentral/diagnostics 500 in 378ms
+
+RingCentral RingOut Test
+[03:38:37] Error polling call status: Failed to fetch
+[03:38:37] Error polling call status: Failed to fetch
+[03:38:37] Error polling call status: Failed to fetch
+[03:38:37] Error polling call status: Failed to fetch
+[03:38:36] Error ending call: Not authenticated with RingCentral
+[03:38:35] Error checking call status: Not authenticated with RingCentral
+[03:38:31] Attempting to end call with ID: s-a0d16be36b6fez196e69f1830z35309930000...
+[03:38:28] Call initiated successfully with ID: s-a0d16be36b6fez196e69f1830z35309930000
+[03:38:24] Initiating call to +16127996380...
+[03:38:24] Using reformatted phone number: +16127996380
+[03:38:24] Automatically added +1 country code: +16127996380
+[03:38:16] From number set to: +16124643934
+[03:38:16] From number set to: +16124643934
+
+Console
+hook.js:608 Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.
+overrideMethod @ hook.js:608
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 2791ms
+client.ts:24 Supabase client initialized with URL: Available
+:3000/auth/login:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 1611ms
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 943ms
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 2342ms
+ringcentral.ts:79 ========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - START ==========
+ringcentral.ts:80 Timestamp: 2025-05-19T03:35:23.406Z
+ringcentral.ts:83 Making authentication check request to /api/ringcentral/auth?action=check
+ringcentral.ts:79 ========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - START ==========
+ringcentral.ts:80 Timestamp: 2025-05-19T03:35:23.464Z
+ringcentral.ts:83 Making authentication check request to /api/ringcentral/auth?action=check
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+ringcentral.ts:91 Authentication check response status: 200
+ringcentral.ts:92 Authentication check response status text: OK
+ringcentral.ts:101 Authentication check response data: Object
+ringcentral.ts:103 Authentication result: true
+ringcentral.ts:104 ========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - END ==========
+report-hmr-latency.js:14 [Fast Refresh] done in 1255ms
+ringcentral.ts:91 Authentication check response status: 200
+ringcentral.ts:92 Authentication check response status text: OK
+ringcentral.ts:101 Authentication check response data: Object
+ringcentral.ts:103 Authentication result: true
+ringcentral.ts:104 ========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - END ==========
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 994ms
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 932ms
+page.tsx:37 From number set to: +16124643934
+hook.js:377 From number set to: +16124643934
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 1174ms
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 617ms
+:3000/api/ringcentral/account-info:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch account info: 500 Internal Server Error
+overrideMethod @ hook.js:608
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 833ms
+:3000/api/ringcentral/account-info:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch account info: 500 Internal Server Error
+overrideMethod @ hook.js:608
+:3000/api/ringcentral/extension-info:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch extension info: 500 Internal Server Error
+overrideMethod @ hook.js:608
+:3000/api/ringcentral/extension-info:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch extension info: 500 Internal Server Error
+overrideMethod @ hook.js:608
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 939ms
+:3000/api/ringcentral/phone-numbers:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch phone numbers: 500 Internal Server Error
+overrideMethod @ hook.js:608
+:3000/api/ringcentral/phone-numbers:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch phone numbers: 500 Internal Server Error
+overrideMethod @ hook.js:608
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 1009ms
+:3000/api/ringcentral/permissions:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+hook.js:608 Failed to fetch permissions: 401 Unauthorized
+overrideMethod @ hook.js:608
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 594ms
+:3000/api/ringcentral/permissions:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+hook.js:608 Failed to fetch permissions: 401 Unauthorized
+overrideMethod @ hook.js:608
+:3000/api/ringcentral/diagnostics:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch environment config: 500 Internal Server Error
+overrideMethod @ hook.js:608
+:3000/api/ringcentral/diagnostics:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+hook.js:608 Failed to fetch environment config: 500 Internal Server Error
+overrideMethod @ hook.js:608
+page.tsx:37 From number set to: +16124643934
+hook.js:377 From number set to: +16124643934
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 1428ms
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 543ms
+hot-reloader-client.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 467ms
+:3000/api/ringcentral/call-status?callId=s-a0d16be36b6fez196e69f1830z35309930000&verbose=true:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+:3000/api/ringcentral/end-call:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+

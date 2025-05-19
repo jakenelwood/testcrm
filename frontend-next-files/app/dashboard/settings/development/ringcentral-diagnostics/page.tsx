@@ -274,7 +274,7 @@ export default function RingCentralDiagnosticsPage() {
                     {!envConfig.authentication.accessTokenPresent && (
                       <div className="mt-4">
                         <Button
-                          onClick={() => window.location.href = '/api/ringcentral/auth'}
+                          onClick={() => window.location.href = '/api/ringcentral/auth?action=authorize'}
                           className="bg-[#0047AB] hover:bg-[#003d91]"
                         >
                           Authenticate with RingCentral

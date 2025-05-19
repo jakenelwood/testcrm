@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // 2. Check for authentication tokens
     console.log('Checking authentication tokens');
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const client = new RingCentralClient(cookieStore, request);
 
     // Using getValidAccessToken to ensure token is fresh before checking or using it.

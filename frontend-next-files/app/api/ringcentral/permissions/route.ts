@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   console.log('Timestamp:', new Date().toISOString());
 
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const client = new RingCentralClient(cookieStore, request);
 
     // Get the access token, triggering refresh if necessary

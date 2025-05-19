@@ -1,0 +1,2 @@
+frontend-next-files/pages/api/quotes/index.ts
+frontend-next-files/pages/developer-notes/index.tsx

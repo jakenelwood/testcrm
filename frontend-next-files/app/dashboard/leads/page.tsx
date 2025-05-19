@@ -74,6 +74,7 @@ import { fetchPipelines, fetchPipelineById, fetchDefaultPipeline, updateLeadPipe
 import { LeadListView } from "@/components/leads/LeadListView";
 import { PipelineSelector } from "@/components/pipelines/PipelineSelector";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { DevelopmentModeBanner } from "@/components/ui/development-mode-banner";
 
 // Component that uses searchParams
 function LeadsPageContent() {
@@ -472,6 +473,12 @@ function LeadsPageContent() {
 
   return (
     <div className="container mx-auto py-6">
+      {/* Development Mode Banner */}
+      <DevelopmentModeBanner
+        message="Connected to Supabase database. Some tables may be missing or have permission issues."
+        onRefresh={() => window.location.reload()}
+      />
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <h1 className="text-3xl font-bold">

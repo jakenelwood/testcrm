@@ -93,13 +93,41 @@ export async function isRingCentralAuthenticated(): Promise<boolean> {
 
     if (!response.ok) {
       console.warn('RingCentral auth check failed:', response.statusText);
+      try {
+        const errorText = await response.text();
+        console.log('Raw error response text:', errorText);
+      } catch (e) {
+        console.log('Could not get raw error response text.');
+      }
       console.log('========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - END (NOT OK) ==========');
       return false;
     }
 
-    const data = await response.json();
-    console.log('Authentication check response data:', data);
-    const isAuthenticated = data.authenticated === true;
+    // Log raw response text before parsing
+    let rawResponseText = '';
+    try {
+      rawResponseText = await response.text(); // Read text
+      console.log('[RC_AUTH_CHECK_CLIENT] Raw response text:', rawResponseText);
+    } catch (e) {
+      console.error('[RC_AUTH_CHECK_CLIENT] Error reading raw response text:', e);
+      console.log('========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - END (RAW TEXT READ ERROR) ==========');
+      return false;
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawResponseText); // Parse the already read text
+    } catch (e) {
+      console.error('[RC_AUTH_CHECK_CLIENT] Error parsing JSON from raw text:', e);
+      console.log('[RC_AUTH_CHECK_CLIENT] Raw text that failed to parse:', rawResponseText);
+      console.log('========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - END (JSON PARSE ERROR) ==========');
+      return false;
+    }
+    
+    console.log('[RC_AUTH_CHECK_CLIENT] Parsed response data (stringified):', JSON.stringify(data, null, 2));
+    console.log('[RC_AUTH_CHECK_CLIENT] Type of data.isAuthenticated:', typeof data.isAuthenticated, 'Value:', data.isAuthenticated);
+
+    const isAuthenticated = data.isAuthenticated === true; // Strict check
     console.log('Authentication result:', isAuthenticated);
     console.log('========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - END ==========');
     return isAuthenticated;

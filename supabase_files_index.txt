@@ -1,0 +1,9 @@
+supabase/create_missing_functions.sql
+supabase/create_missing_tables_direct.sql
+supabase/create_missing_tables.sql
+supabase/create_ringcentral_tokens_table.sql
+supabase/get_database_info.sql
+supabase/get_simple_database_info.sql
+supabase/list_tables.sql
+supabase/migrations/20230512_ringcentral_tokens.sql
+supabase/README.md

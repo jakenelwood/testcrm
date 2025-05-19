@@ -6,7 +6,9 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "install-deps": "npm install --legacy-peer-deps"
+    "install-deps": "npm install --legacy-peer-deps",
+    "supabase:apply-schema": "node scripts/apply-consolidated-schema.js",
+    "supabase:list-tables": "supabase list tables"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -62,6 +64,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/uuid": "^9.0.8",
+    "dotenv": "^16.4.5",
     "eslint": "^9.25.1",
     "typescript": "5.8.3"
   },

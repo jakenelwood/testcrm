@@ -13,7 +13,7 @@ import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/l
 export async function GET(request: NextRequest) {
   console.log('========== RINGCENTRAL TEST API - START ==========');
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const client = new RingCentralClient(cookieStore, request);
 
     // No explicit isAuthenticated check needed here, client methods will handle it.

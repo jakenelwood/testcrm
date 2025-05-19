@@ -57,27 +57,72 @@ export default function SupabaseTestPage() {
 
       setConnectionStatus('success');
 
-      // Get list of tables
+      // Get list of tables - using _version_info which is a safe view to check connection
+      addLog('Fetching database version...');
+      const { data: versionData, error: versionError } = await supabase
+        .from('_version_info')
+        .select('*')
+        .single();
+
+      if (versionError) {
+        addLog(`Error fetching database version: ${versionError.message}`);
+      } else {
+        addLog(`Database version: ${versionData.version}`);
+      }
+
+      // Get tables via direct SQL query to avoid schema access issues
       addLog('Fetching table list...');
-      const { data: tableData, error: tableError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public');
+      const { data: tableData, error: tableError } = await supabase.rpc('list_tables');
 
       if (tableError) {
         addLog(`Error fetching tables: ${tableError.message}`);
-      } else {
-        const tableNames = tableData.map(t => t.table_name).sort();
-        setTables(tableNames);
-        addLog(`Found ${tableNames.length} tables: ${tableNames.join(', ')}`);
 
-        // Check for required tables
+        // Fallback - try using a simple query to check if specific tables exist
+        addLog('Trying alternative method to check for required tables...');
         const requiredTables = [
           'ringcentral_tokens',
           'specialty_items',
           'other_insureds',
           'vehicles',
           'homes'
+        ];
+
+        let detectedTables = [];
+
+        for (const table of requiredTables) {
+          try {
+            const { count, error: countError } = await supabase
+              .from(table)
+              .select('*', { count: 'exact', head: true });
+
+            if (!countError) {
+              detectedTables.push(table);
+              addLog(`Table '${table}' exists`);
+            }
+          } catch (e) {
+            addLog(`Table '${table}' does not exist or is not accessible`);
+          }
+        }
+
+        setTables(detectedTables);
+        setMissingTables(requiredTables.filter(t => !detectedTables.includes(t)));
+      } else {
+        const tableNames = tableData;
+        setTables(tableNames);
+        addLog(`Found ${tableNames.length} tables: ${tableNames.join(', ')}`);
+
+        // Check for required tables
+        const requiredTables = [
+          'ringcentral_tokens',
+          'clients',
+          'leads',
+          'contacts',
+          'lead_notes',
+          'lead_communications',
+          'lead_marketing_settings',
+          'opportunities',
+          'ai_interactions',
+          'support_tickets'
         ];
 
         const missingTablesList = requiredTables.filter(table => !tableNames.includes(table));
@@ -120,35 +165,6 @@ export default function SupabaseTestPage() {
           }));
         } else {
           addLog('⚠️ No RingCentral tokens found for current user');
-        }
-      }
-
-      // Get database version info
-      addLog('Fetching database version...');
-      try {
-        const { data: versionData } = await supabase.rpc('version');
-        if (versionData) {
-          addLog(`Database version: ${versionData}`);
-          setDatabaseInfo(prev => ({
-            ...prev,
-            version: versionData
-          }));
-        }
-      } catch (versionError) {
-        addLog('Could not retrieve database version using rpc');
-
-        // Try a direct query instead
-        try {
-          const { data: versionQueryData } = await supabase.from('pg_version').select('*').limit(1);
-          if (versionQueryData && versionQueryData.length > 0) {
-            addLog(`Database version from query: ${versionQueryData[0].version}`);
-            setDatabaseInfo(prev => ({
-              ...prev,
-              version: versionQueryData[0].version
-            }));
-          }
-        } catch (queryError) {
-          addLog('Could not retrieve database version information');
         }
       }
 
@@ -212,110 +228,219 @@ export default function SupabaseTestPage() {
             `;
             break;
 
-          case 'specialty_items':
+          case 'clients':
             query = `
-              CREATE TABLE IF NOT EXISTS specialty_items (
+              CREATE TABLE IF NOT EXISTS clients (
                 id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                client_type TEXT NOT NULL CHECK (client_type IN ('Individual', 'Business')),
                 name TEXT NOT NULL,
-                value NUMERIC,
-                description TEXT,
-                user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-              );
-
-              -- Add RLS policy
-              DROP POLICY IF EXISTS "Users can only access their own specialty items" ON specialty_items;
-              CREATE POLICY "Users can only access their own specialty items"
-              ON specialty_items
-              FOR ALL
-              USING (auth.uid() = user_id);
-
-              -- Enable RLS
-              ALTER TABLE specialty_items ENABLE ROW LEVEL SECURITY;
-            `;
-            break;
-
-          case 'other_insureds':
-            query = `
-              CREATE TABLE IF NOT EXISTS other_insureds (
-                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                name TEXT NOT NULL,
-                relationship TEXT,
-                date_of_birth DATE,
-                gender TEXT,
-                user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-              );
-
-              -- Add RLS policy
-              DROP POLICY IF EXISTS "Users can only access their own other insureds" ON other_insureds;
-              CREATE POLICY "Users can only access their own other insureds"
-              ON other_insureds
-              FOR ALL
-              USING (auth.uid() = user_id);
-
-              -- Enable RLS
-              ALTER TABLE other_insureds ENABLE ROW LEVEL SECURITY;
-            `;
-            break;
-
-          case 'vehicles':
-            query = `
-              CREATE TABLE IF NOT EXISTS vehicles (
-                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                make TEXT NOT NULL,
-                model TEXT NOT NULL,
-                year INTEGER,
-                vin TEXT,
-                license_plate TEXT,
+                email TEXT,
+                phone_number TEXT,
+                street_address TEXT,
+                city TEXT,
                 state TEXT,
-                primary_use TEXT,
-                annual_mileage INTEGER,
-                user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+                zip_code TEXT,
+                mailing_address TEXT,
+                referred_by TEXT,
+                date_of_birth TEXT,
+                gender TEXT,
+                marital_status TEXT,
+                drivers_license TEXT,
+                license_state TEXT,
+                education_occupation TEXT,
+                business_type TEXT,
+                industry TEXT,
+                tax_id TEXT,
+                year_established TEXT,
+                annual_revenue DECIMAL(15, 2),
+                number_of_employees INTEGER,
+                contact_first_name TEXT,
+                contact_last_name TEXT,
+                contact_title TEXT,
+                contact_email TEXT,
+                contact_phone TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
               );
-
-              -- Add RLS policy
-              DROP POLICY IF EXISTS "Users can only access their own vehicles" ON vehicles;
-              CREATE POLICY "Users can only access their own vehicles"
-              ON vehicles
-              FOR ALL
-              USING (auth.uid() = user_id);
-
-              -- Enable RLS
-              ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
             `;
             break;
 
-          case 'homes':
+          case 'leads':
             query = `
-              CREATE TABLE IF NOT EXISTS homes (
+              CREATE TABLE IF NOT EXISTS leads (
                 id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                address TEXT NOT NULL,
-                city TEXT NOT NULL,
-                state TEXT NOT NULL,
-                zip TEXT NOT NULL,
-                year_built INTEGER,
-                square_feet INTEGER,
-                construction_type TEXT,
-                roof_type TEXT,
-                user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+                client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+                primary_named_insured_name TEXT,
+                primary_named_insured_email_address TEXT,
+                primary_named_insured_phone_number TEXT,
+                primary_named_insured_address TEXT,
+                primary_named_insured_mailing_address TEXT,
+                primary_named_insured_prior_address TEXT,
+                primary_named_insured_dob TEXT,
+                primary_named_insured_gender TEXT,
+                primary_named_insured_marital_status TEXT,
+                primary_named_insured_dl_number TEXT,
+                primary_named_insured_license_state TEXT,
+                primary_named_insured_education_occupation TEXT,
+                primary_named_insured_relation_to_primary_insured TEXT,
+                primary_named_insured_referred_by TEXT,
+                primary_named_insured_effective_date TEXT,
+                primary_named_insured_current_date TEXT,
+                status TEXT NOT NULL DEFAULT 'New' CHECK (status IN ('New', 'Contacted', 'Quoted', 'Sold', 'Lost')),
+                assigned_to TEXT,
+                notes TEXT,
+                insurance_type TEXT NOT NULL CHECK (insurance_type IN ('Auto', 'Home', 'Specialty', 'Commercial', 'Liability')),
+                current_carrier TEXT,
+                premium DECIMAL(10, 2),
+                auto_premium DECIMAL(10, 2),
+                home_premium DECIMAL(10, 2),
+                specialty_premium DECIMAL(10, 2),
+                commercial_premium DECIMAL(10, 2),
+                home_umbrella_value DECIMAL(10, 2),
+                home_umbrella_uninsured_underinsured TEXT,
+                auto_current_insurance_carrier_auto TEXT,
+                auto_months_with_current_carrier_auto INTEGER,
+                home_months_with_current_carrier INTEGER,
+                home_current_insurance_carrier TEXT,
+                specialty_additional_information TEXT,
+                specialty_cc_size TEXT,
+                specialty_collision_deductible DECIMAL(10, 2),
+                specialty_comprehensive_deductible DECIMAL(10, 2),
+                specialty_comprehensive_location_stored TEXT,
+                specialty_make TEXT,
+                specialty_market_value DECIMAL(10, 2),
+                specialty_max_speed TEXT,
+                specialty_model TEXT,
+                specialty_total_hp TEXT,
+                specialty_type_toy TEXT,
+                specialty_vin TEXT,
+                specialty_year INTEGER,
+                commercial_coverage_type TEXT,
+                commercial_industry TEXT,
+                auto_data JSONB,
+                home_data JSONB,
+                specialty_data JSONB,
+                commercial_data JSONB,
+                liability_data JSONB,
+                additional_insureds JSONB,
+                additional_locations JSONB,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
               );
+            `;
+            break;
 
-              -- Add RLS policy
-              DROP POLICY IF EXISTS "Users can only access their own homes" ON homes;
-              CREATE POLICY "Users can only access their own homes"
-              ON homes
-              FOR ALL
-              USING (auth.uid() = user_id);
+          case 'contacts':
+            query = `
+              CREATE TABLE IF NOT EXISTS contacts (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                title TEXT,
+                email TEXT,
+                phone_number TEXT,
+                is_primary_contact BOOLEAN DEFAULT FALSE,
+                notes TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
+            `;
+            break;
 
-              -- Enable RLS
-              ALTER TABLE homes ENABLE ROW LEVEL SECURITY;
+          case 'lead_notes':
+            query = `
+              CREATE TABLE IF NOT EXISTS lead_notes (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+                note_content TEXT NOT NULL,
+                created_by TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
+            `;
+            break;
+
+          case 'lead_communications':
+            query = `
+              CREATE TABLE IF NOT EXISTS lead_communications (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+                contact_id UUID REFERENCES contacts(id) ON DELETE SET NULL,
+                type TEXT NOT NULL CHECK (type IN ('Email', 'SMS', 'Call', 'Note', 'Meeting')),
+                direction TEXT CHECK (direction IN ('Inbound', 'Outbound')),
+                content TEXT,
+                status TEXT,
+                created_by TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
+            `;
+            break;
+
+          case 'lead_marketing_settings':
+            query = `
+              CREATE TABLE IF NOT EXISTS lead_marketing_settings (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+                campaign_id TEXT NOT NULL,
+                is_active BOOLEAN DEFAULT true,
+                settings JSONB,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
+            `;
+            break;
+
+          case 'opportunities':
+            query = `
+              CREATE TABLE IF NOT EXISTS opportunities (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+                name TEXT NOT NULL,
+                stage TEXT NOT NULL,
+                amount DECIMAL(15, 2),
+                probability INTEGER,
+                expected_close_date DATE,
+                actual_close_date DATE,
+                notes TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
+            `;
+            break;
+
+          case 'ai_interactions':
+            query = `
+              CREATE TABLE IF NOT EXISTS ai_interactions (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                lead_id UUID REFERENCES leads(id) ON DELETE SET NULL,
+                type TEXT CHECK (type IN ('Chat', 'Follow-Up', 'Summary', 'Prediction', 'PromptResponse')),
+                source TEXT CHECK (source IN ('Agent UI', 'Marketing Automation', 'AI Assistant', 'Backend Middleware')),
+                content TEXT,
+                ai_response TEXT,
+                summary TEXT,
+                model_used TEXT,
+                temperature FLOAT,
+                metadata JSONB,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
+            `;
+            break;
+
+          case 'support_tickets':
+            query = `
+              CREATE TABLE IF NOT EXISTS support_tickets (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                lead_id UUID REFERENCES leads(id) ON DELETE SET NULL,
+                created_by TEXT,
+                issue_type TEXT,
+                issue_description TEXT,
+                resolution_summary TEXT,
+                status TEXT CHECK (status IN ('Open', 'In Progress', 'Resolved', 'Escalated')),
+                assigned_to TEXT,
+                notes JSONB,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              );
             `;
             break;
         }
@@ -335,14 +460,18 @@ export default function SupabaseTestPage() {
                   .from(table)
                   .insert({
                     // Add minimal required fields based on the table
-                    name: table === 'specialty_items' ? 'Test Item' : undefined,
-                    make: table === 'vehicles' ? 'Test Make' : undefined,
-                    model: table === 'vehicles' ? 'Test Model' : undefined,
-                    address: table === 'homes' ? 'Test Address' : undefined,
-                    city: table === 'homes' ? 'Test City' : undefined,
-                    state: table === 'homes' ? 'Test State' : undefined,
-                    zip: table === 'homes' ? 'Test Zip' : undefined,
-                    relationship: table === 'other_insureds' ? 'Test Relationship' : undefined,
+                    name: table === 'clients' ? 'Test Client' : undefined,
+                    client_type: table === 'clients' ? 'Individual' : undefined,
+                    first_name: (table === 'contacts') ? 'Test' : undefined,
+                    last_name: (table === 'contacts') ? 'Contact' : undefined,
+                    client_id: (table === 'contacts' || table === 'leads') ? '00000000-0000-0000-0000-000000000000' : undefined,
+                    insurance_type: table === 'leads' ? 'Auto' : undefined,
+                    status: table === 'leads' ? 'New' : undefined,
+                    lead_id: (table === 'lead_notes' || table === 'lead_communications' || table === 'lead_marketing_settings' || table === 'opportunities') ? '00000000-0000-0000-0000-000000000000' : undefined,
+                    note_content: table === 'lead_notes' ? 'Test Note' : undefined,
+                    type: table === 'lead_communications' ? 'Email' : undefined,
+                    campaign_id: table === 'lead_marketing_settings' ? 'test_campaign' : undefined,
+                    stage: table === 'opportunities' ? 'New' : undefined,
                     // Add a temporary record that will be automatically deleted
                     // when we test if the table exists
                     _is_temp_record: true
@@ -479,7 +608,7 @@ export default function SupabaseTestPage() {
                     </div>
                     {tables.length > 0 ? (
                       <div className="space-y-2">
-                        {['ringcentral_tokens', 'specialty_items', 'other_insureds', 'vehicles', 'homes'].map(requiredTable => {
+                        {['ringcentral_tokens', 'clients', 'leads', 'contacts', 'lead_notes', 'lead_communications', 'lead_marketing_settings', 'opportunities', 'ai_interactions', 'support_tickets'].map(requiredTable => {
                           const exists = tables.includes(requiredTable);
                           return (
                             <div key={requiredTable} className="flex items-center justify-between p-2 bg-gray-50 rounded">

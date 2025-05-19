@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   console.log('Timestamp:', new Date().toISOString());
 
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const client = new RingCentralClient(cookieStore, request);
 
     console.log('Making API call to RingCentral for extension info');

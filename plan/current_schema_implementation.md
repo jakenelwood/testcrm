@@ -13,32 +13,57 @@ The CRM database follows a hybrid storage model with relational columns for core
    - `insurance_types`: Defines insurance product types with form schemas and AI prompt templates
    - `communication_types`: Defines communication methods with follow-up requirements
    - `campaigns`: Stores marketing campaign information with target audience and metrics
+   - `pipeline_statuses`: Defines stages in sales pipelines with display properties
+   - `pipelines`: Defines sales pipelines for lead progression
 
 2. **Core Entity Tables**
    - `clients`: Stores client information with support for both individuals and businesses
    - `leads`: Stores lead information with references to clients and insurance types
    - `contacts`: Stores contact information for business clients
    - `addresses`: Stores address information with geocoding support
+   - `users`: Stores user account information
+   - `user_profiles`: Stores extended user information
+   - `user_roles`: Stores role assignments for users
+   - `homes`: Stores home information for insurance
+   - `vehicles`: Stores vehicle information for insurance
+   - `specialty_items`: Stores specialty item information for insurance
+   - `other_insureds`: Stores information about additional insured individuals
 
 3. **Relationship Tables**
    - `lead_notes`: Stores notes related to leads
    - `lead_communications`: Stores communication history with leads
    - `lead_marketing_settings`: Stores marketing preferences for leads
    - `opportunities`: Stores sales opportunities related to leads
+   - `code_redemptions`: Tracks redemption of discount codes
 
 4. **AI-Related Tables**
    - `ai_interactions`: Stores AI conversation history and prompt-response data
    - `support_tickets`: Stores customer service issues and resolutions
 
+5. **Utility Tables**
+   - `invite_codes`: Stores invitation codes for new users
+   - `discount_codes`: Stores discount codes for promotions
+   - `developer_notes`: Stores development-related notes and decisions
+   - `ringcentral_tokens`: Stores tokens for RingCentral integration
+   - `schema_versions`: Tracks database migration history
+
 ## Alignment with Planning Documents
 
 ### Hybrid Storage Model
 
-The implementation follows the hybrid storage model outlined in `crm_data_modeling_strategy.md`. Core fields are stored as relational columns, while variable-length data is stored in JSONB fields:
+The implementation follows the hybrid storage model outlined in `schema_evolution_guidance.md`. Core fields are stored as relational columns for performance and queryability, while variable-length data is stored in JSONB fields for flexibility:
 
-- `auto_data`, `home_data`, `specialty_data`, `commercial_data`, `liability_data` for insurance-specific data
-- `additional_insureds`, `additional_locations` for related entities
-- `metadata` for flexible, user-defined fields
+- **Insurance-Specific JSONB Fields**: `auto_data`, `home_data`, `specialty_data`, `commercial_data`, `liability_data`
+- **Related Entity JSONB Fields**: `additional_insureds`, `additional_locations`
+- **Flexible Metadata Fields**: `metadata` in multiple tables for user-defined fields
+- **AI-Related JSONB Fields**: `ai_entities`, `ai_action_items`, `ai_recommended_campaigns`
+- **Configuration JSONB Fields**: `form_schema`, `target_audience`, `content_template`, `metrics`
+
+This approach provides several benefits:
+- New UI fields can be added without schema changes
+- Entity-specific data can be stored in structured JSON
+- Complex nested structures can be represented naturally
+- Indexes on JSONB fields enable efficient querying
 
 ### B2B and B2C Support
 
@@ -67,52 +92,85 @@ The schema includes AI-specific fields and tables as planned:
 
 ### Schema Evolution
 
-Following the guidance in `schema_evolution_guidance.md`, the schema includes:
+Following the guidance in `schema_evolution_guidance.md`, the schema is designed for evolution rather than being static:
 
-- Version tracking for JSON data fields: `auto_data_schema_version`, `home_data_schema_version`, etc.
-- Flexible metadata fields for future extensions
-- Backward compatibility through the hybrid model
+- **Schema Version Tracking**: The `schema_versions` table tracks database migrations
+- **Conditional Schema Updates**: The consolidated schema script uses conditional checks for compatibility
+- **JSONB for Extensibility**: JSONB fields allow adding new data without schema changes
+- **Promotion Path**: Frequently queried JSONB fields can be promoted to columns as needed
+- **Backward Compatibility**: The hybrid model ensures compatibility with existing code
+
+This approach allows the schema to evolve with the application's needs while maintaining performance and compatibility. The `consolidated_schema_updated.sql` script provides a robust way to create or update the schema across different environments.
 
 ## Recent Updates
 
-1. **TypeScript Type Definitions**
-   - Updated `database.types.ts` to reflect the current database schema
-   - Added type definitions for all tables, including lookup tables and AI-related tables
+1. **Consolidated Schema Implementation**
+   - Created a comprehensive `consolidated_schema_updated.sql` script
+   - Included all 30+ tables from the existing database
+   - Implemented conditional index creation for robustness
+   - Added proper foreign key relationships between tables
 
-2. **Missing Tables Implementation**
-   - Added `ai_interactions` table for storing AI conversation history
-   - Added `support_tickets` table for tracking customer service issues
+2. **Enhanced Hybrid Storage Model**
+   - Streamlined the leads table to focus on core fields as columns
+   - Leveraged JSONB fields for flexible, variable-length data
+   - Added metadata JSONB fields to multiple tables for future extensibility
 
-3. **Row Level Security**
-   - Implemented RLS policies for the new tables to ensure data security
-   - Created policies based on user roles and ownership
+3. **Additional Entity Tables**
+   - Added `homes`, `vehicles`, and `specialty_items` tables for insurance assets
+   - Added `user_profiles` and `user_roles` tables for enhanced user management
+   - Added `pipelines` and `pipeline_statuses` for sales pipeline management
+
+4. **Utility and Integration Tables**
+   - Added `invite_codes` and `discount_codes` for marketing and onboarding
+   - Added `developer_notes` for tracking development decisions
+   - Added `ringcentral_tokens` for external service integration
 
 ## Frontend Code Adaptation
 
-When working with the frontend code, keep in mind the following changes from the original schema:
+When working with the frontend code, keep in mind the following aspects of the schema:
 
-1. **Client-Lead Relationship**
-   - Leads now reference clients through `client_id` instead of having direct name fields
+1. **Hybrid Data Storage**
+   - Core, frequently queried fields are stored as dedicated columns
+   - Variable, dynamic data is stored in JSONB fields
+   - UI fields can map to either columns or JSONB paths without requiring schema changes
+
+2. **Client-Lead Relationship**
+   - Leads reference clients through `client_id` instead of having direct name fields
    - Use joins or nested queries to get client information for leads
 
-2. **Lookup Tables**
+3. **Lookup Tables**
    - Status values come from the `lead_statuses` table instead of being hardcoded
    - Insurance types come from the `insurance_types` table
+   - Pipeline stages come from the `pipeline_statuses` table
 
-3. **JSON Data Access**
-   - Use proper typing for JSON fields with the updated TypeScript definitions
-   - Be aware of schema versions when accessing JSON data
+4. **JSON Data Access**
+   - Use proper typing for JSON fields with TypeScript interfaces
+   - Create helper functions for accessing nested JSONB data
+   - Document the expected structure of each JSONB field
 
 ## Next Steps
 
-1. **Update Frontend Components**
-   - Adapt forms to work with the normalized schema
-   - Update UI components to display data from related tables
+1. **Test Data Implementation**
+   - Create test data that simulates real user interactions
+   - Implement data for both B2C and B2B scenarios
+   - Ensure test data covers all entity types and relationships
 
-2. **Implement AI Features**
+2. **UI Field Mapping Documentation**
+   - Document which UI fields map to which database columns or JSONB paths
+   - Create TypeScript interfaces that match the JSONB structures
+   - Implement validation for JSONB data based on expected structures
+
+3. **Frontend Component Updates**
+   - Adapt forms to work with the hybrid storage model
+   - Implement components for new entity types (homes, vehicles, etc.)
+   - Create visualization components for pipelines and statuses
+
+4. **AI Integration Enhancement**
    - Use the `ai_interactions` table for conversation history
    - Implement AI-driven insights using the annotation fields
+   - Create templates for AI prompts based on entity types
 
-3. **Enhance Customer Support**
-   - Implement ticket management using the `support_tickets` table
-   - Integrate with AI for automated triage and resolution suggestions
+5. **Schema Evolution Process**
+   - Implement a proper migration system using the `schema_versions` table
+   - Create procedures for promoting JSONB fields to columns when needed
+   - Document the process for adding new fields to the UI without schema changes
