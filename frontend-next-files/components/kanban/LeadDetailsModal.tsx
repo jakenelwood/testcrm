@@ -1228,10 +1228,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                         <div className="col-span-2">
                           <Label className="text-xs font-medium text-muted-foreground">Address</Label>
                           <div>
-                            {lead.address_street ? (
+                            {lead.address_street || formData.street_address ? (
                               <>
-                                {lead.address_street}<br />
-                                {lead.address_city}{lead.address_city && lead.address_state ? ', ' : ''}{lead.address_state} {lead.address_zip_code}
+                                {lead.address_street || formData.street_address}<br />
+                                {lead.address_city || formData.city}
+                                {(lead.address_city || formData.city) && (lead.address_state || formData.state) ? ', ' : ''}
+                                {lead.address_state || formData.state} {lead.address_zip_code || formData.zip_code}
                               </>
                             ) : (
                               'No address'
@@ -1308,9 +1310,81 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                     <CardTitle className="text-lg font-medium text-gray-900">Home Insurance Details</CardTitle>
                   </CardHeader>
                   <CardContent className="bg-white pt-4">
-                    <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
-                      {JSON.stringify(lead.home_data, null, 2)}
-                    </pre>
+                    <div className="grid grid-cols-2 gap-4">
+                      {lead.home_data.year_built && (
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Year Built</Label>
+                          <div>{lead.home_data.year_built}</div>
+                        </div>
+                      )}
+                      {lead.home_data.square_feet && (
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Square Feet</Label>
+                          <div>{lead.home_data.square_feet}</div>
+                        </div>
+                      )}
+                      {lead.home_data.roof_type && (
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Roof Type</Label>
+                          <div>{lead.home_data.roof_type}</div>
+                        </div>
+                      )}
+                      {lead.home_data.construction_type && (
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Construction Type</Label>
+                          <div>{lead.home_data.construction_type}</div>
+                        </div>
+                      )}
+
+                      {/* Coverage Information */}
+                      {lead.home_data.coverages && (
+                        <div className="col-span-2">
+                          <Label className="text-xs font-medium text-muted-foreground">Coverage Details</Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-50 p-4 rounded-md">
+                            {lead.home_data.coverages.dwelling && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Dwelling</Label>
+                                <div>${lead.home_data.coverages.dwelling.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.personal_property && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Personal Property</Label>
+                                <div>${lead.home_data.coverages.personal_property.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.liability && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
+                                <div>${lead.home_data.coverages.liability.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.medical && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Medical</Label>
+                                <div>${lead.home_data.coverages.medical.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.deductible && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Deductible</Label>
+                                <div>${lead.home_data.coverages.deductible.toLocaleString()}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Show raw JSON in a collapsible section for developers */}
+                      <details className="col-span-2 mt-4">
+                        <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">
+                          View Raw JSON Data
+                        </summary>
+                        <pre className="text-xs bg-gray-50 p-4 rounded-md overflow-auto mt-2">
+                          {JSON.stringify(lead.home_data, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
                   </CardContent>
                 </Card>
               )}
