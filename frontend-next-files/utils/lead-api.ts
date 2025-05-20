@@ -47,6 +47,13 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
       if (hasInsuranceTypeId) {
         selectQuery += ', insurance_type:insurance_types(name)';
       }
+      // Include address information
+      if ('address_id' in leadsColumns[0]) {
+        selectQuery += ', address:address_id(id, street, city, state, zip_code, type)';
+      }
+      if ('mailing_address_id' in leadsColumns[0]) {
+        selectQuery += ', mailing_address:mailing_address_id(id, street, city, state, zip_code, type)';
+      }
 
       // Fetch leads with appropriate joins
       const { data, error } = await supabase
@@ -79,6 +86,20 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
             (lead.last_name || ''),
           email: typeof lead.client === 'object' ? lead.client?.email || '' : lead.email || '',
           phone_number: typeof lead.client === 'object' ? lead.client?.phone_number || '' : lead.phone_number || '',
+
+          // Add address information
+          address_street: typeof lead.address === 'object' ? lead.address?.street || '' : '',
+          address_city: typeof lead.address === 'object' ? lead.address?.city || '' : '',
+          address_state: typeof lead.address === 'object' ? lead.address?.state || '' : '',
+          address_zip_code: typeof lead.address === 'object' ? lead.address?.zip_code || '' : '',
+          address_type: typeof lead.address === 'object' ? lead.address?.type || '' : '',
+
+          // Add mailing address information
+          mailing_address_street: typeof lead.mailing_address === 'object' ? lead.mailing_address?.street || '' : '',
+          mailing_address_city: typeof lead.mailing_address === 'object' ? lead.mailing_address?.city || '' : '',
+          mailing_address_state: typeof lead.mailing_address === 'object' ? lead.mailing_address?.state || '' : '',
+          mailing_address_zip_code: typeof lead.mailing_address === 'object' ? lead.mailing_address?.zip_code || '' : '',
+          mailing_address_type: typeof lead.mailing_address === 'object' ? lead.mailing_address?.type || '' : '',
 
           // Ensure we have status_legacy and insurance_type_legacy for compatibility
           status_legacy: typeof lead.status === 'object' && lead.status?.value ? lead.status.value as LeadStatus : 'New',
@@ -141,6 +162,13 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
       if (hasInsuranceTypeId) {
         selectQuery += ', insurance_type:insurance_types(name)';
       }
+      // Include address information
+      if ('address_id' in leadsColumns[0]) {
+        selectQuery += ', address:address_id(id, street, city, state, zip_code, type)';
+      }
+      if ('mailing_address_id' in leadsColumns[0]) {
+        selectQuery += ', mailing_address:mailing_address_id(id, street, city, state, zip_code, type)';
+      }
 
       // Start building the query
       let query = supabase
@@ -184,6 +212,20 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
             (lead.last_name || ''),
           email: typeof lead.client === 'object' ? lead.client?.email || '' : lead.email || '',
           phone_number: typeof lead.client === 'object' ? lead.client?.phone_number || '' : lead.phone_number || '',
+
+          // Add address information
+          address_street: typeof lead.address === 'object' ? lead.address?.street || '' : '',
+          address_city: typeof lead.address === 'object' ? lead.address?.city || '' : '',
+          address_state: typeof lead.address === 'object' ? lead.address?.state || '' : '',
+          address_zip_code: typeof lead.address === 'object' ? lead.address?.zip_code || '' : '',
+          address_type: typeof lead.address === 'object' ? lead.address?.type || '' : '',
+
+          // Add mailing address information
+          mailing_address_street: typeof lead.mailing_address === 'object' ? lead.mailing_address?.street || '' : '',
+          mailing_address_city: typeof lead.mailing_address === 'object' ? lead.mailing_address?.city || '' : '',
+          mailing_address_state: typeof lead.mailing_address === 'object' ? lead.mailing_address?.state || '' : '',
+          mailing_address_zip_code: typeof lead.mailing_address === 'object' ? lead.mailing_address?.zip_code || '' : '',
+          mailing_address_type: typeof lead.mailing_address === 'object' ? lead.mailing_address?.type || '' : '',
 
           // Ensure we have status_legacy and insurance_type_legacy for compatibility
           status_legacy: typeof lead.status === 'object' && lead.status?.value ? lead.status.value as LeadStatus : 'New',
@@ -382,6 +424,13 @@ export async function createLead(leadData: any): Promise<Lead> {
       if (hasInsuranceTypeId) {
         selectQuery += ', insurance_type:insurance_types(name)';
       }
+      // Include address information
+      if ('address_id' in leadsColumns[0]) {
+        selectQuery += ', address:address_id(id, street, city, state, zip_code, type)';
+      }
+      if ('mailing_address_id' in leadsColumns[0]) {
+        selectQuery += ', mailing_address:mailing_address_id(id, street, city, state, zip_code, type)';
+      }
 
       // Create the lead record
       const { data: newLeadData, error: leadError } = await supabase
@@ -415,6 +464,20 @@ export async function createLead(leadData: any): Promise<Lead> {
           (newLeadData.last_name || ''),
         email: typeof newLeadData.client === 'object' ? newLeadData.client?.email || '' : newLeadData.email || '',
         phone_number: typeof newLeadData.client === 'object' ? newLeadData.client?.phone_number || '' : newLeadData.phone_number || '',
+
+        // Add address information
+        address_street: typeof newLeadData.address === 'object' ? newLeadData.address?.street || '' : '',
+        address_city: typeof newLeadData.address === 'object' ? newLeadData.address?.city || '' : '',
+        address_state: typeof newLeadData.address === 'object' ? newLeadData.address?.state || '' : '',
+        address_zip_code: typeof newLeadData.address === 'object' ? newLeadData.address?.zip_code || '' : '',
+        address_type: typeof newLeadData.address === 'object' ? newLeadData.address?.type || '' : '',
+
+        // Add mailing address information
+        mailing_address_street: typeof newLeadData.mailing_address === 'object' ? newLeadData.mailing_address?.street || '' : '',
+        mailing_address_city: typeof newLeadData.mailing_address === 'object' ? newLeadData.mailing_address?.city || '' : '',
+        mailing_address_state: typeof newLeadData.mailing_address === 'object' ? newLeadData.mailing_address?.state || '' : '',
+        mailing_address_zip_code: typeof newLeadData.mailing_address === 'object' ? newLeadData.mailing_address?.zip_code || '' : '',
+        mailing_address_type: typeof newLeadData.mailing_address === 'object' ? newLeadData.mailing_address?.type || '' : '',
 
         // Ensure we have status_legacy and insurance_type_legacy for compatibility
         status_legacy: typeof newLeadData.status === 'object' && newLeadData.status?.value ? newLeadData.status.value as LeadStatus : 'New',
