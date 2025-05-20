@@ -1,4 +1,4 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { Database } from '@/types/database.types';
 
 // Hardcoded values as fallback (same as in .env.local)
@@ -9,21 +9,26 @@ const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
+// Create a singleton instance
+let supabase: ReturnType<typeof createBrowserClient<Database>> | null = null;
+
 // Create a function to initialize the Supabase client
 export const createClient = () => {
-  return createSupabaseClient<Database>(
-    supabaseUrl,
-    supabaseAnonKey
-  );
+  // Create a new client if one doesn't exist already
+  if (!supabase) {
+    supabase = createBrowserClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey
+    );
+
+    // Log for debugging
+    if (typeof window !== 'undefined') {
+      console.log('Supabase client initialized with URL:', supabaseUrl);
+    }
+  }
+
+  return supabase;
 };
 
-// Create a default client for backward compatibility
-const supabase = createClient();
-
-// Log for debugging
-if (typeof window !== 'undefined') {
-  console.log('Supabase client initialized with URL:', supabaseUrl);
-  console.log('Supabase key available:', !!supabaseAnonKey);
-}
-
-export default supabase;
+// Export the singleton instance
+export default createClient();
