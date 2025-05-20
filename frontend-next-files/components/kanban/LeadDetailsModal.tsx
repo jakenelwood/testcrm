@@ -112,11 +112,17 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         email: lead?.client?.email || lead?.email || '',
         phone_number: lead?.client?.phone_number || lead?.phone_number || '',
 
-        // Address fields (directly from lead)
+        // Physical Address fields (directly from lead)
         street_address: lead?.address_street || '',
         city: lead?.address_city || '',
         state: lead?.address_state || '',
         zip_code: lead?.address_zip_code || '',
+
+        // Mailing Address fields (directly from lead)
+        mailing_street_address: lead?.mailing_address_street || '',
+        mailing_city: lead?.mailing_address_city || '',
+        mailing_state: lead?.mailing_address_state || '',
+        mailing_zip_code: lead?.mailing_address_zip_code || '',
 
         // Individual-specific fields
         date_of_birth: lead?.client?.date_of_birth || '',
@@ -634,14 +640,14 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
       console.log('Client record updated successfully');
 
-      // Check if we have address data to update
+      // Import the updateLeadAddress function
+      const { updateLeadAddress } = await import('@/utils/address-helpers');
+
+      // Check if we have physical address data to update
       if (formData.street_address || formData.city || formData.state || formData.zip_code) {
-        console.log('DEBUG: Updating address information using updateLeadAddress helper');
+        console.log('DEBUG: Updating physical address information using updateLeadAddress helper');
 
-        // Import the updateLeadAddress function
-        const { updateLeadAddress } = await import('@/utils/address-helpers');
-
-        // Use the helper function to update the lead's address directly
+        // Use the helper function to update the lead's physical address directly
         const { success, error: addressError } = await updateLeadAddress(
           supabase,
           lead.id,
@@ -655,11 +661,37 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         );
 
         if (!success) {
-          console.error('DEBUG: Error updating address:', addressError);
+          console.error('DEBUG: Error updating physical address:', addressError);
           // Continue with lead update even if address update fails
-          console.warn('DEBUG: Continuing with lead update despite address update failure');
+          console.warn('DEBUG: Continuing with lead update despite physical address update failure');
         } else {
-          console.log('DEBUG: Address updated successfully');
+          console.log('DEBUG: Physical address updated successfully');
+        }
+      }
+
+      // Check if we have mailing address data to update
+      if (formData.mailing_street_address || formData.mailing_city || formData.mailing_state || formData.mailing_zip_code) {
+        console.log('DEBUG: Updating mailing address information using updateLeadAddress helper');
+
+        // Use the helper function to update the lead's mailing address directly
+        const { success, error: mailingAddressError } = await updateLeadAddress(
+          supabase,
+          lead.id,
+          {
+            street: formData.mailing_street_address,
+            city: formData.mailing_city,
+            state: formData.mailing_state,
+            zip_code: formData.mailing_zip_code
+          },
+          'mailing_address' // Use the mailing address
+        );
+
+        if (!success) {
+          console.error('DEBUG: Error updating mailing address:', mailingAddressError);
+          // Continue with lead update even if address update fails
+          console.warn('DEBUG: Continuing with lead update despite mailing address update failure');
+        } else {
+          console.log('DEBUG: Mailing address updated successfully');
         }
       }
 
@@ -775,8 +807,15 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           setIsEditing(false);
 
           let successMessage = "Lead and client information updated successfully";
+
+          // Check if physical address was updated
           if (formData.street_address || formData.city || formData.state || formData.zip_code) {
-            successMessage += " with updated address information";
+            successMessage += " with updated physical address";
+          }
+
+          // Check if mailing address was updated
+          if (formData.mailing_street_address || formData.mailing_city || formData.mailing_state || formData.mailing_zip_code) {
+            successMessage += " and mailing address";
           }
 
           toast({
@@ -1021,14 +1060,15 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                             onChange={handleInputChange}
                           />
                         </div>
-                        {/* Address Information */}
+                        {/* Physical Address Information */}
                         <div className="col-span-2 space-y-2">
-                          <Label htmlFor="street_address">Street Address</Label>
+                          <Label htmlFor="street_address" className="font-medium">Physical Address</Label>
                           <Input
                             id="street_address"
                             name="street_address"
                             value={formData.street_address}
                             onChange={handleInputChange}
+                            placeholder="Street Address"
                           />
                         </div>
                         <div className="space-y-2">
@@ -1055,6 +1095,45 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                             id="zip_code"
                             name="zip_code"
                             value={formData.zip_code}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+
+                        {/* Mailing Address Information */}
+                        <div className="col-span-2 space-y-2 mt-4">
+                          <Label htmlFor="mailing_street_address" className="font-medium">Mailing Address</Label>
+                          <Input
+                            id="mailing_street_address"
+                            name="mailing_street_address"
+                            value={formData.mailing_street_address}
+                            onChange={handleInputChange}
+                            placeholder="Street Address (leave blank if same as physical)"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="mailing_city">City</Label>
+                          <Input
+                            id="mailing_city"
+                            name="mailing_city"
+                            value={formData.mailing_city}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="mailing_state">State</Label>
+                          <Input
+                            id="mailing_state"
+                            name="mailing_state"
+                            value={formData.mailing_state}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="mailing_zip_code">ZIP Code</Label>
+                          <Input
+                            id="mailing_zip_code"
+                            name="mailing_zip_code"
+                            value={formData.mailing_zip_code}
                             onChange={handleInputChange}
                           />
                         </div>
@@ -1230,7 +1309,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                           <div>{lead.assigned_to || 'Unassigned'}</div>
                         </div>
                         <div className="col-span-2">
-                          <Label className="text-xs font-medium text-muted-foreground">Address</Label>
+                          <Label className="text-xs font-medium text-muted-foreground">Physical Address</Label>
                           <div>
                             {lead.address_street || formData.street_address ? (
                               <>
@@ -1241,6 +1320,21 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                               </>
                             ) : (
                               'No address'
+                            )}
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <Label className="text-xs font-medium text-muted-foreground">Mailing Address</Label>
+                          <div>
+                            {lead.mailing_address_street ? (
+                              <>
+                                {lead.mailing_address_street}<br />
+                                {lead.mailing_address_city}
+                                {lead.mailing_address_city && lead.mailing_address_state ? ', ' : ''}
+                                {lead.mailing_address_state} {lead.mailing_address_zip_code}
+                              </>
+                            ) : (
+                              'Same as physical address'
                             )}
                           </div>
                         </div>
@@ -1301,9 +1395,120 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                     <CardTitle className="text-lg font-medium text-gray-900">Auto Insurance Details</CardTitle>
                   </CardHeader>
                   <CardContent className="bg-white pt-4">
-                    <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
-                      {JSON.stringify(lead.auto_data, null, 2)}
-                    </pre>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Drivers Section */}
+                      {lead.auto_data.drivers && lead.auto_data.drivers.length > 0 && (
+                        <div className="col-span-2">
+                          <Label className="text-xs font-medium text-muted-foreground">Drivers</Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-50 p-4 rounded-md">
+                            {lead.auto_data.drivers.map((driver: any, index: number) => (
+                              <div key={index} className="col-span-2 border-b border-gray-200 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                                    <div>{driver.name}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Primary Driver</Label>
+                                    <div>{driver.primary ? 'Yes' : 'No'}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">License</Label>
+                                    <div>{driver.license}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">State</Label>
+                                    <div>{driver.state}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Vehicles Section */}
+                      {lead.auto_data.vehicles && lead.auto_data.vehicles.length > 0 && (
+                        <div className="col-span-2">
+                          <Label className="text-xs font-medium text-muted-foreground">Vehicles</Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-50 p-4 rounded-md">
+                            {lead.auto_data.vehicles.map((vehicle: any, index: number) => (
+                              <div key={index} className="col-span-2 border-b border-gray-200 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Make</Label>
+                                    <div>{vehicle.make}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Model</Label>
+                                    <div>{vehicle.model}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Year</Label>
+                                    <div>{vehicle.year}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">VIN</Label>
+                                    <div>{vehicle.vin}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Primary Use</Label>
+                                    <div>{vehicle.primary_use}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Annual Mileage</Label>
+                                    <div>{vehicle.annual_mileage?.toLocaleString()}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Coverages Section */}
+                      {lead.auto_data.coverages && (
+                        <div className="col-span-2">
+                          <Label className="text-xs font-medium text-muted-foreground">Coverage Details</Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-50 p-4 rounded-md">
+                            {lead.auto_data.coverages.liability && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
+                                <div>{lead.auto_data.coverages.liability}</div>
+                              </div>
+                            )}
+                            {lead.auto_data.coverages.uninsured_motorist && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Uninsured Motorist</Label>
+                                <div>{lead.auto_data.coverages.uninsured_motorist}</div>
+                              </div>
+                            )}
+                            {lead.auto_data.coverages.collision_deductible && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Collision Deductible</Label>
+                                <div>${lead.auto_data.coverages.collision_deductible}</div>
+                              </div>
+                            )}
+                            {lead.auto_data.coverages.comprehensive_deductible && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Comprehensive Deductible</Label>
+                                <div>${lead.auto_data.coverages.comprehensive_deductible}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Show raw JSON in a collapsible section for developers */}
+                      <details className="col-span-2 mt-4">
+                        <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">
+                          View Raw JSON Data
+                        </summary>
+                        <pre className="text-xs bg-gray-50 p-4 rounded-md overflow-auto mt-2">
+                          {JSON.stringify(lead.auto_data, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
                   </CardContent>
                 </Card>
               )}
