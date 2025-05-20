@@ -32,7 +32,7 @@ export async function GET(
 
     // Get client with address information
     const { data, error } = await supabase
-      .from('clients')
+      .from('leads_contact_info')
       .select(`
         *,
         address:address_id(*),
@@ -94,7 +94,7 @@ export async function PATCH(
 
     // First, check if client exists
     const { data: existingClient, error: checkError } = await supabase
-      .from('clients')
+      .from('leads_contact_info')
       .select('id, address_id, mailing_address_id')
       .eq('id', id)
       .single();
@@ -222,7 +222,7 @@ export async function PATCH(
 
     // Update the client
     const { data, error } = await supabase
-      .from('clients')
+      .from('leads_contact_info')
       .update(clientUpdateData)
       .eq('id', id)
       .select(`

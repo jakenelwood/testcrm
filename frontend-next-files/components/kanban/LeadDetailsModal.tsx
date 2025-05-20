@@ -71,17 +71,17 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     assigned_to: lead?.assigned_to || '',
 
     // Client fields (from joined client or legacy fields)
-    client_name: lead?.client?.name || `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim(),
-    first_name: lead?.first_name || lead?.client?.name?.split(' ')[0] || '',
+    client_name: lead?.client?.name || `${lead?.first_name || 'Unknown'} ${lead?.last_name || ''}`.trim(),
+    first_name: lead?.first_name || lead?.client?.name?.split(' ')[0] || 'Unknown',
     last_name: lead?.last_name || (lead?.client?.name?.split(' ').slice(1).join(' ') || ''),
     email: lead?.client?.email || lead?.email || '',
     phone_number: lead?.client?.phone_number || lead?.phone_number || '',
 
-    // Address fields (from joined address or empty)
-    street_address: lead?.client?.address?.street || '',
-    city: lead?.client?.address?.city || '',
-    state: lead?.client?.address?.state || '',
-    zip_code: lead?.client?.address?.zip_code || '',
+    // Address fields (directly from lead)
+    street_address: lead?.address_street || '',
+    city: lead?.address_city || '',
+    state: lead?.address_state || '',
+    zip_code: lead?.address_zip_code || '',
 
     // Individual-specific fields
     date_of_birth: lead?.client?.date_of_birth || '',
@@ -106,17 +106,17 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         assigned_to: lead?.assigned_to || '',
 
         // Client fields (from joined client or legacy fields)
-        client_name: lead?.client?.name || `${lead?.first_name || ''} ${lead?.last_name || ''}`.trim(),
-        first_name: lead?.first_name || lead?.client?.name?.split(' ')[0] || '',
-        last_name: lead?.last_name || (lead?.client?.name?.split(' ').slice(1).join(' ') || ''),
+        client_name: lead?.client?.name || `${lead?.first_name || 'Unknown'}${lead?.last_name ? ` ${lead?.last_name}` : ''}`.trim(),
+        first_name: lead?.first_name || (lead?.client?.client_type === 'Business' ? lead?.client?.name : lead?.client?.name?.split(' ')[0]) || 'Unknown',
+        last_name: lead?.last_name || (lead?.client?.client_type === 'Business' ? '' : (lead?.client?.name?.split(' ').slice(1).join(' ') || '')),
         email: lead?.client?.email || lead?.email || '',
         phone_number: lead?.client?.phone_number || lead?.phone_number || '',
 
-        // Address fields (from joined address or empty)
-        street_address: lead?.client?.address?.street || '',
-        city: lead?.client?.address?.city || '',
-        state: lead?.client?.address?.state || '',
-        zip_code: lead?.client?.address?.zip_code || '',
+        // Address fields (directly from lead)
+        street_address: lead?.address_street || '',
+        city: lead?.address_city || '',
+        state: lead?.address_state || '',
+        zip_code: lead?.address_zip_code || '',
 
         // Individual-specific fields
         date_of_birth: lead?.client?.date_of_birth || '',
@@ -215,12 +215,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   // Function to initiate RingCentral Call
   const initiateRingCentralCall = async () => {
     let targetPhoneNumber = formData.phone_number || lead?.phone_number || '';
-    
+
     // Standardize phone number format (assuming US numbers)
     if (targetPhoneNumber) {
       // Remove any non-digit characters
       const digitsOnly = targetPhoneNumber.replace(/\D/g, '');
-      
+
       // If it's a 10-digit number, add +1 prefix (US)
       if (digitsOnly.length === 10) {
         targetPhoneNumber = `+1${digitsOnly}`;
@@ -234,7 +234,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         targetPhoneNumber = `+${digitsOnly}`;
       }
     }
-    
+
     if (!targetPhoneNumber) {
       toast({
         title: "Error",
@@ -252,25 +252,25 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
     const hardcodedFromNumber = '+16124643934'; // YOUR ACTUAL RingCentral From Number
     console.log('[LeadDetailsModal] Attempting call. To:', targetPhoneNumber, 'Using Hardcoded From:', hardcodedFromNumber);
-    
+
     // SUPER-ROBUST DEBUGGING APPROACH
     console.log('======================= DEBUGGING =======================');
     console.log('1. VARIABLES BEING PASSED:');
     console.log('   To number:', targetPhoneNumber);
     console.log('   From number:', hardcodedFromNumber);
-    
+
     try {
       // *** DIRECT API APPROACH - MATCHING THE TEST PAGE ***
       console.log('Using direct API call with the same parameter names as the test page');
-      
+
       // Create the payload with the EXACT SAME parameter names as the test page
       const payload = {
         to: targetPhoneNumber,  // IMPORTANT: 'to' not 'toNumber'
         from: hardcodedFromNumber  // IMPORTANT: 'from' not 'fromNumber'
       };
-      
+
       console.log('   Payload:', payload);
-      
+
       const response = await fetch('/api/ringcentral/call', {
         method: 'POST',
         headers: {
@@ -278,33 +278,33 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         },
         body: JSON.stringify(payload),
       });
-      
+
       console.log('   Direct API response status:', response.status);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('   Direct API error response:', errorText);
         throw new Error(`Call failed: ${response.status} ${response.statusText}`);
       }
-      
+
       const responseData = await response.json();
       console.log('   Direct API success response:', responseData);
-      
+
       // IMPORTANT: Set callId and activePhoneNumber separately like the test page does
       const newCallId = responseData.callId || responseData.id;
-      
+
       if (newCallId) {
         console.log('Setting call ID to:', newCallId);
         // Set both the new state variables and the legacy activeCall object
         setCallId(newCallId);
         setActivePhoneNumber(targetPhoneNumber);
         setActiveCall({ callId: newCallId, phoneNumber: targetPhoneNumber });
-        
+
         toast({
           title: "Call initiated",
           description: "You should receive a call on your phone shortly. Call ID: " + newCallId,
         });
-        
+
         await supabase
           .from('lead_communications')
           .insert({
@@ -315,7 +315,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
             created_by: 'User',
             created_at: new Date().toISOString(),
           });
-        
+
         const { data: newComms } = await supabase
           .from('lead_communications')
           .select('*')
@@ -356,34 +356,34 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     try {
       // Using direct API approach to mirror our successful call initiation
       console.log('Attempting to end call with ID:', callId);
-      
+
       const response = await fetch('/api/ringcentral/end-call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ callId: callId }),
       });
-      
+
       console.log('End call response status:', response.status);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('End call error response:', errorText);
         throw new Error(`Failed to hang up call: ${response.status} ${response.statusText}`);
       }
-      
+
       const responseData = await response.json();
       console.log('End call success response:', responseData);
-      
+
       toast({
         title: "Call Ended",
         description: `Call to ${activePhoneNumber || "destination"} has been ended.`,
       });
-      
+
       await supabase
         .from('lead_communications')
         .insert({
           lead_id: lead.id,
-          type_id: 3, 
+          type_id: 3,
           direction: 'Outbound',
           content: `RingCentral call to ${activePhoneNumber || "unknown number"} ended. Call ID: ${callId}`,
           created_by: 'User',
@@ -396,7 +396,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       setActivePhoneNumber(null);
       setActiveCall(null);
       setShowCallConfirm(false); // Close the dialog after hanging up
-      
+
       const { data: newComms } = await supabase
           .from('lead_communications')
           .select('*')
@@ -423,12 +423,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   // Function to initiate RingCentral SMS
   const initiateRingCentralSMS = async () => {
     let targetPhoneNumber = formData.phone_number || lead?.phone_number || '';
-    
+
     // Standardize phone number format (assuming US numbers) - same logic as test page
     if (targetPhoneNumber) {
       // Remove any non-digit characters
       const digitsOnly = targetPhoneNumber.replace(/\D/g, '');
-      
+
       // If it's a 10-digit number, add +1 prefix (US)
       if (digitsOnly.length === 10) {
         targetPhoneNumber = `+1${digitsOnly}`;
@@ -442,13 +442,13 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         targetPhoneNumber = `+${digitsOnly}`;
       }
     }
-    
+
     // Check for formatting issues specific to our area code
     if (targetPhoneNumber.startsWith('+612')) {
       targetPhoneNumber = `+1${targetPhoneNumber.substring(4)}`;
       console.log(`Reformatted number from +612... to +1612... format: ${targetPhoneNumber}`);
     }
-    
+
     const leadFirstName = formData.first_name || lead?.first_name || 'Customer';
 
     if (!targetPhoneNumber) {
@@ -468,7 +468,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
     const hardcodedFromNumber = '+16124643934'; // YOUR ACTUAL RingCentral From Number
     console.log('[LeadDetailsModal] Attempting to send SMS. To:', targetPhoneNumber, 'From:', hardcodedFromNumber, 'Message:', smsMessage);
-    
+
     try {
       // Using the exact same API call structure as the test page
       const response = await fetch('/api/ringcentral/sms', {
@@ -476,24 +476,24 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           to: targetPhoneNumber,
           from: hardcodedFromNumber,
           text: smsMessage
         })
       });
-      
+
       console.log('SMS API response status:', response.status);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error('SMS API error response:', errorData);
         throw new Error(errorData.error || errorData.message || `Failed to send SMS: ${response.status} ${response.statusText}`);
       }
-      
+
       const responseData = await response.json();
       console.log('SMS API success response:', responseData);
-      
+
       toast({
         title: "Message sent",
         description: "Your message has been sent via RingCentral.",
@@ -508,16 +508,16 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           created_by: 'User',
           created_at: new Date().toISOString(),
         });
-      
+
       const { data: newComms } = await supabase
         .from('lead_communications')
         .select('*')
         .eq('lead_id', lead.id)
         .order('created_at', { ascending: false });
       if (newComms) setCommunications(newComms);
-      
-      setShowSmsInterface(false); 
-      setSmsMessage(''); 
+
+      setShowSmsInterface(false);
+      setSmsMessage('');
     } catch (error: any) {
       console.error('RingCentral SMS error:', error);
       toast({
@@ -549,7 +549,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
       // Try to get the RLS policies
       const { data: policyData, error: policyError } = await supabase
-        .from('leads')
+        .from('leads_ins_info')
         .select('*')
         .limit(1);
 
@@ -614,7 +614,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       });
 
       const { error: clientError } = await supabase
-        .from('clients')
+        .from('leads_contact_info')
         .update({
           name: clientName,
           email: formData.email || null,
@@ -630,9 +630,38 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
       console.log('Client record updated successfully');
 
+      // Check if we have address data to update
+      if (formData.street_address || formData.city || formData.state || formData.zip_code) {
+        console.log('DEBUG: Updating address information using updateLeadAddress helper');
+
+        // Import the updateLeadAddress function
+        const { updateLeadAddress } = await import('@/utils/address-helpers');
+
+        // Use the helper function to update the lead's address directly
+        const { success, error: addressError } = await updateLeadAddress(
+          supabase,
+          lead.id,
+          {
+            street: formData.street_address,
+            city: formData.city,
+            state: formData.state,
+            zip_code: formData.zip_code
+          },
+          'address' // Use the primary address
+        );
+
+        if (!success) {
+          console.error('DEBUG: Error updating address:', addressError);
+          // Continue with lead update even if address update fails
+          console.warn('DEBUG: Continuing with lead update despite address update failure');
+        } else {
+          console.log('DEBUG: Address updated successfully');
+        }
+      }
+
       // Then update lead in Supabase - only include fields that exist in the database
       const { data, error } = await supabase
-        .from('leads')
+        .from('leads_ins_info')
         .update({
           status_id: statusId,
           insurance_type_id: insuranceTypeId,
@@ -642,14 +671,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           assigned_to: formData.assigned_to || null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', lead.id)
-        .select(`
-          *,
-          client:client_id(*),
-          status:lead_statuses!inner(value),
-          insurance_type:insurance_types!inner(name)
-        `)
-        .single();
+        .eq('id', lead.id);
 
       if (error) {
         console.error('Error updating lead:', error);
@@ -671,32 +693,98 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           description: `Failed to update lead: ${error.message || 'Unknown error'}`,
           variant: "destructive"
         });
-      } else if (data) {
-        // Process the data before passing it to the parent component
-        const processedLead: Lead = {
-          ...data,
-          // Map joined fields to their expected properties
-          status: typeof data.status === 'object' && data.status?.value ? data.status.value : 'New',
-          insurance_type: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name : 'Auto',
+      } else {
+        // Fetch the updated lead data from the lead_details view to get the latest address information
+        const { data: updatedLeadData, error: fetchError } = await supabase
+          .from('lead_details')
+          .select('*')
+          .eq('id', lead.id)
+          .single();
 
-          // Add legacy fields from client data for backward compatibility
-          first_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ')[0] : '',
-          last_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ').slice(1).join(' ') : '',
-          email: typeof data.client === 'object' ? data.client?.email || '' : '',
-          phone_number: typeof data.client === 'object' ? data.client?.phone_number || '' : '',
+        if (fetchError) {
+          console.error('Error fetching updated lead data:', fetchError);
 
-          // Ensure we have status_legacy and insurance_type_legacy for compatibility
-          status_legacy: typeof data.status === 'object' && data.status?.value ? data.status.value as LeadStatus : 'New',
-          insurance_type_legacy: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name as InsuranceType : 'Auto'
-        };
+          // Fallback to fetching from leads_ins_info table with joins
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('leads_ins_info')
+            .select(`
+              *,
+              client:client_id(*),
+              status:lead_statuses!inner(value),
+              insurance_type:insurance_types!inner(name)
+            `)
+            .eq('id', lead.id)
+            .single();
 
-        // Update the lead in the parent component
-        onLeadUpdated(processedLead);
-        setIsEditing(false);
-        toast({
-          title: "Success",
-          description: `Lead and client information updated successfully. Name changed to ${clientName}.`,
-        });
+          if (fallbackError) {
+            console.error('Error fetching fallback lead data:', fallbackError);
+            toast({
+              title: "Warning",
+              description: "Lead updated but couldn't refresh the latest data.",
+              variant: "default"
+            });
+            return;
+          }
+
+          // Process the fallback data
+          const processedLead: Lead = {
+            ...fallbackData,
+            // Map joined fields to their expected properties
+            status: typeof fallbackData.status === 'object' && fallbackData.status?.value ? fallbackData.status.value : 'New',
+            insurance_type: typeof fallbackData.insurance_type === 'object' && fallbackData.insurance_type?.name ? fallbackData.insurance_type.name : 'Auto',
+
+            // Add legacy fields from client data for backward compatibility
+            first_name: typeof fallbackData.client === 'object' && fallbackData.client?.name ? fallbackData.client.name.split(' ')[0] : '',
+            last_name: typeof fallbackData.client === 'object' && fallbackData.client?.name ? fallbackData.client.name.split(' ').slice(1).join(' ') : '',
+            email: typeof fallbackData.client === 'object' ? fallbackData.client?.email || '' : '',
+            phone_number: typeof fallbackData.client === 'object' ? fallbackData.client?.phone_number || '' : '',
+
+            // Ensure we have status_legacy and insurance_type_legacy for compatibility
+            status_legacy: typeof fallbackData.status === 'object' && fallbackData.status?.value ? fallbackData.status.value as LeadStatus : 'New',
+            insurance_type_legacy: typeof fallbackData.insurance_type === 'object' && fallbackData.insurance_type?.name ? fallbackData.insurance_type.name as InsuranceType : 'Auto'
+          };
+
+          // Update the lead in the parent component
+          onLeadUpdated(processedLead);
+          setIsEditing(false);
+          toast({
+            title: "Success",
+            description: `Lead and client information updated successfully. Name changed to ${clientName}.`,
+          });
+
+        } else {
+          // Process the data from lead_details view
+          const processedLead: Lead = {
+            ...updatedLeadData,
+            // Status and insurance type are already direct properties in lead_details
+            status: updatedLeadData.status || 'New',
+            insurance_type: updatedLeadData.insurance_type || 'Auto',
+
+            // Contact information is now directly on the lead
+            first_name: updatedLeadData.first_name || '',
+            last_name: updatedLeadData.last_name || '',
+            email: updatedLeadData.email || '',
+            phone_number: updatedLeadData.phone_number || '',
+
+            // Ensure we have status_legacy and insurance_type_legacy for compatibility
+            status_legacy: updatedLeadData.status || 'New',
+            insurance_type_legacy: updatedLeadData.insurance_type || 'Auto'
+          };
+
+          // Update the lead in the parent component
+          onLeadUpdated(processedLead);
+          setIsEditing(false);
+
+          let successMessage = "Lead and client information updated successfully";
+          if (formData.street_address || formData.city || formData.state || formData.zip_code) {
+            successMessage += " with updated address information";
+          }
+
+          toast({
+            title: "Success",
+            description: successMessage,
+          });
+        }
       }
     } catch (error) {
       console.error('Error updating lead:', error);
@@ -735,7 +823,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
             <div className="flex items-start justify-between">
               <div>
                 <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
-                  {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+                  {typeof lead.first_name === 'string' ? lead.first_name : ''}{typeof lead.last_name === 'string' && lead.last_name ? ` ${lead.last_name}` : ''}
+                  {lead.client?.client_type === 'Business' && <span className="ml-2 text-sm font-normal text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Business</span>}
                 </DialogTitle>
                 <div className="text-sm text-blue-600 hover:text-blue-800 mt-1 flex items-center">
                   <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
@@ -1056,8 +1145,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       // Read-only view
                       <>
                         <div>
+                          <Label className="text-xs font-medium text-muted-foreground">Client Type</Label>
+                          <div>{lead.client?.client_type || 'Individual'}</div>
+                        </div>
+                        <div>
                           <Label className="text-xs font-medium text-muted-foreground">Name</Label>
-                          <div>{typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}</div>
+                          <div>{lead.first_name || 'Unknown'}{lead.last_name ? ` ${lead.last_name}` : ''}</div>
                         </div>
                         <div>
                           <Label className="text-xs font-medium text-muted-foreground">Email</Label>
@@ -1140,10 +1233,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                         <div className="col-span-2">
                           <Label className="text-xs font-medium text-muted-foreground">Address</Label>
                           <div>
-                            {lead.client?.address?.street ? (
+                            {lead.address_street ? (
                               <>
-                                {lead.client.address.street}<br />
-                                {lead.client.address.city}{lead.client.address.city && lead.client.address.state ? ', ' : ''}{lead.client.address.state} {lead.client.address.zip_code}
+                                {lead.address_street}<br />
+                                {lead.address_city}{lead.address_city && lead.address_state ? ', ' : ''}{lead.address_state} {lead.address_zip_code}
                               </>
                             ) : (
                               'No address'
@@ -1335,14 +1428,14 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           <DialogContent className="sm:max-w-md z-60 bg-white" aria-describedby="call-confirm-description">
             <DialogHeader>
               <DialogTitle>
-                {callId ? 
+                {callId ?
                   <div className="flex items-center">
                     <span className="relative flex h-3 w-3 mr-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                     </span>
                     Call in Progress
-                  </div> 
+                  </div>
                   : "Confirm Call"
                 }
               </DialogTitle>

@@ -330,7 +330,7 @@ function LeadsPageContent() {
     // Set up real-time subscription
     const subscription = supabase
       .channel('leads-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_ins_info' }, (payload) => {
         // Refresh leads when changes occur
         fetchLeads();
       })

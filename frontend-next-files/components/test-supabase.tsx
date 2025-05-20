@@ -5,7 +5,7 @@ import supabase from '@/utils/supabase/client';
 import { Database } from '@/types/database.types';
 
 // Define a type for the lead with joined data
-type Lead = Database['public']['Tables']['leads']['Row'] & {
+type Lead = Database['public']['Tables']['leads_ins_info']['Row'] & {
   client?: {
     name: string;
     email: string | null;
@@ -41,7 +41,7 @@ export default function TestSupabase() {
         // Safely attempt to query Supabase with proper joins
         try {
           const { data, error } = await supabase
-            .from('leads')
+            .from('leads_ins_info')
             .select(`
               *,
               client:client_id(*),

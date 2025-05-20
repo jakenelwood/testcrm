@@ -284,8 +284,8 @@ export interface Database {
         };
       };
 
-      // Clients Table
-      clients: {
+      // Clients Table (renamed to leads_contact_info)
+      leads_contact_info: {
         Row: {
           id: string;
           client_type: string;
@@ -384,8 +384,8 @@ export interface Database {
         };
       };
 
-      // Leads Table
-      leads: {
+      // Leads Table (renamed to leads_ins_info)
+      leads_ins_info: {
         Row: {
           id: string;
           client_id: string | null;
@@ -545,7 +545,7 @@ export interface Database {
       contacts: {
         Row: {
           id: string;
-          client_id: string;
+          client_id: string; // References leads_contact_info.id
           first_name: string;
           last_name: string;
           title: string | null;
@@ -558,7 +558,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          client_id: string;
+          client_id: string; // References leads_contact_info.id
           first_name: string;
           last_name: string;
           title?: string | null;
@@ -571,7 +571,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          client_id?: string;
+          client_id?: string; // References leads_contact_info.id
           first_name?: string;
           last_name?: string;
           title?: string | null;
@@ -588,21 +588,21 @@ export interface Database {
       lead_notes: {
         Row: {
           id: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           note_content: string;
           created_by: string | null;
           created_at: string | null;
         };
         Insert: {
           id?: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           note_content: string;
           created_by?: string | null;
           created_at?: string | null;
         };
         Update: {
           id?: string;
-          lead_id?: string;
+          lead_id?: string; // References leads_ins_info.id
           note_content?: string;
           created_by?: string | null;
           created_at?: string | null;
@@ -613,7 +613,7 @@ export interface Database {
       lead_communications: {
         Row: {
           id: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           contact_id: string | null;
           type_id: number | null;
           direction: string | null;
@@ -624,7 +624,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           contact_id?: string | null;
           type_id?: number | null;
           direction?: string | null;
@@ -635,7 +635,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          lead_id?: string;
+          lead_id?: string; // References leads_ins_info.id
           contact_id?: string | null;
           type_id?: number | null;
           direction?: string | null;
@@ -650,7 +650,7 @@ export interface Database {
       lead_marketing_settings: {
         Row: {
           id: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           campaign_id: string;
           is_active: boolean;
           settings: Json | null;
@@ -659,7 +659,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           campaign_id: string;
           is_active?: boolean;
           settings?: Json | null;
@@ -668,7 +668,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          lead_id?: string;
+          lead_id?: string; // References leads_ins_info.id
           campaign_id?: string;
           is_active?: boolean;
           settings?: Json | null;
@@ -681,7 +681,7 @@ export interface Database {
       opportunities: {
         Row: {
           id: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           name: string;
           stage: string;
           amount: number | null;
@@ -694,7 +694,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          lead_id: string;
+          lead_id: string; // References leads_ins_info.id
           name: string;
           stage: string;
           amount?: number | null;
@@ -707,7 +707,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          lead_id?: string;
+          lead_id?: string; // References leads_ins_info.id
           name?: string;
           stage?: string;
           amount?: number | null;
@@ -724,8 +724,8 @@ export interface Database {
       ai_interactions: {
         Row: {
           id: string;
-          lead_id: string | null;
-          client_id: string | null;
+          lead_id: string | null; // References leads_ins_info.id
+          client_id: string | null; // References leads_contact_info.id
           type: string | null;
           source: string | null;
           content: string | null;
@@ -738,8 +738,8 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          lead_id?: string | null;
-          client_id?: string | null;
+          lead_id?: string | null; // References leads_ins_info.id
+          client_id?: string | null; // References leads_contact_info.id
           type?: string | null;
           source?: string | null;
           content?: string | null;
@@ -770,8 +770,8 @@ export interface Database {
       support_tickets: {
         Row: {
           id: string;
-          client_id: string;
-          lead_id: string | null;
+          client_id: string; // References leads_contact_info.id
+          lead_id: string | null; // References leads_ins_info.id
           created_by: string | null;
           issue_type: string | null;
           issue_description: string | null;
@@ -784,8 +784,8 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          client_id: string;
-          lead_id?: string | null;
+          client_id: string; // References leads_contact_info.id
+          lead_id?: string | null; // References leads_ins_info.id
           created_by?: string | null;
           issue_type?: string | null;
           issue_description?: string | null;

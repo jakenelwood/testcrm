@@ -169,14 +169,12 @@ export default function LeadDetailsPage() {
           console.error('Error checking leads table:', tableCheckError);
         }
 
-        // Try to fetch with joins first
+        // Try to fetch from the lead_details view first
         try {
+          // Use the new lead_details view which includes address information
           const { data, error } = await supabase
-            .from('leads')
-            .select(`
-              *,
-              client:client_id(*)
-            `)
+            .from('lead_details')
+            .select('*')
             .eq('id', params.id)
             .single();
 
@@ -320,13 +318,13 @@ export default function LeadDetailsPage() {
                 : (data.insurance_type || 'Auto'),
 
               // Add legacy fields from client data for backward compatibility
-              first_name: typeof data.client === 'object' && data.client?.name
+              first_name: data.first_name || (typeof data.client === 'object' && data.client?.name
                 ? data.client.name.split(' ')[0]
-                : (data.first_name || ''),
+                : ''),
 
-              last_name: typeof data.client === 'object' && data.client?.name
+              last_name: data.last_name || (typeof data.client === 'object' && data.client?.name
                 ? data.client.name.split(' ').slice(1).join(' ')
-                : (data.last_name || ''),
+                : ''),
 
               email: typeof data.client === 'object'
                 ? data.client?.email || ''
@@ -351,16 +349,16 @@ export default function LeadDetailsPage() {
 
               // Client fields (from joined client or legacy fields)
               client_name: processedLead?.client?.name || `${processedLead?.first_name || ''} ${processedLead?.last_name || ''}`.trim(),
-              first_name: processedLead?.first_name || processedLead?.client?.name?.split(' ')[0] || '',
-              last_name: processedLead?.last_name || (processedLead?.client?.name?.split(' ').slice(1).join(' ') || ''),
+              first_name: processedLead?.first_name || (processedLead?.client?.name ? processedLead.client.name.split(' ')[0] : ''),
+              last_name: processedLead?.last_name || (processedLead?.client?.name ? processedLead.client.name.split(' ').slice(1).join(' ') : ''),
               email: processedLead?.client?.email || processedLead?.email || '',
               phone_number: processedLead?.client?.phone_number || processedLead?.phone_number || '',
 
-              // Address fields (from joined address or empty)
-              street_address: processedLead?.client?.address?.street || '',
-              city: processedLead?.client?.address?.city || '',
-              state: processedLead?.client?.address?.state || '',
-              zip_code: processedLead?.client?.address?.zip_code || '',
+              // Address fields (from lead_details view)
+              street_address: processedLead?.address_street || '',
+              city: processedLead?.address_city || '',
+              state: processedLead?.address_state || '',
+              zip_code: processedLead?.address_zip_code || '',
 
               // Individual-specific fields
               date_of_birth: processedLead?.client?.date_of_birth || '',
@@ -791,26 +789,6 @@ export default function LeadDetailsPage() {
 
       const fetchVehicles = async () => {
         try {
-          // In development mode, check if the table exists
-          if (isDev) {
-            try {
-              // First check if the table exists
-              const { error: tableError } = await supabase
-                .from('vehicles')
-                .select('count')
-                .limit(1)
-                .single();
-
-              if (tableError && tableError.code === '42P01') { // Table doesn't exist
-                console.log('vehicles table does not exist yet, using mock data');
-                setVehicles(mockVehicles);
-                return; // Exit early
-              }
-            } catch (tableCheckError) {
-              console.error('Error checking vehicles table:', tableCheckError);
-            }
-          }
-
           const { data, error } = await supabase
             .from('vehicles')
             .select('*')
@@ -818,49 +796,20 @@ export default function LeadDetailsPage() {
             .order('created_at', { ascending: false });
 
           if (error) {
+            // Handle the error gracefully
             console.error('Error fetching vehicles:', error);
-            // Use mock data in development mode
-            if (isDev) {
-              console.log('Using mock vehicles data due to error');
-              setVehicles(mockVehicles);
-            }
+            setVehicles([]);
           } else {
             setVehicles(data || []);
           }
         } catch (err) {
           console.error('Error fetching vehicles:', err);
-          // Use mock data in development mode
-          if (isDev) {
-            console.log('Using mock vehicles data due to error');
-            setVehicles(mockVehicles);
-          } else {
-            setVehicles([]);
-          }
+          setVehicles([]);
         }
       };
 
       const fetchHomes = async () => {
         try {
-          // In development mode, check if the table exists
-          if (isDev) {
-            try {
-              // First check if the table exists
-              const { error: tableError } = await supabase
-                .from('homes')
-                .select('count')
-                .limit(1)
-                .single();
-
-              if (tableError && tableError.code === '42P01') { // Table doesn't exist
-                console.log('homes table does not exist yet, using mock data');
-                setHomes(mockHomes);
-                return; // Exit early
-              }
-            } catch (tableCheckError) {
-              console.error('Error checking homes table:', tableCheckError);
-            }
-          }
-
           const { data, error } = await supabase
             .from('homes')
             .select('*')
@@ -868,49 +817,20 @@ export default function LeadDetailsPage() {
             .order('created_at', { ascending: false });
 
           if (error) {
+            // Handle the error gracefully
             console.error('Error fetching homes:', error);
-            // Use mock data in development mode
-            if (isDev) {
-              console.log('Using mock homes data due to error');
-              setHomes(mockHomes);
-            }
+            setHomes([]);
           } else {
             setHomes(data || []);
           }
         } catch (err) {
           console.error('Error fetching homes:', err);
-          // Use mock data in development mode
-          if (isDev) {
-            console.log('Using mock homes data due to error');
-            setHomes(mockHomes);
-          } else {
-            setHomes([]);
-          }
+          setHomes([]);
         }
       };
 
       const fetchSpecialtyItems = async () => {
         try {
-          // In development mode, check if the table exists
-          if (isDev) {
-            try {
-              // First check if the table exists
-              const { error: tableError } = await supabase
-                .from('specialty_items')
-                .select('count')
-                .limit(1)
-                .single();
-
-              if (tableError && tableError.code === '42P01') { // Table doesn't exist
-                console.log('specialty_items table does not exist yet, using mock data');
-                setSpecialtyItems(mockSpecialtyItems);
-                return; // Exit early
-              }
-            } catch (tableCheckError) {
-              console.error('Error checking specialty_items table:', tableCheckError);
-            }
-          }
-
           const { data, error } = await supabase
             .from('specialty_items')
             .select('*')
@@ -918,24 +838,15 @@ export default function LeadDetailsPage() {
             .order('created_at', { ascending: false });
 
           if (error) {
+            // Handle the error gracefully
             console.error('Error fetching specialty items:', error);
-            // Use mock data in development mode
-            if (isDev) {
-              console.log('Using mock specialty items data due to error');
-              setSpecialtyItems(mockSpecialtyItems);
-            }
+            setSpecialtyItems([]);
           } else {
             setSpecialtyItems(data || []);
           }
         } catch (err) {
           console.error('Error fetching specialty items:', err);
-          // Use mock data in development mode
-          if (isDev) {
-            console.log('Using mock specialty items data due to error');
-            setSpecialtyItems(mockSpecialtyItems);
-          } else {
-            setSpecialtyItems([]);
-          }
+          setSpecialtyItems([]);
         }
       };
 
@@ -1606,105 +1517,186 @@ export default function LeadDetailsPage() {
       // First, update the client record with the new name and contact information
       const clientName = `${formData.first_name} ${formData.last_name}`.trim();
 
-      // Make sure we have a client_id before trying to update
-      if (!lead.client_id && lead.client?.id) {
-        lead.client_id = lead.client.id;
-      }
-
-      if (!lead.client_id) {
-        console.error('No client_id found for lead:', lead.id);
-        throw new Error('No client_id found for lead');
-      }
-
-      console.log('Updating client record:', {
-        client_id: lead.client_id,
+      // With the updated schema, leads don't have client_id anymore
+      // We'll store contact information directly in the lead record
+      console.log('Updating lead record:', {
+        lead_id: lead.id,
         name: clientName,
         email: formData.email,
         phone_number: formData.phone_number
       });
 
-      const { error: clientError } = await supabase
-        .from('clients')
+      // Handle address update using the improved address-helpers functions
+      console.log('DEBUG: Lead address information before update:', {
+        leadId: lead.id,
+        formData: {
+          street: formData.street_address,
+          city: formData.city,
+          state: formData.state,
+          zip_code: formData.zip_code
+        }
+      });
+
+      // Check if we have address data to update
+      if (formData.street_address || formData.city || formData.state || formData.zip_code) {
+        console.log('DEBUG: Updating address information using updateLeadAddress helper');
+
+        // Import the updateLeadAddress function
+        const { updateLeadAddress } = await import('@/utils/address-helpers');
+
+        // Use the helper function to update the lead's address directly
+        const { success, error } = await updateLeadAddress(
+          supabase,
+          lead.id,
+          {
+            street: formData.street_address,
+            city: formData.city,
+            state: formData.state,
+            zip_code: formData.zip_code
+          },
+          'address' // Use the primary address
+        );
+
+        if (!success) {
+          console.error('DEBUG: Error updating address:', error);
+          // Continue with lead update even if address update fails
+          console.warn('DEBUG: Continuing with lead update despite address update failure');
+        } else {
+          console.log('DEBUG: Address updated successfully');
+        }
+      }
+
+      // With the updated schema, we don't need to update a client record
+      // All contact information is stored directly in the lead record
+
+      // Then update lead in Supabase with all information including contact details
+      const { data, error } = await supabase
+        .from('leads_ins_info')
         .update({
-          name: clientName,
+          status_id: statusId,
+          insurance_type_id: insuranceTypeId,
+          current_carrier: formData.current_carrier || null,
+          premium: premium,
+          notes: formData.notes || null,
+          assigned_to: formData.assigned_to || null,
+          // Add contact information directly to the lead
+          first_name: formData.first_name || null,
+          last_name: formData.last_name || null,
           email: formData.email || null,
           phone_number: formData.phone_number || null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', lead.client_id);
-
-      if (clientError) {
-        console.error('Error updating client:', clientError);
-        throw clientError;
-      }
-
-      console.log('Client record updated successfully');
-
-      // Then update lead in Supabase - only include fields that exist in the database
-      const { data, error } = await supabase
-        .from('leads')
-        .update({
-          status_id: statusId,
-          insurance_type_id: insuranceTypeId,
-          current_carrier: formData.current_carrier || null,
-          premium: premium,
-          notes: formData.notes || null,
-          assigned_to: formData.assigned_to || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', lead.id)
-        .select(`
-          *,
-          client:client_id(*),
-          status:lead_statuses!inner(value),
-          insurance_type:insurance_types!inner(name)
-        `)
-        .single();
+        .eq('id', lead.id);
 
       if (error) {
         console.error('Error updating lead:', error);
-        console.error('Error details:', error.details);
-        console.error('Error message:', error.message);
-        console.error('Error hint:', error.hint);
-        console.error('Error code:', error.code);
-        console.error('Update payload:', {
-          status_id: statusId,
-          insurance_type_id: insuranceTypeId,
-          current_carrier: formData.current_carrier || null,
-          premium: premium,
-          notes: formData.notes || null,
-          assigned_to: formData.assigned_to || null,
-        });
+        throw error;
+      }
+
+      // Fetch the updated lead data from the lead_details view to get the latest address information
+      const { data: updatedLeadData, error: fetchError } = await supabase
+        .from('lead_details')
+        .select('*')
+        .eq('id', lead.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching updated lead data:', fetchError);
+        console.error('Error details:', fetchError.details);
+        console.error('Error message:', fetchError.message);
+        console.error('Error hint:', fetchError.hint);
+        console.error('Error code:', fetchError.code);
 
         toast({
-          title: "Error",
-          description: `Failed to update lead: ${error.message || 'Unknown error'}`,
-          variant: "destructive"
+          title: "Warning",
+          description: `Lead updated but couldn't refresh the latest data. Please refresh the page.`,
+          variant: "default"
         });
-      } else if (data) {
-        // Process the data before setting it
-        const processedLead: Lead = {
-          ...data,
-          // Map joined fields to their expected properties
-          status: typeof data.status === 'object' && data.status?.value ? data.status.value : 'New',
-          insurance_type: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name : 'Auto',
 
-          // Add legacy fields from client data for backward compatibility
-          first_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ')[0] : '',
-          last_name: typeof data.client === 'object' && data.client?.name ? data.client.name.split(' ').slice(1).join(' ') : '',
-          email: typeof data.client === 'object' ? data.client?.email || '' : '',
-          phone_number: typeof data.client === 'object' ? data.client?.phone_number || '' : '',
+        // Continue with the data we have from the update operation
+        const { data: fallbackData, error: statusError } = await supabase
+          .from('leads_ins_info')
+          .select(`
+            *,
+            status:lead_statuses!inner(value),
+            insurance_type:insurance_types!inner(name)
+          `)
+          .eq('id', lead.id)
+          .single();
+
+        if (statusError) {
+          console.error('Error fetching fallback lead data:', statusError);
+          toast({
+            title: "Error",
+            description: `Failed to update lead: ${statusError.message || 'Unknown error'}`,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Process the fallback data
+        const processedLead: Lead = {
+          ...fallbackData,
+          // Map joined fields to their expected properties
+          status: typeof fallbackData.status === 'object' && fallbackData.status?.value ? fallbackData.status.value : 'New',
+          insurance_type: typeof fallbackData.insurance_type === 'object' && fallbackData.insurance_type?.name ? fallbackData.insurance_type.name : 'Auto',
+
+          // Contact information is now directly on the lead
+          first_name: fallbackData.first_name || '',
+          last_name: fallbackData.last_name || '',
+          email: fallbackData.email || '',
+          phone_number: fallbackData.phone_number || '',
 
           // Ensure we have status_legacy and insurance_type_legacy for compatibility
-          status_legacy: typeof data.status === 'object' && data.status?.value ? data.status.value : 'New',
-          insurance_type_legacy: typeof data.insurance_type === 'object' && data.insurance_type?.name ? data.insurance_type.name : 'Auto'
+          status_legacy: typeof fallbackData.status === 'object' && fallbackData.status?.value ? fallbackData.status.value : 'New',
+          insurance_type_legacy: typeof fallbackData.insurance_type === 'object' && fallbackData.insurance_type?.name ? fallbackData.insurance_type.name : 'Auto'
         };
 
         setLead(processedLead);
         setIsEditing(false);
+
+      } else if (updatedLeadData) {
+        // Process the data from lead_details view before setting it
+        const processedLead: Lead = {
+          ...updatedLeadData,
+          // Status and insurance type are already direct properties in lead_details
+          status: updatedLeadData.status || 'New',
+          insurance_type: updatedLeadData.insurance_type || 'Auto',
+
+          // Contact information is now directly on the lead
+          first_name: updatedLeadData.first_name || '',
+          last_name: updatedLeadData.last_name || '',
+          email: updatedLeadData.email || '',
+          phone_number: updatedLeadData.phone_number || '',
+
+          // Ensure we have status_legacy and insurance_type_legacy for compatibility
+          status_legacy: updatedLeadData.status || 'New',
+          insurance_type_legacy: updatedLeadData.insurance_type || 'Auto'
+        };
+
+        setLead(processedLead);
+        setIsEditing(false);
+
+        // Create a more detailed success message
+        let successMessage = "Lead updated successfully";
+
+        // Add address information to the success message if address was updated
+        if (formData.street_address || formData.city || formData.state || formData.zip_code) {
+          successMessage = "Lead and address information updated successfully";
+
+          // Log address update details for debugging
+          console.log('DEBUG: Address information in success handler:', {
+            street: formData.street_address,
+            city: formData.city,
+            state: formData.state,
+            zip_code: formData.zip_code,
+            addressId: data.address_id
+          });
+        }
+
         toast({
           title: "Success",
-          description: "Lead updated successfully",
+          description: successMessage,
         });
       }
     } catch (error) {
@@ -1818,11 +1810,12 @@ export default function LeadDetailsPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-md">
-              {lead.first_name ? lead.first_name.charAt(0).toUpperCase() : ''}
+              {lead.first_name ? lead.first_name.charAt(0).toUpperCase() :
+               lead.client?.name ? lead.client.name.charAt(0).toUpperCase() : ''}
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                {lead.first_name} {lead.last_name}
+                {lead.first_name || (lead.client?.name ? lead.client.name : '')}
               </h1>
               <div className="flex items-center gap-3 mt-1 text-gray-500">
                 <div className="flex items-center">
@@ -2151,7 +2144,11 @@ export default function LeadDetailsPage() {
                 <>
                   <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                     <Label className="text-xs font-medium text-gray-500 mb-1 block">Name</Label>
-                    <div className="font-medium text-gray-900">{lead.first_name} {lead.last_name}</div>
+                    <div className="font-medium text-gray-900">
+                      {lead.first_name && lead.last_name ?
+                        `${lead.first_name} ${lead.last_name}` :
+                        lead.client?.name || 'Unknown'}
+                    </div>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                     <Label className="text-xs font-medium text-gray-500 mb-1 block">Email</Label>
@@ -2212,10 +2209,10 @@ export default function LeadDetailsPage() {
                   <div className="col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
                     <Label className="text-xs font-medium text-gray-500 mb-1 block">Address</Label>
                     <div className="text-gray-700">
-                      {lead.client?.address?.street ? (
+                      {lead.address_street ? (
                         <>
-                          {lead.client.address.street}<br />
-                          {lead.client.address.city}{lead.client.address.city && lead.client.address.state ? ', ' : ''}{lead.client.address.state} {lead.client.address.zip_code}
+                          {lead.address_street}<br />
+                          {lead.address_city}{lead.address_city && lead.address_state ? ', ' : ''}{lead.address_state} {lead.address_zip_code}
                         </>
                       ) : (
                         'No address'

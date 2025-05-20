@@ -60,7 +60,7 @@ export function AddLeadModal({ isOpen, onClose, onLeadCreated }: AddLeadModalPro
 
       // Create lead in Supabase
       const { data, error } = await supabase
-        .from('leads')
+        .from('leads_ins_info')
         .insert({
           first_name: formData.first_name,
           last_name: formData.last_name,

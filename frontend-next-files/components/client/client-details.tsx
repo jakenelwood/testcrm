@@ -26,8 +26,47 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
   const fetchClient = async () => {
     setLoading(true);
     try {
+      // Check if we're in development mode
+      const isDev = process.env.NODE_ENV === 'development';
+
+      if (isDev) {
+        console.log('Development mode: Using mock client data');
+        // Create mock client data
+        const mockClient = {
+          id: clientId,
+          name: 'Brian Berge',
+          client_type: 'Individual',
+          email: 'brian@example.com',
+          phone_number: '555-123-4567',
+          address: {
+            id: 'mock-address-1',
+            street: '123 Main St',
+            city: 'Minneapolis',
+            state: 'MN',
+            zip_code: '55401',
+            type: 'Physical'
+          },
+          mailing_address: {
+            id: 'mock-address-2',
+            street: '456 Market St',
+            city: 'St. Paul',
+            state: 'MN',
+            zip_code: '55102',
+            type: 'Mailing'
+          },
+          date_of_birth: '1985-06-15',
+          gender: 'Male',
+          marital_status: 'Married'
+        };
+
+        setClient(mockClient);
+        setLoading(false);
+        return;
+      }
+
+      // Production mode - try to fetch from database
       const { data, error } = await supabase
-        .from('clients')
+        .from('leads_contact_info')
         .select(`
           *,
           address:address_id(*),
@@ -43,11 +82,40 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       setClient(data);
     } catch (error: any) {
       console.error('Error fetching client:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load client information',
-        variant: 'destructive',
-      });
+
+      // Check if we're in development mode for fallback
+      const isDev = process.env.NODE_ENV === 'development';
+      if (isDev) {
+        console.log('Development mode: Using fallback mock client data after error');
+        // Create mock client data as fallback
+        const mockClient = {
+          id: clientId,
+          name: 'Brian Berge',
+          client_type: 'Individual',
+          email: 'brian@example.com',
+          phone_number: '555-123-4567',
+          address: {
+            id: 'mock-address-1',
+            street: '123 Main St',
+            city: 'Minneapolis',
+            state: 'MN',
+            zip_code: '55401',
+            type: 'Physical'
+          },
+          mailing_address: null,
+          date_of_birth: '1985-06-15',
+          gender: 'Male',
+          marital_status: 'Married'
+        };
+
+        setClient(mockClient);
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to load client information',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -139,8 +207,8 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
                 <span>Physical Address</span>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => setEditingAddress(!editingAddress)}
                 >
@@ -150,7 +218,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             </CardHeader>
             <CardContent>
               {editingAddress ? (
-                <AddressForm 
+                <AddressForm
                   clientId={clientId}
                   addressType="address"
                   initialData={client.address || {}}
@@ -182,8 +250,8 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
                 <span>Mailing Address</span>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => setEditingMailingAddress(!editingMailingAddress)}
                 >
@@ -193,7 +261,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             </CardHeader>
             <CardContent>
               {editingMailingAddress ? (
-                <AddressForm 
+                <AddressForm
                   clientId={clientId}
                   addressType="mailing_address"
                   initialData={client.mailing_address || {}}
