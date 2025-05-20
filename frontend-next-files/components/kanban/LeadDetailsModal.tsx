@@ -596,18 +596,22 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       // First, update the client record with the new name and contact information
       const clientName = `${formData.first_name} ${formData.last_name}`.trim();
 
-      // Make sure we have a client_id before trying to update
-      if (!lead.client_id && lead.client?.id) {
-        lead.client_id = lead.client.id;
+      // Get the client ID from either client_id or leads_contact_info_id
+      let clientId = lead.client_id || lead.leads_contact_info_id;
+
+      // If we still don't have it, try to get it from the client object
+      if (!clientId && lead.client?.id) {
+        clientId = lead.client.id;
       }
 
-      if (!lead.client_id) {
-        console.error('No client_id found for lead:', lead.id);
-        throw new Error('No client_id found for lead');
+      if (!clientId) {
+        console.error('No client ID found for lead:', lead.id);
+        console.log('Lead object:', lead);
+        throw new Error('No client ID found for lead');
       }
 
       console.log('Updating client record:', {
-        client_id: lead.client_id,
+        client_id: clientId,
         name: clientName,
         email: formData.email,
         phone_number: formData.phone_number
@@ -621,7 +625,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           phone_number: formData.phone_number || null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', lead.client_id);
+        .eq('id', clientId);
 
       if (clientError) {
         console.error('Error updating client:', clientError);

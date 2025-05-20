@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
 
 // Hardcoded values as fallback (same as in .env.local)
@@ -9,8 +9,9 @@ const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3M
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
+// Create a function to initialize the Supabase client
 export const createClient = () => {
-  return createBrowserClient<Database>(
+  return createSupabaseClient<Database>(
     supabaseUrl,
     supabaseAnonKey
   );
@@ -21,7 +22,8 @@ const supabase = createClient();
 
 // Log for debugging
 if (typeof window !== 'undefined') {
-  console.log('Supabase client initialized with URL:', supabaseUrl ? 'Available' : 'Not available');
+  console.log('Supabase client initialized with URL:', supabaseUrl);
+  console.log('Supabase key available:', !!supabaseAnonKey);
 }
 
 export default supabase;
