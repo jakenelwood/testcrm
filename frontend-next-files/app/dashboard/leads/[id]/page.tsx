@@ -33,6 +33,7 @@ import { VehicleForm } from '@/components/forms/vehicle-form';
 import { HomeForm } from '@/components/forms/home-form';
 import { SpecialtyItemForm } from '@/components/forms/specialty-item-form';
 import { DevelopmentModeBanner } from "@/components/ui/development-mode-banner";
+import ClientDetails from "@/components/client/client-details";
 
 export default function LeadDetailsPage() {
   const params = useParams();
@@ -1877,12 +1878,18 @@ export default function LeadDetailsPage() {
       </div>
 
       <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="mt-6">
-        <TabsList className="grid grid-cols-4 bg-gray-100 p-1 rounded-lg">
+        <TabsList className="grid grid-cols-5 bg-gray-100 p-1 rounded-lg">
           <TabsTrigger
             value="basic"
             className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
           >
             Basic Information
+          </TabsTrigger>
+          <TabsTrigger
+            value="client"
+            className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+          >
+            Client Details
           </TabsTrigger>
           <TabsTrigger
             value="insurance"
@@ -2247,6 +2254,34 @@ export default function LeadDetailsPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Client Details Tab */}
+        <TabsContent value="client" className="space-y-6 mt-6">
+          {lead && lead.client_id ? (
+            <ClientDetails clientId={lead.client_id} />
+          ) : (
+            <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+              <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+              <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+                <CardTitle className="text-xl font-bold text-gray-900">Client Information</CardTitle>
+                <CardDescription className="text-gray-500">Client details not available</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-center py-8 text-muted-foreground">
+                  <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">No Client Associated</h3>
+                  <p className="text-gray-500 max-w-md mx-auto">
+                    This lead does not have an associated client record. Update the lead to associate it with a client.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Insurance Details Tab */}
