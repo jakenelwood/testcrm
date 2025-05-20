@@ -12,6 +12,15 @@ interface LeadCardProps {
 }
 
 export function LeadCard({ lead, onClick }: LeadCardProps) {
+  // Debug information
+  console.log('Lead data:', {
+    id: lead.id,
+    first_name: lead.first_name,
+    last_name: lead.last_name,
+    client: lead.client,
+    client_id: lead.client_id
+  });
+
   // Track if we're in a click (not a drag) operation
   const [isClicking, setIsClicking] = React.useState(false);
 
@@ -105,7 +114,11 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       {/* Top section with name and date */}
       <div className="flex justify-between items-start mb-3">
         <div className="font-medium text-gray-900 text-base">
-          {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
+          {/* Display client name if available, otherwise fallback to lead first/last name */}
+          {lead.client?.name || (lead.first_name ? `${lead.first_name}${lead.last_name ? ` ${lead.last_name}` : ''}` : 'Unknown')}
+          {lead.client?.client_type === 'Business' &&
+            <span className="ml-2 text-xs font-normal text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">Business</span>
+          }
         </div>
 
         {lead.assigned_to && (

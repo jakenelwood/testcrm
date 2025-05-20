@@ -64,6 +64,9 @@ const zipCodeMap: Record<string, string> = {
 
 // Define form schema
 const formSchema = z.object({
+  client_type: z.enum(["Individual", "Business"], {
+    required_error: "Client type is required",
+  }),
   name: z.string().min(2, "Name must be at least 2 characters"),
   phone_number: z.string().min(10, "Phone number must be at least 10 digits").refine(
     (val) => /^\(\d{3}\) \d{3}-\d{4}$/.test(val) || /^\d{10}$/.test(val.replace(/\D/g, '')),
@@ -119,6 +122,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
   const form = useForm<ClientInfoFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
+      client_type: "Individual",
       name: "",
       phone_number: "",
       email: "",
@@ -165,8 +169,9 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
     loadPipelines();
   }, [form]);
 
-  // Watch for ZIP code changes
+  // Watch for ZIP code and client type changes
   const zipCode = form.watch('zip_code');
+  const clientType = form.watch('client_type');
 
   // Auto-populate state based on ZIP code
   useEffect(() => {
@@ -180,6 +185,21 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
       }
     }
   }, [zipCode, form]);
+
+  // Auto-select pipeline based on client type
+  useEffect(() => {
+    if (pipelines.length > 0 && clientType) {
+      // Find the Alpha (id: 1) and Bravo (id: 2) pipelines
+      const alphaPipeline = pipelines.find(p => p.name === 'Alpha' || p.id === 1);
+      const bravoPipeline = pipelines.find(p => p.name === 'Bravo' || p.id === 2);
+
+      if (clientType === 'Business' && bravoPipeline) {
+        form.setValue('pipeline_id', bravoPipeline.id);
+      } else if (clientType === 'Individual' && alphaPipeline) {
+        form.setValue('pipeline_id', alphaPipeline.id);
+      }
+    }
+  }, [clientType, pipelines, form]);
 
   // Handle form submission
   const handleFormSubmit = (values: any) => {
@@ -195,12 +215,37 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
+                  name="client_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Client Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select client type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Individual">Individual</SelectItem>
+                          <SelectItem value="Business">Business</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Business clients will be assigned to the Bravo pipeline
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+                      <FormLabel>{form.watch('client_type') === 'Business' ? 'Business Name' : 'Full Name'}</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder={form.watch('client_type') === 'Business' ? 'Acme Corporation' : 'John Doe'} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -594,7 +639,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                       <Select
                         onValueChange={(value) => field.onChange(parseInt(value))}
                         value={field.value ? field.value.toString() : undefined}
-                        disabled={isLoadingPipelines}
+                        disabled={isLoadingPipelines || form.watch('client_type') === 'Business'}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -610,7 +655,9 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Select which pipeline this lead should be assigned to
+                        {form.watch('client_type') === 'Business'
+                          ? "Business clients are automatically assigned to the Bravo pipeline"
+                          : "Select which pipeline this lead should be assigned to"}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
