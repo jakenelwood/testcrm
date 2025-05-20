@@ -28,14 +28,19 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
       }
 
       // Determine which joins to include based on the available columns
-      const hasClientId = leadsColumns && leadsColumns.length > 0 && 'client_id' in leadsColumns[0];
+      const hasClientId = leadsColumns && leadsColumns.length > 0 &&
+        ('client_id' in leadsColumns[0] || 'leads_contact_info_id' in leadsColumns[0]);
       const hasStatusId = leadsColumns && leadsColumns.length > 0 && 'status_id' in leadsColumns[0];
       const hasInsuranceTypeId = leadsColumns && leadsColumns.length > 0 && 'insurance_type_id' in leadsColumns[0];
 
       // Build the select query based on available columns
       let selectQuery = '*';
-      // Always include client data since we've added the client_id column
-      selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
+      // Always include client data since we've added the client_id/leads_contact_info_id column
+      if ('leads_contact_info_id' in leadsColumns[0]) {
+        selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
+      } else {
+        selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
+      }
       if (hasStatusId) {
         selectQuery += ', status:lead_statuses(value)';
       }
@@ -67,10 +72,10 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
           // For personal lines (Alpha pipeline), use the client name split into first/last
           // For business lines (Bravo pipeline), use the business name as first_name
           first_name: typeof lead.client === 'object' && lead.client?.name ?
-            (lead.client.client_type === 'Business' ? lead.client.name : lead.client.name.split(' ')[0]) :
+            ((lead.client.client_type === 'Business' || lead.client.lead_type === 'Business') ? lead.client.name : lead.client.name.split(' ')[0]) :
             (lead.first_name || ''),
           last_name: typeof lead.client === 'object' && lead.client?.name ?
-            (lead.client.client_type === 'Business' ? '' : lead.client.name.split(' ').slice(1).join(' ')) :
+            ((lead.client.client_type === 'Business' || lead.client.lead_type === 'Business') ? '' : lead.client.name.split(' ').slice(1).join(' ')) :
             (lead.last_name || ''),
           email: typeof lead.client === 'object' ? lead.client?.email || '' : lead.email || '',
           phone_number: typeof lead.client === 'object' ? lead.client?.phone_number || '' : lead.phone_number || '',
@@ -117,14 +122,19 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
       }
 
       // Determine which joins to include based on the available columns
-      const hasClientId = leadsColumns && leadsColumns.length > 0 && 'client_id' in leadsColumns[0];
+      const hasClientId = leadsColumns && leadsColumns.length > 0 &&
+        ('client_id' in leadsColumns[0] || 'leads_contact_info_id' in leadsColumns[0]);
       const hasStatusId = leadsColumns && leadsColumns.length > 0 && 'status_id' in leadsColumns[0];
       const hasInsuranceTypeId = leadsColumns && leadsColumns.length > 0 && 'insurance_type_id' in leadsColumns[0];
 
       // Build the select query based on available columns
       let selectQuery = '*';
-      // Always include client data since we've added the client_id column
-      selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
+      // Always include client data since we've added the client_id/leads_contact_info_id column
+      if ('leads_contact_info_id' in leadsColumns[0]) {
+        selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
+      } else {
+        selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
+      }
       if (hasStatusId) {
         selectQuery += ', status:lead_statuses(value)';
       }
@@ -167,10 +177,10 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
           // For personal lines (Alpha pipeline), use the client name split into first/last
           // For business lines (Bravo pipeline), use the business name as first_name
           first_name: typeof lead.client === 'object' && lead.client?.name ?
-            (lead.client.client_type === 'Business' ? lead.client.name : lead.client.name.split(' ')[0]) :
+            ((lead.client.client_type === 'Business' || lead.client.lead_type === 'Business') ? lead.client.name : lead.client.name.split(' ')[0]) :
             (lead.first_name || ''),
           last_name: typeof lead.client === 'object' && lead.client?.name ?
-            (lead.client.client_type === 'Business' ? '' : lead.client.name.split(' ').slice(1).join(' ')) :
+            ((lead.client.client_type === 'Business' || lead.client.lead_type === 'Business') ? '' : lead.client.name.split(' ').slice(1).join(' ')) :
             (lead.last_name || ''),
           email: typeof lead.client === 'object' ? lead.client?.email || '' : lead.email || '',
           phone_number: typeof lead.client === 'object' ? lead.client?.phone_number || '' : lead.phone_number || '',
@@ -262,19 +272,28 @@ export async function createLead(leadData: any): Promise<Lead> {
       }
 
       // Determine which columns to include based on the available columns
-      const hasClientId = leadsColumns && leadsColumns.length > 0 && 'client_id' in leadsColumns[0];
+      const hasClientId = leadsColumns && leadsColumns.length > 0 &&
+        ('client_id' in leadsColumns[0] || 'leads_contact_info_id' in leadsColumns[0]);
       const hasStatusId = leadsColumns && leadsColumns.length > 0 && 'status_id' in leadsColumns[0];
       const hasInsuranceTypeId = leadsColumns && leadsColumns.length > 0 && 'insurance_type_id' in leadsColumns[0];
       const hasPipelineId = leadsColumns && leadsColumns.length > 0 && 'pipeline_id' in leadsColumns[0];
 
       let clientId = null;
 
-      // Create a client record if the leads table has a client_id column
+      // Create a client record if the leads table has a client_id or leads_contact_info_id column
       if (hasClientId) {
+        // Check if lead_type column exists
+        const { data: clientColumns, error: clientColumnsError } = await supabase
+          .from('leads_contact_info')
+          .select('*')
+          .limit(1);
+
+        const hasLeadType = clientColumns && clientColumns.length > 0 && 'lead_type' in clientColumns[0];
+
         const { data: clientData, error: clientError } = await supabase
           .from('leads_contact_info')
           .insert({
-            client_type: leadData.client_type || 'Individual',
+            [hasLeadType ? 'lead_type' : 'client_type']: leadData.client_type || 'Individual',
             name: leadData.client_type === 'Business' ? leadData.name : `${leadData.first_name} ${leadData.last_name}`.trim(),
             email: leadData.email || null,
             phone_number: leadData.phone_number || null,
@@ -298,9 +317,13 @@ export async function createLead(leadData: any): Promise<Lead> {
         updated_at: new Date().toISOString()
       };
 
-      // Always set client_id since we've added the column
+      // Always set client_id or leads_contact_info_id since we've added the column
       if (clientId) {
-        leadInsert.client_id = clientId;
+        if ('leads_contact_info_id' in leadsColumns[0]) {
+          leadInsert.leads_contact_info_id = clientId;
+        } else {
+          leadInsert.client_id = clientId;
+        }
       }
 
       if (hasStatusId) {
@@ -316,12 +339,13 @@ export async function createLead(leadData: any): Promise<Lead> {
         if (hasClientId && clientId) {
           const { data: clientData, error: clientFetchError } = await supabase
             .from('leads_contact_info')
-            .select('client_type')
+            .select('client_type, lead_type')
             .eq('id', clientId)
             .single();
 
           if (!clientFetchError && clientData) {
-            leadInsert.pipeline_id = clientData.client_type === 'Business' ? 2 : 1;
+            const clientType = clientData.lead_type || clientData.client_type;
+            leadInsert.pipeline_id = clientType === 'Business' ? 2 : 1;
           } else {
             leadInsert.pipeline_id = 1; // Default to Alpha pipeline if error
           }
@@ -346,8 +370,12 @@ export async function createLead(leadData: any): Promise<Lead> {
 
       // Build the select query based on available columns
       let selectQuery = '*';
-      // Always include client data since we've added the client_id column
-      selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
+      // Always include client data since we've added the client_id/leads_contact_info_id column
+      if ('leads_contact_info_id' in leadsColumns[0]) {
+        selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
+      } else {
+        selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
+      }
       if (hasStatusId) {
         selectQuery += ', status:lead_statuses(value)';
       }
@@ -378,10 +406,12 @@ export async function createLead(leadData: any): Promise<Lead> {
         // For personal lines (Alpha pipeline), use the client name split into first/last
         // For business lines (Bravo pipeline), use the business name as first_name
         first_name: typeof newLeadData.client === 'object' && newLeadData.client?.name ?
-          (newLeadData.client.client_type === 'Business' ? newLeadData.client.name : newLeadData.client.name.split(' ')[0]) :
+          ((newLeadData.client.client_type === 'Business' || newLeadData.client.lead_type === 'Business') ?
+            newLeadData.client.name : newLeadData.client.name.split(' ')[0]) :
           (newLeadData.first_name || ''),
         last_name: typeof newLeadData.client === 'object' && newLeadData.client?.name ?
-          (newLeadData.client.client_type === 'Business' ? '' : newLeadData.client.name.split(' ').slice(1).join(' ')) :
+          ((newLeadData.client.client_type === 'Business' || newLeadData.client.lead_type === 'Business') ?
+            '' : newLeadData.client.name.split(' ').slice(1).join(' ')) :
           (newLeadData.last_name || ''),
         email: typeof newLeadData.client === 'object' ? newLeadData.client?.email || '' : newLeadData.email || '',
         phone_number: typeof newLeadData.client === 'object' ? newLeadData.client?.phone_number || '' : newLeadData.phone_number || '',

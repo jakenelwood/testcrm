@@ -195,9 +195,11 @@ BEGIN
       IF (
         (lead_record.specialty_data::jsonb->>'type' IS NOT NULL) AND
         (
-          item_record.name ILIKE '%' || lead_record.specialty_data::jsonb->>'type' || '%' OR
-          item_record.name ILIKE '%' || lead_record.specialty_data::jsonb->>'make' || '%' OR
-          item_record.name ILIKE '%' || lead_record.specialty_data::jsonb->>'model' || '%'
+          item_record.name ILIKE CONCAT('%', lead_record.specialty_data::jsonb->>'type', '%') OR
+          (lead_record.specialty_data::jsonb->>'make' IS NOT NULL AND
+           item_record.name ILIKE CONCAT('%', lead_record.specialty_data::jsonb->>'make', '%')) OR
+          (lead_record.specialty_data::jsonb->>'model' IS NOT NULL AND
+           item_record.name ILIKE CONCAT('%', lead_record.specialty_data::jsonb->>'model', '%'))
         )
       ) THEN
         -- Update the specialty item with the lead_id and client_id
