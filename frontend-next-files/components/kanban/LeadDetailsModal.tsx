@@ -704,15 +704,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         if (fetchError) {
           console.error('Error fetching updated lead data:', fetchError);
 
-          // Fallback to fetching from leads_ins_info table with joins
+          // Fallback to fetching from lead_details view
           const { data: fallbackData, error: fallbackError } = await supabase
-            .from('leads_ins_info')
-            .select(`
-              *,
-              client:client_id(*),
-              status:lead_statuses!inner(value),
-              insurance_type:insurance_types!inner(name)
-            `)
+            .from('lead_details')
+            .select('*')
             .eq('id', lead.id)
             .single();
 
