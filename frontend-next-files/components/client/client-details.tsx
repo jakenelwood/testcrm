@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import AddressForm from '@/components/forms/address-form';
 import { Client } from '@/types/client';
+import { createClient } from '@/utils/supabase/client';
 
 interface ClientDetailsProps {
   clientId: string;
@@ -20,7 +20,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
   const [editingAddress, setEditingAddress] = useState(false);
   const [editingMailingAddress, setEditingMailingAddress] = useState(false);
   const { toast } = useToast();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Fetch client data
   const fetchClient = async () => {
