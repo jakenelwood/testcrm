@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { EyeIcon, EyeOffIcon, Mail, Lock, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import GonzigoBrand from '@/components/gonzigo-brand'
+import RonricoBrand from '@/components/ronrico-brand'
 
 // ELABORATE VERSION - Full-page design with navigation, dashboard preview, and footer
 export default function LoginPage() {
@@ -384,9 +384,9 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="container mx-auto py-8 px-4 text-center text-gray-500 text-sm border-t border-gray-100 mt-8">
         <div className="flex justify-center mb-3">
-          <GonzigoBrand size="md" className="h-8 flex items-center" />
+          <RonricoBrand size="md" className="h-8 flex items-center" />
         </div>
-        <p>© {new Date().getFullYear()} <span className="font-bold">gonzigo</span>. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} <span className="font-bold">ronrico</span>. All rights reserved.</p>
       </footer>
     </div>
   )

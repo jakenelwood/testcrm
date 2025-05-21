@@ -110,14 +110,14 @@ export default function CTA() {
                       🔄
                     </div>
                     <h3 className="text-xl font-semibold mb-3">Reliable</h3>
-                    <p className="text-gray-600">99.9% uptime guarantee means gonzigo is always there when you need it.</p>
+                    <p className="text-gray-600">99.9% uptime guarantee means ronrico is always there when you need it.</p>
                   </div>
                 </div>
 
                 <div className="mt-16 p-8 bg-gray-50 rounded-2xl">
                   <blockquote className="max-w-xl mx-auto">
                     <p className="italic text-xl text-gray-700 mb-4">"This one's ready. You'll want your 'yes' voice."</p>
-                    <cite className="text-sm text-gray-500 block">— gonzigo, your AI assistant</cite>
+                    <cite className="text-sm text-gray-500 block">— ronrico, your AI assistant</cite>
                   </blockquote>
                 </div>
               </div>

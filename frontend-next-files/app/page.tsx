@@ -3,7 +3,7 @@ import Features from '@/components/landing/features';
 import CTA from '@/components/landing/cta';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import GonzigoBrand from '@/components/gonzigo-brand';
+import RonricoBrand from '@/components/ronrico-brand';
 import GLogoButton from '@/components/g-logo-button';
 import { ChevronDown } from 'lucide-react';
 
@@ -115,7 +115,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-gray-200 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-500 mb-4 md:mb-0">© {new Date().getFullYear()} <span className="font-bold">gonzigo</span>. All rights reserved.</div>
+            <div className="text-gray-500 mb-4 md:mb-0">© {new Date().getFullYear()} <span className="font-bold">ronrico</span>. All rights reserved.</div>
             <div className="flex gap-6">
               <Link href="#" className="text-gray-500 hover:text-[#8A00C4] transition-colors">Privacy Policy</Link>
               <Link href="#" className="text-gray-500 hover:text-[#8A00C4] transition-colors">Terms of Service</Link>

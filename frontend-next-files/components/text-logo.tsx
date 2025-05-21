@@ -41,7 +41,7 @@ export default function TextLogo({
         )}
         style={{ color }}
       >
-        gonzigo
+        ronrico
       </span>
     </div>
   );

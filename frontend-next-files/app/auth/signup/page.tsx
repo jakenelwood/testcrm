@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { EyeIcon, EyeOffIcon, Mail, Lock, User, ArrowRight, CheckCircle2, XCircle } from 'lucide-react'
 import Link from 'next/link'
-import GonzigoBrand from '@/components/gonzigo-brand'
+import RonricoBrand from '@/components/ronrico-brand'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -175,7 +175,7 @@ export default function SignUpPage() {
       <nav className="container mx-auto py-6 px-4">
         <div className="flex justify-center md:justify-start">
           <Link href="/" className="flex items-center gap-2">
-            <GonzigoBrand size="lg" className="h-10 flex items-center" />
+            <RonricoBrand size="lg" className="h-10 flex items-center" />
           </Link>
         </div>
       </nav>
@@ -187,7 +187,7 @@ export default function SignUpPage() {
             <div className="text-center md:text-left mb-8">
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mb-3">Create an account</h1>
               <p className="text-lg text-gray-600">
-                Join Gonzigo and start closing more deals
+                Join Ronrico and start closing more deals
               </p>
             </div>
 
@@ -419,9 +419,9 @@ export default function SignUpPage() {
       {/* Footer */}
       <footer className="container mx-auto py-6 px-4 text-center text-gray-500 text-sm">
         <div className="flex justify-center mb-3">
-          <GonzigoBrand size="sm" className="h-6 flex items-center opacity-50" />
+          <RonricoBrand size="sm" className="h-6 flex items-center opacity-50" />
         </div>
-        <p>© {new Date().getFullYear()} Gonzigo. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Ronrico. All rights reserved.</p>
       </footer>
     </div>
   )

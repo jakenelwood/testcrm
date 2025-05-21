@@ -4,19 +4,19 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import TextLogo from './text-logo';
 
-interface GonzigoBrandProps {
+interface RonricoBrandProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   showTagline?: boolean;
   color?: string;
 }
 
-export default function GonzigoBrand({
+export default function RonricoBrand({
   className,
   size = 'md',
   showTagline = false,
   color = '#0047AB'
-}: GonzigoBrandProps) {
+}: RonricoBrandProps) {
   return (
     <div className={cn("flex flex-col", className)}>
       <div className="px-2 py-1">
