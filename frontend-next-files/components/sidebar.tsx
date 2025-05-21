@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/user-profile";
 import { useLogout } from "@/utils/auth";
 import TextLogo from "@/components/text-logo";
-import GTextLogo from "@/components/g-text-logo";
+import RTextLogo from "@/components/r-text-logo";
 import {
   FileText,
   LayoutDashboard,
@@ -230,7 +230,7 @@ export function Sidebar() {
             </div>
           ) : (
             <div className="h-10 w-10 flex items-center justify-center overflow-hidden">
-              <GTextLogo size="md" />
+              <RTextLogo size="md" />
             </div>
           )}
         </Link>
