@@ -50,7 +50,9 @@ function OAuthCallbackContent() {
         const exchangeUrl = `/api/ringcentral/auth/exchange-code?code=${code}&state=${state}`;
         console.log('Exchange URL:', exchangeUrl);
 
-        const response = await fetch(exchangeUrl);
+        const response = await fetch(exchangeUrl, {
+          credentials: 'include' // Ensure cookies (including Supabase auth) are sent
+        });
         console.log('Exchange response status:', response.status);
 
         const responseText = await response.text();
