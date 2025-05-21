@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import supabase from '@/utils/supabase/client';
-import { ArrowLeft, Plus, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2, Edit } from 'lucide-react';
 import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OtherInsuredForm } from '@/components/forms/other-insured-form';
@@ -59,6 +59,8 @@ export default function LeadDetailsPage() {
   const [isEditingVehicles, setIsEditingVehicles] = useState(false);
   const [isEditingHomes, setIsEditingHomes] = useState(false);
   const [isEditingSpecialtyItems, setIsEditingSpecialtyItems] = useState(false);
+  const [isEditingAutoInsurance, setIsEditingAutoInsurance] = useState(false);
+  const [isEditingHomeInsurance, setIsEditingHomeInsurance] = useState(false);
   const [isSubmittingItem, setIsSubmittingItem] = useState(false);
 
   // New item form data
@@ -66,6 +68,14 @@ export default function LeadDetailsPage() {
   const [newVehicle, setNewVehicle] = useState<any>({});
   const [newHome, setNewHome] = useState<any>({});
   const [newSpecialtyItem, setNewSpecialtyItem] = useState<any>({});
+  const [autoInsuranceFormData, setAutoInsuranceFormData] = useState<any>({});
+  const [homeInsuranceFormData, setHomeInsuranceFormData] = useState<any>({});
+  const [isEditingVehicle, setIsEditingVehicle] = useState<boolean>(false);
+  const [isEditingCoverage, setIsEditingCoverage] = useState<boolean>(false);
+  const [isEditingHomeCoverage, setIsEditingHomeCoverage] = useState<boolean>(false);
+  const [vehicleFormData, setVehicleFormData] = useState<any>({});
+  const [coverageFormData, setCoverageFormData] = useState<any>({});
+  const [homeCoverageFormData, setHomeCoverageFormData] = useState<any>({});
 
   // State for tracking errors
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -1193,6 +1203,349 @@ export default function LeadDetailsPage() {
     setNewSpecialtyItem(prev => ({ ...prev, [name]: value }));
   };
 
+  // Initialize auto insurance form data when editing
+  const handleEditAutoInsurance = () => {
+    if (!lead || !lead.auto_data) return;
+
+    setAutoInsuranceFormData({
+      current_carrier: lead.auto_data.current_carrier || '',
+      months_with_carrier: lead.auto_data.months_with_carrier || '',
+      current_limits: lead.auto_data.current_limits || '',
+      quoting_limits: lead.auto_data.quoting_limits || '',
+    });
+
+    setIsEditingAutoInsurance(true);
+  };
+
+  // Save auto insurance details
+  const handleSaveAutoInsurance = async () => {
+    if (!lead) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Create updated auto_data object
+      const updatedAutoData = {
+        ...lead.auto_data,
+        current_carrier: autoInsuranceFormData.current_carrier,
+        months_with_carrier: autoInsuranceFormData.months_with_carrier,
+        current_limits: autoInsuranceFormData.current_limits,
+        quoting_limits: autoInsuranceFormData.quoting_limits,
+      };
+
+      // Update the lead in the database
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          auto_data: updatedAutoData
+        })
+        .eq('id', lead.id);
+
+      if (error) {
+        console.error('Error updating auto insurance details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update auto insurance details. Please try again.",
+          variant: "destructive"
+        });
+      } else {
+        // Update the lead in the state
+        setLead({
+          ...lead,
+          auto_data: updatedAutoData
+        });
+
+        toast({
+          title: "Success",
+          description: "Auto insurance details updated successfully.",
+        });
+
+        // Close the edit form
+        setIsEditingAutoInsurance(false);
+      }
+    } catch (error) {
+      console.error('Error updating auto insurance details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update auto insurance details. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
+  // Initialize home insurance form data when editing
+  const handleEditHomeInsurance = () => {
+    if (!lead || !lead.home_data) return;
+
+    setHomeInsuranceFormData({
+      year_built: lead.home_data.year_built || '',
+      square_feet: lead.home_data.square_feet || '',
+      roof_type: lead.home_data.roof_type || '',
+      construction_type: lead.home_data.construction_type || '',
+    });
+
+    setIsEditingHomeInsurance(true);
+  };
+
+  // Save home insurance details
+  const handleSaveHomeInsurance = async () => {
+    if (!lead) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Create updated home_data object
+      const updatedHomeData = {
+        ...lead.home_data,
+        year_built: homeInsuranceFormData.year_built,
+        square_feet: homeInsuranceFormData.square_feet,
+        roof_type: homeInsuranceFormData.roof_type,
+        construction_type: homeInsuranceFormData.construction_type,
+      };
+
+      // Update the lead in the database
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          home_data: updatedHomeData
+        })
+        .eq('id', lead.id);
+
+      if (error) {
+        console.error('Error updating home insurance details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update home insurance details. Please try again.",
+          variant: "destructive"
+        });
+      } else {
+        // Update the lead in the state
+        setLead({
+          ...lead,
+          home_data: updatedHomeData
+        });
+
+        toast({
+          title: "Success",
+          description: "Home insurance details updated successfully.",
+        });
+
+        // Close the edit form
+        setIsEditingHomeInsurance(false);
+      }
+    } catch (error) {
+      console.error('Error updating home insurance details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update home insurance details. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
+  // Initialize vehicle form data when editing
+  const handleEditVehicle = (vehicle: any, index: number) => {
+    setVehicleFormData({
+      ...vehicle,
+      index: index
+    });
+    setIsEditingVehicle(true);
+  };
+
+  // Save vehicle details
+  const handleSaveVehicle = async () => {
+    if (!lead || !lead.auto_data || !lead.auto_data.vehicles) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Create updated vehicles array
+      const updatedVehicles = [...lead.auto_data.vehicles];
+      const index = vehicleFormData.index;
+
+      // Remove index from the data we're saving
+      const { index: _, ...vehicleDataToSave } = vehicleFormData;
+
+      // Update the vehicle at the specified index
+      updatedVehicles[index] = vehicleDataToSave;
+
+      // Create updated auto_data object
+      const updatedAutoData = {
+        ...lead.auto_data,
+        vehicles: updatedVehicles
+      };
+
+      // Update the lead in the database
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          auto_data: updatedAutoData
+        })
+        .eq('id', lead.id);
+
+      if (error) {
+        console.error('Error updating vehicle details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update vehicle details. Please try again.",
+          variant: "destructive"
+        });
+      } else {
+        // Update the lead in the state
+        setLead({
+          ...lead,
+          auto_data: updatedAutoData
+        });
+
+        toast({
+          title: "Success",
+          description: "Vehicle details updated successfully.",
+        });
+
+        // Close the edit form
+        setIsEditingVehicle(false);
+      }
+    } catch (error) {
+      console.error('Error updating vehicle details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update vehicle details. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
+  // Initialize coverage form data when editing
+  const handleEditCoverage = () => {
+    if (!lead || !lead.auto_data || !lead.auto_data.coverages) return;
+
+    setCoverageFormData({
+      ...lead.auto_data.coverages
+    });
+    setIsEditingCoverage(true);
+  };
+
+  // Save coverage details
+  const handleSaveCoverage = async () => {
+    if (!lead || !lead.auto_data) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Create updated auto_data object
+      const updatedAutoData = {
+        ...lead.auto_data,
+        coverages: coverageFormData
+      };
+
+      // Update the lead in the database
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          auto_data: updatedAutoData
+        })
+        .eq('id', lead.id);
+
+      if (error) {
+        console.error('Error updating coverage details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update coverage details. Please try again.",
+          variant: "destructive"
+        });
+      } else {
+        // Update the lead in the state
+        setLead({
+          ...lead,
+          auto_data: updatedAutoData
+        });
+
+        toast({
+          title: "Success",
+          description: "Coverage details updated successfully.",
+        });
+
+        // Close the edit form
+        setIsEditingCoverage(false);
+      }
+    } catch (error) {
+      console.error('Error updating coverage details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update coverage details. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
+  // Initialize home coverage form data when editing
+  const handleEditHomeCoverage = () => {
+    if (!lead || !lead.home_data || !lead.home_data.coverages) return;
+
+    setHomeCoverageFormData({
+      ...lead.home_data.coverages
+    });
+    setIsEditingHomeCoverage(true);
+  };
+
+  // Save home coverage details
+  const handleSaveHomeCoverage = async () => {
+    if (!lead || !lead.home_data) return;
+
+    setIsSubmittingItem(true);
+    try {
+      // Create updated home_data object
+      const updatedHomeData = {
+        ...lead.home_data,
+        coverages: homeCoverageFormData
+      };
+
+      // Update the lead in the database
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          home_data: updatedHomeData
+        })
+        .eq('id', lead.id);
+
+      if (error) {
+        console.error('Error updating home coverage details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update home coverage details. Please try again.",
+          variant: "destructive"
+        });
+      } else {
+        // Update the lead in the state
+        setLead({
+          ...lead,
+          home_data: updatedHomeData
+        });
+
+        toast({
+          title: "Success",
+          description: "Home coverage details updated successfully.",
+        });
+
+        // Close the edit form
+        setIsEditingHomeCoverage(false);
+      }
+    } catch (error) {
+      console.error('Error updating home coverage details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update home coverage details. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingItem(false);
+    }
+  };
+
   // Handle adding other insured
   const handleAddOtherInsured = async (data: any) => {
     if (!lead || !lead.client_id) return;
@@ -1396,6 +1749,29 @@ export default function LeadDetailsPage() {
       setIsSubmittingItem(false);
     }
   };
+
+  // Initialize auto and home insurance form data when lead changes
+  useEffect(() => {
+    if (lead) {
+      if (lead.auto_data) {
+        setAutoInsuranceFormData({
+          current_carrier: lead.auto_data.current_carrier || '',
+          months_with_carrier: lead.auto_data.months_with_carrier || '',
+          current_limits: lead.auto_data.current_limits || '',
+          quoting_limits: lead.auto_data.quoting_limits || '',
+        });
+      }
+
+      if (lead.home_data) {
+        setHomeInsuranceFormData({
+          year_built: lead.home_data.year_built || '',
+          square_feet: lead.home_data.square_feet || '',
+          roof_type: lead.home_data.roof_type || '',
+          construction_type: lead.home_data.construction_type || '',
+        });
+      }
+    }
+  }, [lead]);
 
   // Handle adding specialty item
   const handleAddSpecialtyItem = async (data: any) => {
@@ -2388,119 +2764,420 @@ export default function LeadDetailsPage() {
           {lead.auto_data && (
             <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
               <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
-              <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
-                <CardTitle className="text-lg font-medium">Auto Insurance Details</CardTitle>
-                <CardDescription className="text-sm">Details about auto insurance coverage</CardDescription>
+              <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-medium">Auto Insurance Details</CardTitle>
+                  <CardDescription className="text-sm">Details about auto insurance coverage</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={isEditingAutoInsurance ? () => setIsEditingAutoInsurance(false) : handleEditAutoInsurance}
+                >
+                  <Edit className="h-3 w-3 mr-1" />
+                  {isEditingAutoInsurance ? "Cancel" : "Edit"}
+                </Button>
               </CardHeader>
               <CardContent className="p-6">
-                {/* Drivers Section */}
-                {lead.auto_data.drivers && lead.auto_data.drivers.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-md font-semibold mb-3">Drivers</h3>
-                    <div className="space-y-4">
-                      {lead.auto_data.drivers.map((driver: any, index: number) => (
-                        <Card key={index} className="bg-muted/30">
-                          <CardContent className="pt-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">Name</Label>
-                                <div>{driver.name}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">Primary Driver</Label>
-                                <div>{driver.primary ? 'Yes' : 'No'}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">License</Label>
-                                <div>{driver.license}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">State</Label>
-                                <div>{driver.state}</div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                {isEditingAutoInsurance ? (
+                  <div className="space-y-4">
+                    <Card className="border-dashed border-2 border-primary/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-md">Edit Auto Insurance Details</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          {/* Auto Insurance Form Fields */}
+                          <div className="space-y-2">
+                            <Label htmlFor="current_carrier">Current Carrier</Label>
+                            <Input
+                              id="current_carrier"
+                              name="current_carrier"
+                              value={autoInsuranceFormData.current_carrier || ''}
+                              onChange={(e) => setAutoInsuranceFormData({
+                                ...autoInsuranceFormData,
+                                current_carrier: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="months_with_carrier">Months with Carrier</Label>
+                            <Input
+                              id="months_with_carrier"
+                              name="months_with_carrier"
+                              type="number"
+                              value={autoInsuranceFormData.months_with_carrier || ''}
+                              onChange={(e) => setAutoInsuranceFormData({
+                                ...autoInsuranceFormData,
+                                months_with_carrier: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="current_limits">Current Limits</Label>
+                            <Input
+                              id="current_limits"
+                              name="current_limits"
+                              value={autoInsuranceFormData.current_limits || ''}
+                              onChange={(e) => setAutoInsuranceFormData({
+                                ...autoInsuranceFormData,
+                                current_limits: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="quoting_limits">Quoting Limits</Label>
+                            <Input
+                              id="quoting_limits"
+                              name="quoting_limits"
+                              value={autoInsuranceFormData.quoting_limits || ''}
+                              onChange={(e) => setAutoInsuranceFormData({
+                                ...autoInsuranceFormData,
+                                quoting_limits: e.target.value
+                              })}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsEditingAutoInsurance(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleSaveAutoInsurance}
+                            disabled={isSubmittingItem}
+                          >
+                            {isSubmittingItem ? "Saving..." : "Save Changes"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
+                ) : (
+                  <>
+                    {/* Drivers Section */}
+                    {lead.auto_data.drivers && lead.auto_data.drivers.length > 0 && (
+                      <div className="mb-6">
+                        <h3 className="text-md font-semibold mb-3">Drivers</h3>
+                        <div className="space-y-4">
+                          {lead.auto_data.drivers.map((driver: any, index: number) => (
+                            <Card key={index} className="bg-muted/30">
+                              <CardContent className="pt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                                    <div>{driver.name}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Primary Driver</Label>
+                                    <div>{driver.primary ? 'Yes' : 'No'}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">License</Label>
+                                    <div>{driver.license}</div>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">State</Label>
+                                    <div>{driver.state}</div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {/* Vehicles Section */}
-                {lead.auto_data.vehicles && lead.auto_data.vehicles.length > 0 && (
+                {isEditingVehicle ? (
                   <div className="mb-6">
-                    <h3 className="text-md font-semibold mb-3">Vehicles</h3>
-                    <div className="space-y-4">
-                      {lead.auto_data.vehicles.map((vehicle: any, index: number) => (
-                        <Card key={index} className="bg-muted/30">
-                          <CardContent className="pt-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">Make</Label>
-                                <div>{vehicle.make}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">Model</Label>
-                                <div>{vehicle.model}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">Year</Label>
-                                <div>{vehicle.year}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">VIN</Label>
-                                <div>{vehicle.vin}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">Primary Use</Label>
-                                <div>{vehicle.primary_use}</div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-medium text-muted-foreground">Annual Mileage</Label>
-                                <div>{vehicle.annual_mileage?.toLocaleString()}</div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                    <Card className="border-dashed border-2 border-primary/50 mb-4">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-md">Edit Vehicle</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="make">Make</Label>
+                            <Input
+                              id="make"
+                              name="make"
+                              value={vehicleFormData.make || ''}
+                              onChange={(e) => setVehicleFormData({
+                                ...vehicleFormData,
+                                make: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="model">Model</Label>
+                            <Input
+                              id="model"
+                              name="model"
+                              value={vehicleFormData.model || ''}
+                              onChange={(e) => setVehicleFormData({
+                                ...vehicleFormData,
+                                model: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="year">Year</Label>
+                            <Input
+                              id="year"
+                              name="year"
+                              type="number"
+                              value={vehicleFormData.year || ''}
+                              onChange={(e) => setVehicleFormData({
+                                ...vehicleFormData,
+                                year: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="vin">VIN</Label>
+                            <Input
+                              id="vin"
+                              name="vin"
+                              value={vehicleFormData.vin || ''}
+                              onChange={(e) => setVehicleFormData({
+                                ...vehicleFormData,
+                                vin: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="primary_use">Primary Use</Label>
+                            <Select
+                              value={vehicleFormData.primary_use || ''}
+                              onValueChange={(value) => setVehicleFormData({
+                                ...vehicleFormData,
+                                primary_use: value
+                              })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select primary use" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Commute">Commute</SelectItem>
+                                <SelectItem value="Pleasure">Pleasure</SelectItem>
+                                <SelectItem value="Business">Business</SelectItem>
+                                <SelectItem value="Farm">Farm</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="annual_mileage">Annual Mileage</Label>
+                            <Input
+                              id="annual_mileage"
+                              name="annual_mileage"
+                              type="number"
+                              value={vehicleFormData.annual_mileage || ''}
+                              onChange={(e) => setVehicleFormData({
+                                ...vehicleFormData,
+                                annual_mileage: parseInt(e.target.value)
+                              })}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsEditingVehicle(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleSaveVehicle}
+                            disabled={isSubmittingItem}
+                          >
+                            {isSubmittingItem ? "Saving..." : "Save Changes"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
+                ) : (
+                  lead.auto_data.vehicles && lead.auto_data.vehicles.length > 0 && (
+                    <div className="mb-6">
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-md font-semibold">Vehicles</h3>
+                      </div>
+                      <div className="space-y-4">
+                        {lead.auto_data.vehicles.map((vehicle: any, index: number) => (
+                          <Card key={index} className="bg-muted/30">
+                            <CardContent className="pt-4">
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="font-medium">{vehicle.year} {vehicle.make} {vehicle.model}</div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditVehicle(vehicle, index)}
+                                >
+                                  <Edit className="h-3 w-3 mr-1" />
+                                  Edit
+                                </Button>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground">Make</Label>
+                                  <div>{vehicle.make}</div>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground">Model</Label>
+                                  <div>{vehicle.model}</div>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground">Year</Label>
+                                  <div>{vehicle.year}</div>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground">VIN</Label>
+                                  <div>{vehicle.vin}</div>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground">Primary Use</Label>
+                                  <div>{vehicle.primary_use}</div>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground">Annual Mileage</Label>
+                                  <div>{vehicle.annual_mileage?.toLocaleString()}</div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )
                 )}
 
                 {/* Coverages Section */}
                 {lead.auto_data.coverages && (
                   <div>
-                    <h3 className="text-md font-semibold mb-3">Coverage Details</h3>
-                    <Card className="bg-muted/30">
-                      <CardContent className="pt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {lead.auto_data.coverages.liability && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
-                              <div>{lead.auto_data.coverages.liability}</div>
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-md font-semibold">Coverage Details</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={isEditingCoverage ? () => setIsEditingCoverage(false) : handleEditCoverage}
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        {isEditingCoverage ? "Cancel" : "Edit"}
+                      </Button>
+                    </div>
+
+                    {isEditingCoverage ? (
+                      <Card className="border-dashed border-2 border-primary/50 mb-4">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-md">Edit Coverage Details</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="liability">Liability</Label>
+                              <Input
+                                id="liability"
+                                name="liability"
+                                value={coverageFormData.liability || ''}
+                                onChange={(e) => setCoverageFormData({
+                                  ...coverageFormData,
+                                  liability: e.target.value
+                                })}
+                              />
                             </div>
-                          )}
-                          {lead.auto_data.coverages.uninsured_motorist && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Uninsured Motorist</Label>
-                              <div>{lead.auto_data.coverages.uninsured_motorist}</div>
+                            <div className="space-y-2">
+                              <Label htmlFor="uninsured_motorist">Uninsured Motorist</Label>
+                              <Input
+                                id="uninsured_motorist"
+                                name="uninsured_motorist"
+                                value={coverageFormData.uninsured_motorist || ''}
+                                onChange={(e) => setCoverageFormData({
+                                  ...coverageFormData,
+                                  uninsured_motorist: e.target.value
+                                })}
+                              />
                             </div>
-                          )}
-                          {lead.auto_data.coverages.collision_deductible && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Collision Deductible</Label>
-                              <div>${lead.auto_data.coverages.collision_deductible}</div>
+                            <div className="space-y-2">
+                              <Label htmlFor="collision_deductible">Collision Deductible</Label>
+                              <Input
+                                id="collision_deductible"
+                                name="collision_deductible"
+                                type="number"
+                                value={coverageFormData.collision_deductible || ''}
+                                onChange={(e) => setCoverageFormData({
+                                  ...coverageFormData,
+                                  collision_deductible: e.target.value
+                                })}
+                              />
                             </div>
-                          )}
-                          {lead.auto_data.coverages.comprehensive_deductible && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Comprehensive Deductible</Label>
-                              <div>${lead.auto_data.coverages.comprehensive_deductible}</div>
+                            <div className="space-y-2">
+                              <Label htmlFor="comprehensive_deductible">Comprehensive Deductible</Label>
+                              <Input
+                                id="comprehensive_deductible"
+                                name="comprehensive_deductible"
+                                type="number"
+                                value={coverageFormData.comprehensive_deductible || ''}
+                                onChange={(e) => setCoverageFormData({
+                                  ...coverageFormData,
+                                  comprehensive_deductible: e.target.value
+                                })}
+                              />
                             </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsEditingCoverage(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={handleSaveCoverage}
+                              disabled={isSubmittingItem}
+                            >
+                              {isSubmittingItem ? "Saving..." : "Save Changes"}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <Card className="bg-muted/30">
+                        <CardContent className="pt-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {lead.auto_data.coverages.liability && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
+                                <div>{lead.auto_data.coverages.liability}</div>
+                              </div>
+                            )}
+                            {lead.auto_data.coverages.uninsured_motorist && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Uninsured Motorist</Label>
+                                <div>{lead.auto_data.coverages.uninsured_motorist}</div>
+                              </div>
+                            )}
+                            {lead.auto_data.coverages.collision_deductible && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Collision Deductible</Label>
+                                <div>${lead.auto_data.coverages.collision_deductible}</div>
+                              </div>
+                            )}
+                            {lead.auto_data.coverages.comprehensive_deductible && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Comprehensive Deductible</Label>
+                                <div>${lead.auto_data.coverages.comprehensive_deductible}</div>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -2511,78 +3188,290 @@ export default function LeadDetailsPage() {
           {lead.home_data && (
             <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
               <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
-              <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
-                <CardTitle className="text-lg font-medium">Home Insurance Details</CardTitle>
-                <CardDescription className="text-sm">Details about home insurance coverage</CardDescription>
+              <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-medium">Home Insurance Details</CardTitle>
+                  <CardDescription className="text-sm">Details about home insurance coverage</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={isEditingHomeInsurance ? () => setIsEditingHomeInsurance(false) : handleEditHomeInsurance}
+                >
+                  <Edit className="h-3 w-3 mr-1" />
+                  {isEditingHomeInsurance ? "Cancel" : "Edit"}
+                </Button>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  {lead.home_data.year_built && (
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <Label className="text-xs font-medium text-muted-foreground">Year Built</Label>
-                      <div>{lead.home_data.year_built}</div>
-                    </div>
-                  )}
-                  {lead.home_data.square_feet && (
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <Label className="text-xs font-medium text-muted-foreground">Square Feet</Label>
-                      <div>{lead.home_data.square_feet}</div>
-                    </div>
-                  )}
-                  {lead.home_data.roof_type && (
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <Label className="text-xs font-medium text-muted-foreground">Roof Type</Label>
-                      <div>{lead.home_data.roof_type}</div>
-                    </div>
-                  )}
-                  {lead.home_data.construction_type && (
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <Label className="text-xs font-medium text-muted-foreground">Construction Type</Label>
-                      <div>{lead.home_data.construction_type}</div>
-                    </div>
-                  )}
-                </div>
+                {isEditingHomeInsurance ? (
+                  <div className="space-y-4">
+                    <Card className="border-dashed border-2 border-primary/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-md">Edit Home Insurance Details</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          {/* Home Insurance Form Fields */}
+                          <div className="space-y-2">
+                            <Label htmlFor="year_built">Year Built</Label>
+                            <Input
+                              id="year_built"
+                              name="year_built"
+                              type="number"
+                              value={homeInsuranceFormData.year_built || ''}
+                              onChange={(e) => setHomeInsuranceFormData({
+                                ...homeInsuranceFormData,
+                                year_built: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="square_feet">Square Feet</Label>
+                            <Input
+                              id="square_feet"
+                              name="square_feet"
+                              type="number"
+                              value={homeInsuranceFormData.square_feet || ''}
+                              onChange={(e) => setHomeInsuranceFormData({
+                                ...homeInsuranceFormData,
+                                square_feet: e.target.value
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="roof_type">Roof Type</Label>
+                            <Select
+                              value={homeInsuranceFormData.roof_type || ''}
+                              onValueChange={(value) => setHomeInsuranceFormData({
+                                ...homeInsuranceFormData,
+                                roof_type: value
+                              })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select roof type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Asphalt Shingle">Asphalt Shingle</SelectItem>
+                                <SelectItem value="Metal">Metal</SelectItem>
+                                <SelectItem value="Tile">Tile</SelectItem>
+                                <SelectItem value="Slate">Slate</SelectItem>
+                                <SelectItem value="Wood Shake">Wood Shake</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="construction_type">Construction Type</Label>
+                            <Select
+                              value={homeInsuranceFormData.construction_type || ''}
+                              onValueChange={(value) => setHomeInsuranceFormData({
+                                ...homeInsuranceFormData,
+                                construction_type: value
+                              })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select construction type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Frame">Frame</SelectItem>
+                                <SelectItem value="Masonry">Masonry</SelectItem>
+                                <SelectItem value="Brick">Brick</SelectItem>
+                                <SelectItem value="Stone">Stone</SelectItem>
+                                <SelectItem value="Concrete">Concrete</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsEditingHomeInsurance(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleSaveHomeInsurance}
+                            disabled={isSubmittingItem}
+                          >
+                            {isSubmittingItem ? "Saving..." : "Save Changes"}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {lead.home_data.year_built && (
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <Label className="text-xs font-medium text-muted-foreground">Year Built</Label>
+                        <div>{lead.home_data.year_built}</div>
+                      </div>
+                    )}
+                    {lead.home_data.square_feet && (
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <Label className="text-xs font-medium text-muted-foreground">Square Feet</Label>
+                        <div>{lead.home_data.square_feet}</div>
+                      </div>
+                    )}
+                    {lead.home_data.roof_type && (
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <Label className="text-xs font-medium text-muted-foreground">Roof Type</Label>
+                        <div>{lead.home_data.roof_type}</div>
+                      </div>
+                    )}
+                    {lead.home_data.construction_type && (
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <Label className="text-xs font-medium text-muted-foreground">Construction Type</Label>
+                        <div>{lead.home_data.construction_type}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Coverage Information */}
                 {lead.home_data.coverages && (
                   <div>
-                    <h3 className="text-md font-semibold mb-3">Coverage Details</h3>
-                    <Card className="bg-muted/30">
-                      <CardContent className="pt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {lead.home_data.coverages.dwelling && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Dwelling</Label>
-                              <div>${lead.home_data.coverages.dwelling.toLocaleString()}</div>
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-md font-semibold">Coverage Details</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={isEditingHomeCoverage ? () => setIsEditingHomeCoverage(false) : handleEditHomeCoverage}
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        {isEditingHomeCoverage ? "Cancel" : "Edit"}
+                      </Button>
+                    </div>
+
+                    {isEditingHomeCoverage ? (
+                      <Card className="border-dashed border-2 border-primary/50 mb-4">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-md">Edit Home Coverage Details</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="dwelling">Dwelling</Label>
+                              <Input
+                                id="dwelling"
+                                name="dwelling"
+                                type="number"
+                                value={homeCoverageFormData.dwelling || ''}
+                                onChange={(e) => setHomeCoverageFormData({
+                                  ...homeCoverageFormData,
+                                  dwelling: parseInt(e.target.value)
+                                })}
+                              />
                             </div>
-                          )}
-                          {lead.home_data.coverages.personal_property && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Personal Property</Label>
-                              <div>${lead.home_data.coverages.personal_property.toLocaleString()}</div>
+                            <div className="space-y-2">
+                              <Label htmlFor="personal_property">Personal Property</Label>
+                              <Input
+                                id="personal_property"
+                                name="personal_property"
+                                type="number"
+                                value={homeCoverageFormData.personal_property || ''}
+                                onChange={(e) => setHomeCoverageFormData({
+                                  ...homeCoverageFormData,
+                                  personal_property: parseInt(e.target.value)
+                                })}
+                              />
                             </div>
-                          )}
-                          {lead.home_data.coverages.liability && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
-                              <div>${lead.home_data.coverages.liability.toLocaleString()}</div>
+                            <div className="space-y-2">
+                              <Label htmlFor="liability">Liability</Label>
+                              <Input
+                                id="liability"
+                                name="liability"
+                                type="number"
+                                value={homeCoverageFormData.liability || ''}
+                                onChange={(e) => setHomeCoverageFormData({
+                                  ...homeCoverageFormData,
+                                  liability: parseInt(e.target.value)
+                                })}
+                              />
                             </div>
-                          )}
-                          {lead.home_data.coverages.medical && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Medical</Label>
-                              <div>${lead.home_data.coverages.medical.toLocaleString()}</div>
+                            <div className="space-y-2">
+                              <Label htmlFor="medical">Medical</Label>
+                              <Input
+                                id="medical"
+                                name="medical"
+                                type="number"
+                                value={homeCoverageFormData.medical || ''}
+                                onChange={(e) => setHomeCoverageFormData({
+                                  ...homeCoverageFormData,
+                                  medical: parseInt(e.target.value)
+                                })}
+                              />
                             </div>
-                          )}
-                          {lead.home_data.coverages.deductible && (
-                            <div>
-                              <Label className="text-xs font-medium text-muted-foreground">Deductible</Label>
-                              <div>${lead.home_data.coverages.deductible.toLocaleString()}</div>
+                            <div className="space-y-2">
+                              <Label htmlFor="deductible">Deductible</Label>
+                              <Input
+                                id="deductible"
+                                name="deductible"
+                                type="number"
+                                value={homeCoverageFormData.deductible || ''}
+                                onChange={(e) => setHomeCoverageFormData({
+                                  ...homeCoverageFormData,
+                                  deductible: parseInt(e.target.value)
+                                })}
+                              />
                             </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsEditingHomeCoverage(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={handleSaveHomeCoverage}
+                              disabled={isSubmittingItem}
+                            >
+                              {isSubmittingItem ? "Saving..." : "Save Changes"}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <Card className="bg-muted/30">
+                        <CardContent className="pt-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {lead.home_data.coverages.dwelling && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Dwelling</Label>
+                                <div>${lead.home_data.coverages.dwelling.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.personal_property && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Personal Property</Label>
+                                <div>${lead.home_data.coverages.personal_property.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.liability && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
+                                <div>${lead.home_data.coverages.liability.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.medical && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Medical</Label>
+                                <div>${lead.home_data.coverages.medical.toLocaleString()}</div>
+                              </div>
+                            )}
+                            {lead.home_data.coverages.deductible && (
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Deductible</Label>
+                                <div>${lead.home_data.coverages.deductible.toLocaleString()}</div>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 )}
               </CardContent>
