@@ -84,6 +84,16 @@ async function handleAuthorize(request: NextRequest, cookieStore: ReadonlyReques
     console.log('Code verifier generated (length): Linter fix placeholder'); // Corrected logging
     console.log('Code challenge generated (length): Linter fix placeholder'); // Corrected logging
 
+    // Derive cookie domain from REDIRECT_URI
+    let cookieDomain: string | undefined = undefined;
+    try {
+      const redirectUriObj = new URL(REDIRECT_URI);
+      cookieDomain = redirectUriObj.hostname;
+      console.log('[AUTH_AUTHORIZE] Determined cookie domain:', cookieDomain);
+    } catch (e) {
+      console.warn('[AUTH_AUTHORIZE] Could not parse REDIRECT_URI to determine cookie domain:', REDIRECT_URI, e);
+    }
+
     // Get mutable cookies for setting
     const response = NextResponse.next(); // Create a response to set cookies on, if needed for ReadonlyRequestCookies context
                                         // However, cookies() from 'next/headers' in App Router Route Handlers can directly .set()
@@ -102,14 +112,16 @@ async function handleAuthorize(request: NextRequest, cookieStore: ReadonlyReques
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 10, // 10 minutes
       path: '/',
-      sameSite: 'lax'
+      sameSite: 'lax',
+      domain: cookieDomain
     });
     tempResponseForCookies.cookies.set('rc_code_verifier', codeVerifier, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 10, // 10 minutes
       path: '/',
-      sameSite: 'lax'
+      sameSite: 'lax',
+      domain: cookieDomain
     });
 
     console.log('Step 2: Creating authorization URL with PKCE');
