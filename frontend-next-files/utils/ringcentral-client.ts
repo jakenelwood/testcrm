@@ -195,11 +195,6 @@ export class RingCentralClient {
       throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR);
     }
 
-    // Check if we can make the request based on rate limiting
-    if (!rateLimitProtection.canAttemptRefresh()) {
-      throw new Error('Rate limited by RingCentral. Please try again later.');
-    }
-
     const response = await fetch(`${RINGCENTRAL_SERVER}${endpoint}`, {
       method: 'GET',
       headers: {
@@ -237,11 +232,6 @@ export class RingCentralClient {
     if (!this.authenticated || !this.accessToken) {
       console.error('RingCentralClient.delete: Not authenticated after token check.');
       throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR);
-    }
-
-    // Check if we can make the request based on rate limiting
-    if (!rateLimitProtection.canAttemptRefresh()) {
-      throw new Error('Rate limited by RingCentral. Please try again later.');
     }
 
     const response = await fetch(`${RINGCENTRAL_SERVER}${endpoint}`, {
@@ -303,11 +293,6 @@ export class RingCentralClient {
     if (!this.authenticated || !this.accessToken) {
       console.error('RingCentralClient.post: Not authenticated after token check.');
       throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR);
-    }
-
-    // Check if we can make the request based on rate limiting
-    if (!rateLimitProtection.canAttemptRefresh()) {
-      throw new Error('Rate limited by RingCentral. Please try again later.');
     }
 
     const response = await fetch(`${RINGCENTRAL_SERVER}${endpoint}`, {

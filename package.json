@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cd frontend-next-files && next dev -p 3000",
+    "dev": "cd frontend-next-files && NODE_ENV=development next dev -p 3000",
     "build": "cd frontend-next-files && next build",
     "start": "cd frontend-next-files && next start",
     "install-deps": "npm install --legacy-peer-deps"

@@ -18,16 +18,20 @@ export const RINGCENTRAL_PASSWORD = process.env.RINGCENTRAL_PASSWORD;
 // Phone Numbers
 export const RINGCENTRAL_FROM_NUMBER = process.env.RINGCENTRAL_FROM_NUMBER || process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER;
 
-// OAuth - Always use a stable base URL for OAuth redirects
-// In production, we always use the same domain regardless of the actual deployment URL
-// This ensures that the redirect URI is always the same and matches what's configured in RingCentral
-const BASE_DOMAIN = process.env.NODE_ENV === 'production'
-  ? 'https://crm-sepia-alpha.vercel.app'  // Production stable URL
-  : 'http://localhost:3000';              // Local development
+// OAuth - Determine base URL and redirect URI
+// Prioritize environment variables for production, fallback for local development.
 
-// Use the stable base domain for OAuth redirects
-export const REDIRECT_URI = `${BASE_DOMAIN}/oauth-callback`;
-export const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || BASE_DOMAIN;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+// NEXT_PUBLIC_APP_URL: Use environment variable if set.
+// Fallback to 'https://crm-sepia-alpha.vercel.app' in production if not set (though it should always be set in Vercel).
+// Fallback to 'http://localhost:3000' in development.
+export const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL ||
+  (IS_PRODUCTION ? 'https://crm-sepia-alpha.vercel.app' : 'http://localhost:3000');
+
+// REDIRECT_URI: Use environment variable if set, otherwise construct from NEXT_PUBLIC_APP_URL.
+// This ensures Vercel's REDIRECT_URI environment variable is used if present.
+export const REDIRECT_URI = process.env.REDIRECT_URI || `${NEXT_PUBLIC_APP_URL}/oauth-callback`;
 
 // Client-side config (for WebRTC)
 export const NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID = RINGCENTRAL_CLIENT_ID;

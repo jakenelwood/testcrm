@@ -87,7 +87,7 @@ export default function SupabaseTestPage() {
           'homes'
         ];
 
-        let detectedTables = [];
+        let detectedTables: string[] = [];
 
         for (const table of requiredTables) {
           try {
@@ -114,8 +114,7 @@ export default function SupabaseTestPage() {
         // Check for required tables
         const requiredTables = [
           'ringcentral_tokens',
-          'clients',
-          'leads',
+          'leads_contact_info',
           'contacts',
           'lead_notes',
           'lead_communications',
@@ -608,7 +607,7 @@ export default function SupabaseTestPage() {
                     </div>
                     {tables.length > 0 ? (
                       <div className="space-y-2">
-                        {['ringcentral_tokens', 'clients', 'leads', 'contacts', 'lead_notes', 'lead_communications', 'lead_marketing_settings', 'opportunities', 'ai_interactions', 'support_tickets'].map(requiredTable => {
+                        {['ringcentral_tokens', 'leads_contact_info', 'contacts', 'lead_notes', 'lead_communications', 'lead_marketing_settings', 'opportunities', 'ai_interactions', 'support_tickets'].map(requiredTable => {
                           const exists = tables.includes(requiredTable);
                           return (
                             <div key={requiredTable} className="flex items-center justify-between p-2 bg-gray-50 rounded">
