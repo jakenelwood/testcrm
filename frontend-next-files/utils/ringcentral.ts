@@ -5,7 +5,25 @@
 // For simplicity, we're defining the configuration here, but in production
 // these should be environment variables.
 
+import { type RingCentralClient } from './ringcentral-client';
+import { type RingCentralInterface } from '@/types/ringcentral';
+import { type SupabaseClient } from '@supabase/supabase-js';
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { NEXT_PUBLIC_APP_URL } from '@/lib/ringcentral/config'; // Keep this import
+import {
+  createRingCentralInstance,
+  createSupabaseClient,
+  getRingCentralTokensFromSupabase,
+  getValidAccessToken,
+  storeRingCentralTokensInSupabase,
+} from '@/lib/ringcentral'; // Ensure this path is correct
+import {
+  RINGCENTRAL_AUTH_CHECK_ERROR,
+  RINGCENTRAL_AUTH_ERROR,
+  RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
+  RINGCENTRAL_TOKEN_REFRESH_ERROR,
+  UNKNOWN_ERROR_OCCURRED,
+} from '@/lib/constants';
 
 /**
  * Get RingCentral tokens from cookies
@@ -145,6 +163,8 @@ export async function isRingCentralAuthenticated(): Promise<boolean> {
  */
 export const checkRingCentralAuth = isRingCentralAuthenticated;
 
+const MAX_LOGIN_ATTEMPTS = 3;
+
 /**
  * Redirect to RingCentral for authentication
  * @param redirectPath Optional path to redirect to after authentication
@@ -152,7 +172,8 @@ export const checkRingCentralAuth = isRingCentralAuthenticated;
 export function authenticateWithRingCentral(redirectPath?: string) {
   // Redirect to the authentication page
   const redirectParam = redirectPath ? `&redirect=${encodeURIComponent(redirectPath)}` : '';
-  window.location.href = `/api/ringcentral/auth?action=authorize${redirectParam}`;
+  // Use NEXT_PUBLIC_APP_URL to ensure the auth flow starts on the canonical domain
+  window.location.href = `${NEXT_PUBLIC_APP_URL}/api/ringcentral/auth?action=authorize${redirectParam}`;
 }
 
 /**
