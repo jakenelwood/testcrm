@@ -47,8 +47,8 @@ export default function Hero() {
                   transition={{ duration: 0.6, delay: 0.5 }}
                   className="text-xl text-gray-600 mb-8 leading-relaxed max-w-xl"
                 >
-                  Meet Gonzigo — your AI-powered force multiplier. This isn't just a CRM.
-                  Gonzigo gives you full marketing automation and a team of AI agents that handle
+                  Meet Ronrico — your AI-powered force multiplier. This isn't just a CRM.
+                  Ronrico gives you full marketing automation and a team of AI agents that handle
                   follow-ups, track deals, and nudge you when it counts. It listens. It learns.
                   It helps you close—faster, smoother, and without the noise.
                 </motion.p>
@@ -90,12 +90,12 @@ export default function Hero() {
                     <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
                   </div>
-                  <div className="mx-auto text-sm text-gray-500"><span className="font-bold">gonzigo</span> dashboard</div>
+                  <div className="mx-auto text-sm text-gray-500"><span className="font-bold">ronrico</span> dashboard</div>
                 </div>
                 <div className="pt-12 pb-4 px-4">
                   <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100 relative overflow-hidden">
                     <div className="text-sm text-[#0047AB] font-medium flex items-center">
-                      gonzigo says:
+                      ronrico says:
                       <span className="ml-1 w-2 h-2 bg-[#0047AB] rounded-full animate-pulse"></span>
                     </div>
                     <div className="text-gray-700">"That lead you forgot about? I didn't. They opened your proposal three times today."</div>

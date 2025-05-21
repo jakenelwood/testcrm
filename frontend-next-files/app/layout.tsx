@@ -4,8 +4,8 @@ import React from "react";
 import { inter } from "./fonts";
 
 export const metadata = {
-  title: "Gonzigo | The Pipeline Whisperer",
-  description: "The AI-powered CRM that thinks like a closer. Gonzigo listens, remembers, and nudges at just the right time.",
+  title: "Ronrico | The Pipeline Whisperer",
+  description: "The AI-powered CRM that thinks like a closer. Ronrico listens, remembers, and nudges at just the right time.",
   keywords: "CRM, AI, sales, pipeline management, lead management, sales automation",
 };
 
