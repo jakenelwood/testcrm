@@ -6,10 +6,11 @@
 // these should be environment variables.
 
 import { type RingCentralClient } from './ringcentral-client';
-import { type RingCentralInterface } from '@/types/ringcentral';
+// import { type RingCentralInterface } from '@/types/ringcentral'; // Commented out
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import { NEXT_PUBLIC_APP_URL } from '@/lib/ringcentral/config'; // Keep this import
+/* Commented out problematic import block
 import {
   createRingCentralInstance,
   createSupabaseClient,
@@ -17,12 +18,13 @@ import {
   getValidAccessToken,
   storeRingCentralTokensInSupabase,
 } from '@/lib/ringcentral'; // Ensure this path is correct
+*/
 import {
-  RINGCENTRAL_AUTH_CHECK_ERROR,
-  RINGCENTRAL_AUTH_ERROR,
-  RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
-  RINGCENTRAL_TOKEN_REFRESH_ERROR,
-  UNKNOWN_ERROR_OCCURRED,
+  RINGCENTRAL_NOT_AUTHENTICATED_ERROR, // Kept
+  UNKNOWN_ERROR_OCCURRED, // Kept
+  // RINGCENTRAL_AUTH_CHECK_ERROR, // Removed
+  // RINGCENTRAL_AUTH_ERROR, // Removed
+  // RINGCENTRAL_TOKEN_REFRESH_ERROR, // Removed
 } from '@/lib/constants';
 
 /**

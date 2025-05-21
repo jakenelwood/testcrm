@@ -2,7 +2,8 @@ import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adap
 import { NextRequest } from 'next/server'; // Import NextRequest for potential origin access
 import {
   RINGCENTRAL_SERVER,
-  API_ENDPOINTS
+  API_ENDPOINTS,
+  NEXT_PUBLIC_APP_URL
 } from '@/lib/ringcentral/config';
 import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
 import { rateLimitProtection } from './ringcentral-rate-limiter';
@@ -51,7 +52,8 @@ export class RingCentralClient {
    */
   constructor(cookieStore: ReadonlyRequestCookies | (() => Promise<ReadonlyRequestCookies>), request?: NextRequest) {
     this.cookieStore = cookieStore;
-    this.requestOrigin = request?.headers.get('origin') || 'http://localhost:3000';
+    // Prioritize NEXT_PUBLIC_APP_URL, then request origin, then localhost as a last resort.
+    this.requestOrigin = NEXT_PUBLIC_APP_URL || request?.headers.get('origin') || 'http://localhost:3000';
 
     // Initialize authentication state dynamically
     // Actual token access will be handled asynchronously in _ensureTokenIsValid
