@@ -133,15 +133,21 @@ export class RingCentralClient {
               throw new Error('Not authenticated with RingCentral (rate limited by RingCentral)');
             }
 
-            // Handle token revocation
-            if (errorData.reauthorize) {
+            // Handle token revocation specifically
+            if (errorData.reauthorize === true || errorData.error === 'invalid_grant') {
+              console.log('RingCentralClient: Token revoked signal received from internal refresh API.');
+              // Clear local state as tokens are now definitively invalid
+              this.accessToken = null;
+              this.refreshToken = null;
+              this.accessTokenExpiryTime = null;
+              this.authenticated = false;
               throw new RingCentralTokenRevokedError(
-                'RingCentral refresh token is invalid or expired. Please re-authenticate.',
-                errorData.originalError
+                errorData.error_description || errorData.error || 'RingCentral token is invalid or expired. Please re-authenticate.',
+                errorData
               );
             }
 
-            throw new Error(errorData.error || 'Failed to refresh token');
+            throw new Error(errorData.error_description || errorData.error || 'Failed to refresh token'); // Adjusted to use error_description
           }
 
           const data = await response.json();

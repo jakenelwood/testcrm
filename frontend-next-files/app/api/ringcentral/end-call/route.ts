@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { RingCentralClient } from '@/utils/ringcentral-client';
+import { RingCentralClient, RingCentralTokenRevokedError } from '@/utils/ringcentral-client';
 import { API_ENDPOINTS } from '@/lib/ringcentral/config';
 import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, FAILED_TO_END_CALL } from '@/lib/constants';
 
@@ -99,6 +99,17 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
               },
             });
             
+            let refreshErrorData: any = {};
+            try {
+              if (!refreshResponse.ok) {
+                refreshErrorData = await refreshResponse.json();
+              }
+            } catch (e) {
+              console.error('[handleEndCall] Could not parse JSON from failed refresh response:', e);
+              // Use a default error if JSON parsing fails
+              refreshErrorData = { error: 'Failed to parse refresh error response', reauthorize: false };
+            }
+
             if (refreshResponse.ok) {
               console.log('Token refreshed successfully, retrying end call request');
               troubleshooting.push('Token refreshed successfully, retrying end call request');
@@ -106,21 +117,41 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
               await new Promise(resolve => setTimeout(resolve, 500));
               return handleEndCall(request, retryCount + 1);
             } else {
-              console.error('Failed to refresh token, status:', refreshResponse.status);
+              console.error('Failed to refresh token during endCall retry, status:', refreshResponse.status, 'Body:', refreshErrorData);
+              troubleshooting.push(`Manual refresh failed with status ${refreshResponse.status}. Error: ${refreshErrorData.error}`);
+              // If token is revoked, do not attempt further retries and signal re-auth
+              if (refreshErrorData.reauthorize === true || refreshErrorData.error === 'invalid_grant') {
+                troubleshooting.push('Token revoked. Full re-authentication required.');
+                return NextResponse.json({
+                  error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
+                  detail: 'RingCentral token revoked. Please re-authenticate.',
+                  reauthorize: true, // Signal to client
+                  troubleshooting,
+                  authenticated: false
+                }, { status: 401 });
+              }
+              // For other refresh errors, use the generic 401 from the outer catch, 
+              // as this attempt was part of a retry. The original error in client.endCall() might be more specific.
+              // Or, simply return the generic 401 from here as well.
               return NextResponse.json({
                 error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
+                detail: refreshErrorData.error || 'Failed to refresh token during retry.',
                 troubleshooting,
                 authenticated: false
               }, { status: 401 });
             }
-          } catch (refreshError) {
-            console.error('Error during token refresh attempt:', refreshError);
-            troubleshooting.push(`Error during token refresh attempt: ${refreshError}`);
+          } catch (refreshCatchError: any) { // Catch for errors during the fetch itself to the refresh API
+            console.error('Error during token refresh attempt (fetch failed):', refreshCatchError);
+            troubleshooting.push(`Error during token refresh attempt: ${refreshCatchError.message}`);
+            // Fall through to the main 401 unauthorized response
           }
         }
         
+        // If retries exhausted, no refresh token, or if refresh attempt failed and was not token_revoked
         return NextResponse.json({ 
           error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
+          detail: error.message, // Original error from client.endCall() or from non-revoked refresh failure
+          reauthorize: (error instanceof RingCentralTokenRevokedError), // Check if original error was token revoked
           troubleshooting,
           authenticated: false
         }, { status: 401 });
