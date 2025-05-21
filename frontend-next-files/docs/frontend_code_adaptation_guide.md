@@ -6,7 +6,7 @@ This guide provides instructions for adapting frontend code to work with the nor
 
 1. **Client-Lead Relationship**
    - Leads now reference clients through `client_id` instead of having direct name/contact fields
-   - Client information (name, email, phone) is stored in the `clients` table
+   - Client information (name, email, phone) is stored in the `leads_contact_info` table
 
 2. **Lookup Tables**
    - Status values come from the `lead_statuses` table instead of being hardcoded
@@ -99,7 +99,7 @@ const LeadForm = () => {
   // Form submission
   const handleSubmit = async () => {
     // First create the client
-    const { data: client } = await supabase.from('clients').insert(clientData).select();
+    const { data: client } = await supabase.from('leads_contact_info').insert(clientData).select();
     
     // Then create the lead with the client_id
     if (client && client[0]) {

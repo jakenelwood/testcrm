@@ -212,7 +212,8 @@ export default function SupabaseTestPage() {
                 expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
                 scope TEXT,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+                refresh_token_expires_at TIMESTAMP WITH TIME ZONE
               );
 
               -- Add RLS policy
@@ -227,105 +228,44 @@ export default function SupabaseTestPage() {
             `;
             break;
 
-          case 'clients':
+          case 'leads_contact_info':
             query = `
-              CREATE TABLE IF NOT EXISTS clients (
-                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                client_type TEXT NOT NULL CHECK (client_type IN ('Individual', 'Business')),
-                name TEXT NOT NULL,
-                email TEXT,
-                phone_number TEXT,
-                street_address TEXT,
-                city TEXT,
-                state TEXT,
-                zip_code TEXT,
-                mailing_address TEXT,
-                referred_by TEXT,
-                date_of_birth TEXT,
-                gender TEXT,
-                marital_status TEXT,
-                drivers_license TEXT,
-                license_state TEXT,
-                education_occupation TEXT,
-                business_type TEXT,
-                industry TEXT,
-                tax_id TEXT,
-                year_established TEXT,
-                annual_revenue DECIMAL(15, 2),
-                number_of_employees INTEGER,
-                contact_first_name TEXT,
-                contact_last_name TEXT,
-                contact_title TEXT,
-                contact_email TEXT,
-                contact_phone TEXT,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+              CREATE TABLE IF NOT EXISTS public.leads_contact_info (
+                  id uuid DEFAULT extensions.uuid_generate_v4() NOT NULL PRIMARY KEY,
+                  lead_type text NOT NULL,
+                  name text NOT NULL,
+                  email text,
+                  phone_number text,
+                  address_id uuid REFERENCES public.addresses(id) ON DELETE SET NULL,
+                  mailing_address_id uuid REFERENCES public.addresses(id) ON DELETE SET NULL,
+                  referred_by text,
+                  date_of_birth text,
+                  gender text,
+                  marital_status text,
+                  drivers_license text,
+                  license_state text,
+                  education_occupation text,
+                  business_type text,
+                  industry text,
+                  tax_id text,
+                  year_established text,
+                  annual_revenue numeric(15,2),
+                  number_of_employees integer,
+                  ai_summary text,
+                  ai_next_action text,
+                  ai_risk_score integer,
+                  ai_lifetime_value numeric(15,2),
+                  metadata jsonb,
+                  tags text[],
+                  created_at timestamp with time zone DEFAULT now(),
+                  updated_at timestamp with time zone DEFAULT now(),
+                  last_contact_at timestamp with time zone,
+                  next_contact_at timestamp with time zone,
+                  converted_from_lead_id uuid,
+                  CONSTRAINT clients_client_type_check CHECK ((lead_type = ANY (ARRAY['Individual'::text, 'Business'::text])))
               );
-            `;
-            break;
-
-          case 'leads':
-            query = `
-              CREATE TABLE IF NOT EXISTS leads (
-                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-                primary_named_insured_name TEXT,
-                primary_named_insured_email_address TEXT,
-                primary_named_insured_phone_number TEXT,
-                primary_named_insured_address TEXT,
-                primary_named_insured_mailing_address TEXT,
-                primary_named_insured_prior_address TEXT,
-                primary_named_insured_dob TEXT,
-                primary_named_insured_gender TEXT,
-                primary_named_insured_marital_status TEXT,
-                primary_named_insured_dl_number TEXT,
-                primary_named_insured_license_state TEXT,
-                primary_named_insured_education_occupation TEXT,
-                primary_named_insured_relation_to_primary_insured TEXT,
-                primary_named_insured_referred_by TEXT,
-                primary_named_insured_effective_date TEXT,
-                primary_named_insured_current_date TEXT,
-                status TEXT NOT NULL DEFAULT 'New' CHECK (status IN ('New', 'Contacted', 'Quoted', 'Sold', 'Lost')),
-                assigned_to TEXT,
-                notes TEXT,
-                insurance_type TEXT NOT NULL CHECK (insurance_type IN ('Auto', 'Home', 'Specialty', 'Commercial', 'Liability')),
-                current_carrier TEXT,
-                premium DECIMAL(10, 2),
-                auto_premium DECIMAL(10, 2),
-                home_premium DECIMAL(10, 2),
-                specialty_premium DECIMAL(10, 2),
-                commercial_premium DECIMAL(10, 2),
-                home_umbrella_value DECIMAL(10, 2),
-                home_umbrella_uninsured_underinsured TEXT,
-                auto_current_insurance_carrier_auto TEXT,
-                auto_months_with_current_carrier_auto INTEGER,
-                home_months_with_current_carrier INTEGER,
-                home_current_insurance_carrier TEXT,
-                specialty_additional_information TEXT,
-                specialty_cc_size TEXT,
-                specialty_collision_deductible DECIMAL(10, 2),
-                specialty_comprehensive_deductible DECIMAL(10, 2),
-                specialty_comprehensive_location_stored TEXT,
-                specialty_make TEXT,
-                specialty_market_value DECIMAL(10, 2),
-                specialty_max_speed TEXT,
-                specialty_model TEXT,
-                specialty_total_hp TEXT,
-                specialty_type_toy TEXT,
-                specialty_vin TEXT,
-                specialty_year INTEGER,
-                commercial_coverage_type TEXT,
-                commercial_industry TEXT,
-                auto_data JSONB,
-                home_data JSONB,
-                specialty_data JSONB,
-                commercial_data JSONB,
-                liability_data JSONB,
-                additional_insureds JSONB,
-                additional_locations JSONB,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-              );
+              -- COMMENT ON TABLE public.leads_contact_info IS 'Stores contact information for leads (renamed from clients)';
+              -- No RLS found in schema-only.sql for leads_contact_info, so not adding any here.
             `;
             break;
 
