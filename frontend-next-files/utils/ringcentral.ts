@@ -99,7 +99,7 @@ export async function isRingCentralAuthenticated(): Promise<boolean> {
 
   try {
     console.log('Making authentication check request to /api/ringcentral/auth?action=check');
-    const response = await fetch('/api/ringcentral/auth?action=check', {
+    const response = await fetch(`${NEXT_PUBLIC_APP_URL}/api/ringcentral/auth?action=check`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       // Include credentials to send cookies
@@ -181,7 +181,9 @@ export function authenticateWithRingCentral(redirectPath?: string) {
  */
 export async function logoutFromRingCentral(): Promise<boolean> {
   try {
-    const response = await fetch('/api/ringcentral/auth?action=logout');
+    const response = await fetch(`${NEXT_PUBLIC_APP_URL}/api/ringcentral/auth?action=logout`, {
+      credentials: 'include' // Ensure cookies are sent for logout
+    });
     return response.ok;
   } catch (error) {
     console.error('Failed to logout from RingCentral:', error);
@@ -217,10 +219,11 @@ export async function makeCall(toNumber: string, fromNumber?: string): Promise<a
     const requestBody = { phoneNumber: toNumber };
     console.log('Request body:', requestBody);
 
-    const response = await fetch('/api/ringcentral/call', {
+    const response = await fetch(`${NEXT_PUBLIC_APP_URL}/api/ringcentral/call`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
+      credentials: 'include' // Ensure cookies are sent
     });
 
     console.log('Step 3: Processing API response');
@@ -288,14 +291,15 @@ export async function sendSMS(toNumber: string, text: string, fromNumber?: strin
     }
 
     // Send the SMS using the App Router API
-    const response = await fetch('/api/ringcentral/sms', {
+    const response = await fetch(`${NEXT_PUBLIC_APP_URL}/api/ringcentral/sms`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         phoneNumber: toNumber,
         message: text,
         fromNumber: fromNumber || process.env.NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER
-      })
+      }),
+      credentials: 'include' // Ensure cookies are sent
     });
 
     if (!response.ok) {
@@ -346,7 +350,7 @@ export async function initializeWebRTCPhone(): Promise<any> {
 
     // Get the access token from the server
     console.log('Step 2: Getting access token');
-    const response = await fetch('/api/ringcentral/auth?action=token', {
+    const response = await fetch(`${NEXT_PUBLIC_APP_URL}/api/ringcentral/auth?action=token`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
