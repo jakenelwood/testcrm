@@ -462,9 +462,11 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
   const response = NextResponse.json({}); // Base response, cookies will be set here
   const supabase = createClient(cookieStore);
   const { data: { user } } = await supabase.auth.getUser();
-  const currentRefreshToken = cookieStore.get('ringcentral_refresh_token')?.value;
+  const currentRefreshTokenFromCookie = cookieStore.get('ringcentral_refresh_token')?.value;
 
-  if (!currentRefreshToken) {
+  console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] User ID: ${user?.id}. Current refresh token from cookie (first 10): ${currentRefreshTokenFromCookie?.substring(0,10)}`);
+
+  if (!currentRefreshTokenFromCookie) {
     console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] No refresh token in cookies.`);
     clearTokenCookies(response.cookies); // Clear any lingering auth cookies
     if (user) {
@@ -485,11 +487,11 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
   }
 
   try {
-    console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Attempting refresh. Refresh token (first 10): ${currentRefreshToken.substring(0,10)}`);
+    console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Attempting refresh. Refresh token (first 10): ${currentRefreshTokenFromCookie.substring(0,10)}`);
     const tokenUrl = `${RINGCENTRAL_SERVER}/restapi/oauth/token`;
     const params = new URLSearchParams({
       grant_type: 'refresh_token',
-      refresh_token: currentRefreshToken,
+      refresh_token: currentRefreshTokenFromCookie,
       client_id: RINGCENTRAL_CLIENT_ID, // Now asserted as string or handled by above check
     });
 
@@ -502,7 +504,20 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
       body: params.toString(),
     });
 
-    const data = await rcResponse.json();
+    const responseBodyText = await rcResponse.text(); // Read body as text first for raw logging
+    let data;
+    try {
+      data = JSON.parse(responseBodyText);
+    } catch (e) {
+      console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Failed to parse RingCentral response as JSON. Status: ${rcResponse.status}. Body: ${responseBodyText}`);
+      clearTokenCookies(response.cookies);
+      if (user) {
+        await supabase.from('ringcentral_tokens').delete().eq('user_id', user.id);
+      }
+      return new NextResponse(JSON.stringify({ error: 'Invalid response from RingCentral during token refresh', reauthorize: true, refreshId }), { status: 502, headers: response.headers }); // 502 Bad Gateway
+    }
+    
+    console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] RingCentral /oauth/token raw response status: ${rcResponse.status}, body: ${responseBodyText}`);
 
     if (!rcResponse.ok) {
       console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Refresh failed. Status: ${rcResponse.status}, Body:`, data);
@@ -526,23 +541,53 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
     const accessTokenExpiresAt = now + (expires_in * 1000);
     const refreshTokenExpiresAt = now + (refresh_token_expires_in * 1000);
 
+    console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Preparing to set cookies and update DB. New refresh token (first 10): ${refresh_token?.substring(0,10)}, Current from cookie (first 10): ${currentRefreshTokenFromCookie?.substring(0,10)}`);
+
     setTokenCookies(response.cookies, access_token, refresh_token, accessTokenExpiresAt, refreshTokenExpiresAt, token_type, scope);
 
     if (user) {
+      const updatePayload = {
+        access_token: access_token,
+        refresh_token: refresh_token, // This is the new refresh token from RingCentral
+        expires_at: new Date(accessTokenExpiresAt).toISOString(),
+        refresh_token_expires_at: new Date(refreshTokenExpiresAt).toISOString(),
+        token_type: token_type,
+        scope: scope,
+        updated_at: new Date().toISOString(),
+      };
+      console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Supabase update payload for user ${user.id}:`, { 
+        accessTokenFirst10: updatePayload.access_token?.substring(0,10), 
+        refreshTokenFirst10: updatePayload.refresh_token?.substring(0,10),
+        expires_at: updatePayload.expires_at,
+        refresh_token_expires_at: updatePayload.refresh_token_expires_at
+      });
+
       const { error: dbError } = await supabase
         .from('ringcentral_tokens')
-        .update({
-          access_token: access_token,
-          refresh_token: refresh_token,
-          expires_at: new Date(accessTokenExpiresAt).toISOString(),
-          refresh_token_expires_at: new Date(refreshTokenExpiresAt).toISOString(),
-          token_type: token_type,
-          scope: scope,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updatePayload)
         .eq('user_id', user.id);
-      if (dbError) console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Error updating DB tokens for user ${user.id}:`, dbError);
-      else console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] DB tokens updated for user: ${user.id}`);
+
+      if (dbError) {
+        console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Error updating DB tokens for user ${user.id}:`, dbError);
+      } else {
+        console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] DB tokens updated successfully for user: ${user.id}. New refresh_token (first 10): ${refresh_token?.substring(0,10)} should now be in DB.`);
+        // Verification step
+        const { data: verifyData, error: verifyError } = await supabase
+          .from('ringcentral_tokens')
+          .select('refresh_token')
+          .eq('user_id', user.id)
+          .single();
+        if (verifyError) {
+          console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Error verifying DB update:`, verifyError);
+        } else if (verifyData) {
+          console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] DB verification successful. Stored refresh_token (first 10): ${verifyData.refresh_token?.substring(0,10)}`);
+          if (verifyData.refresh_token !== refresh_token) {
+            console.warn(`[AUTH_TOKEN_REFRESH][${refreshId}] CRITICAL: DB refresh_token (${verifyData.refresh_token?.substring(0,10)}) does NOT match the new refresh_token from RC (${refresh_token?.substring(0,10)}) after update!`);
+          }
+        } else {
+          console.warn(`[AUTH_TOKEN_REFRESH][${refreshId}] DB verification failed: No data returned after update for user ${user.id}.`);
+        }
+      }
     }
     const successBody = { success: true, message: 'Token refreshed', accessToken: access_token, expiresAt: accessTokenExpiresAt, refreshId };
     return new NextResponse(JSON.stringify(successBody), { status: 200, headers: response.headers });
