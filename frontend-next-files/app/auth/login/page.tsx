@@ -161,7 +161,7 @@ export default function LoginPage() {
       {/* Top navigation */}
       <nav className="container mx-auto py-6 px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
-          <GonzigoBrand size="lg" className="h-10 flex items-center" />
+          <RonricoBrand size="lg" className="h-10 flex items-center" />
         </Link>
         <div className="flex gap-4 items-center">
           <Link href="/pricing">
@@ -333,15 +333,15 @@ export default function LoginPage() {
                   <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div className="mx-auto text-sm text-gray-500">gonzigo dashboard</div>
+                <div className="mx-auto text-sm text-gray-500">ronrico dashboard</div>
               </div>
 
               {/* Dashboard content */}
               <div className="p-6">
-                {/* Gonzigo's been listening */}
+                {/* Ronrico's been listening */}
                 <div className="mb-6 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                   <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
-                    <span className="text-[#8A00C4] mr-2">🧠</span> <span className="font-bold">gonzigo</span>'s been listening.
+                    <span className="text-[#8A00C4] mr-2">🧠</span> <span className="font-bold">ronrico</span>'s been listening.
                   </h3>
                 </div>
 
@@ -372,7 +372,7 @@ export default function LoginPage() {
                 {/* Quote */}
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-100 relative overflow-hidden animate-fadeIn" style={{ animationDelay: '0.6s' }}>
                   <p className="text-gray-700 italic mb-2">"This one's ready. You'll want your 'yes' voice."</p>
-                  <p className="text-sm text-gray-500">— gonzigo, your AI assistant</p>
+                  <p className="text-sm text-gray-500">— ronrico, your AI assistant</p>
                   <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-blue-100/50 rounded-full blur-xl"></div>
                 </div>
               </div>
