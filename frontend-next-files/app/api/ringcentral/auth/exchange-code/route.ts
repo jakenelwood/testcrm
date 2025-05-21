@@ -18,6 +18,15 @@ export async function GET(request: NextRequest) {
   console.log('Request URL:', request.url);
   console.log('Request headers:', Object.fromEntries(request.headers));
 
+  const cookieStore = await cookies(); // Get cookie store early
+
+  // Log all cookies received by the server for this request
+  console.log('ALL COOKIES RECEIVED BY /exchange-code (Name: Value):');
+  cookieStore.getAll().forEach(cookie => {
+    console.log(`  ${cookie.name}: ${cookie.value.substring(0, 70)}${cookie.value.length > 70 ? '...' : ''}`);
+  });
+  // End logging all cookies
+
   const { searchParams } = new URL(request.url);
   console.log('Query params:', Object.fromEntries(searchParams));
 
@@ -38,7 +47,6 @@ export async function GET(request: NextRequest) {
 
   try {
     // Get the code_verifier from the cookie
-    const cookieStore = await cookies();
     const codeVerifier = cookieStore.get('rc_code_verifier')?.value;
     const storedState = cookieStore.get('rc_oauth_state')?.value;
 
