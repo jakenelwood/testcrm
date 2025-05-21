@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,7 +32,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
-import { Phone, MessageSquare, PhoneOff } from "lucide-react";
+import { Phone, MessageSquare, PhoneOff, Edit } from "lucide-react";
 import { makeRingCentralCall, sendRingCentralSMS } from "@/utils/ringcentral";
 import supabase from '@/utils/supabase/client';
 
@@ -43,6 +44,7 @@ interface LeadDetailsModalProps {
 }
 
 export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadDetailsModalProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('data');
   const [notes, setNotes] = useState<LeadNote[]>([]);
   const [newNote, setNewNote] = useState('');
@@ -1389,10 +1391,19 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                 )}
               </Card>
 
-              {lead.insurance_type === 'Auto' && lead.auto_data && (
+              {lead.auto_data && (
                 <Card className="border border-gray-200 shadow-sm bg-white">
-                  <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
                     <CardTitle className="text-lg font-medium text-gray-900">Auto Insurance Details</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => router.push(`/dashboard/leads/${lead.id}?tab=insurance`)}
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
                   </CardHeader>
                   <CardContent className="bg-white pt-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -1513,10 +1524,19 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                 </Card>
               )}
 
-              {lead.insurance_type === 'Home' && lead.home_data && (
+              {lead.home_data && (
                 <Card className="border border-gray-200 shadow-sm bg-white">
-                  <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
                     <CardTitle className="text-lg font-medium text-gray-900">Home Insurance Details</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => router.push(`/dashboard/leads/${lead.id}?tab=insurance`)}
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
                   </CardHeader>
                   <CardContent className="bg-white pt-4">
                     <div className="grid grid-cols-2 gap-4">

@@ -354,11 +354,17 @@ export default function LeadDetailsPage() {
               email: processedLead?.client?.email || processedLead?.email || '',
               phone_number: processedLead?.client?.phone_number || processedLead?.phone_number || '',
 
-              // Address fields (from lead_details view)
+              // Physical Address fields (from lead_details view)
               street_address: processedLead?.address_street || '',
               city: processedLead?.address_city || '',
               state: processedLead?.address_state || '',
               zip_code: processedLead?.address_zip_code || '',
+
+              // Mailing Address fields (from lead_details view)
+              mailing_street_address: processedLead?.mailing_address_street || '',
+              mailing_city: processedLead?.mailing_address_city || '',
+              mailing_state: processedLead?.mailing_address_state || '',
+              mailing_zip_code: processedLead?.mailing_address_zip_code || '',
 
               // Individual-specific fields
               date_of_birth: processedLead?.client?.date_of_birth || '',
@@ -1537,14 +1543,14 @@ export default function LeadDetailsPage() {
         }
       });
 
-      // Check if we have address data to update
+      // Import the updateLeadAddress function
+      const { updateLeadAddress } = await import('@/utils/address-helpers');
+
+      // Check if we have physical address data to update
       if (formData.street_address || formData.city || formData.state || formData.zip_code) {
-        console.log('DEBUG: Updating address information using updateLeadAddress helper');
+        console.log('DEBUG: Updating physical address information using updateLeadAddress helper');
 
-        // Import the updateLeadAddress function
-        const { updateLeadAddress } = await import('@/utils/address-helpers');
-
-        // Use the helper function to update the lead's address directly
+        // Use the helper function to update the lead's physical address directly
         const { success, error } = await updateLeadAddress(
           supabase,
           lead.id,
@@ -1558,11 +1564,37 @@ export default function LeadDetailsPage() {
         );
 
         if (!success) {
-          console.error('DEBUG: Error updating address:', error);
+          console.error('DEBUG: Error updating physical address:', error);
           // Continue with lead update even if address update fails
-          console.warn('DEBUG: Continuing with lead update despite address update failure');
+          console.warn('DEBUG: Continuing with lead update despite physical address update failure');
         } else {
-          console.log('DEBUG: Address updated successfully');
+          console.log('DEBUG: Physical address updated successfully');
+        }
+      }
+
+      // Check if we have mailing address data to update
+      if (formData.mailing_street_address || formData.mailing_city || formData.mailing_state || formData.mailing_zip_code) {
+        console.log('DEBUG: Updating mailing address information using updateLeadAddress helper');
+
+        // Use the helper function to update the lead's mailing address directly
+        const { success, error: mailingAddressError } = await updateLeadAddress(
+          supabase,
+          lead.id,
+          {
+            street: formData.mailing_street_address,
+            city: formData.mailing_city,
+            state: formData.mailing_state,
+            zip_code: formData.mailing_zip_code
+          },
+          'mailing_address' // Use the mailing address
+        );
+
+        if (!success) {
+          console.error('DEBUG: Error updating mailing address:', mailingAddressError);
+          // Continue with lead update even if address update fails
+          console.warn('DEBUG: Continuing with lead update despite mailing address update failure');
+        } else {
+          console.log('DEBUG: Mailing address updated successfully');
         }
       }
 
@@ -1682,15 +1714,30 @@ export default function LeadDetailsPage() {
 
         // Add address information to the success message if address was updated
         if (formData.street_address || formData.city || formData.state || formData.zip_code) {
-          successMessage = "Lead and address information updated successfully";
+          successMessage = "Lead and physical address information updated successfully";
 
           // Log address update details for debugging
-          console.log('DEBUG: Address information in success handler:', {
+          console.log('DEBUG: Physical address information in success handler:', {
             street: formData.street_address,
             city: formData.city,
             state: formData.state,
             zip_code: formData.zip_code,
             addressId: data.address_id
+          });
+        }
+
+        // Add mailing address information to the success message if mailing address was updated
+        if (formData.mailing_street_address || formData.mailing_city || formData.mailing_state || formData.mailing_zip_code) {
+          successMessage = successMessage.includes("physical address")
+            ? "Lead, physical address, and mailing address information updated successfully"
+            : "Lead and mailing address information updated successfully";
+
+          // Log mailing address update details for debugging
+          console.log('DEBUG: Mailing address information in success handler:', {
+            street: formData.mailing_street_address,
+            city: formData.mailing_city,
+            state: formData.mailing_state,
+            zip_code: formData.mailing_zip_code
           });
         }
 
@@ -2021,13 +2068,15 @@ export default function LeadDetailsPage() {
                     />
                   </div>
                   {/* Address Information */}
+                  {/* Physical Address */}
                   <div className="col-span-2 space-y-2">
-                    <Label htmlFor="street_address">Street Address</Label>
+                    <Label htmlFor="street_address" className="font-medium">Physical Address</Label>
                     <Input
                       id="street_address"
                       name="street_address"
                       value={formData.street_address}
                       onChange={handleInputChange}
+                      placeholder="Street Address"
                     />
                   </div>
                   <div className="space-y-2">
@@ -2054,6 +2103,45 @@ export default function LeadDetailsPage() {
                       id="zip_code"
                       name="zip_code"
                       value={formData.zip_code}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  {/* Mailing Address */}
+                  <div className="col-span-2 space-y-2 mt-4">
+                    <Label htmlFor="mailing_street_address" className="font-medium">Mailing Address</Label>
+                    <Input
+                      id="mailing_street_address"
+                      name="mailing_street_address"
+                      value={formData.mailing_street_address}
+                      onChange={handleInputChange}
+                      placeholder="Street Address (leave blank if same as physical)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mailing_city">City</Label>
+                    <Input
+                      id="mailing_city"
+                      name="mailing_city"
+                      value={formData.mailing_city}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mailing_state">State</Label>
+                    <Input
+                      id="mailing_state"
+                      name="mailing_state"
+                      value={formData.mailing_state}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mailing_zip_code">ZIP Code</Label>
+                    <Input
+                      id="mailing_zip_code"
+                      name="mailing_zip_code"
+                      value={formData.mailing_zip_code}
                       onChange={handleInputChange}
                     />
                   </div>
@@ -2207,7 +2295,7 @@ export default function LeadDetailsPage() {
                     </div>
                   </div>
                   <div className="col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Address</Label>
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Physical Address</Label>
                     <div className="text-gray-700">
                       {lead.address_street ? (
                         <>
@@ -2216,6 +2304,19 @@ export default function LeadDetailsPage() {
                         </>
                       ) : (
                         'No address'
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <Label className="text-xs font-medium text-gray-500 mb-1 block">Mailing Address</Label>
+                    <div className="text-gray-700">
+                      {lead.mailing_address_street ? (
+                        <>
+                          {lead.mailing_address_street}<br />
+                          {lead.mailing_address_city}{lead.mailing_address_city && lead.mailing_address_state ? ', ' : ''}{lead.mailing_address_state} {lead.mailing_address_zip_code}
+                        </>
+                      ) : (
+                        'Same as physical address'
                       )}
                     </div>
                   </div>
@@ -2283,6 +2384,211 @@ export default function LeadDetailsPage() {
 
         {/* Insurance Details Tab */}
         <TabsContent value="insurance" className="space-y-4 mt-4">
+          {/* Auto Insurance Details Section */}
+          {lead.auto_data && (
+            <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+              <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+              <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+                <CardTitle className="text-lg font-medium">Auto Insurance Details</CardTitle>
+                <CardDescription className="text-sm">Details about auto insurance coverage</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                {/* Drivers Section */}
+                {lead.auto_data.drivers && lead.auto_data.drivers.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-md font-semibold mb-3">Drivers</h3>
+                    <div className="space-y-4">
+                      {lead.auto_data.drivers.map((driver: any, index: number) => (
+                        <Card key={index} className="bg-muted/30">
+                          <CardContent className="pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                                <div>{driver.name}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Primary Driver</Label>
+                                <div>{driver.primary ? 'Yes' : 'No'}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">License</Label>
+                                <div>{driver.license}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">State</Label>
+                                <div>{driver.state}</div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Vehicles Section */}
+                {lead.auto_data.vehicles && lead.auto_data.vehicles.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-md font-semibold mb-3">Vehicles</h3>
+                    <div className="space-y-4">
+                      {lead.auto_data.vehicles.map((vehicle: any, index: number) => (
+                        <Card key={index} className="bg-muted/30">
+                          <CardContent className="pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Make</Label>
+                                <div>{vehicle.make}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Model</Label>
+                                <div>{vehicle.model}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Year</Label>
+                                <div>{vehicle.year}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">VIN</Label>
+                                <div>{vehicle.vin}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Primary Use</Label>
+                                <div>{vehicle.primary_use}</div>
+                              </div>
+                              <div>
+                                <Label className="text-xs font-medium text-muted-foreground">Annual Mileage</Label>
+                                <div>{vehicle.annual_mileage?.toLocaleString()}</div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Coverages Section */}
+                {lead.auto_data.coverages && (
+                  <div>
+                    <h3 className="text-md font-semibold mb-3">Coverage Details</h3>
+                    <Card className="bg-muted/30">
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {lead.auto_data.coverages.liability && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
+                              <div>{lead.auto_data.coverages.liability}</div>
+                            </div>
+                          )}
+                          {lead.auto_data.coverages.uninsured_motorist && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Uninsured Motorist</Label>
+                              <div>{lead.auto_data.coverages.uninsured_motorist}</div>
+                            </div>
+                          )}
+                          {lead.auto_data.coverages.collision_deductible && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Collision Deductible</Label>
+                              <div>${lead.auto_data.coverages.collision_deductible}</div>
+                            </div>
+                          )}
+                          {lead.auto_data.coverages.comprehensive_deductible && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Comprehensive Deductible</Label>
+                              <div>${lead.auto_data.coverages.comprehensive_deductible}</div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Home Insurance Details Section */}
+          {lead.home_data && (
+            <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+              <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+              <CardHeader className="pb-3 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+                <CardTitle className="text-lg font-medium">Home Insurance Details</CardTitle>
+                <CardDescription className="text-sm">Details about home insurance coverage</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  {lead.home_data.year_built && (
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <Label className="text-xs font-medium text-muted-foreground">Year Built</Label>
+                      <div>{lead.home_data.year_built}</div>
+                    </div>
+                  )}
+                  {lead.home_data.square_feet && (
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <Label className="text-xs font-medium text-muted-foreground">Square Feet</Label>
+                      <div>{lead.home_data.square_feet}</div>
+                    </div>
+                  )}
+                  {lead.home_data.roof_type && (
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <Label className="text-xs font-medium text-muted-foreground">Roof Type</Label>
+                      <div>{lead.home_data.roof_type}</div>
+                    </div>
+                  )}
+                  {lead.home_data.construction_type && (
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <Label className="text-xs font-medium text-muted-foreground">Construction Type</Label>
+                      <div>{lead.home_data.construction_type}</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Coverage Information */}
+                {lead.home_data.coverages && (
+                  <div>
+                    <h3 className="text-md font-semibold mb-3">Coverage Details</h3>
+                    <Card className="bg-muted/30">
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {lead.home_data.coverages.dwelling && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Dwelling</Label>
+                              <div>${lead.home_data.coverages.dwelling.toLocaleString()}</div>
+                            </div>
+                          )}
+                          {lead.home_data.coverages.personal_property && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Personal Property</Label>
+                              <div>${lead.home_data.coverages.personal_property.toLocaleString()}</div>
+                            </div>
+                          )}
+                          {lead.home_data.coverages.liability && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Liability</Label>
+                              <div>${lead.home_data.coverages.liability.toLocaleString()}</div>
+                            </div>
+                          )}
+                          {lead.home_data.coverages.medical && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Medical</Label>
+                              <div>${lead.home_data.coverages.medical.toLocaleString()}</div>
+                            </div>
+                          )}
+                          {lead.home_data.coverages.deductible && (
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">Deductible</Label>
+                              <div>${lead.home_data.coverages.deductible.toLocaleString()}</div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Other Insureds Section */}
           <Card>
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
