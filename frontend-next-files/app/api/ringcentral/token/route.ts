@@ -40,10 +40,9 @@ export async function GET() {
         // Get the tokens from the database
         const { data: tokens, error } = await supabase
           .from('ringcentral_tokens')
-          .select('access_token, refresh_token, expires_at')
+          .select('access_token, refresh_token, expires_at, refresh_token_expires_at')
           .eq('user_id', user.id)
-          .limit(1)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error retrieving tokens from database:', error);

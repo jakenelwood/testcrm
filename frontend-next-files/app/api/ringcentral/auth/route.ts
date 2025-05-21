@@ -15,6 +15,21 @@ import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adap
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { ResponseCookies } from 'next/dist/server/web/spec-extension/cookies';
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute window
+const MAX_REQUESTS_PER_WINDOW = 10; // Maximum 10 requests per minute
+const RATE_LIMIT_COOLDOWN_MS = 300000; // 5 minute cooldown after hitting rate limit
+
+// In-memory rate limiting store (in production, use Redis or similar)
+// This will be reset when the server restarts
+interface RateLimitEntry {
+  count: number;
+  windowStart: number;
+  isLimited: boolean;
+  cooldownUntil: number;
+}
+const rateLimitStore: Record<string, RateLimitEntry> = {};
+
 /**
  * Generate a random string for PKCE code_verifier
  */
@@ -37,9 +52,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action');
 
-  // Attempt to satisfy linter by awaiting and casting, 
+  // Attempt to satisfy linter by awaiting and casting,
   // though cookies() in Route Handlers typically isn't a Promise.
-  const cookieStore = await cookies() as ReadonlyRequestCookies; 
+  const cookieStore = await cookies() as ReadonlyRequestCookies;
 
   console.log(`[AUTH_ROUTE] Action: ${action}, Timestamp: ${new Date().toISOString()}`);
 
@@ -97,7 +112,7 @@ async function handleAuthorize(request: NextRequest, cookieStore: ReadonlyReques
     // Get mutable cookies for setting
     const response = NextResponse.next(); // Create a response to set cookies on, if needed for ReadonlyRequestCookies context
                                         // However, cookies() from 'next/headers' in App Router Route Handlers can directly .set()
-    
+
     // cookies() from 'next/headers' is Readonly. To set, you operate on a NextResponse object.
     // But since handleAuthorize is called with cookieStore (Readonly), let's assume this context doesn't intend to set cookies directly for now
     // or it would need to return a Response object where cookies are set.
@@ -166,8 +181,8 @@ function setTokenCookies(
   cookieSetter: ResponseCookies,
   accessToken: string,
   refreshToken: string,
-  accessTokenExpiryTime: number, 
-  refreshTokenExpiryTime: number, 
+  accessTokenExpiryTime: number,
+  refreshTokenExpiryTime: number,
   tokenType: string = 'bearer',
   scope?: string
 ) {
@@ -231,12 +246,12 @@ function setTokenCookies(
 function clearTokenCookies(cookieSetter: ResponseCookies) {
   console.log('[CLEAR_TOKEN_COOKIES] Clearing cookies...');
   const pastDate = new Date(0);
-  const cookieOptions: Partial<ResponseCookie> = { 
-    path: '/', 
-    httpOnly: true, 
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', 
-    expires: pastDate 
+  const cookieOptions: Partial<ResponseCookie> = {
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
+    expires: pastDate
   };
   cookieSetter.set('ringcentral_access_token', '', cookieOptions);
   cookieSetter.set('ringcentral_refresh_token', '', cookieOptions);
@@ -245,7 +260,7 @@ function clearTokenCookies(cookieSetter: ResponseCookies) {
   cookieSetter.set('ringcentral_token_type', '', cookieOptions);
   cookieSetter.set('ringcentral_scope', '', cookieOptions);
   cookieSetter.set('rc_oauth_state', '', { ...cookieOptions, httpOnly: false });
-  cookieSetter.set('rc_code_verifier', '', { ...cookieOptions, httpOnly: false }); 
+  cookieSetter.set('rc_code_verifier', '', { ...cookieOptions, httpOnly: false });
   console.log('RingCentral token cookies cleared.');
 }
 
@@ -271,39 +286,48 @@ async function handleCheckAuth(request: NextRequest, cookieStore: ReadonlyReques
         .eq('user_id', user.id)
         .maybeSingle<DatabaseTokenData>();
 
-      if (dbTokenError && dbTokenError.code !== 'PGRST116') {
+      if (dbTokenError) {
         console.error(`[AUTH_CHECK_AUTH][${checkAuthId}] Error retrieving DB tokens:`, dbTokenError);
       } else if (dbTokensData) {
         const dbAccessToken = dbTokensData.access_token;
         const dbRefreshToken = dbTokensData.refresh_token;
         const dbAccessTokenExpiry = dbTokensData.expires_at ? new Date(dbTokensData.expires_at).getTime() : null;
         const dbRefreshTokenExpiry = dbTokensData.refresh_token_expires_at ? new Date(dbTokensData.refresh_token_expires_at).getTime() : null;
-        
+
         console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] Tokens found in DB:`, {
           hasAccessToken: !!dbAccessToken,
           accessTokenFirst10: dbAccessToken?.substring(0,10),
           dbExpiresAtISO: dbTokensData.expires_at,
           parsedDbAccessTokenExpiryEpoch: dbAccessTokenExpiry,
           isDbAccessTokenValid: dbAccessTokenExpiry ? (dbAccessTokenExpiry > now) : false,
+          hasRefreshTokenExpiry: !!dbRefreshTokenExpiry,
+          refreshTokenExpiryISO: dbTokensData.refresh_token_expires_at,
           nowISO,
         });
-        
-        if (dbAccessToken && dbRefreshToken && dbAccessTokenExpiry && dbAccessTokenExpiry > now && dbRefreshTokenExpiry && dbRefreshTokenExpiry > now) {
-          console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] Valid token found in DB. Synchronizing cookies.`);
-          setTokenCookies(
-            response.cookies, // Set on the main response object
-            dbAccessToken,
-            dbRefreshToken,
-            dbAccessTokenExpiry,
-            dbRefreshTokenExpiry,
-            dbTokensData.token_type || 'bearer',
-            dbTokensData.scope || undefined
-          );
-          isAuthenticated = true;
-          const responseBody = { isAuthenticated: true, source: 'database', userId: user.id, email: user.email, checkAuthId, timestamp: new Date().toISOString() };
-          const responseJsonString = JSON.stringify(responseBody);
-          console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] PRE_RETURN (Authenticated via DB). JSON String: ${responseJsonString}`);
-          return new NextResponse(responseJsonString, { status: 200, headers: response.headers });
+
+        if (dbAccessToken && dbRefreshToken && dbAccessTokenExpiry && dbAccessTokenExpiry > now) {
+          // Check refresh token expiry if available, otherwise assume it's valid
+          const isRefreshTokenValid = dbRefreshTokenExpiry ? (dbRefreshTokenExpiry > now) : true;
+
+          if (isRefreshTokenValid) {
+            console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] Valid token found in DB. Synchronizing cookies.`);
+            setTokenCookies(
+              response.cookies, // Set on the main response object
+              dbAccessToken,
+              dbRefreshToken,
+              dbAccessTokenExpiry,
+              dbRefreshTokenExpiry || (now + 604800000), // Default to 7 days if not set
+              dbTokensData.token_type || 'bearer',
+              dbTokensData.scope || undefined
+            );
+            isAuthenticated = true;
+            const responseBody = { isAuthenticated: true, source: 'database', userId: user.id, email: user.email, checkAuthId, timestamp: new Date().toISOString() };
+            const responseJsonString = JSON.stringify(responseBody);
+            console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] PRE_RETURN (Authenticated via DB). JSON String: ${responseJsonString}`);
+            return new NextResponse(responseJsonString, { status: 200, headers: response.headers });
+          } else {
+            console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] Refresh token in DB is expired. Needs re-authentication.`);
+          }
         } else {
           console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] Token in DB invalid/expired.`);
         }
@@ -317,7 +341,7 @@ async function handleCheckAuth(request: NextRequest, cookieStore: ReadonlyReques
     // Fallback: Check cookies if no user or no valid DB token
     const cookieAccessToken = cookieStore.get('ringcentral_access_token')?.value;
     const cookieTokenExpiryString = cookieStore.get('ringcentral_access_token_expiry_time')?.value;
-    
+
     console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] Cookie check values:`, {
       cookieAccessTokenFirst10: cookieAccessToken?.substring(0,10),
       cookieTokenExpiryString,
@@ -401,7 +425,7 @@ async function handleLogout(request: NextRequest, cookieStore: ReadonlyRequestCo
 async function handleGetToken(request: NextRequest, cookieStore: ReadonlyRequestCookies) {
   const getTokenId = crypto.randomBytes(4).toString('hex');
   console.log(`[AUTH_GET_TOKEN][${getTokenId}] Start. Timestamp: ${new Date().toISOString()}`);
-  
+
   try {
     const accessToken = cookieStore.get('ringcentral_access_token')?.value;
     const expiryTimeStr = cookieStore.get('ringcentral_access_token_expiry_time')?.value;
@@ -426,20 +450,41 @@ async function handleGetToken(request: NextRequest, cookieStore: ReadonlyRequest
       const supabase = createClient(cookieStore);
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: dbTokensData } = await supabase
+        const { data: dbTokensData, error: dbTokenError } = await supabase
           .from('ringcentral_tokens')
-          .select('access_token, expires_at')
+          .select('access_token, expires_at, refresh_token_expires_at')
           .eq('user_id', user.id)
-          .maybeSingle<Pick<DatabaseTokenData, 'access_token' | 'expires_at'>>();
-        
-        if (dbTokensData && dbTokensData.access_token && dbTokensData.expires_at) {
+          .maybeSingle<Pick<DatabaseTokenData, 'access_token' | 'expires_at' | 'refresh_token_expires_at'>>();
+
+        if (dbTokenError) {
+          console.error(`[AUTH_GET_TOKEN][${getTokenId}] Error retrieving DB tokens:`, dbTokenError);
+        } else if (dbTokensData && dbTokensData.access_token && dbTokensData.expires_at) {
           const dbExpiryTime = new Date(dbTokensData.expires_at).getTime();
+          const dbRefreshTokenExpiry = dbTokensData.refresh_token_expires_at ? new Date(dbTokensData.refresh_token_expires_at).getTime() : null;
+
+          // Check if access token is valid
           if (dbExpiryTime > now) {
-            console.log(`[AUTH_GET_TOKEN][${getTokenId}] Valid token found in DB. Note: Cookies are not being re-set here.`);
-            // It's generally better for the client to rely on /api/auth?action=check for cookie sync.
-            // Returning DB token directly if cookies were missing/stale.
-            return NextResponse.json({ accessToken: dbTokensData.access_token, expiresAt: dbExpiryTime, source: 'database' });
+            // Check refresh token expiry if available, otherwise assume it's valid
+            const isRefreshTokenValid = dbRefreshTokenExpiry ? (dbRefreshTokenExpiry > now) : true;
+
+            if (isRefreshTokenValid) {
+              console.log(`[AUTH_GET_TOKEN][${getTokenId}] Valid token found in DB. Note: Cookies are not being re-set here.`);
+              // It's generally better for the client to rely on /api/auth?action=check for cookie sync.
+              // Returning DB token directly if cookies were missing/stale.
+              return NextResponse.json({
+                accessToken: dbTokensData.access_token,
+                expiresAt: dbExpiryTime,
+                refreshTokenExpiresAt: dbRefreshTokenExpiry,
+                source: 'database'
+              });
+            } else {
+              console.log(`[AUTH_GET_TOKEN][${getTokenId}] Refresh token in DB is expired. Needs re-authentication.`);
+            }
+          } else {
+            console.log(`[AUTH_GET_TOKEN][${getTokenId}] Access token in DB is expired.`);
           }
+        } else {
+          console.log(`[AUTH_GET_TOKEN][${getTokenId}] No valid tokens found in DB for user ${user.id}.`);
         }
       }
       console.log(`[AUTH_GET_TOKEN][${getTokenId}] No valid access token available from cookies or DB.`);
@@ -487,6 +532,23 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
   }
 
   try {
+    // Check rate limiting
+    if (user) {
+      const rateLimitCheck = checkRateLimit(user.id);
+      if (rateLimitCheck.isLimited) {
+        console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Rate limit exceeded for user ${user.id}. Reset at ${rateLimitCheck.resetTime?.toISOString()}`);
+        return new NextResponse(
+          JSON.stringify({
+            error: 'Rate limit exceeded',
+            resetTime: rateLimitCheck.resetTime?.toISOString(),
+            reauthorize: false,
+            refreshId
+          }),
+          { status: 429, headers: response.headers }
+        );
+      }
+    }
+
     console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Attempting refresh. Refresh token (first 10): ${currentRefreshTokenFromCookie.substring(0,10)}`);
     const tokenUrl = `${RINGCENTRAL_SERVER}/restapi/oauth/token`;
     const params = new URLSearchParams({
@@ -516,18 +578,59 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
       }
       return new NextResponse(JSON.stringify({ error: 'Invalid response from RingCentral during token refresh', reauthorize: true, refreshId }), { status: 502, headers: response.headers }); // 502 Bad Gateway
     }
-    
+
     console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] RingCentral /oauth/token raw response status: ${rcResponse.status}, body: ${responseBodyText}`);
 
     if (!rcResponse.ok) {
       console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Refresh failed. Status: ${rcResponse.status}, Body:`, data);
-      clearTokenCookies(response.cookies); // Clear cookies on failure
-      if (user) {
-        console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Deleting DB tokens for user ${user.id} due to refresh failure.`);
-        await supabase.from('ringcentral_tokens').delete().eq('user_id', user.id);
+
+      // Handle rate limiting from RingCentral
+      if (rcResponse.status === 429 || (data.errorCode === 'CMN-301')) {
+        console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] RingCentral rate limit exceeded. Adding to local rate limiter.`);
+
+        // Add to our rate limiter to prevent further requests
+        if (user) {
+          const entry = rateLimitStore[user.id] || {
+            count: MAX_REQUESTS_PER_WINDOW + 1,
+            windowStart: Date.now(),
+            isLimited: true,
+            cooldownUntil: Date.now() + RATE_LIMIT_COOLDOWN_MS
+          };
+
+          entry.isLimited = true;
+          entry.cooldownUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
+          rateLimitStore[user.id] = entry;
+
+          return new NextResponse(
+            JSON.stringify({
+              error: 'RingCentral rate limit exceeded',
+              resetTime: new Date(entry.cooldownUntil).toISOString(),
+              reauthorize: false,
+              refreshId
+            }),
+            { status: 429, headers: response.headers }
+          );
+        }
       }
+
+      // For token revocation or other auth errors, clear tokens
+      if (rcResponse.status === 400 || rcResponse.status === 401) {
+        clearTokenCookies(response.cookies); // Clear cookies on failure
+        if (user) {
+          console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Deleting DB tokens for user ${user.id} due to refresh failure.`);
+          await supabase.from('ringcentral_tokens').delete().eq('user_id', user.id);
+        }
+      }
+
       const reauthorize = rcResponse.status === 400 || rcResponse.status === 401;
-      return new NextResponse(JSON.stringify({ error: data.error_description || data.message || 'Failed to refresh token', reauthorize, refreshId }), { status: rcResponse.status, headers: response.headers });
+      return new NextResponse(
+        JSON.stringify({
+          error: data.error_description || data.message || 'Failed to refresh token',
+          reauthorize,
+          refreshId
+        }),
+        { status: rcResponse.status, headers: response.headers }
+      );
     }
 
     console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Refresh successful. Updating cookies & DB. Data:`, {
@@ -555,28 +658,58 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
         scope: scope,
         updated_at: new Date().toISOString(),
       };
-      console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Supabase update payload for user ${user.id}:`, { 
-        accessTokenFirst10: updatePayload.access_token?.substring(0,10), 
+      console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Supabase update payload for user ${user.id}:`, {
+        accessTokenFirst10: updatePayload.access_token?.substring(0,10),
         refreshTokenFirst10: updatePayload.refresh_token?.substring(0,10),
         expires_at: updatePayload.expires_at,
         refresh_token_expires_at: updatePayload.refresh_token_expires_at
       });
 
-      const { error: dbError } = await supabase
+      // First check if a record exists for this user
+      const { data: existingRecord, error: checkError } = await supabase
         .from('ringcentral_tokens')
-        .update(updatePayload)
-        .eq('user_id', user.id);
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Error checking for existing token record:`, checkError);
+      }
+
+      let dbOperation;
+      if (!existingRecord) {
+        // No record exists, so insert a new one
+        console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] No existing token record found for user ${user.id}. Inserting new record.`);
+        dbOperation = supabase
+          .from('ringcentral_tokens')
+          .insert({
+            ...updatePayload,
+            user_id: user.id,
+            created_at: new Date().toISOString()
+          });
+      } else {
+        // Record exists, update it
+        console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Existing token record found for user ${user.id}. Updating record.`);
+        dbOperation = supabase
+          .from('ringcentral_tokens')
+          .update(updatePayload)
+          .eq('user_id', user.id);
+      }
+
+      const { error: dbError } = await dbOperation;
 
       if (dbError) {
         console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Error updating DB tokens for user ${user.id}:`, dbError);
       } else {
         console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] DB tokens updated successfully for user: ${user.id}. New refresh_token (first 10): ${refresh_token?.substring(0,10)} should now be in DB.`);
-        // Verification step
+
+        // Verification step - use maybeSingle instead of single to avoid errors when no rows are found
         const { data: verifyData, error: verifyError } = await supabase
           .from('ringcentral_tokens')
           .select('refresh_token')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
+
         if (verifyError) {
           console.error(`[AUTH_TOKEN_REFRESH][${refreshId}] Error verifying DB update:`, verifyError);
         } else if (verifyData) {
@@ -601,6 +734,64 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
     }
     return new NextResponse(JSON.stringify({ error: error.message || UNKNOWN_ERROR_OCCURRED, reauthorize: true, refreshId }), { status: 500, headers: response.headers });
   }
+}
+
+/**
+ * Check if a request should be rate limited
+ * @param userId The user ID to check rate limits for
+ * @returns Object with isLimited flag and reset time
+ */
+function checkRateLimit(userId: string): { isLimited: boolean, resetTime?: Date } {
+  const now = Date.now();
+  const key = userId || 'anonymous';
+
+  // Initialize rate limit entry if it doesn't exist
+  if (!rateLimitStore[key]) {
+    rateLimitStore[key] = {
+      count: 0,
+      windowStart: now,
+      isLimited: false,
+      cooldownUntil: 0
+    };
+  }
+
+  const entry = rateLimitStore[key];
+
+  // Check if in cooldown period
+  if (entry.isLimited && now < entry.cooldownUntil) {
+    return {
+      isLimited: true,
+      resetTime: new Date(entry.cooldownUntil)
+    };
+  }
+
+  // Reset cooldown if it's expired
+  if (entry.isLimited && now >= entry.cooldownUntil) {
+    entry.isLimited = false;
+    entry.count = 0;
+    entry.windowStart = now;
+  }
+
+  // Start a new window if the current one has expired
+  if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    entry.count = 0;
+    entry.windowStart = now;
+  }
+
+  // Increment the counter
+  entry.count++;
+
+  // Check if rate limit is exceeded
+  if (entry.count > MAX_REQUESTS_PER_WINDOW) {
+    entry.isLimited = true;
+    entry.cooldownUntil = now + RATE_LIMIT_COOLDOWN_MS;
+    return {
+      isLimited: true,
+      resetTime: new Date(entry.cooldownUntil)
+    };
+  }
+
+  return { isLimited: false };
 }
 
 async function clearStaleTokens(supabase: any, userId: string | undefined, cookieSetter: ResponseCookies, reason: string) {

@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
       // This indicates a broken or state-loss scenario. The user should re-authenticate with the app first.
       return NextResponse.json({ error: 'User session not found. Please sign in and try connecting to RingCentral again.' }, { status: 403 }); // 403 Forbidden or 401 Unauthorized
     }
-    
+
     // If user is anonymous, this is also an issue. OAuth should be tied to a non-anonymous identity.
     if (user.user_metadata?.is_anonymous) {
         console.error('Attempted to associate RingCentral tokens with an anonymous Supabase user. This is not allowed.', { userId: user.id });
@@ -196,13 +196,13 @@ export async function GET(request: NextRequest) {
       expires_at: new Date(expiresAt).toISOString(),
       refresh_token_expires_at: refreshTokenExpiresAt,
       scope: tokenData.scope,
-      updated_at: new Date().toISOString() 
+      updated_at: new Date().toISOString()
       // created_at will be set on insert by Supabase or by the upsert if not present
     };
 
     const { data: upsertedData, error: upsertError } = await supabase
       .from('ringcentral_tokens')
-      .upsert(upsertData, { 
+      .upsert(upsertData, {
         onConflict: 'user_id', // Assumes 'user_id' has a UNIQUE constraint
       })
       .select(); // Select the upserted/updated record
@@ -229,8 +229,7 @@ export async function GET(request: NextRequest) {
           .from('ringcentral_tokens')
           .select('id, user_id, access_token, expires_at, refresh_token_expires_at')
           .eq('user_id', user.id)
-          .limit(1)
-          .single(); // Use single() for cleaner handling if exactly one record is expected
+          .maybeSingle(); // Use maybeSingle() to avoid errors when no rows are found
 
         if (verifyError) {
           console.error('Error verifying token storage after upsert (fallback):', verifyError);
