@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     if (!currentAccessToken) {
       console.log(`Error: ${RINGCENTRAL_NOT_AUTHENTICATED_ERROR} (token not available or refresh failed)`);
       return NextResponse.json(
-        { 
+        {
           error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
           diagnostics: { isAuthenticated: false, tokenError: 'No valid token or refresh failed' }
         },
@@ -179,7 +179,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       timestamp: new Date().toISOString(),
       environment: envVars,
-      authentication: diagnostics.token,
+      authentication: {
+        ...diagnostics.token,
+        // Add explicit accessTokenPresent property for the frontend
+        accessTokenPresent: !!currentAccessToken,
+        tokenExpiry: diagnostics.token.accessTokenExpiryCookie
+          ? new Date(parseInt(diagnostics.token.accessTokenExpiryCookie)).toISOString()
+          : 'Not set',
+        tokenExpired: diagnostics.token.accessTokenExpiryCookie
+          ? parseInt(diagnostics.token.accessTokenExpiryCookie) < Date.now()
+          : true,
+        tokenExpiresIn: diagnostics.token.accessTokenExpiryCookie
+          ? `${Math.round((parseInt(diagnostics.token.accessTokenExpiryCookie) - Date.now()) / 1000 / 60)} minutes`
+          : 'Unknown'
+      },
       configuration: configValidation,
       inconsistencies,
       recommendations,
