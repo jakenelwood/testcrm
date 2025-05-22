@@ -208,6 +208,8 @@ For production environments with multiple server instances, the current in-memor
 
 ## Common Issues and Troubleshooting
 
+This section covers common issues you might encounter with the RingCentral integration and their solutions:
+
 ### 1. "JSON object requested, multiple (or no) rows returned" Error
 
 **Cause**: This occurs when:
@@ -244,6 +246,41 @@ For production environments with multiple server instances, the current in-memor
 - Add exponential backoff for retries
 - Cache responses where appropriate
 - Distribute requests over time
+
+### 4. Diagnostics Page Shows "Access Token Not Present" Despite Successful Authentication
+
+**Cause**:
+- Mismatch between API response structure and frontend component expectations
+- The diagnostics API returns token information but doesn't explicitly include the `accessTokenPresent` property that the frontend component is looking for
+
+**Solution**:
+- Update the diagnostics API response to include the `accessTokenPresent` property
+- Add additional token expiry information to provide more context
+- Ensure API response structure matches what the frontend components expect
+
+**Implementation**:
+```javascript
+// Return comprehensive diagnostics information
+return NextResponse.json({
+  timestamp: new Date().toISOString(),
+  environment: envVars,
+  authentication: {
+    ...diagnostics.token,
+    // Add explicit accessTokenPresent property for the frontend
+    accessTokenPresent: !!currentAccessToken,
+    tokenExpiry: diagnostics.token.accessTokenExpiryCookie
+      ? new Date(parseInt(diagnostics.token.accessTokenExpiryCookie)).toISOString()
+      : 'Not set',
+    tokenExpired: diagnostics.token.accessTokenExpiryCookie
+      ? parseInt(diagnostics.token.accessTokenExpiryCookie) < Date.now()
+      : true,
+    tokenExpiresIn: diagnostics.token.accessTokenExpiryCookie
+      ? `${Math.round((parseInt(diagnostics.token.accessTokenExpiryCookie) - Date.now()) / 1000 / 60)} minutes`
+      : 'Unknown'
+  },
+  // ...rest of the response
+});
+```
 
 ## API Endpoints
 
