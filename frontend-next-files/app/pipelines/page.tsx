@@ -132,6 +132,7 @@ export default function PipelinesPage() {
                   pipelines={pipelines}
                   selectedPipelineId={selectedPipelineId}
                   onSelect={handlePipelineSelect}
+                  onPipelineUpdated={handlePipelineUpdated}
                 />
               )}
             </CardContent>
