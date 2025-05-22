@@ -10,16 +10,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { 
-  createPipeline, 
-  updatePipeline, 
+import {
+  createPipeline,
+  updatePipeline,
   deletePipeline,
   createPipelineStatus,
   updatePipelineStatus,
   deletePipelineStatus,
   reorderPipelineStatuses
 } from "@/utils/pipeline-api";
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -43,11 +43,11 @@ interface PipelineEditorProps {
   onCancel?: () => void;
 }
 
-export function PipelineEditor({ 
-  mode, 
-  pipeline, 
-  onPipelineCreated, 
-  onPipelineUpdated, 
+export function PipelineEditor({
+  mode,
+  pipeline,
+  onPipelineCreated,
+  onPipelineUpdated,
   onPipelineDeleted,
   onCancel
 }: PipelineEditorProps) {
@@ -162,10 +162,10 @@ export function PipelineEditor({
         ...pipeline,
         statuses: [...(pipeline.statuses || []), status]
       };
-      
+
       // Sort statuses by display_order
       updatedPipeline.statuses?.sort((a, b) => a.display_order - b.display_order);
-      
+
       onPipelineUpdated?.(updatedPipeline);
       setSelectedStatusId(status.id);
       setIsCreatingStatus(false);
@@ -176,15 +176,15 @@ export function PipelineEditor({
   const handleStatusUpdated = (status: PipelineStatus) => {
     if (pipeline && pipeline.statuses) {
       // Update the status in the pipeline's statuses
-      const updatedStatuses = pipeline.statuses.map(s => 
+      const updatedStatuses = pipeline.statuses.map(s =>
         s.id === status.id ? status : s
       );
-      
+
       const updatedPipeline = {
         ...pipeline,
         statuses: updatedStatuses
       };
-      
+
       onPipelineUpdated?.(updatedPipeline);
     }
   };
@@ -194,12 +194,12 @@ export function PipelineEditor({
     if (pipeline && pipeline.statuses) {
       // Remove the status from the pipeline's statuses
       const updatedStatuses = pipeline.statuses.filter(s => s.id !== statusId);
-      
+
       const updatedPipeline = {
         ...pipeline,
         statuses: updatedStatuses
       };
-      
+
       onPipelineUpdated?.(updatedPipeline);
       setSelectedStatusId(null);
     }
@@ -208,21 +208,21 @@ export function PipelineEditor({
   // Handle status reordering
   const handleStatusReorder = async (statusIds: number[]) => {
     if (!pipeline) return;
-    
+
     try {
       await reorderPipelineStatuses(pipeline.id, statusIds);
-      
+
       // Reorder the statuses in the pipeline
       const reorderedStatuses = statusIds.map((id, index) => {
         const status = pipeline.statuses?.find(s => s.id === id);
         return status ? { ...status, display_order: index + 1 } : null;
       }).filter(Boolean) as PipelineStatus[];
-      
+
       const updatedPipeline = {
         ...pipeline,
         statuses: reorderedStatuses
       };
-      
+
       onPipelineUpdated?.(updatedPipeline);
     } catch (error) {
       console.error('Error reordering statuses:', error);
@@ -242,8 +242,8 @@ export function PipelineEditor({
       <CardHeader>
         <CardTitle>{mode === 'create' ? 'Create New Pipeline' : 'Edit Pipeline'}</CardTitle>
         <CardDescription>
-          {mode === 'create' 
-            ? 'Create a new pipeline for your leads' 
+          {mode === 'create'
+            ? 'Create a new pipeline for your leads'
             : 'Edit pipeline details and manage statuses'}
         </CardDescription>
       </CardHeader>
@@ -253,7 +253,7 @@ export function PipelineEditor({
             <TabsTrigger value="details">Pipeline Details</TabsTrigger>
             {mode === 'edit' && <TabsTrigger value="statuses">Pipeline Statuses</TabsTrigger>}
           </TabsList>
-          
+
           <TabsContent value="details" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Pipeline Name</Label>
@@ -266,7 +266,7 @@ export function PipelineEditor({
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -278,17 +278,25 @@ export function PipelineEditor({
                 rows={3}
               />
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_default"
-                checked={formData.is_default}
-                onCheckedChange={(checked) => handleSwitchChange('is_default', checked)}
-              />
-              <Label htmlFor="is_default">Set as default pipeline</Label>
+
+            <div className="mt-6 p-4 border border-gray-200 rounded-md bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-medium text-gray-900">Default Pipeline</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Make this the default pipeline for new leads
+                  </p>
+                </div>
+                <Switch
+                  id="is_default"
+                  checked={formData.is_default}
+                  onCheckedChange={(checked) => handleSwitchChange('is_default', checked)}
+                  className={formData.is_default ? "bg-green-600 data-[state=checked]:bg-green-600" : ""}
+                />
+              </div>
             </div>
           </TabsContent>
-          
+
           {mode === 'edit' && (
             <TabsContent value="statuses" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -297,16 +305,16 @@ export function PipelineEditor({
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-sm font-medium">Pipeline Statuses</h3>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={handleCreateStatus}
                         className="h-8"
                       >
                         <Plus className="h-4 w-4 mr-1" /> Add
                       </Button>
                     </div>
-                    
+
                     {pipeline?.statuses && pipeline.statuses.length > 0 ? (
                       <PipelineStatusList
                         statuses={pipeline.statuses}
@@ -321,7 +329,7 @@ export function PipelineEditor({
                     )}
                   </div>
                 </div>
-                
+
                 {/* Status Editor */}
                 <div className="md:col-span-2">
                   {isCreatingStatus ? (
@@ -384,7 +392,7 @@ export function PipelineEditor({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            
+
             <Button onClick={handleSave} disabled={isSaving || !formData.name.trim()}>
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving..." : "Save Changes"}

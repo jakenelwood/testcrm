@@ -80,27 +80,27 @@ export function PipelineList({
             <div className="flex items-center">
               {!pipeline.is_default && (
                 <Button
-                  variant="ghost"
+                  variant={selectedPipelineId === pipeline.id ? "outline" : "secondary"}
                   size="sm"
                   className={`h-7 px-2 mr-1 ${
                     selectedPipelineId === pipeline.id
-                      ? "text-white hover:text-white hover:bg-blue-600/30"
-                      : "text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                      ? "border-white/30 text-white hover:text-white hover:bg-blue-600/30"
+                      : "bg-gray-800 text-white hover:bg-gray-700"
                   }`}
                   onClick={(e) => handleSetAsDefault(e, pipeline)}
                   title="Set as default pipeline"
                 >
-                  <Star className="h-3.5 w-3.5" />
+                  <Star className="h-3.5 w-3.5 fill-current" />
                   <span className="ml-1 text-xs">Set Default</span>
                 </Button>
               )}
               {pipeline.is_default && (
-                <Badge variant="outline" className={`ml-2 ${
+                <Badge className={`ml-2 ${
                   selectedPipelineId === pipeline.id
-                    ? "bg-blue-500/20 text-white border-white/20"
-                    : "bg-green-50 text-green-600 border-green-200"
+                    ? "bg-green-600 text-white border-green-700"
+                    : "bg-green-600 text-white border-green-700"
                 }`}>
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  <CheckCircle2 className="h-3 w-3 mr-1 fill-white" />
                   Default
                 </Badge>
               )}
