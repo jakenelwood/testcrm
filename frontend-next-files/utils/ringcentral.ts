@@ -113,6 +113,38 @@ export async function isRingCentralAuthenticated(): Promise<boolean> {
 
     if (!response.ok) {
       console.warn('RingCentral auth check failed:', response.statusText);
+
+      // If we get a 401 Unauthorized, try to refresh the token
+      if (response.status === 401) {
+        console.log('Attempting to refresh token due to 401 response');
+        const refreshResponse = await fetch(`${NEXT_PUBLIC_APP_URL}/api/ringcentral/auth?action=refresh`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+
+        if (refreshResponse.ok) {
+          console.log('Token refresh successful, rechecking authentication');
+          // Retry the authentication check after successful refresh
+          return isRingCentralAuthenticated();
+        } else {
+          let refreshErrorData;
+          try {
+            refreshErrorData = await refreshResponse.json();
+            console.log('Token refresh failed:', refreshErrorData);
+
+            // If token is revoked, redirect to authentication
+            if (refreshErrorData.revoked ||
+                (refreshErrorData.error && refreshErrorData.error.includes('revoked'))) {
+              console.log('Token is revoked, redirecting to authentication');
+              authenticateWithRingCentral();
+            }
+          } catch (e) {
+            console.log('Could not parse refresh error response:', e);
+          }
+        }
+      }
+
       try {
         const errorText = await response.text();
         console.log('Raw error response text:', errorText);
@@ -143,7 +175,7 @@ export async function isRingCentralAuthenticated(): Promise<boolean> {
       console.log('========== RINGCENTRAL UTILITY - isRingCentralAuthenticated - END (JSON PARSE ERROR) ==========');
       return false;
     }
-    
+
     console.log('[RC_AUTH_CHECK_CLIENT] Parsed response data (stringified):', JSON.stringify(data, null, 2));
     console.log('[RC_AUTH_CHECK_CLIENT] Type of data.isAuthenticated:', typeof data.isAuthenticated, 'Value:', data.isAuthenticated);
 

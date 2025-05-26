@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +29,63 @@ export function QuoteFormContainer() {
     specialty: {}
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [hasNavigatedAway, setHasNavigatedAway] = useState(false);
+  const [isNewLead, setIsNewLead] = useState(true);
+
+  // Load draft data on component mount
+  useEffect(() => {
+    // Check if we're on the new lead page (no ID in URL)
+    const isNewLeadPage = window.location.pathname === '/dashboard/new';
+
+    if (isNewLeadPage) {
+      // For new leads, clear any existing draft data to start fresh
+      // This prevents old draft data from showing the "Draft loaded" message
+      localStorage.removeItem('lead-form-draft');
+      setIsNewLead(true);
+    } else {
+      // For editing existing leads, check if there's draft data
+      const savedDraft = localStorage.getItem('lead-form-draft');
+      if (savedDraft) {
+        try {
+          const draftData = JSON.parse(savedDraft);
+          // Only show draft loaded message if there's meaningful data (not just empty fields)
+          if (draftData.client && Object.keys(draftData.client).length > 0) {
+            // Check if there's actual meaningful data (not just empty strings)
+            const hasActualData = Object.values(draftData.client).some(value => {
+              if (typeof value === 'string') return value.trim().length > 0;
+              if (typeof value === 'boolean') return value === true;
+              if (Array.isArray(value)) return value.length > 0;
+              return value != null;
+            });
+
+            if (hasActualData) {
+              setFormData(prev => ({ ...prev, client: draftData.client }));
+              setIsNewLead(false); // Mark as not a new lead since we have draft data
+              toast({
+                title: "Draft loaded",
+                description: "Your previous form data has been restored.",
+              });
+            } else {
+              // Clear empty draft data to prevent future false positives
+              localStorage.removeItem('lead-form-draft');
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load draft data:', error);
+          // Clear corrupted draft data
+          localStorage.removeItem('lead-form-draft');
+        }
+      }
+    }
+  }, [toast]);
+
+  // Track when user navigates away from client tab
+  useEffect(() => {
+    if (activeTab !== "client") {
+      setHasNavigatedAway(true);
+    }
+  }, [activeTab]);
 
   // Toggle insurance type selection
   const toggleInsuranceType = (type: InsuranceType, isChecked: boolean) => {
@@ -37,6 +94,50 @@ export function QuoteFormContainer() {
         ? [...prev, type]
         : prev.filter(t => t !== type)
     );
+  };
+
+  // Auto-save function
+  const handleAutoSave = async (data: any) => {
+    setIsAutoSaving(true);
+    try {
+      // Check if there's actual meaningful data to save
+      const hasActualData = Object.values(data).some(value => {
+        if (typeof value === 'string') return value.trim().length > 0;
+        if (typeof value === 'boolean') return value === true;
+        if (Array.isArray(value)) return value.length > 0;
+        return value != null;
+      });
+
+      // Only save if there's meaningful data AND we're not on a fresh new lead
+      if (hasActualData && window.location.pathname === '/dashboard/new') {
+        localStorage.setItem('lead-form-draft', JSON.stringify({
+          ...formData,
+          client: data,
+          lastSaved: new Date().toISOString()
+        }));
+        setIsNewLead(false); // Mark as not new once we have actual data
+      } else if (hasActualData && window.location.pathname !== '/dashboard/new') {
+        // For editing existing leads, always save meaningful data
+        localStorage.setItem('lead-form-draft', JSON.stringify({
+          ...formData,
+          client: data,
+          lastSaved: new Date().toISOString()
+        }));
+      }
+
+      // Here you could also save to the backend if needed
+      // await fetch('/api/leads/draft', { method: 'POST', body: JSON.stringify(data) });
+
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    } finally {
+      setIsAutoSaving(false);
+    }
+  };
+
+  // Handle previous button
+  const handlePrevious = () => {
+    router.back();
   };
 
   // Handle client form submission
@@ -125,6 +226,9 @@ export function QuoteFormContainer() {
         throw new Error('Failed to submit quote request');
       }
 
+      // Clear draft data after successful submission
+      localStorage.removeItem('lead-form-draft');
+
       // Show success message
       toast({
         title: "Quote request submitted",
@@ -157,7 +261,7 @@ export function QuoteFormContainer() {
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-4 mb-6">
-              <TabsTrigger value="client">Client Info</TabsTrigger>
+              <TabsTrigger value="client">Lead Info</TabsTrigger>
               {activeInsuranceTypes.includes('auto') && (
                 <TabsTrigger value="auto">Auto</TabsTrigger>
               )}
@@ -170,36 +274,90 @@ export function QuoteFormContainer() {
             </TabsList>
 
             <TabsContent value="client">
-              <LeadInfoForm onSubmit={handleClientFormSubmit} />
+              <LeadInfoForm
+                onSubmit={handleClientFormSubmit}
+                onAutoSave={handleAutoSave}
+                onPrevious={() => setActiveTab("client")}
+                showPreviousButton={false}
+                showDeleteButton={true}
+                onDelete={() => {
+                  const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
+                  if (userInput && userInput.toLowerCase() === 'delete') {
+                    // Clear draft data when deleting
+                    localStorage.removeItem('lead-form-draft');
+                    router.push('/dashboard/leads');
+                  } else if (userInput !== null) {
+                    alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                  }
+                }}
+                defaultValues={formData.client as any}
+              />
             </TabsContent>
 
             {activeInsuranceTypes.includes('auto') && (
               <TabsContent value="auto">
-                <AutoInsuranceForm onSubmit={handleAutoFormSubmit} />
+                <AutoInsuranceForm
+                  onSubmit={handleAutoFormSubmit}
+                  onPrevious={() => setActiveTab("client")}
+                  showPreviousButton={true}
+                  showDeleteButton={true}
+                  onDelete={() => {
+                    const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
+                    if (userInput && userInput.toLowerCase() === 'delete') {
+                      // Clear draft data when deleting
+                      localStorage.removeItem('lead-form-draft');
+                      router.push('/dashboard/leads');
+                    } else if (userInput !== null) {
+                      alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                    }
+                  }}
+                />
               </TabsContent>
             )}
 
             {activeInsuranceTypes.includes('home') && (
               <TabsContent value="home">
-                <HomeInsuranceForm onSubmitForm={handleHomeFormSubmit} />
+                <HomeInsuranceForm
+                  onSubmitForm={handleHomeFormSubmit}
+                  onPrevious={() => setActiveTab("client")}
+                  showPreviousButton={true}
+                  showDeleteButton={true}
+                  onDelete={() => {
+                    const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
+                    if (userInput && userInput.toLowerCase() === 'delete') {
+                      // Clear draft data when deleting
+                      localStorage.removeItem('lead-form-draft');
+                      router.push('/dashboard/leads');
+                    } else if (userInput !== null) {
+                      alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                    }
+                  }}
+                />
               </TabsContent>
             )}
 
             {activeInsuranceTypes.includes('specialty') && (
               <TabsContent value="specialty">
-                <SpecialtyInsuranceForm onSubmit={handleSpecialtyFormSubmit} />
+                <SpecialtyInsuranceForm
+                  onSubmit={handleSpecialtyFormSubmit}
+                  onPrevious={() => setActiveTab("client")}
+                  showPreviousButton={true}
+                  showDeleteButton={true}
+                  onDelete={() => {
+                    const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
+                    if (userInput && userInput.toLowerCase() === 'delete') {
+                      // Clear draft data when deleting
+                      localStorage.removeItem('lead-form-draft');
+                      router.push('/dashboard/leads');
+                    } else if (userInput !== null) {
+                      alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                    }
+                  }}
+                />
               </TabsContent>
             )}
           </Tabs>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={() => router.push('/dashboard')}>
-            Cancel
-          </Button>
-          <Button disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Save Progress"}
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

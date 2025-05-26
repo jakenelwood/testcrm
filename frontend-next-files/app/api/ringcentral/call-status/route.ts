@@ -105,6 +105,28 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
       console.error('Error fetching call status:', error);
       troubleshooting.push(`Error fetching call status: ${error.message}`);
 
+      // Check for resource not found error (common with RingOut calls that have ended)
+      if (error.message && (
+          error.message.includes('Resource for parameter [ringOutId] is not found') ||
+          error.message.includes('Resource not found') ||
+          error.message.includes('404')
+      )) {
+        console.log('Call status error: Resource not found (likely call ended)');
+        troubleshooting.push('Call has likely ended and resource was cleaned up by RingCentral');
+
+        // Return a successful response with a "NotFound" status instead of an error
+        return NextResponse.json({
+          success: true,
+          data: {
+            callStatus: 'NotFound',
+            message: 'Call has ended or resource was not found',
+            originalError: error.message
+          },
+          troubleshooting,
+          timestamp: new Date().toISOString()
+        }, { status: 200 });
+      }
+
       if (error.message && error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR)) {
         // Check if the error is due to rate limiting
         if (error.message.includes('rate limit') || error.message.includes('rate limiting')) {

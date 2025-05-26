@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, Plus, Trash2 } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, ArrowLeft } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
@@ -188,6 +188,10 @@ const autoInsuranceFormSchema = z.object({
 
 interface AutoInsuranceFormProps {
   onSubmit: (data: AutoInsuranceFormValues) => void;
+  onPrevious?: () => void;
+  showPreviousButton?: boolean;
+  onDelete?: () => void;
+  showDeleteButton?: boolean;
 }
 
 const stateOptions = [
@@ -265,7 +269,7 @@ const insurerOptions = [
   { value: "none", label: "None/Not Insured" },
 ];
 
-export function AutoInsuranceForm({ onSubmit }: AutoInsuranceFormProps) {
+export function AutoInsuranceForm({ onSubmit, onPrevious, showPreviousButton = false, onDelete, showDeleteButton = false }: AutoInsuranceFormProps) {
   // Set default values for form
   const defaultValues: Partial<AutoInsuranceFormValues> = {
     // Auto insurance general info
@@ -1330,9 +1334,43 @@ export function AutoInsuranceForm({ onSubmit }: AutoInsuranceFormProps) {
           </CardContent>
         </Card>
 
-        <div className="pt-6 space-x-2 flex justify-end">
-          <Button type="submit" className="w-full sm:w-auto">
-            Submit Auto Insurance Form
+        <div className="pt-6 flex justify-between items-center">
+          {showPreviousButton && onPrevious ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPrevious}
+              className="flex items-center"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+          ) : (
+            <div></div>
+          )}
+
+          {showDeleteButton && onDelete ? (
+            <button
+              type="button"
+              className="p-2 hover:bg-red-50 rounded-md transition-colors"
+              onClick={() => {
+                const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
+                if (userInput && userInput.toLowerCase() === 'delete') {
+                  onDelete();
+                } else if (userInput !== null) {
+                  alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                }
+              }}
+              title="Delete Lead"
+            >
+              <Trash2 className="h-8 w-8 text-red-600 font-bold stroke-2" />
+            </button>
+          ) : (
+            <div></div>
+          )}
+
+          <Button type="submit" className="flex items-center">
+            Continue
           </Button>
         </div>
       </form>

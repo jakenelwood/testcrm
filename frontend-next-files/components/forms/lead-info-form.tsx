@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { CalendarIcon, Plus, Trash2, ArrowLeft } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -62,55 +62,65 @@ const zipCodeMap: Record<string, string> = {
   // Add more ZIP codes as needed
 };
 
+// Define accident/incident schema
+const accidentSchema = z.object({
+  date: z.string().optional(),
+  description: z.string().optional(),
+});
+
+// Define additional driver schema
+const additionalDriverSchema = z.object({
+  name: z.string().optional(),
+  date_of_birth: z.string().optional(),
+  license_number: z.string().optional(),
+  license_state: z.string().optional(),
+  relationship: z.string().optional(),
+  sr22_required: z.boolean().default(false),
+});
+
 // Define form schema
 const formSchema = z.object({
   client_type: z.enum(["Individual", "Business"], {
     required_error: "Client type is required",
   }),
   name: z.string().min(2, "Name must be at least 2 characters"),
-  phone_number: z.string().min(10, "Phone number must be at least 10 digits").refine(
-    (val) => /^\(\d{3}\) \d{3}-\d{4}$/.test(val) || /^\d{10}$/.test(val.replace(/\D/g, '')),
+  phone_number: z.string().optional().refine(
+    (val) => !val || val === "" || /^\(\d{3}\) \d{3}-\d{4}$/.test(val) || /^\d{10}$/.test(val.replace(/\D/g, '')),
     {
       message: "Phone number must be in the format (555) 555-5555",
     }
   ),
-  email: z.string().email("Invalid email address"),
-  street_address: z.string().min(5, "Street address must be at least 5 characters"),
-  city: z.string().min(2, "City must be at least 2 characters"),
-  state: z.string().min(2, "State is required"),
-  zip_code: z.string().min(5, "ZIP code must be at least 5 digits"),
+  email: z.string().optional().refine(
+    (val) => !val || val === "" || z.string().email().safeParse(val).success,
+    {
+      message: "Invalid email address",
+    }
+  ),
+  street_address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zip_code: z.string().optional(),
   mailing_address: z.string().optional(),
   prior_address: z.string().optional(),
   rent_or_own: z.string().optional(),
   gender: z.string().optional(),
   marital_status: z.string().optional(),
-  date_of_birth: z.string()
-    .min(10, "Date of birth must be in MM/DD/YYYY format")
-    .refine(
-      (val) => {
-        // Basic date format validation
-        return /^\d{2}\/\d{2}\/\d{4}$/.test(val);
-      },
-      {
-        message: "Date must be in MM/DD/YYYY format",
-      }
-    ),
+  date_of_birth: z.string().optional().refine(
+    (val) => !val || val === "" || /^\d{2}\/\d{2}\/\d{4}$/.test(val),
+    {
+      message: "Date must be in MM/DD/YYYY format",
+    }
+  ),
   education_occupation: z.string().optional(),
-  drivers_license: z.string().min(1, "Driver's license number is required"),
-  license_state: z.string().min(1, "License state is required"),
+  drivers_license: z.string().optional(),
+  license_state: z.string().optional(),
   ssn: z.string().optional(),
   referred_by: z.string().optional(),
-  effective_date: z.date({
-    required_error: "Effective date is required",
-  }).refine((date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date >= today;
-  }, "Effective date must be today or in the future"),
+  effective_date: z.date().optional(),
   sr22_required: z.boolean().default(false),
   military_status: z.boolean().default(false),
-  accident_description: z.string().optional(),
-  accident_date: z.string().optional(),
+  accidents: z.array(accidentSchema).default([]),
+  additional_drivers: z.array(additionalDriverSchema).default([]),
   pipeline_id: z.number().min(1, "Pipeline is required"),
   includeAuto: z.boolean().default(false),
   includeHome: z.boolean().default(false),
@@ -122,19 +132,34 @@ export type LeadInfoFormValues = z.infer<typeof formSchema>;
 interface LeadInfoFormProps {
   onSubmit: (data: LeadInfoFormValues) => void;
   defaultValues?: Partial<LeadInfoFormValues>;
+  onAutoSave?: (data: Partial<LeadInfoFormValues>) => void;
+  onPrevious?: () => void;
+  onDelete?: () => void;
+  showPreviousButton?: boolean;
+  showDeleteButton?: boolean;
 }
 
-export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
+export function LeadInfoForm({
+  onSubmit,
+  defaultValues,
+  onAutoSave,
+  onPrevious,
+  onDelete,
+  showPreviousButton = false,
+  showDeleteButton = false
+}: LeadInfoFormProps) {
   // State for ZIP code to State mapping
   const [zipLookupState, setZipLookupState] = useState<string | null>(null);
   // State for pipelines
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(true);
+  // State for auto-save
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Initialize form with default values
   const form = useForm<LeadInfoFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues || {
+    defaultValues: {
       client_type: "Individual",
       name: "",
       phone_number: "",
@@ -157,12 +182,15 @@ export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
       effective_date: new Date(new Date().setDate(new Date().getDate() + 7)),
       sr22_required: false,
       military_status: false,
-      accident_description: "",
-      accident_date: "",
+      accidents: [],
+      additional_drivers: [],
       pipeline_id: 0, // Will be set by the useEffect when pipelines are loaded
       includeAuto: false,
       includeHome: false,
       includeSpecialty: false,
+      ...defaultValues, // Merge any provided default values
+      accidents: defaultValues?.accidents || [], // Ensure accidents is always an array
+      additional_drivers: defaultValues?.additional_drivers || [], // Ensure additional_drivers is always an array
     },
   });
 
@@ -192,6 +220,61 @@ export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
   // Watch for ZIP code and client type changes
   const zipCode = form.watch('zip_code');
   const clientType = form.watch('client_type');
+  const accidents = form.watch('accidents') || [];
+  const additionalDrivers = form.watch('additional_drivers') || [];
+
+  // Auto-save function
+  const autoSave = useCallback(async (data: Partial<LeadInfoFormValues>) => {
+    if (onAutoSave) {
+      try {
+        await onAutoSave(data);
+        setLastSaved(new Date());
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      }
+    }
+  }, [onAutoSave]);
+
+  // Watch all form values for auto-save
+  const formValues = form.watch();
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (formValues && formValues.name && formValues.name.length > 0) {
+        autoSave(formValues);
+      }
+    }, 1000); // Auto-save 1 second after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [formValues, autoSave]);
+
+  // Accident management functions
+  const addAccident = () => {
+    const currentAccidents = form.getValues('accidents') || [];
+    form.setValue('accidents', [...currentAccidents, { date: '', description: '' }]);
+  };
+
+  const removeAccident = (index: number) => {
+    const currentAccidents = form.getValues('accidents') || [];
+    form.setValue('accidents', currentAccidents.filter((_, i) => i !== index));
+  };
+
+  // Additional driver management functions
+  const addAdditionalDriver = () => {
+    const currentDrivers = form.getValues('additional_drivers') || [];
+    form.setValue('additional_drivers', [...currentDrivers, {
+      name: '',
+      date_of_birth: '',
+      license_number: '',
+      license_state: '',
+      relationship: '',
+      sr22_required: false
+    }]);
+  };
+
+  const removeAdditionalDriver = (index: number) => {
+    const currentDrivers = form.getValues('additional_drivers') || [];
+    form.setValue('additional_drivers', currentDrivers.filter((_, i) => i !== index));
+  };
 
   // Auto-populate state based on ZIP code
   useEffect(() => {
@@ -228,6 +311,30 @@ export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
 
   return (
     <div className="space-y-6">
+      {/* Header with Previous button and auto-save indicator */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          {showPreviousButton && onPrevious && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onPrevious}
+              className="flex items-center"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+          )}
+          <h2 className="text-xl font-semibold">Lead Information</h2>
+        </div>
+        {lastSaved && (
+          <div className="text-sm text-muted-foreground">
+            Last saved: {lastSaved.toLocaleTimeString()}
+          </div>
+        )}
+      </div>
+
       <Card>
         <CardContent className="pt-6">
           <Form {...form}>
@@ -277,7 +384,7 @@ export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
                   name="phone_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>Phone Number (Optional)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="(555) 555-5555"
@@ -298,7 +405,7 @@ export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Email (Optional)</FormLabel>
                       <FormControl>
                         <Input placeholder="johndoe@example.com" {...field} />
                       </FormControl>
@@ -782,48 +889,299 @@ export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
                 />
               </div>
 
-              {/* Accident Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <FormField
-                  control={form.control}
-                  name="accident_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Recent Accident Date (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          placeholder="MM/DD/YYYY"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Date of most recent accident or violation
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Accidents/Incidents Information */}
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Accidents & Incidents</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addAccident}
+                    className="flex items-center"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Accident
+                  </Button>
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="accident_description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Accident Description (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Brief description of incident"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Brief description of accident or violation
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {accidents.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-gray-200 rounded-lg">
+                    <p>No accidents or incidents reported.</p>
+                    <p className="text-sm">Click "Add Accident" to add any accidents, violations, or incidents.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {accidents.map((accident, index) => (
+                      <div key={index} className="border rounded-lg p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Accident/Incident #{index + 1}</h4>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeAccident(index)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name={`accidents.${index}.date`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Date</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="date"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`accidents.${index}.description`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Brief description of incident"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Drivers Information */}
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Additional Drivers</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addAdditionalDriver}
+                    className="flex items-center"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Driver
+                  </Button>
+                </div>
+
+                {additionalDrivers.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-gray-200 rounded-lg">
+                    <p>No additional drivers added.</p>
+                    <p className="text-sm">Click "Add Driver" to add household members who will be driving.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {additionalDrivers.map((driver, index) => (
+                      <div key={index} className="border rounded-lg p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">Additional Driver {index + 1}</h4>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeAdditionalDriver(index)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name={`additional_drivers.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Full Name</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Driver's full name"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`additional_drivers.${index}.date_of_birth`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Date of Birth</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="date"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`additional_drivers.${index}.license_number`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>License Number</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Driver's license number"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`additional_drivers.${index}.license_state`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>License State</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select state" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="AL">Alabama</SelectItem>
+                                    <SelectItem value="AK">Alaska</SelectItem>
+                                    <SelectItem value="AZ">Arizona</SelectItem>
+                                    <SelectItem value="AR">Arkansas</SelectItem>
+                                    <SelectItem value="CA">California</SelectItem>
+                                    <SelectItem value="CO">Colorado</SelectItem>
+                                    <SelectItem value="CT">Connecticut</SelectItem>
+                                    <SelectItem value="DE">Delaware</SelectItem>
+                                    <SelectItem value="FL">Florida</SelectItem>
+                                    <SelectItem value="GA">Georgia</SelectItem>
+                                    <SelectItem value="HI">Hawaii</SelectItem>
+                                    <SelectItem value="ID">Idaho</SelectItem>
+                                    <SelectItem value="IL">Illinois</SelectItem>
+                                    <SelectItem value="IN">Indiana</SelectItem>
+                                    <SelectItem value="IA">Iowa</SelectItem>
+                                    <SelectItem value="KS">Kansas</SelectItem>
+                                    <SelectItem value="KY">Kentucky</SelectItem>
+                                    <SelectItem value="LA">Louisiana</SelectItem>
+                                    <SelectItem value="ME">Maine</SelectItem>
+                                    <SelectItem value="MD">Maryland</SelectItem>
+                                    <SelectItem value="MA">Massachusetts</SelectItem>
+                                    <SelectItem value="MI">Michigan</SelectItem>
+                                    <SelectItem value="MN">Minnesota</SelectItem>
+                                    <SelectItem value="MS">Mississippi</SelectItem>
+                                    <SelectItem value="MO">Missouri</SelectItem>
+                                    <SelectItem value="MT">Montana</SelectItem>
+                                    <SelectItem value="NE">Nebraska</SelectItem>
+                                    <SelectItem value="NV">Nevada</SelectItem>
+                                    <SelectItem value="NH">New Hampshire</SelectItem>
+                                    <SelectItem value="NJ">New Jersey</SelectItem>
+                                    <SelectItem value="NM">New Mexico</SelectItem>
+                                    <SelectItem value="NY">New York</SelectItem>
+                                    <SelectItem value="NC">North Carolina</SelectItem>
+                                    <SelectItem value="ND">North Dakota</SelectItem>
+                                    <SelectItem value="OH">Ohio</SelectItem>
+                                    <SelectItem value="OK">Oklahoma</SelectItem>
+                                    <SelectItem value="OR">Oregon</SelectItem>
+                                    <SelectItem value="PA">Pennsylvania</SelectItem>
+                                    <SelectItem value="RI">Rhode Island</SelectItem>
+                                    <SelectItem value="SC">South Carolina</SelectItem>
+                                    <SelectItem value="SD">South Dakota</SelectItem>
+                                    <SelectItem value="TN">Tennessee</SelectItem>
+                                    <SelectItem value="TX">Texas</SelectItem>
+                                    <SelectItem value="UT">Utah</SelectItem>
+                                    <SelectItem value="VT">Vermont</SelectItem>
+                                    <SelectItem value="VA">Virginia</SelectItem>
+                                    <SelectItem value="WA">Washington</SelectItem>
+                                    <SelectItem value="WV">West Virginia</SelectItem>
+                                    <SelectItem value="WI">Wisconsin</SelectItem>
+                                    <SelectItem value="WY">Wyoming</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`additional_drivers.${index}.relationship`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Relationship</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select relationship" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="spouse">Spouse</SelectItem>
+                                    <SelectItem value="child">Child</SelectItem>
+                                    <SelectItem value="parent">Parent</SelectItem>
+                                    <SelectItem value="sibling">Sibling</SelectItem>
+                                    <SelectItem value="relative">Other Relative</SelectItem>
+                                    <SelectItem value="roommate">Roommate</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`additional_drivers.${index}.sr22_required`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                  <FormLabel>
+                                    SR22 Required
+                                  </FormLabel>
+                                  <FormDescription>
+                                    Required insurance filing for high-risk drivers
+                                  </FormDescription>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Pipeline Selector */}
@@ -928,8 +1286,44 @@ export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <Button type="submit">Continue</Button>
+              <div className="flex justify-between items-center">
+                {showPreviousButton && onPrevious ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onPrevious}
+                    className="flex items-center"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Previous
+                  </Button>
+                ) : (
+                  <div></div>
+                )}
+
+                {showDeleteButton && onDelete ? (
+                  <button
+                    type="button"
+                    className="p-2 hover:bg-red-50 rounded-md transition-colors"
+                    onClick={() => {
+                      const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
+                      if (userInput && userInput.toLowerCase() === 'delete') {
+                        onDelete();
+                      } else if (userInput !== null) {
+                        alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                      }
+                    }}
+                    title="Delete Lead"
+                  >
+                    <Trash2 className="h-8 w-8 text-red-600 font-bold stroke-2" />
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+
+                <Button type="submit" className="flex items-center">
+                  Continue
+                </Button>
               </div>
             </form>
           </Form>

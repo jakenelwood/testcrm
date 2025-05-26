@@ -6,6 +6,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 import {
   Form,
   FormControl,
@@ -16,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -44,7 +45,7 @@ const formSchema = z.object({
   hnofm: z.string().min(1, "Number of household members is required"),
   "hyr-built": z.string().min(4, "Please enter a valid year"),
   hsqft: z.string().min(1, "Square footage is required"),
-  
+
   // Property Features
   hstorystyle: z.string({
     required_error: "Please select story style",
@@ -57,14 +58,14 @@ const formSchema = z.object({
   hfullbath: z.string().min(1, "Number of full bathrooms is required"),
   hhalfbath: z.string().min(1, "Number of half bathrooms is required"),
   hthreeqtrbath: z.string().min(1, "Number of 3/4 bathrooms is required"),
-  
+
   // Construction Details
   hsidingtype: z.string({
     required_error: "Please select siding type",
   }),
   hfireplc: z.string().optional(),
   hwoodstove: z.boolean().optional(),
-  
+
   // Outdoor Features
   hpool: z.string().optional(),
   pldpth: z.string().optional(),
@@ -72,17 +73,17 @@ const formSchema = z.object({
   htramp: z.boolean().optional(),
   hfence: z.string().optional(),
   "hfence-height": z.string().optional(),
-  
+
   // Safety & Systems
   "hmi-from-fd": z.string().min(1, "Distance from fire department is required"),
   hrfd: z.string().min(1, "Responding fire department is required"),
   hhydrantdist: z.string().min(1, "Hydrant distance is required"),
   hsprinkled: z.boolean().optional(),
-  
+
   // Valuation
   hreconcost: z.string().min(1, "Reconstruction cost is required"),
   hperspropval: z.string().min(1, "Personal property value is required"),
-  
+
   // Additional Information
   hpets: z.string().optional(),
   "h-bitingpets": z.boolean().optional(),
@@ -96,9 +97,13 @@ export type HomeInsuranceFormValues = z.infer<typeof formSchema>;
 
 interface HomeInsuranceFormProps {
   onSubmitForm?: (values: HomeInsuranceFormValues) => void;
+  onPrevious?: () => void;
+  showPreviousButton?: boolean;
+  onDelete?: () => void;
+  showDeleteButton?: boolean;
 }
 
-export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
+export function HomeInsuranceForm({ onSubmitForm, onPrevious, showPreviousButton = false, onDelete, showDeleteButton = false }: HomeInsuranceFormProps) {
   // Initialize the form with default values
   const form = useForm<HomeInsuranceFormValues>({
     resolver: zodResolver(formSchema),
@@ -145,7 +150,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
   function onSubmit(values: HomeInsuranceFormValues) {
     // This would typically send data to an API
     console.log(values);
-    
+
     // If a callback was provided, call it with the values
     if (onSubmitForm) {
       onSubmitForm(values);
@@ -171,8 +176,8 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Coverage Type</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -191,7 +196,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="h-current-insurance-carrier"
@@ -205,7 +210,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hmos-with-current-carrier"
@@ -219,7 +224,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="h-expiration-date"
@@ -235,7 +240,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                   />
                 </div>
               </div>
-              
+
               {/* Property Information Section */}
               <div>
                 <h2 className="text-xl font-semibold mb-4">Property Information</h2>
@@ -246,8 +251,8 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Home Usage</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -266,15 +271,15 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hfrmtyp"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Form Type</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -293,7 +298,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hnofm"
@@ -307,7 +312,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hyr-built"
@@ -321,7 +326,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hsqft"
@@ -335,15 +340,15 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hstorystyle"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Stories/Style</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -363,15 +368,15 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hgarage"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Garage Type</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -395,7 +400,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                   />
                 </div>
               </div>
-              
+
               {/* Valuation Section */}
               <div>
                 <h2 className="text-xl font-semibold mb-4">Valuation</h2>
@@ -416,7 +421,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hperspropval"
@@ -433,15 +438,15 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hdeductible"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Deductible</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -462,7 +467,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                   />
                 </div>
               </div>
-              
+
               {/* Safety & Additional Details */}
               <div>
                 <h2 className="text-xl font-semibold mb-4">Safety & Additional Information</h2>
@@ -480,7 +485,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hrfd"
@@ -494,7 +499,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hhydrantdist"
@@ -508,7 +513,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hsprinkled"
@@ -529,7 +534,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="hpets"
@@ -543,7 +548,7 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="h-bitingpets"
@@ -566,12 +571,50 @@ export function HomeInsuranceForm({ onSubmitForm }: HomeInsuranceFormProps) {
                   />
                 </div>
               </div>
-              
-              <Button type="submit" className="w-full">Submit Home Insurance Quote Request</Button>
+
+              <div className="flex justify-between items-center">
+                {showPreviousButton && onPrevious ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onPrevious}
+                    className="flex items-center"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Previous
+                  </Button>
+                ) : (
+                  <div></div>
+                )}
+
+                {showDeleteButton && onDelete ? (
+                  <button
+                    type="button"
+                    className="p-2 hover:bg-red-50 rounded-md transition-colors"
+                    onClick={() => {
+                      const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
+                      if (userInput && userInput.toLowerCase() === 'delete') {
+                        onDelete();
+                      } else if (userInput !== null) {
+                        alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                      }
+                    }}
+                    title="Delete Lead"
+                  >
+                    <Trash2 className="h-8 w-8 text-red-600 font-bold stroke-2" />
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+
+                <Button type="submit" className="flex items-center">
+                  Continue
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>
       </Card>
     </div>
   );
-} 
+}

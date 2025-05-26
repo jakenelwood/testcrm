@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Form Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .test-section {
+            background-color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>🚗 Dynamic Auto Insurance Form Test</h1>
+    
+    <div class="test-section">
+        <h2>✅ Implementation Status</h2>
+        <div class="test-result success">
+            <strong>✓ Dynamic Auto Insurance Form Created</strong><br>
+            The new auto-insurance-form.tsx has been successfully implemented with:
+            <ul>
+                <li>Dynamic vehicle array (add/remove vehicles)</li>
+                <li>Comprehensive vehicle details (year, make, model, VIN, usage, mileage)</li>
+                <li>Coverage options (comprehensive, collision, glass, towing, rental, GAP)</li>
+                <li>Form validation with Zod schema</li>
+                <li>React Hook Form integration</li>
+                <li>Responsive design with Tailwind CSS</li>
+            </ul>
+        </div>
+        
+        <div class="test-result success">
+            <strong>✓ Form Transformer Updated</strong><br>
+            The form transformer has been updated to handle the new dynamic vehicle structure:
+            <ul>
+                <li>Converts dynamic vehicle arrays to API format</li>
+                <li>Supports both old and new field names for backward compatibility</li>
+                <li>Handles driver information properly</li>
+                <li>Added support for new fields like garaging address and daily mileage</li>
+            </ul>
+        </div>
+        
+        <div class="test-result success">
+            <strong>✓ File Organization Cleanup</strong><br>
+            Successfully cleaned up the form structure:
+            <ul>
+                <li>Renamed client-info-form.tsx → lead-info-form.tsx</li>
+                <li>Removed redundant vehicle-form.tsx</li>
+                <li>Updated all import references</li>
+                <li>Maintained both specialty forms for different use cases</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Manual Testing Instructions</h2>
+        <div class="test-result info">
+            <strong>To test the new dynamic auto form:</strong>
+            <ol>
+                <li>Navigate to <a href="http://localhost:3000/leads" target="_blank">http://localhost:3000/leads</a></li>
+                <li>Click "New Lead" button</li>
+                <li>Fill out the Lead Info form and select "Auto Insurance"</li>
+                <li>Proceed to the Auto Insurance tab</li>
+                <li>Test the following features:
+                    <ul>
+                        <li>Fill out insurance carrier information</li>
+                        <li>Add multiple vehicles using "Add Another Vehicle" button</li>
+                        <li>Remove vehicles using the trash icon</li>
+                        <li>Test form validation by leaving required fields empty</li>
+                        <li>Test VIN validation (must be 17 characters)</li>
+                        <li>Test date picker for effective date</li>
+                        <li>Test coverage options checkboxes</li>
+                        <li>Submit the form and check console for data structure</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Key Features Implemented</h2>
+        <div class="test-result info">
+            <strong>Dynamic Vehicle Management:</strong>
+            <ul>
+                <li>Start with 1 vehicle by default</li>
+                <li>Add unlimited vehicles with "Add Another Vehicle" button</li>
+                <li>Remove vehicles (except the last one) with trash icon</li>
+                <li>Each vehicle has comprehensive details and coverage options</li>
+            </ul>
+        </div>
+        
+        <div class="test-result info">
+            <strong>Enhanced Vehicle Fields:</strong>
+            <ul>
+                <li>Year, Make, Model, VIN (with validation)</li>
+                <li>Primary use (commute, pleasure, business, farm/ranch)</li>
+                <li>Annual mileage and daily mileage</li>
+                <li>Comprehensive and collision deductibles</li>
+                <li>Coverage options: Glass, Towing, Rental, Financed, GAP</li>
+            </ul>
+        </div>
+        
+        <div class="test-result info">
+            <strong>Form Validation:</strong>
+            <ul>
+                <li>Required field validation</li>
+                <li>VIN format validation (17 characters, no I/O/Q)</li>
+                <li>Year validation (1900 to current year + 1)</li>
+                <li>Mileage validation (reasonable ranges)</li>
+                <li>Date validation (effective date must be today or future)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Next Steps</h2>
+        <div class="test-result info">
+            <strong>Recommended next actions:</strong>
+            <ol>
+                <li><strong>Test the form thoroughly</strong> - Try all features and edge cases</li>
+                <li><strong>Test form submission</strong> - Verify data reaches the API correctly</li>
+                <li><strong>Test with existing leads</strong> - Ensure backward compatibility</li>
+                <li><strong>Move to Home Form expansion</strong> - Apply similar dynamic patterns</li>
+                <li><strong>Update database schema</strong> - Ensure vehicle storage supports new fields</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🚀 Quick Test Links</h2>
+        <button onclick="window.open('http://localhost:3000/leads', '_blank')">
+            🔗 Open Quote Form
+        </button>
+        <button onclick="window.open('http://localhost:3000/dashboard', '_blank')">
+            📊 Open Dashboard
+        </button>
+        <button onclick="window.open('http://localhost:3000/dashboard/leads', '_blank')">
+            📋 View Existing Leads
+        </button>
+    </div>
+
+    <script>
+        // Add some basic interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚗 Auto Insurance Form Test Page Loaded');
+            console.log('✅ Dynamic auto form implementation complete!');
+            console.log('🧪 Ready for testing...');
+        });
+    </script>
+</body>
+</html>

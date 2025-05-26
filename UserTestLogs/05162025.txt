@@ -1,692 +1,1001 @@
-May 21 14:21:17.25
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/
-May 21 14:20:52.05
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][c37f6012] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:20:51.85
-POST
-500
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call
-16
-Call error: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral)) at c._ensureTokenIsValid (.next/server/chunks/913.js:1:5124) at async c.post (.next/server/chunks/913.js:1:7188) at async g (.next/server/app/api/ringcentral/call/route.js:1:1323)
-May 21 14:20:46.44
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:20:44.93
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/leads
-May 21 14:20:44.56
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings
-May 21 14:20:44.51
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/pipelines
-May 21 14:20:44.51
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/clients
-May 21 14:20:44.51
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard
-May 21 14:20:44.35
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:20:44.10
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:20:42.68
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth/exchange-code
-30
+ALL COOKIES RECEIVED BY /exchange-code (Name: Value):
+  ajs_anonymous_id: 0d631a5c-0901-4f52-84f8-c8302dcc8d0b
+  ringcentral_token_type: bearer
+  ringcentral_scope: ReadAccounts RingOut SMS
+  __next_hmr_refresh_hash__: db057684a4bb05339576c65daaa3e35f46fa27693254fc75
+  sb-vpwvdfrxvvuxojejnegm-auth-token: base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWt...
+  ringcentral_access_token: SUFEMDFQMDFQQVMwMHxBQURTUUZ2SnhHRVczS21kRjBDOFBCdmJtV01xcXBwd0RzZ012M2...
+  ringcentral_refresh_token: SUFEMDFQMDFQQVMwMHxBQUFsN0tXRzY2ZDdkeEYyZnhnejJEbDdVZ21SYzc5M2ZSdzM4WV...
+  ringcentral_access_token_expiry_time: 1747875748775
+  ringcentral_refresh_token_expiry_time: 1748476948853
+  rc_oauth_state: s8z812m0948
+  rc_code_verifier: l-QP8QvHJxSc5YC_PXutdoRqySNwLfhoLiTEEvTjdWg
+Query params: {
+  code: 'SUFEMDFQMDFQQVMwMHxBQUJIYUNDSENDcS1jTEVOVFU1TnhmaVJNWTdwY3VXUENjVDNJdnk0OGNVa0VvUkt5TnVtZV82RmpzRGp0bDhPSDlTN3VMajVkOW1GUWxoeGlyQzBxcXhpMXJEa1hQTVR5TllSRGQ5VkJWcTU3Nm5aWjJDbjl2WmRMRGZRS2hNOHMyS0wxUmRwbFJLeXhPNGFKY3BoMFR1R0RVTFZmZEVKSFp1QWtYVGFscXVkd0taSFJzRHExRlluZjEycFg3Z1l8QnZEWHJRfE03c1E3VmhzU2hMVm9DVmFfSU1ZMWd8QVF8QUF8QUFBQUFCYkstdW8',
+  state: 's8z812m0948'
+}
+Step 1: Exchanging authorization code for tokens with PKCE
+Code verifier available (length): 43
+REDIRECT_URI from config: http://localhost:3000/oauth-callback
+REDIRECT_URI from env directly: http://localhost:3000/oauth-callback
+NODE_ENV: development
+VERCEL_URL: Not set
+redirect_uri in token request: http://localhost:3000/oauth-callback
+Token exchange successful
+Token data received: {
+  hasAccessToken: true,
+  hasRefreshToken: true,
+  expiresIn: 3600,
+  tokenType: 'bearer',
+  scope: 'ReadAccounts RingOut SMS'
+}
+Step 2: Storing tokens in cookies
+Step 3: Storing tokens in Supabase
+User found, storing tokens in database for user_id: 0066229f-b528-4390-b546-cf5211302a98
+Token data to store: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  refreshTokenLength: 379,
+  tokenType: 'bearer',
+  expiresIn: 3600,
+  expiresAt: '2025-05-22T01:26:35.175Z',
+  scope: 'ReadAccounts RingOut SMS'
+}
+Attempting direct upsert to ringcentral_tokens table
+✅ Token record upserted successfully.
+✅ Verified token record (from upsert response): {
+  id: 'e768266c-c4cf-41fb-b480-8524731cf8a5',
+  user_id: '0066229f-b528-4390-b546-cf5211302a98',
+  hasAccessToken: true,
+  expires_at: '2025-05-22T01:26:35.175+00:00',
+  refresh_token_expires_at: '2025-05-29T00:26:35.28+00:00'
+}
 ========== RINGCENTRAL EXCHANGE CODE API - END (SUCCESS) ==========
-May 21 14:20:42.33
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/oauth-callback
-May 21 14:20:37.62
-GET
-307
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-13
-========== RINGCENTRAL AUTH API - END (REDIRECT) ==========
-May 21 14:20:15.92
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][0a767f65] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:20:15.37
-POST
-500
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call
-15
-Call error: Error: Not authenticated with RingCentral (exception during refresh: Not authenticated with RingCentral (rate limited by RingCentral)) at c._ensureTokenIsValid (.next/server/chunks/913.js:1:5124) at async c.post (.next/server/chunks/913.js:1:7188) at async g (.next/server/app/api/ringcentral/call/route.js:1:1323)
-May 21 14:20:08.57
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:20:07.48
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/leads
-May 21 14:20:07.12
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings
-May 21 14:20:07.10
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/clients
-May 21 14:20:07.10
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/pipelines
-May 21 14:20:07.10
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard
-May 21 14:20:06.96
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:20:06.62
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:20:04.41
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth/exchange-code
-30
-========== RINGCENTRAL EXCHANGE CODE API - END (SUCCESS) ==========
-May 21 14:20:03.77
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/oauth-callback
-May 21 14:20:00.52
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/pricing
-May 21 14:20:00.52
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/auth/login
-May 21 14:20:00.11
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/auth/login
-May 21 14:20:00.10
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/pricing
-May 21 14:19:59.98
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/favicon.ico
-May 21 14:19:59.08
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/
-May 21 14:19:59.08
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/
-May 21 14:19:58.82
-GET
-307
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-13
-========== RINGCENTRAL AUTH API - END (REDIRECT) ==========
-May 21 14:19:58.62
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/
-May 21 14:19:58.53
-GET
-200
-crm-1h2rsobsk-jakenelwoods-projects.vercel.app
-/
-May 21 14:19:52.57
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-8
-[AUTH_CHECK_AUTH][45095f18] PRE_RETURN (Not Authenticated - Fallthrough). JSON String: {"isAuthenticated":false,"source":"none","checkAuthId":"45095f18","timestamp":"2025-05-21T19:19:52.921Z"}
-May 21 14:19:51.28
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/auth-test
-[settings] / status=200
-May 21 14:19:51.15
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/supabase-test
-[settings] / status=200
-May 21 14:19:51.14
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-diagnostics
-[settings] / status=200
-May 21 14:19:51.14
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-sms
-[settings] / status=200
-May 21 14:19:51.14
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringout-demo
-[settings] / status=200
-May 21 14:19:51.13
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:19:49.84
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/telephony/telnyx
-[settings] /telnyx?_rsc=1bdos status=200
-May 21 14:19:49.81
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/telephony/twilio
-[settings] /twilio?_rsc=1bdos status=200
-May 21 14:19:49.78
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/telephony/ringcentral
-[settings] /ringcentral?_rsc=1bdos status=200
-May 21 14:19:48.29
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/leads
-May 21 14:19:48.20
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/quotes/3
-May 21 14:19:48.12
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/quotes/2
-May 21 14:19:48.11
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/quotes/1
-May 21 14:19:47.99
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/new
-May 21 14:19:47.99
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings
-May 21 14:19:47.99
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/pipelines
-May 21 14:19:47.96
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/clients
-May 21 14:19:47.96
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard
-May 21 14:19:47.63
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard
-May 21 14:19:47.39
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard
-May 21 14:19:37.92
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/auth/signup
-May 21 14:19:37.91
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/auth/forgot-password
-May 21 14:19:35.97
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/auth/login
-May 21 14:19:35.97
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/pricing
-May 21 14:19:35.56
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/
-May 21 14:19:25.03
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][a22ae719] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:19:05.61
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/dashboard/settings/development/ringcentral-test-call
-[settings] / status=200
-May 21 14:18:54.44
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][09d79beb] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:18:53.83
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-34
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:18:13.81
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:55.08
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][0d08af1a] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:17:47.81
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:42.82
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:37.82
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:32.83
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:24.55
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][2ac8e4c2] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:17:24.00
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-34
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:22.87
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:17.82
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:12.84
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:07.81
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:17:02.81
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:57.81
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:54.73
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][20047542] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:16:52.81
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:47.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:42.46
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:37.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:32.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:24.12
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][5395e01e] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:16:23.48
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-34
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:22.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:17.46
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:12.45
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:07.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:16:02.45
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:57.45
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:54.08
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][bb67ba42] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:15:52.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:48.01
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][5eec4cb2] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:15:47.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:42.46
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:37.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:32.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:23.61
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][cd65b3ff] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:15:22.75
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-34
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:22.44
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:17.66
-GET
-429
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][f9f99c3d] Refresh failed. Status: 429, Body: { errorCode: 'CMN-301', message: 'Request rate exceeded', errors: [ { errorCode: 'CMN-301', message: 'Request rate exceeded' } ] }
-May 21 14:15:17.45
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-34
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:12.45
-GET
-504
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-31
-Vercel Runtime Timeout Error: Task timed out after 60 seconds
-May 21 14:15:10.14
-GET
-400
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][c1269ba7] Refresh failed. Status: 400, Body: { error: 'invalid_grant', error_description: 'Token is revoked', errors: [ { errorCode: 'OAU-211', message: 'Token is revoked' } ] }
-May 21 14:15:07.64
-GET
-400
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][db59402d] Refresh failed. Status: 400, Body: { error: 'invalid_grant', error_description: 'Token is revoked', errors: [ { errorCode: 'OAU-211', message: 'Token is revoked' } ] }
-May 21 14:15:07.44
-GET
-401
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-16
-Failed to refresh token, status: 400
-May 21 14:15:02.63
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/auth
-7
-[AUTH_TOKEN_REFRESH][11e3eb6b] DB tokens updated for user: 0066229f-b528-4390-b546-cf5211302a98
-May 21 14:15:02.46
-GET
-200
-crm-jakenelwoods-projects.vercel.app
-/api/ringcentral/call-status
-14
-========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/auth/exchange-code?code=SUFEMDFQMDFQQVMwMHxBQUJIYUNDSENDcS1jTEVOVFU1TnhmaVJNWTdwY3VXUENjVDNJdnk0OGNVa0VvUkt5TnVtZV82RmpzRGp0bDhPSDlTN3VMajVkOW1GUWxoeGlyQzBxcXhpMXJEa1hQTVR5TllSRGQ5VkJWcTU3Nm5aWjJDbjl2WmRMRGZRS2hNOHMyS0wxUmRwbFJLeXhPNGFKY3BoMFR1R0RVTFZmZEVKSFp1QWtYVGFscXVkd0taSFJzRHExRlluZjEycFg3Z1l8QnZEWHJRfE03c1E3VmhzU2hMVm9DVmFfSU1ZMWd8QVF8QUF8QUFBQUFCYkstdW8&state=s8z812m0948 200 in 1373ms
+ ○ Compiling /dashboard/settings/development/ringcentral-test-call ...
+ ✓ Compiled /dashboard/settings/development/ringcentral-test-call in 1718ms (2459 modules)
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 1881ms
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 33ms
+ GET /dashboard/settings/development/ringcentral-diagnostics 200 in 47ms
+ GET /dashboard/settings/development/telephony/ringcentral 200 in 24ms
+ GET /dashboard/settings/development/telephony/ringcentral 200 in 15ms
+ GET /dashboard/settings/development/ringcentral-diagnostics 200 in 16ms
+========== RINGCENTRAL ACCOUNT INFO API - START ==========
+Timestamp: 2025-05-22T00:26:48.341Z
+Making API call to RingCentral for account info
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:48.342Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Account info data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004',
+  id: 63361756004,
+  serviceInfo: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/service-info',
+    brand: { id: '1210', name: 'RingCentral', homeCountry: [Object] },
+    servicePlan: { id: '4999', name: 'RingEX Advanced™', edition: 'Advanced' },
+    billingPlan: {
+      id: '999',
+      name: 'Active [NBS]',
+      durationUnit: 'Month',
+      duration: 0,
+      type: 'Regular',
+      includedPhoneLines: 0
+    },
+    contractedCountry: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+      id: '1',
+      name: 'United States',
+      isoCode: 'US'
+    }
+  },
+  operator: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004',
+    id: 63361756004,
+    extensionNumber: '101'
+  },
+  mainNumber: '+16124644045',
+  status: 'Confirmed',
+  signupInfo: {
+    tosAccepted: true,
+    marketingAccepted: false,
+    creationTime: '2023-04-03T15:33:07Z'
+  },
+  setupWizardState: 'Completed',
+  regionalSettings: {
+    timezone: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/timezone/101',
+      id: '101',
+      name: 'America/Los_Angeles',
+      description: 'Pacific Time (America/Los_Angeles)',
+      bias: '-480'
+    },
+    homeCountry: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+      id: '1',
+      name: 'United States'
+    },
+    language: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    greetingLanguage: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    formattingLocale: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    timeFormat: '12h',
+    currency: {
+      id: 1,
+      code: 'USD',
+      name: 'United States Dollars',
+      symbol: '$',
+      minorSymbol: '¢'
+    }
+  },
+  federated: false,
+  bsid: '2850476002|2849445002',
+  limits: {
+    freeSoftPhoneLinesPerExtension: 1,
+    meetingSize: 100,
+    maxMonitoredExtensionsPerUser: 100,
+    maxExtensionNumberLength: 5,
+    cloudRecordingStorage: 0
+  }
+}
+========== RINGCENTRAL ACCOUNT INFO API - END ==========
+ GET /api/ringcentral/account-info 200 in 207ms
+========== RINGCENTRAL ACCOUNT INFO API - START ==========
+Timestamp: 2025-05-22T00:26:48.628Z
+Making API call to RingCentral for account info
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:48.629Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+========== RINGCENTRAL EXTENSION INFO API - START ==========
+Timestamp: 2025-05-22T00:26:48.703Z
+Making API call to RingCentral for extension info
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:48.703Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Account info data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004',
+  id: 63361756004,
+  serviceInfo: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/service-info',
+    brand: { id: '1210', name: 'RingCentral', homeCountry: [Object] },
+    servicePlan: { id: '4999', name: 'RingEX Advanced™', edition: 'Advanced' },
+    billingPlan: {
+      id: '999',
+      name: 'Active [NBS]',
+      durationUnit: 'Month',
+      duration: 0,
+      type: 'Regular',
+      includedPhoneLines: 0
+    },
+    contractedCountry: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+      id: '1',
+      name: 'United States',
+      isoCode: 'US'
+    }
+  },
+  operator: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004',
+    id: 63361756004,
+    extensionNumber: '101'
+  },
+  mainNumber: '+16124644045',
+  status: 'Confirmed',
+  signupInfo: {
+    tosAccepted: true,
+    marketingAccepted: false,
+    creationTime: '2023-04-03T15:33:07Z'
+  },
+  setupWizardState: 'Completed',
+  regionalSettings: {
+    timezone: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/timezone/101',
+      id: '101',
+      name: 'America/Los_Angeles',
+      description: 'Pacific Time (America/Los_Angeles)',
+      bias: '-480'
+    },
+    homeCountry: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+      id: '1',
+      name: 'United States'
+    },
+    language: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    greetingLanguage: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    formattingLocale: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    timeFormat: '12h',
+    currency: {
+      id: 1,
+      code: 'USD',
+      name: 'United States Dollars',
+      symbol: '$',
+      minorSymbol: '¢'
+    }
+  },
+  federated: false,
+  bsid: '2850476002|2849445002',
+  limits: {
+    freeSoftPhoneLinesPerExtension: 1,
+    meetingSize: 100,
+    maxMonitoredExtensionsPerUser: 100,
+    maxExtensionNumberLength: 5,
+    cloudRecordingStorage: 0
+  }
+}
+========== RINGCENTRAL ACCOUNT INFO API - END ==========
+ GET /api/ringcentral/account-info 200 in 95ms
+Extension info data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004',
+  id: 63361756004,
+  extensionNumber: '101',
+  contact: {
+    firstName: 'Brian',
+    lastName: 'Berge',
+    company: 'Twin Cities Coverage',
+    email: 'brian@twincitiescoverage.com',
+    businessPhone: '+16127996380',
+    businessAddress: {
+      street: '1935 Wayzata Boulevard, |185',
+      city: 'Long Lake',
+      state: 'Minnesota',
+      zip: '55356',
+      country: 'United States'
+    },
+    emailAsLoginName: true,
+    pronouncedName: { type: 'Recorded', text: 'Brian Berge', prompt: [Object] }
+  },
+  name: 'Brian Berge',
+  type: 'User',
+  status: 'Enabled',
+  serviceFeatures: [
+    { featureName: 'SMS', enabled: true },
+    { featureName: 'SMSReceiving', enabled: true },
+    { featureName: 'Pager', enabled: true },
+    { featureName: 'PagerReceiving', enabled: true },
+    { featureName: 'Voicemail', enabled: true },
+    { featureName: 'Fax', enabled: true },
+    { featureName: 'FaxReceiving', enabled: true },
+    { featureName: 'DND', enabled: true },
+    { featureName: 'RingOut', enabled: true },
+    {
+      featureName: 'InternationalCalling',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'Presence', enabled: true },
+    { featureName: 'VideoConferencing', enabled: true },
+    { featureName: 'SalesForce', enabled: true },
+    { featureName: 'Intercom', enabled: true },
+    { featureName: 'Paging', enabled: true },
+    { featureName: 'Conferencing', enabled: true },
+    { featureName: 'VoipCalling', enabled: true },
+    { featureName: 'FreeSoftPhoneLines', enabled: true },
+    {
+      featureName: 'HipaaCompliance',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'CallPark', enabled: true },
+    { featureName: 'SharedLines', enabled: true },
+    {
+      featureName: 'OnDemandCallRecording',
+      enabled: false,
+      reason: 'ExtensionLimitation'
+    },
+    { featureName: 'Reports', enabled: true },
+    { featureName: 'CallForwarding', enabled: true },
+    { featureName: 'DeveloperPortal', enabled: true },
+    {
+      featureName: 'EncryptionAtRest',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'BlockedMessageForwarding',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'EmergencyCalling',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'HDVoice', enabled: true },
+    {
+      featureName: 'SingleExtensionUI',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'CallSupervision', enabled: true },
+    { featureName: 'VoicemailToText', enabled: true },
+    { featureName: 'WebPhone', enabled: true },
+    { featureName: 'RCTeams', enabled: true },
+    { featureName: 'UserManagement', enabled: true },
+    { featureName: 'Calendar', enabled: true },
+    {
+      featureName: 'CallerIdControl',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'AutomaticInboundCallRecording', enabled: true },
+    { featureName: 'AutomaticOutboundCallRecording', enabled: true },
+    {
+      featureName: 'AutomaticCallRecordingMute',
+      enabled: false,
+      reason: 'ExtensionLimitation'
+    },
+    { featureName: 'SoftPhoneUpdate', enabled: true },
+    {
+      featureName: 'LinkedSoftphoneLines',
+      enabled: false,
+      reason: 'AccountTypeLimitation'
+    },
+    {
+      featureName: 'CallQualitySurvey',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'AccountFederation',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'MMS', enabled: true },
+    { featureName: 'CallParkLocations', enabled: true },
+    {
+      featureName: 'ExternalDirectoryIntegration',
+      enabled: false,
+      reason: 'AccountTypeLimitation'
+    },
+    { featureName: 'CallSwitch', enabled: true },
+    { featureName: 'PromoMessage', enabled: true },
+    {
+      featureName: 'SiteCodes',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'InternationalSMS',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'ConferencingNumber', enabled: true },
+    { featureName: 'VoipCallingOnMobile', enabled: true },
+    {
+      featureName: 'DynamicConference',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'ConfigureDelegates', enabled: true },
+    { featureName: 'Archiver', enabled: true },
+    { featureName: 'EmergencyAddressAutoUpdate', enabled: true },
+    {
+      featureName: 'MobileVoipEmergencyCalling',
+      enabled: false,
+      reason: 'AccountLimitation'
+    }
+  ],
+  regionalSettings: {
+    timezone: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/timezone/53',
+      id: '53',
+      name: 'US/Central',
+      description: 'Central Time (US & Canada)',
+      bias: '-360'
+    },
+    homeCountry: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+      id: '1',
+      name: 'United States',
+      isoCode: 'US',
+      callingCode: '1'
+    },
+    language: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    greetingLanguage: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    formattingLocale: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    timeFormat: '12h'
+  },
+  setupWizardState: 'Completed',
+  permissions: { admin: { enabled: true }, internationalCalling: { enabled: true } },
+  profileImage: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/profile-image'
+  },
+  account: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004',
+    id: '63361756004'
+  },
+  hidden: false,
+  assignedCountry: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+    id: '1',
+    name: 'United States',
+    isoCode: 'US'
+  },
+  creationTime: '2023-04-03T15:32:58Z'
+}
+========== RINGCENTRAL EXTENSION INFO API - END ==========
+ GET /api/ringcentral/extension-info 200 in 184ms
+========== RINGCENTRAL EXTENSION INFO API - START ==========
+Timestamp: 2025-05-22T00:26:48.967Z
+Making API call to RingCentral for extension info
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:48.968Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+========== RINGCENTRAL PHONE NUMBERS API - START ==========
+Timestamp: 2025-05-22T00:26:49.004Z
+Making API call to RingCentral for phone numbers
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:49.004Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Extension info data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004',
+  id: 63361756004,
+  extensionNumber: '101',
+  contact: {
+    firstName: 'Brian',
+    lastName: 'Berge',
+    company: 'Twin Cities Coverage',
+    email: 'brian@twincitiescoverage.com',
+    businessPhone: '+16127996380',
+    businessAddress: {
+      street: '1935 Wayzata Boulevard, |185',
+      city: 'Long Lake',
+      state: 'Minnesota',
+      zip: '55356',
+      country: 'United States'
+    },
+    emailAsLoginName: true,
+    pronouncedName: { type: 'Recorded', text: 'Brian Berge', prompt: [Object] }
+  },
+  name: 'Brian Berge',
+  type: 'User',
+  status: 'Enabled',
+  serviceFeatures: [
+    { featureName: 'SMS', enabled: true },
+    { featureName: 'SMSReceiving', enabled: true },
+    { featureName: 'Pager', enabled: true },
+    { featureName: 'PagerReceiving', enabled: true },
+    { featureName: 'Voicemail', enabled: true },
+    { featureName: 'Fax', enabled: true },
+    { featureName: 'FaxReceiving', enabled: true },
+    { featureName: 'DND', enabled: true },
+    { featureName: 'RingOut', enabled: true },
+    {
+      featureName: 'InternationalCalling',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'Presence', enabled: true },
+    { featureName: 'VideoConferencing', enabled: true },
+    { featureName: 'SalesForce', enabled: true },
+    { featureName: 'Intercom', enabled: true },
+    { featureName: 'Paging', enabled: true },
+    { featureName: 'Conferencing', enabled: true },
+    { featureName: 'VoipCalling', enabled: true },
+    { featureName: 'FreeSoftPhoneLines', enabled: true },
+    {
+      featureName: 'HipaaCompliance',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'CallPark', enabled: true },
+    { featureName: 'SharedLines', enabled: true },
+    {
+      featureName: 'OnDemandCallRecording',
+      enabled: false,
+      reason: 'ExtensionLimitation'
+    },
+    { featureName: 'Reports', enabled: true },
+    { featureName: 'CallForwarding', enabled: true },
+    { featureName: 'DeveloperPortal', enabled: true },
+    {
+      featureName: 'EncryptionAtRest',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'BlockedMessageForwarding',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'EmergencyCalling',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'HDVoice', enabled: true },
+    {
+      featureName: 'SingleExtensionUI',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'CallSupervision', enabled: true },
+    { featureName: 'VoicemailToText', enabled: true },
+    { featureName: 'WebPhone', enabled: true },
+    { featureName: 'RCTeams', enabled: true },
+    { featureName: 'UserManagement', enabled: true },
+    { featureName: 'Calendar', enabled: true },
+    {
+      featureName: 'CallerIdControl',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'AutomaticInboundCallRecording', enabled: true },
+    { featureName: 'AutomaticOutboundCallRecording', enabled: true },
+    {
+      featureName: 'AutomaticCallRecordingMute',
+      enabled: false,
+      reason: 'ExtensionLimitation'
+    },
+    { featureName: 'SoftPhoneUpdate', enabled: true },
+    {
+      featureName: 'LinkedSoftphoneLines',
+      enabled: false,
+      reason: 'AccountTypeLimitation'
+    },
+    {
+      featureName: 'CallQualitySurvey',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'AccountFederation',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'MMS', enabled: true },
+    { featureName: 'CallParkLocations', enabled: true },
+    {
+      featureName: 'ExternalDirectoryIntegration',
+      enabled: false,
+      reason: 'AccountTypeLimitation'
+    },
+    { featureName: 'CallSwitch', enabled: true },
+    { featureName: 'PromoMessage', enabled: true },
+    {
+      featureName: 'SiteCodes',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    {
+      featureName: 'InternationalSMS',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'ConferencingNumber', enabled: true },
+    { featureName: 'VoipCallingOnMobile', enabled: true },
+    {
+      featureName: 'DynamicConference',
+      enabled: false,
+      reason: 'AccountLimitation'
+    },
+    { featureName: 'ConfigureDelegates', enabled: true },
+    { featureName: 'Archiver', enabled: true },
+    { featureName: 'EmergencyAddressAutoUpdate', enabled: true },
+    {
+      featureName: 'MobileVoipEmergencyCalling',
+      enabled: false,
+      reason: 'AccountLimitation'
+    }
+  ],
+  regionalSettings: {
+    timezone: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/timezone/53',
+      id: '53',
+      name: 'US/Central',
+      description: 'Central Time (US & Canada)',
+      bias: '-360'
+    },
+    homeCountry: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+      id: '1',
+      name: 'United States',
+      isoCode: 'US',
+      callingCode: '1'
+    },
+    language: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    greetingLanguage: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    formattingLocale: {
+      id: '1033',
+      name: 'English (United States)',
+      localeCode: 'en-US'
+    },
+    timeFormat: '12h'
+  },
+  setupWizardState: 'Completed',
+  permissions: { admin: { enabled: true }, internationalCalling: { enabled: true } },
+  profileImage: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/profile-image'
+  },
+  account: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004',
+    id: '63361756004'
+  },
+  hidden: false,
+  assignedCountry: {
+    uri: 'https://platform.ringcentral.com/restapi/v1.0/dictionary/country/1',
+    id: '1',
+    name: 'United States',
+    isoCode: 'US'
+  },
+  creationTime: '2023-04-03T15:32:58Z'
+}
+========== RINGCENTRAL EXTENSION INFO API - END ==========
+ GET /api/ringcentral/extension-info 200 in 105ms
+Phone numbers data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/phone-number?page=1&perPage=100',
+  records: [
+    {
+      features: [Array],
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/phone-number/121978005004',
+      id: 121978005004,
+      phoneNumber: '+16124643934',
+      paymentType: 'Local',
+      location: 'Long Lake, MN',
+      type: 'VoiceFax',
+      usageType: 'DirectNumber',
+      status: 'Normal',
+      country: [Object],
+      label: 'Farmers',
+      primary: true
+    },
+    {
+      features: [Array],
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/phone-number/121978004004',
+      id: 121978004004,
+      phoneNumber: '+16124644045',
+      paymentType: 'Local',
+      location: 'Twin Cities, MN',
+      type: 'VoiceFax',
+      usageType: 'MainCompanyNumber',
+      status: 'Normal',
+      country: [Object],
+      primary: false
+    },
+    {
+      features: [Array],
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/phone-number/122424848004',
+      id: 122424848004,
+      phoneNumber: '+16127786178',
+      paymentType: 'Local',
+      location: 'Golden Valley, Twin Cities, MN',
+      type: 'VoiceFax',
+      usageType: 'DirectNumber',
+      status: 'Normal',
+      country: [Object],
+      primary: false
+    }
+  ],
+  paging: {
+    page: 1,
+    totalPages: 1,
+    perPage: 100,
+    totalElements: 3,
+    pageStart: 0,
+    pageEnd: 2
+  },
+  navigation: {
+    firstPage: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/phone-number?page=1&perPage=100'
+    },
+    lastPage: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/phone-number?page=1&perPage=100'
+    }
+  }
+}
+========== RINGCENTRAL PHONE NUMBERS API - END ==========
+ GET /api/ringcentral/phone-numbers 200 in 87ms
+========== RINGCENTRAL PERMISSIONS API - START ==========
+Timestamp: 2025-05-22T00:26:49.196Z
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:49.198Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Extracting permissions from token
+Token scopes: []
+========== RINGCENTRAL PERMISSIONS API - END ==========
+ GET /api/ringcentral/permissions 200 in 25ms
+========== RINGCENTRAL PHONE NUMBERS API - START ==========
+Timestamp: 2025-05-22T00:26:49.204Z
+Making API call to RingCentral for phone numbers
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:49.205Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Phone numbers data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/phone-number?page=1&perPage=100',
+  records: [
+    {
+      features: [Array],
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/phone-number/121978005004',
+      id: 121978005004,
+      phoneNumber: '+16124643934',
+      paymentType: 'Local',
+      location: 'Long Lake, MN',
+      type: 'VoiceFax',
+      usageType: 'DirectNumber',
+      status: 'Normal',
+      country: [Object],
+      label: 'Farmers',
+      primary: true
+    },
+    {
+      features: [Array],
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/phone-number/121978004004',
+      id: 121978004004,
+      phoneNumber: '+16124644045',
+      paymentType: 'Local',
+      location: 'Twin Cities, MN',
+      type: 'VoiceFax',
+      usageType: 'MainCompanyNumber',
+      status: 'Normal',
+      country: [Object],
+      primary: false
+    },
+    {
+      features: [Array],
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/phone-number/122424848004',
+      id: 122424848004,
+      phoneNumber: '+16127786178',
+      paymentType: 'Local',
+      location: 'Golden Valley, Twin Cities, MN',
+      type: 'VoiceFax',
+      usageType: 'DirectNumber',
+      status: 'Normal',
+      country: [Object],
+      primary: false
+    }
+  ],
+  paging: {
+    page: 1,
+    totalPages: 1,
+    perPage: 100,
+    totalElements: 3,
+    pageStart: 0,
+    pageEnd: 2
+  },
+  navigation: {
+    firstPage: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/phone-number?page=1&perPage=100'
+    },
+    lastPage: {
+      uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/phone-number?page=1&perPage=100'
+    }
+  }
+}
+========== RINGCENTRAL PHONE NUMBERS API - END ==========
+ GET /api/ringcentral/phone-numbers 200 in 107ms
+========== RINGCENTRAL DIAGNOSTICS API - START ==========
+Timestamp: 2025-05-22T00:26:49.314Z
+Environment variables: {
+  RINGCENTRAL_SERVER: 'https://platform.ringcentral.com',
+  RINGCENTRAL_CLIENT_ID: '[REDACTED]',
+  RINGCENTRAL_CLIENT_SECRET: '[REDACTED]',
+  RINGCENTRAL_USERNAME: 'Not set',
+  RINGCENTRAL_EXTENSION: undefined,
+  RINGCENTRAL_PASSWORD: 'Not set',
+  RINGCENTRAL_FROM_NUMBER: '+16124643934',
+  NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER: '+16124643934',
+  REDIRECT_URI: 'http://localhost:3000/oauth-callback',
+  NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+  NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID: 'Set (hidden)',
+  NEXT_PUBLIC_RINGCENTRAL_SERVER: 'https://platform.ringcentral.com',
+  NEXT_PUBLIC_RINGCENTRAL_DOMAIN: undefined
+}
+Checking authentication tokens
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:49.315Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Authentication status: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  isAccessTokenValidSyncCheck: true,
+  hasRefreshToken: true,
+  accessTokenCookie: 'SUFEMDFQMDFQQVM...',
+  refreshTokenCookie: 'SUFEMDFQMDFQQVM...',
+  accessTokenExpiryCookie: '1747875748775',
+  refreshTokenExpiryCookie: '1748476948853'
+}
+Configuration validation: {
+  serverUrlValid: true,
+  clientIdPresent: true,
+  clientSecretPresent: true,
+  fromNumberPresent: true,
+  fromNumberFormat: true,
+  redirectUriPresent: true,
+  redirectUriValid: true
+}
+Configuration inconsistencies: []
+Recommendations: []
+========== RINGCENTRAL DIAGNOSTICS API - END ==========
+ GET /api/ringcentral/diagnostics 200 in 16ms
+========== RINGCENTRAL PERMISSIONS API - START ==========
+Timestamp: 2025-05-22T00:26:49.369Z
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:49.370Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Extracting permissions from token
+Token scopes: []
+========== RINGCENTRAL PERMISSIONS API - END ==========
+ GET /api/ringcentral/permissions 200 in 10ms
+========== RINGCENTRAL DIAGNOSTICS API - START ==========
+Timestamp: 2025-05-22T00:26:49.464Z
+Environment variables: {
+  RINGCENTRAL_SERVER: 'https://platform.ringcentral.com',
+  RINGCENTRAL_CLIENT_ID: '[REDACTED]',
+  RINGCENTRAL_CLIENT_SECRET: '[REDACTED]',
+  RINGCENTRAL_USERNAME: 'Not set',
+  RINGCENTRAL_EXTENSION: undefined,
+  RINGCENTRAL_PASSWORD: 'Not set',
+  RINGCENTRAL_FROM_NUMBER: '+16124643934',
+  NEXT_PUBLIC_RINGCENTRAL_FROM_NUMBER: '+16124643934',
+  REDIRECT_URI: 'http://localhost:3000/oauth-callback',
+  NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+  NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID: 'Set (hidden)',
+  NEXT_PUBLIC_RINGCENTRAL_SERVER: 'https://platform.ringcentral.com',
+  NEXT_PUBLIC_RINGCENTRAL_DOMAIN: undefined
+}
+Checking authentication tokens
+RingCentralClient: Ensuring token is valid...
+RingCentralClient: Token state: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  expiryTime: '2025-05-22T01:02:28.775Z',
+  isExpired: false,
+  isNearExpiry: false,
+  nowTime: '2025-05-22T00:26:49.465Z',
+  tokenChanged: true,
+  timeRemaining: '36 minutes'
+}
+Authentication status: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  isAccessTokenValidSyncCheck: true,
+  hasRefreshToken: true,
+  accessTokenCookie: 'SUFEMDFQMDFQQVM...',
+  refreshTokenCookie: 'SUFEMDFQMDFQQVM...',
+  accessTokenExpiryCookie: '1747875748775',
+  refreshTokenExpiryCookie: '1748476948853'
+}
+Configuration validation: {
+  serverUrlValid: true,
+  clientIdPresent: true,
+  clientSecretPresent: true,
+  fromNumberPresent: true,
+  fromNumberFormat: true,
+  redirectUriPresent: true,
+  redirectUriValid: true
+}
+Configuration inconsistencies: []
+Recommendations: []
+========== RINGCENTRAL DIAGNOSTICS API - END ==========
+ GET /api/ringcentral/diagnostics 200 in 9ms
+ GET /dashboard/settings/development/ringcentral-diagnostics 200 in 194ms
+ GET /dashboard/settings/development/ringcentral-diagnostics 200 in 60ms
+ GET /dashboard/settings/development/ringcentral-diagnostics 200 in 56ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1603ms (2442 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1882ms

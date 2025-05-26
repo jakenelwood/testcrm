@@ -620,6 +620,25 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
           console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Deleting DB tokens for user ${user.id} due to refresh failure.`);
           await supabase.from('ringcentral_tokens').delete().eq('user_id', user.id);
         }
+
+        // Special handling for revoked tokens
+        const isTokenRevoked = data.error === 'invalid_grant' &&
+          (data.error_description === 'Token is revoked' ||
+           (data.errors && data.errors.some(e => e.errorCode === 'OAU-211')));
+
+        if (isTokenRevoked) {
+          console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Token is revoked. User needs to re-authenticate.`);
+          // Return a specific error for revoked tokens
+          return new NextResponse(
+            JSON.stringify({
+              error: 'Token is revoked',
+              reauthorize: true,
+              refreshId,
+              revoked: true
+            }),
+            { status: 401, headers: response.headers }
+          );
+        }
       }
 
       const reauthorize = rcResponse.status === 400 || rcResponse.status === 401;

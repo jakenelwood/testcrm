@@ -65,7 +65,7 @@ export class RingCentralClient {
       console.log('RingCentralClient: Ensuring token is valid...');
 
       // Handle both direct cookieStore and async cookieStore function
-      const resolvedCookieStore = typeof this.cookieStore === 'function' 
+      const resolvedCookieStore = typeof this.cookieStore === 'function'
         ? await this.cookieStore()
         : this.cookieStore;
 
@@ -100,7 +100,7 @@ export class RingCentralClient {
       // If token is expired or near expiry, attempt refresh
       if (isExpired || isNearExpiry) {
         console.log('RingCentralClient: Access token nearing expiry. Attempting refresh...');
-        
+
         // Check if we can attempt a refresh based on rate limiting
         if (!rateLimitProtection.canAttemptRefresh()) {
           console.log('RingCentralClient: Rate limiting protection active, cannot refresh token now');
@@ -126,7 +126,7 @@ export class RingCentralClient {
 
           if (!response.ok) {
             const errorData = await response.json();
-            
+
             // Handle rate limiting
             if (response.status === 429 || (errorData.errorCode === 'CMN-301')) {
               this._handleRateLimit();
@@ -155,7 +155,7 @@ export class RingCentralClient {
             this.accessToken = data.accessToken;
             this.accessTokenExpiryTime = data.expiresAt;
             this.authenticated = true;
-            
+
             // Update refresh token if provided
             const newRefreshTokenCookie = resolvedCookieStore.get('ringcentral_refresh_token');
             this.refreshToken = newRefreshTokenCookie?.value || this.refreshToken;
@@ -164,10 +164,10 @@ export class RingCentralClient {
             throw new Error('Invalid response from token refresh endpoint');
           }
         } catch (refreshError: any) {
-          console.error('RingCentralClient: Exception during token refresh process:', 
+          console.error('RingCentralClient: Exception during token refresh process:',
             refreshError.message, refreshError.stack);
           this.authenticated = false;
-          throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR + 
+          throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR +
             ` (exception during refresh: ${refreshError.message})`);
         }
       } else {
@@ -213,7 +213,7 @@ export class RingCentralClient {
 
     if (!response.ok) {
       const errorData = await response.json();
-      
+
       // Handle rate limiting
       if (response.status === 429 || (errorData.errorCode === 'CMN-301')) {
         this._handleRateLimit();
@@ -223,6 +223,16 @@ export class RingCentralClient {
       // Handle token revocation
       if (errorData.error === 'invalid_grant' || (errorData.errors && errorData.errors.some((e: any) => e.errorCode === 'OAU-211'))) {
         throw new RingCentralTokenRevokedError('RingCentral token is revoked or invalid. Please re-authenticate.', errorData);
+      }
+
+      // Handle resource not found errors (404)
+      if (response.status === 404 ||
+          (errorData.errorCode === 'CMN-102') ||
+          (errorData.errors && errorData.errors.some((e: any) => e.errorCode === 'CMN-102'))) {
+        throw new RingCentralResourceNotFoundError(
+          errorData.error_description || errorData.message || 'Resource not found',
+          errorData
+        );
       }
 
       throw new Error(errorData.error_description || errorData.message || 'Failed to make RingCentral API request');
@@ -261,6 +271,17 @@ export class RingCentralClient {
       if (errorData.error === 'invalid_grant' || (errorData.errors && errorData.errors.some((e: any) => e.errorCode === 'OAU-211'))) {
         throw new RingCentralTokenRevokedError('RingCentral token is revoked or invalid. Please re-authenticate.', errorData);
       }
+
+      // Handle resource not found errors (404)
+      if (response.status === 404 ||
+          (errorData.errorCode === 'CMN-102') ||
+          (errorData.errors && errorData.errors.some((e: any) => e.errorCode === 'CMN-102'))) {
+        throw new RingCentralResourceNotFoundError(
+          errorData.error_description || errorData.message || 'Resource not found',
+          errorData
+        );
+      }
+
       throw new Error(errorData.error_description || errorData.message || 'Failed to make RingCentral API request');
     }
 
@@ -314,7 +335,7 @@ export class RingCentralClient {
 
     if (!response.ok) {
       const errorData = await response.json();
-      
+
       // Handle rate limiting
       if (response.status === 429 || (errorData.errorCode === 'CMN-301')) {
         this._handleRateLimit();
@@ -324,6 +345,16 @@ export class RingCentralClient {
       // Handle token revocation
       if (errorData.error === 'invalid_grant' || (errorData.errors && errorData.errors.some((e: any) => e.errorCode === 'OAU-211'))) {
         throw new RingCentralTokenRevokedError('RingCentral token is revoked or invalid. Please re-authenticate.', errorData);
+      }
+
+      // Handle resource not found errors (404)
+      if (response.status === 404 ||
+          (errorData.errorCode === 'CMN-102') ||
+          (errorData.errors && errorData.errors.some((e: any) => e.errorCode === 'CMN-102'))) {
+        throw new RingCentralResourceNotFoundError(
+          errorData.error_description || errorData.message || 'Resource not found',
+          errorData
+        );
       }
 
       throw new Error(errorData.error_description || errorData.message || 'Failed to make RingCentral API request');
