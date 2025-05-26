@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { OtherInsuredForm } from "./other-insured-form";
-import { VehicleForm } from "./vehicle-form";
 import { HomeForm } from "./home-form";
 import { SpecialtyItemForm } from "./specialty-item-form";
 import supabase from '@/utils/supabase/client';
@@ -147,69 +146,7 @@ export function AddItemsForm({ leadId, clientId, onItemAdded }: AddItemsFormProp
     }
   };
 
-  const handleAddVehicle = async (data: any) => {
-    setIsSubmitting(true);
-    try {
-      if (!tablesCreated) {
-        toast({
-          title: "Database Not Ready",
-          description: "The database tables are not set up yet. Please contact your administrator.",
-          variant: "destructive"
-        });
-        return;
-      }
 
-      // Add the vehicle to the database
-      const { data: newVehicle, error } = await supabase
-        .from('vehicles')
-        .insert({
-          client_id: clientId,
-          lead_id: leadId,
-          year: data.year,
-          make: data.make,
-          model: data.model,
-          vin: data.vin,
-          usage: data.usage,
-          annual_mileage: data.annual_mileage,
-          ownership: data.ownership,
-          primary_driver: data.primary_driver,
-        })
-        .select();
-
-      if (error) {
-        console.error('Error adding vehicle:', error);
-
-        if (error.code === '42P01') { // Table doesn't exist
-          toast({
-            title: "Database Setup Required",
-            description: "The vehicles table doesn't exist. Please contact your administrator.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: "Failed to add vehicle. Please try again.",
-            variant: "destructive"
-          });
-        }
-      } else {
-        toast({
-          title: "Success",
-          description: "Vehicle added successfully.",
-        });
-        onItemAdded();
-      }
-    } catch (error) {
-      console.error('Error adding vehicle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add vehicle. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleAddHome = async (data: any) => {
     setIsSubmitting(true);
@@ -345,7 +282,7 @@ export function AddItemsForm({ leadId, clientId, onItemAdded }: AddItemsFormProp
       <CardHeader>
         <CardTitle>Add Items</CardTitle>
         <CardDescription>
-          Add other insureds, vehicles, homes, or specialty items to this lead
+          Add other insureds, homes, or specialty items to this lead
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -360,19 +297,14 @@ export function AddItemsForm({ leadId, clientId, onItemAdded }: AddItemsFormProp
           </div>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 mb-6">
+            <TabsList className="grid grid-cols-3 mb-6">
               <TabsTrigger value="insured">Other Insured</TabsTrigger>
-              <TabsTrigger value="vehicle">Vehicle</TabsTrigger>
               <TabsTrigger value="home">Home</TabsTrigger>
               <TabsTrigger value="specialty">Specialty Item</TabsTrigger>
             </TabsList>
 
             <TabsContent value="insured">
               <OtherInsuredForm onSubmit={handleAddOtherInsured} isSubmitting={isSubmitting} />
-            </TabsContent>
-
-            <TabsContent value="vehicle">
-              <VehicleForm onSubmit={handleAddVehicle} isSubmitting={isSubmitting} />
             </TabsContent>
 
             <TabsContent value="home">

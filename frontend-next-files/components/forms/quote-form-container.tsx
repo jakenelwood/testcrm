@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { HomeInsuranceForm } from "@/components/home-insurance-form";
 import { AutoInsuranceForm } from "@/components/forms/auto-insurance-form";
 import { SpecialtyInsuranceForm } from "@/components/forms/specialty-insurance-form";
-import { ClientInfoForm, ClientInfoFormValues } from "@/components/forms/client-info-form";
+import { LeadInfoForm, LeadInfoFormValues } from "@/components/forms/lead-info-form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { prepareQuoteDataForSubmission } from "@/lib/form-transformers";
@@ -40,7 +40,7 @@ export function QuoteFormContainer() {
   };
 
   // Handle client form submission
-  const handleClientFormSubmit = (clientData: ClientInfoFormValues) => {
+  const handleClientFormSubmit = (clientData: LeadInfoFormValues) => {
     // Extract insurance type selections from client form data
     const newActiveTypes: InsuranceType[] = [];
     if (clientData.includeAuto) newActiveTypes.push('auto');
@@ -170,7 +170,7 @@ export function QuoteFormContainer() {
             </TabsList>
 
             <TabsContent value="client">
-              <ClientInfoForm onSubmit={handleClientFormSubmit} />
+              <LeadInfoForm onSubmit={handleClientFormSubmit} />
             </TabsContent>
 
             {activeInsuranceTypes.includes('auto') && (

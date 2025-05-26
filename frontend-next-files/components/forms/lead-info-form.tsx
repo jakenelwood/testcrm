@@ -80,6 +80,8 @@ const formSchema = z.object({
   state: z.string().min(2, "State is required"),
   zip_code: z.string().min(5, "ZIP code must be at least 5 digits"),
   mailing_address: z.string().optional(),
+  prior_address: z.string().optional(),
+  rent_or_own: z.string().optional(),
   gender: z.string().optional(),
   marital_status: z.string().optional(),
   date_of_birth: z.string()
@@ -98,20 +100,31 @@ const formSchema = z.object({
   license_state: z.string().min(1, "License state is required"),
   ssn: z.string().optional(),
   referred_by: z.string().optional(),
+  effective_date: z.date({
+    required_error: "Effective date is required",
+  }).refine((date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today;
+  }, "Effective date must be today or in the future"),
+  sr22_required: z.boolean().default(false),
+  military_status: z.boolean().default(false),
+  accident_description: z.string().optional(),
+  accident_date: z.string().optional(),
   pipeline_id: z.number().min(1, "Pipeline is required"),
   includeAuto: z.boolean().default(false),
   includeHome: z.boolean().default(false),
   includeSpecialty: z.boolean().default(false),
 });
 
-export type ClientInfoFormValues = z.infer<typeof formSchema>;
+export type LeadInfoFormValues = z.infer<typeof formSchema>;
 
-interface ClientInfoFormProps {
-  onSubmit: (data: ClientInfoFormValues) => void;
-  defaultValues?: Partial<ClientInfoFormValues>;
+interface LeadInfoFormProps {
+  onSubmit: (data: LeadInfoFormValues) => void;
+  defaultValues?: Partial<LeadInfoFormValues>;
 }
 
-export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps) {
+export function LeadInfoForm({ onSubmit, defaultValues }: LeadInfoFormProps) {
   // State for ZIP code to State mapping
   const [zipLookupState, setZipLookupState] = useState<string | null>(null);
   // State for pipelines
@@ -119,7 +132,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(true);
 
   // Initialize form with default values
-  const form = useForm<ClientInfoFormValues>({
+  const form = useForm<LeadInfoFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
       client_type: "Individual",
@@ -131,6 +144,8 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
       state: "",
       zip_code: "",
       mailing_address: "",
+      prior_address: "",
+      rent_or_own: "",
       gender: "",
       marital_status: "",
       date_of_birth: "",
@@ -139,6 +154,11 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
       license_state: "",
       ssn: "",
       referred_by: "",
+      effective_date: new Date(new Date().setDate(new Date().getDate() + 7)),
+      sr22_required: false,
+      military_status: false,
+      accident_description: "",
+      accident_date: "",
       pipeline_id: 0, // Will be set by the useEffect when pipelines are loaded
       includeAuto: false,
       includeHome: false,
@@ -203,7 +223,7 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
 
   // Handle form submission
   const handleFormSubmit = (values: any) => {
-    onSubmit(values as ClientInfoFormValues);
+    onSubmit(values as LeadInfoFormValues);
   };
 
   return (
@@ -451,6 +471,47 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
 
                 <FormField
                   control={form.control}
+                  name="prior_address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prior Address (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Previous address if moved recently" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        If you've moved in the last 3 years
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="rent_or_own"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Do you rent or own your home?</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select option" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="own">Own</SelectItem>
+                          <SelectItem value="rent">Rent</SelectItem>
+                          <SelectItem value="live_with_family">Live with Family</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="gender"
                   render={({ field }) => (
                     <FormItem>
@@ -622,6 +683,143 @@ export function ClientInfoForm({ onSubmit, defaultValues }: ClientInfoFormProps)
                       <FormControl>
                         <Input placeholder="How did you hear about us?" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Effective Date */}
+                <FormField
+                  control={form.control}
+                  name="effective_date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Desired Effective Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value as Date}
+                            onSelect={field.onChange}
+                            disabled={(date) => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              return date < today;
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        When would you like your insurance to start?
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Special Status Checkboxes */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <FormField
+                  control={form.control}
+                  name="sr22_required"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>SR22 Required</FormLabel>
+                        <FormDescription>
+                          Required insurance filing for high-risk drivers
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="military_status"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Military Service</FormLabel>
+                        <FormDescription>
+                          Active duty or veteran military service
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Accident Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <FormField
+                  control={form.control}
+                  name="accident_date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Recent Accident Date (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          placeholder="MM/DD/YYYY"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Date of most recent accident or violation
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="accident_description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Accident Description (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Brief description of incident"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Brief description of accident or violation
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

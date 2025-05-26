@@ -29,7 +29,6 @@ import { ArrowLeft, Plus, Loader2, Edit } from 'lucide-react';
 import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OtherInsuredForm } from '@/components/forms/other-insured-form';
-import { VehicleForm } from '@/components/forms/vehicle-form';
 import { HomeForm } from '@/components/forms/home-form';
 import { SpecialtyItemForm } from '@/components/forms/specialty-item-form';
 import { DevelopmentModeBanner } from "@/components/ui/development-mode-banner";

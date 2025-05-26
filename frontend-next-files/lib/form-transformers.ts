@@ -1,47 +1,51 @@
-// Instead of importing types from the component, define them locally to match
-// the structure in auto-insurance-form.tsx
+// Define vehicle type to match the new dynamic structure
+type Vehicle = {
+  year: string;
+  make: string;
+  model: string;
+  vin: string;
+  usage: string;
+  annualMiles: string;
+  dailyMiles: string;
+  primaryDriver: string;
+  comprehensive: string;
+  collision: string;
+  glass: boolean;
+  towing: boolean;
+  rental: boolean;
+  financed: boolean;
+  gap: boolean;
+};
 
-// Add vehicle pattern types to match the form values
-type VehicleFieldPattern =
-  | "v1yr" | "v1make" | "v1model" | "v1vin" | "v1usage" | "v1mi" | "v1-driver"
-  | "v1comp" | "v1coll" | "v1glass" | "v1tow" | "v1rr" | "v1fin" | "v1gap"
-  | "v2yr" | "v2make" | "v2model" | "v2vin" | "v2usage" | "v2mi" | "v2-driver"
-  | "v2comp" | "v2coll" | "v2glass" | "v2tow" | "v2rr" | "v2fin" | "v2gap"
-  | "v3yr" | "v3make" | "v3model" | "v3vin" | "v3usage" | "v3mi" | "v3-driver"
-  | "v3comp" | "v3coll" | "v3glass" | "v3tow" | "v3rr" | "v3fin" | "v3gap"
-  | "v4yr" | "v4make" | "v4model" | "v4vin" | "v4usage" | "v4mi" | "v4-driver"
-  | "v4comp" | "v4coll" | "v4glass" | "v4tow" | "v4rr" | "v4fin" | "v4gap"
-  | "v5yr" | "v5make" | "v5model" | "v5vin" | "v5usage" | "v5mi" | "v5-driver"
-  | "v5comp" | "v5coll" | "v5glass" | "v5tow" | "v5rr" | "v5fin" | "v5gap"
-  | "v6yr" | "v6make" | "v6model" | "v6vin" | "v6usage" | "v6mi" | "v6-driver"
-  | "v6comp" | "v6coll" | "v6glass" | "v6tow" | "v6rr" | "v6fin" | "v6gap"
-  | "v7yr" | "v7make" | "v7model" | "v7vin" | "v7usage" | "v7mi" | "v7-driver"
-  | "v7comp" | "v7coll" | "v7glass" | "v7tow" | "v7rr" | "v7fin" | "v7gap"
-  | "v8yr" | "v8make" | "v8model" | "v8vin" | "v8usage" | "v8mi" | "v8-driver"
-  | "v8comp" | "v8coll" | "v8glass" | "v8tow" | "v8rr" | "v8fin" | "v8gap";
-
-// Define the form values type to match the one in auto-insurance-form.tsx
+// Define the form values type to match the new dynamic structure in auto-insurance-form.tsx
 type AutoInsuranceFormValues = {
-  "a-current-carrier": string
-  "a-mos-current-carrier": string
-  "a-climits": string
-  "a-qlimits": string
-  "a-exp-dt": Date | string
-  "aprem": number | string
-  "effective-date": Date | string
-  "auto-additional-notes": string
+  "a-current-carrier": string;
+  "a-mos-current-carrier": string;
+  "a-climits": string;
+  "a-qlimits": string;
+  "a-exp-dt": Date | string;
+  "aprem": number | string;
+  "effective-date": Date | string;
+  "auto-additional-notes": string;
+  "auto-garaging-address": string;
+  vehicles: Vehicle[];
   drivers: {
-    firstName: string
-    lastName: string
-    gender?: string
-    maritalStatus?: string
-    licenseNumber: string
-    licenseState: string
-    dateOfBirth: Date | string
-    primaryDriver: boolean
-  }[]
-  // Add string indexer for dynamic vehicle fields
-  [key: string]: string | boolean | number | Date | any[] | undefined
+    firstName: string;
+    lastName: string;
+    gender?: string;
+    maritalStatus?: string;
+    licenseNumber: string;
+    licenseState: string;
+    dateOfBirth: Date | string;
+    primaryDriver: boolean;
+    sr22Required?: boolean;
+    education?: string;
+    occupation?: string;
+    relationToPrimary?: string;
+    accidentDescription?: string;
+    accidentDate?: string;
+    militaryStatus?: boolean;
+  }[];
 };
 
 /**
@@ -104,6 +108,7 @@ export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceForm
     'aprem': formData["aprem"] || "",
     'effective-date': formData["effective-date"] ? formatDate(formData["effective-date"]) : "",
     'auto-additional-notes': formData["auto-additional-notes"] || "",
+    'auto-garaging-address': formData["auto-garaging-address"] || "",
     drivers: [],
     vehicles: []
   };
@@ -119,6 +124,13 @@ export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceForm
       licenseState?: string;
       dateOfBirth?: Date | string;
       primaryDriver?: boolean;
+      sr22Required?: boolean;
+      education?: string;
+      occupation?: string;
+      relationToPrimary?: string;
+      accidentDescription?: string;
+      accidentDate?: string;
+      militaryStatus?: boolean;
     }) => ({
       firstName: driver.firstName || "",
       lastName: driver.lastName || "",
@@ -127,34 +139,36 @@ export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceForm
       licenseNumber: driver.licenseNumber || "",
       licenseState: driver.licenseState || "",
       dateOfBirth: driver.dateOfBirth ? formatDate(driver.dateOfBirth) : "",
-      primaryDriver: driver.primaryDriver || false
+      primaryDriver: driver.primaryDriver || false,
+      sr22Required: driver.sr22Required || false,
+      education: driver.education || "",
+      occupation: driver.occupation || "",
+      relationToPrimary: driver.relationToPrimary || "",
+      accidentDescription: driver.accidentDescription || "",
+      accidentDate: driver.accidentDate || "",
+      militaryStatus: driver.militaryStatus || false
     }));
   }
 
-  // Extract vehicle data
-  for (let i = 1; i <= 8; i++) {
-    const prefixKey = `v${i}`;
-    const yearKey = `${prefixKey}yr`;
-
-    // Only add vehicle if it has at least a year specified
-    if (formData[yearKey]) {
-      apiData.vehicles.push({
-        year: formData[yearKey] || '',
-        make: formData[`${prefixKey}make`] || '',
-        model: formData[`${prefixKey}model`] || '',
-        vin: formData[`${prefixKey}vin`] || '',
-        usage: formData[`${prefixKey}usage`] || '',
-        mileage: formData[`${prefixKey}mi`] || '',
-        driver: formData[`${prefixKey}-driver`] || '',
-        comp: formData[`${prefixKey}comp`] || '',
-        coll: formData[`${prefixKey}coll`] || '',
-        glass: !!formData[`${prefixKey}glass`],
-        tow: !!formData[`${prefixKey}tow`],
-        rentalReimbursement: !!formData[`${prefixKey}rr`],
-        financing: !!formData[`${prefixKey}fin`],
-        gap: !!formData[`${prefixKey}gap`]
-      });
-    }
+  // Extract vehicle data from the new dynamic vehicles array
+  if (formData.vehicles && formData.vehicles.length > 0) {
+    apiData.vehicles = formData.vehicles.map((vehicle: Vehicle) => ({
+      year: vehicle.year || '',
+      make: vehicle.make || '',
+      model: vehicle.model || '',
+      vin: vehicle.vin || '',
+      usage: vehicle.usage || '',
+      annualMiles: vehicle.annualMiles || '',
+      dailyMiles: vehicle.dailyMiles || '',
+      primaryDriver: vehicle.primaryDriver || '',
+      comprehensive: vehicle.comprehensive || '',
+      collision: vehicle.collision || '',
+      glass: !!vehicle.glass,
+      towing: !!vehicle.towing,
+      rental: !!vehicle.rental,
+      financed: !!vehicle.financed,
+      gap: !!vehicle.gap
+    }));
   }
 
   return apiData;
@@ -177,7 +191,9 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
     'aprem': apiData['aprem'] || 0,
     'effective-date': apiData['effective-date'] ? parseDate(apiData['effective-date']) : new Date(),
     'auto-additional-notes': apiData['auto-additional-notes'] || '',
-    'drivers': []
+    'auto-garaging-address': apiData['auto-garaging-address'] || '',
+    drivers: [],
+    vehicles: []
   };
 
   // Map drivers if present
@@ -191,6 +207,13 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
       licenseState?: string;
       dateOfBirth?: string;
       primaryDriver?: boolean;
+      sr22Required?: boolean;
+      education?: string;
+      occupation?: string;
+      relationToPrimary?: string;
+      accidentDescription?: string;
+      accidentDate?: string;
+      militaryStatus?: boolean;
     }) => ({
       firstName: driver.firstName || '',
       lastName: driver.lastName || '',
@@ -199,32 +222,40 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
       licenseNumber: driver.licenseNumber || '',
       licenseState: driver.licenseState || '',
       dateOfBirth: driver.dateOfBirth ? parseDate(driver.dateOfBirth) : new Date(),
-      primaryDriver: !!driver.primaryDriver
+      primaryDriver: !!driver.primaryDriver,
+      sr22Required: !!driver.sr22Required,
+      education: driver.education || '',
+      occupation: driver.occupation || '',
+      relationToPrimary: driver.relationToPrimary || '',
+      accidentDescription: driver.accidentDescription || '',
+      accidentDate: driver.accidentDate || '',
+      militaryStatus: !!driver.militaryStatus
     }));
   } else {
     formData.drivers = [];
   }
 
-  // Map vehicles if present
+  // Map vehicles if present - convert to new dynamic structure
   if (apiData.vehicles && Array.isArray(apiData.vehicles)) {
-    apiData.vehicles.forEach((vehicle: any, index: number) => {
-      const prefixKey = `v${index + 1}`;
-
-      formData[`${prefixKey}yr`] = vehicle.year || '';
-      formData[`${prefixKey}make`] = vehicle.make || '';
-      formData[`${prefixKey}model`] = vehicle.model || '';
-      formData[`${prefixKey}vin`] = vehicle.vin || '';
-      formData[`${prefixKey}usage`] = vehicle.usage || '';
-      formData[`${prefixKey}mi`] = vehicle.mileage || '';
-      formData[`${prefixKey}-driver`] = vehicle.driver || '';
-      formData[`${prefixKey}comp`] = vehicle.comp || '';
-      formData[`${prefixKey}coll`] = vehicle.coll || '';
-      formData[`${prefixKey}glass`] = !!vehicle.glass;
-      formData[`${prefixKey}tow`] = !!vehicle.tow;
-      formData[`${prefixKey}rr`] = !!vehicle.rentalReimbursement;
-      formData[`${prefixKey}fin`] = !!vehicle.financing;
-      formData[`${prefixKey}gap`] = !!vehicle.gap;
-    });
+    formData.vehicles = apiData.vehicles.map((vehicle: any) => ({
+      year: vehicle.year || '',
+      make: vehicle.make || '',
+      model: vehicle.model || '',
+      vin: vehicle.vin || '',
+      usage: vehicle.usage || '',
+      annualMiles: vehicle.annualMiles || vehicle.mileage || '', // Support both field names
+      dailyMiles: vehicle.dailyMiles || '',
+      primaryDriver: vehicle.primaryDriver || vehicle.driver || '',
+      comprehensive: vehicle.comprehensive || vehicle.comp || '',
+      collision: vehicle.collision || vehicle.coll || '',
+      glass: !!vehicle.glass,
+      towing: !!vehicle.towing || !!vehicle.tow,
+      rental: !!vehicle.rental || !!vehicle.rentalReimbursement,
+      financed: !!vehicle.financed || !!vehicle.financing,
+      gap: !!vehicle.gap
+    }));
+  } else {
+    formData.vehicles = [];
   }
 
   return formData;

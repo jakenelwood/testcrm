@@ -1,14 +1,20 @@
 Field Name,Storage Recommendation
 additional_insured_dl_number,JSON Field
 additional_insured_dob,JSON Field
-additional_insured_education_occupation,JSON Field
+additional_insured_education,JSON Field
+additional_insured_occupation,JSON Field
 additional_insured_gender,JSON Field
 additional_insured_license_state,JSON Field
 additional_insured_marital_status,JSON Field
 additional_insured_name,JSON Field
 additional_insured_relation_to_primary_insured,JSON Field
+additional_insured_incident_accident_description, JSON Field
+additional_insured_incident_accident_date, JSON Field
+additional_insured_sr22,JSON Field
+additional_insured_military, Column
 auto_additional_notes,JSON Field
 auto_current_insurance_carrier_auto,Column
+auto_garaging_address,JSON Field
 auto_current_limits,JSON Field
 auto_expiration_date,JSON Field
 auto_months_with_current_carrier_auto,Column
@@ -21,7 +27,8 @@ auto_vehicle_financed,JSON Field
 auto_vehicle_gap,JSON Field
 auto_vehicle_glass,JSON Field
 auto_vehicle_make,JSON Field
-auto_vehicle_miles,JSON Field
+auto_vehicle_annual_miles,JSON Field
+auto_vehicle_daily_miles,JSON Field
 auto_vehicle_model,JSON Field
 auto_vehicle_rental_car_reimbursement,JSON Field
 auto_vehicle_tow,JSON Field
@@ -29,6 +36,7 @@ auto_vehicle_usage,JSON Field
 auto_vehicle_vin,JSON Field
 auto_vehicle_year,JSON Field
 home_additional_notes,JSON Field
+home_number_of_bedrooms,JSON Field
 home_alarm,JSON Field
 home_attached_structures,JSON Field
 home_bankruptcy_foreclosure,JSON Field
@@ -91,11 +99,14 @@ home_walk_out_basement,JSON Field
 home_wind_hail,JSON Field
 home_woodstove,JSON Field
 home_year_built,JSON Field
+home_claim_description,JSON Field
+home_claim_date,JSON Field
 primary_named_insured_address,Column
 primary_named_insured_current_date,Column
 primary_named_insured_dl_number,Column
 primary_named_insured_dob,Column
-primary_named_insured_education_occupation,Column
+primary_named_insured_occupation,Column
+primary_named_insured_education, Column
 primary_named_insured_effective_date,Column
 primary_named_insured_email_address,Column
 primary_named_insured_gender,Column
@@ -107,6 +118,12 @@ primary_named_insured_phone_number,Column
 primary_named_insured_prior_address,Column
 primary_named_insured_referred_by,Column
 primary_named_insured_relation_to_primary_insured,Column
+primary_named_insured_rent_or_own,Column
+primary_named_insured_incident_accident_description, JSON Field
+primary_named_insured_incident_accident_date, JSON Field
+primary_named_insured_sr22,JSON Field
+primary_named_insured_military, Column
+specialty_garaging_address,JSON Field
 specialty_additional_information,Column
 specialty_cc_size,Column
 specialty_collision_deductible,Column
