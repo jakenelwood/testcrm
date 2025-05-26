@@ -254,9 +254,6 @@ export function QuoteFormContainer() {
       <Card>
         <CardHeader>
           <CardTitle>New Lead</CardTitle>
-          <CardDescription>
-            Create a new insurance lead.
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

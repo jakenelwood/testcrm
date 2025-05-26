@@ -70,7 +70,7 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   // This provides a better user experience than an empty state or loading spinner
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
         {statuses.map((status, index) => {
           // Get status color based on status name
           const getStatusColor = (status: string) => {
@@ -146,7 +146,7 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   // - 3 columns on medium screens
   // - 5 columns (full board) on large screens
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
       {/* Map through each status and create a column */}
       {statuses.map((status) => (
         <KanbanColumn

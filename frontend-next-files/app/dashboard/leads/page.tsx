@@ -472,7 +472,7 @@ function LeadsPageContent() {
   };
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="mx-auto py-6 px-2 sm:px-4 max-w-none">
       {/* Development Mode Banner */}
       <DevelopmentModeBanner
         message="Connected to Supabase database. Some tables may be missing or have permission issues."
