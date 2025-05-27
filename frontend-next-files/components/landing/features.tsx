@@ -100,8 +100,8 @@ export default function Features() {
           <div className="flex flex-col md:flex-row gap-16 items-center">
             <div className="flex-1 order-2 md:order-1">
               <div className="relative">
-                <div className="absolute -z-10 -bottom-10 -left-10 w-40 h-40 bg-[#0073ee]/5 rounded-full blur-3xl"></div>
-                <div className="absolute -z-10 -top-10 -right-10 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute -z-10 -bottom-10 -left-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
+                <div className="absolute -z-10 -top-10 -right-10 w-40 h-40 bg-chart-4/5 rounded-full blur-3xl"></div>
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative">
                   <div className="absolute top-0 left-0 right-0 h-12 bg-gray-50 border-b border-gray-100 flex items-center px-4">
@@ -205,8 +205,8 @@ export default function Features() {
 
             <div className="flex-1">
               <div className="relative">
-                <div className="absolute -z-10 -bottom-10 -right-10 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl"></div>
-                <div className="absolute -z-10 -top-10 -left-10 w-40 h-40 bg-[#0073ee]/5 rounded-full blur-3xl"></div>
+                <div className="absolute -z-10 -bottom-10 -right-10 w-40 h-40 bg-chart-4/5 rounded-full blur-3xl"></div>
+                <div className="absolute -z-10 -top-10 -left-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                   <div className="absolute top-0 left-0 right-0 h-12 bg-gray-50 border-b border-gray-100 flex items-center px-4">

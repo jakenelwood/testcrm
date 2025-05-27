@@ -8,33 +8,43 @@ import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, FAILED_TO_END_CALL } from '@/lib/c
  * Handle POST requests to end an active call
  */
 export async function POST(request: NextRequest) {
-  return handleEndCall(request, 0);
+  console.log('========== RINGCENTRAL END CALL API - START ==========');
+  console.log('Timestamp:', new Date().toISOString());
+  
+  // Read the request body ONLY ONCE at the top level
+  let requestBody: { callId?: string };
+  try {
+    requestBody = await request.json();
+  } catch (error) {
+    console.log('Error parsing request body:', error);
+    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+  }
+
+  if (!requestBody.callId) {
+    console.log('Error: No call ID provided for ending call');
+    return NextResponse.json({ error: 'Call ID is required to end the call' }, { status: 400 });
+  }
+
+  // Pass the parsed body to the handler function
+  return handleEndCall(requestBody.callId, request, 0);
 }
 
 /**
  * Handle the end call logic with retry capability
+ * @param callId - The call ID to end (already parsed from request body)
+ * @param originalRequest - The original request object (for headers, origin, etc.)
+ * @param retryCount - Current retry attempt number
  */
-async function handleEndCall(request: NextRequest, retryCount: number = 0) {
-  console.log('========== RINGCENTRAL END CALL API - START ==========');
-  console.log('Timestamp:', new Date().toISOString());
-  console.log(`Retry count: ${retryCount}`);
+async function handleEndCall(callId: string, originalRequest: NextRequest, retryCount: number = 0) {
+  console.log(`========== RETRY ${retryCount}: ENDING CALL ${callId} ==========`);
   const troubleshooting: string[] = [];
 
   try {
-    // Step 1: Parse the request body
-    console.log('Step 1: Parsing request body');
-    const { callId } = await request.json();
-
-    if (!callId) {
-      console.log('Error: No call ID provided for ending call');
-      return NextResponse.json({ error: 'Call ID is required to end the call' }, { status: 400 });
-    }
-
     console.log('Call ID to end:', callId);
     troubleshooting.push(`Call ID to end: ${callId}`);
 
-    // Step 2: Initialize RingCentral client
-    console.log('Step 2: Initializing RingCentral client');
+    // Step 1: Initialize RingCentral client
+    console.log('Step 1: Initializing RingCentral client');
     const cookieStore = await cookies();
     troubleshooting.push('Retrieved cookies for RingCentral client');
     
@@ -66,11 +76,11 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
       troubleshooting.push(`Access token has expired (expired at ${new Date(parseInt(tokenExpiry)).toISOString()})`);
     }
     
-    const client = new RingCentralClient(cookieStore, request);
+    const client = new RingCentralClient(cookieStore, originalRequest);
     troubleshooting.push('RingCentralClient initialized');
 
-    // Step 3: End the call
-    console.log('Step 3: Ending call');
+    // Step 2: End the call
+    console.log('Step 2: Ending call');
     troubleshooting.push('Attempting to end call');
 
     try {
@@ -88,15 +98,19 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
           console.log(`Authentication failed, attempting to refresh token (retry ${retryCount + 1}/2)...`);
           troubleshooting.push(`Authentication failed, attempting to refresh token (retry ${retryCount + 1}/2)...`);
           
+          // Add delay to prevent rate limiting
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
           // Manually call the refresh API
           try {
-            const refreshResponse = await fetch(`${request.nextUrl.origin}/api/ringcentral/auth?action=refresh`, {
+            const refreshResponse = await fetch(`${originalRequest.nextUrl.origin}/api/ringcentral/auth?action=refresh`, {
               method: 'GET',
               headers: {
                 'Cookie': Array.from(cookieStore.getAll())
                   .map(c => `${c.name}=${c.value}`)
                   .join('; '),
               },
+              cache: 'no-store',
             });
             
             let refreshErrorData: any = {};
@@ -106,7 +120,6 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
               }
             } catch (e) {
               console.error('[handleEndCall] Could not parse JSON from failed refresh response:', e);
-              // Use a default error if JSON parsing fails
               refreshErrorData = { error: 'Failed to parse refresh error response', reauthorize: false };
             }
 
@@ -114,25 +127,24 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
               console.log('Token refreshed successfully, retrying end call request');
               troubleshooting.push('Token refreshed successfully, retrying end call request');
               // Wait a moment for cookies to be set properly
-              await new Promise(resolve => setTimeout(resolve, 500));
-              return handleEndCall(request, retryCount + 1);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              return handleEndCall(callId, originalRequest, retryCount + 1);
             } else {
               console.error('Failed to refresh token during endCall retry, status:', refreshResponse.status, 'Body:', refreshErrorData);
               troubleshooting.push(`Manual refresh failed with status ${refreshResponse.status}. Error: ${refreshErrorData.error}`);
+              
               // If token is revoked, do not attempt further retries and signal re-auth
               if (refreshErrorData.reauthorize === true || refreshErrorData.error === 'invalid_grant') {
                 troubleshooting.push('Token revoked. Full re-authentication required.');
                 return NextResponse.json({
                   error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
                   detail: 'RingCentral token revoked. Please re-authenticate.',
-                  reauthorize: true, // Signal to client
+                  reauthorize: true,
                   troubleshooting,
                   authenticated: false
                 }, { status: 401 });
               }
-              // For other refresh errors, use the generic 401 from the outer catch, 
-              // as this attempt was part of a retry. The original error in client.endCall() might be more specific.
-              // Or, simply return the generic 401 from here as well.
+              
               return NextResponse.json({
                 error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
                 detail: refreshErrorData.error || 'Failed to refresh token during retry.',
@@ -140,7 +152,7 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
                 authenticated: false
               }, { status: 401 });
             }
-          } catch (refreshCatchError: any) { // Catch for errors during the fetch itself to the refresh API
+          } catch (refreshCatchError: any) {
             console.error('Error during token refresh attempt (fetch failed):', refreshCatchError);
             troubleshooting.push(`Error during token refresh attempt: ${refreshCatchError.message}`);
             // Fall through to the main 401 unauthorized response
@@ -150,8 +162,8 @@ async function handleEndCall(request: NextRequest, retryCount: number = 0) {
         // If retries exhausted, no refresh token, or if refresh attempt failed and was not token_revoked
         return NextResponse.json({ 
           error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
-          detail: error.message, // Original error from client.endCall() or from non-revoked refresh failure
-          reauthorize: (error instanceof RingCentralTokenRevokedError), // Check if original error was token revoked
+          detail: error.message,
+          reauthorize: (error instanceof RingCentralTokenRevokedError),
           troubleshooting,
           authenticated: false
         }, { status: 401 });

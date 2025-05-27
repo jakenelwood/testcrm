@@ -298,7 +298,7 @@ export default function PricingPage() {
                       <Button
                         onClick={handleApplyDiscount}
                         disabled={isApplyingDiscount || !discountCode || discountApplied}
-                        className="rounded-l-none bg-[#0073ee] hover:bg-[#0060c5]"
+                        className="rounded-l-none"
                       >
                         {isApplyingDiscount ? "Applying..." : discountApplied ? "Applied" : "Apply"}
                       </Button>

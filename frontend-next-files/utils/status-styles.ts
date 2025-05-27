@@ -25,38 +25,38 @@ export function getStatusStyles(status: string, variant: 'default' | 'kanban' = 
 
   if (statusLower === 'new' || statusLower === 'pending') {
     return isKanban
-      ? 'bg-blue-200 text-black font-medium'
-      : 'bg-blue-200 text-black font-medium';
+      ? 'bg-chart-1/30 text-foreground font-medium'
+      : 'bg-chart-1/30 text-foreground font-medium';
   }
 
   if (statusLower === 'contacted' || statusLower === 'in progress') {
     return isKanban
-      ? 'bg-yellow-200 text-black font-medium'
-      : 'bg-yellow-200 text-black font-medium';
+      ? 'bg-chart-4/30 text-foreground font-medium'
+      : 'bg-chart-4/30 text-foreground font-medium';
   }
 
   if (statusLower === 'quoted') {
     return isKanban
-      ? 'bg-purple-200 text-black font-medium'
-      : 'bg-purple-200 text-black font-medium';
+      ? 'bg-chart-5/30 text-foreground font-medium'
+      : 'bg-chart-5/30 text-foreground font-medium';
   }
 
   if (statusLower === 'sold' || statusLower === 'completed') {
     return isKanban
-      ? 'bg-green-200 text-black font-medium'
-      : 'bg-green-200 text-black font-medium';
+      ? 'bg-chart-2/30 text-foreground font-medium'
+      : 'bg-chart-2/30 text-foreground font-medium';
   }
 
   if (statusLower === 'lost') {
     return isKanban
-      ? 'bg-red-200 text-black font-medium'
-      : 'bg-red-200 text-black font-medium';
+      ? 'bg-destructive/30 text-foreground font-medium'
+      : 'bg-destructive/30 text-foreground font-medium';
   }
 
   // Default case
   return isKanban
-    ? 'bg-gray-200 text-black font-medium'
-    : 'bg-gray-200 text-black font-medium';
+    ? 'bg-muted text-foreground font-medium'
+    : 'bg-muted text-foreground font-medium';
 }
 
 /**
@@ -68,9 +68,9 @@ export function getStatusStyles(status: string, variant: 'default' | 'kanban' = 
 export function getCustomStatusStyles(color: string, variant: 'default' | 'kanban' = 'default') {
   // For custom colors, we create appropriate styling based on the variant
   if (variant === 'kanban') {
-    return `bg-[${color}]/30 text-black font-medium`;
+    return `bg-[${color}]/30 text-foreground font-medium`;
   } else {
-    return `bg-[${color}]/30 text-black font-medium`;
+    return `bg-[${color}]/30 text-foreground font-medium`;
   }
 }
 
@@ -78,4 +78,4 @@ export function getCustomStatusStyles(color: string, variant: 'default' | 'kanba
  * Common badge styling for status indicators
  * Used for consistent appearance across the application
  */
-export const statusBadgeStyles = "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium text-black";
+export const statusBadgeStyles = "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium";

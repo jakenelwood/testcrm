@@ -18,18 +18,18 @@ export default function Home() {
               <GLogoButton size="lg" />
             </Link>
             <div className="hidden md:flex items-center gap-8">
-              <div className="flex items-center gap-1 text-gray-600 hover:text-[#0073ee] cursor-pointer transition-colors">
+              <div className="flex items-center gap-1 text-muted-foreground hover:text-primary cursor-pointer transition-colors">
                 <span>Features</span>
                 <ChevronDown size={16} />
               </div>
-              <div className="flex items-center gap-1 text-gray-600 hover:text-[#0073ee] cursor-pointer transition-colors">
+              <div className="flex items-center gap-1 text-muted-foreground hover:text-primary cursor-pointer transition-colors">
                 <span>Solutions</span>
                 <ChevronDown size={16} />
               </div>
-              <Link href="/pricing" className="text-gray-600 hover:text-[#0073ee] transition-colors">
+              <Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">
                 Pricing
               </Link>
-              <div className="flex items-center gap-1 text-gray-600 hover:text-[#0073ee] cursor-pointer transition-colors">
+              <div className="flex items-center gap-1 text-muted-foreground hover:text-primary cursor-pointer transition-colors">
                 <span>Resources</span>
                 <ChevronDown size={16} />
               </div>
@@ -37,10 +37,10 @@ export default function Home() {
           </div>
           <div className="flex gap-4 items-center">
             <Link href="/auth/login">
-              <Button variant="outline" className="font-medium border-gray-300 rounded-sm">Log In</Button>
+              <Button variant="outline" className="font-medium rounded-sm">Log In</Button>
             </Link>
             <Link href="/pricing">
-              <Button className="bg-[#0047AB] hover:bg-[#003d91] text-white font-medium rounded-sm">Let's Close</Button>
+              <Button className="font-medium rounded-sm">Let's Close</Button>
             </Link>
           </div>
         </nav>

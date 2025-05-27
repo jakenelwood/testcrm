@@ -44,13 +44,13 @@ export default function Dashboard() {
     <>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-1">Welcome</h1>
-          <p className="text-gray-500">The pipeline whisperer is ready to help you close more deals</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">Welcome</h1>
+          <p className="text-muted-foreground">The pipeline whisperer is ready to help you close more deals</p>
         </div>
         <div className="flex gap-2">
           <Button
             asChild
-            className="bg-[#0047AB] hover:bg-[#003d91] text-white shadow-md hover:shadow-lg transition-all duration-200"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200"
           >
             <Link href="/dashboard/new">
               New Lead
@@ -61,19 +61,18 @@ export default function Dashboard() {
 
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         {stats.map((stat, i) => (
-          <Card key={i} className="overflow-hidden border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200">
-            <div className="h-1 w-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-75"></div>
+          <Card key={i} className="overflow-hidden border-border hover:border-border/80 hover:shadow-md transition-all duration-200 bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-700">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
               <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                stat.positive ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
+                stat.positive ? 'bg-green-100 text-green-600' : 'bg-primary/10 text-primary'
               }`}>
                 <stat.icon className="h-4 w-4" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-              <p className="text-sm text-gray-500 mt-1">{stat.description}</p>
+              <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+              <p className="text-sm text-muted-foreground mt-1">{stat.description}</p>
             </CardContent>
             <CardFooter className="pt-0">
               <p className={`text-xs font-medium ${stat.positive ? 'text-green-600' : 'text-red-600'}`}>
@@ -84,16 +83,16 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-600/5 to-indigo-600/5 border-b border-gray-100">
+      <Card className="border-border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden bg-card">
+        <CardHeader className="bg-muted/50 border-b border-border">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-xl font-bold text-gray-900">Recent Quote Requests</CardTitle>
-              <CardDescription className="text-gray-500">
+              <CardTitle className="text-xl font-bold text-foreground">Recent Quote Requests</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Your most recent quote requests from the last 30 days
               </CardDescription>
             </div>
-            <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+            <Button variant="outline" size="sm" className="text-primary border-border hover:bg-accent">
               View All
             </Button>
           </div>
@@ -102,37 +101,37 @@ export default function Dashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Client</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Type</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Date</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-600">Actions</th>
+                <tr className="border-b bg-muted/30">
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Client</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Type</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
+                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {recentQuotes.map((quote) => (
-                  <tr key={quote.id} className="border-b last:border-b-0 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-900">{quote.client}</td>
-                    <td className="py-4 px-4 text-gray-600">{quote.type}</td>
+                  <tr key={quote.id} className="border-b last:border-b-0 hover:bg-muted/20 transition-colors">
+                    <td className="py-4 px-4 font-medium text-foreground">{quote.client}</td>
+                    <td className="py-4 px-4 text-muted-foreground">{quote.type}</td>
                     <td className="py-4 px-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
                         quote.status === 'Completed'
                           ? 'bg-green-100 text-green-800'
                           : quote.status === 'Pending'
                             ? 'bg-amber-100 text-amber-800'
-                            : 'bg-blue-100 text-blue-800'
+                            : 'bg-primary/10 text-primary'
                       }`}>
                         {quote.status}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-gray-600">{quote.date}</td>
+                    <td className="py-4 px-4 text-muted-foreground">{quote.date}</td>
                     <td className="py-4 px-4 text-right">
                       <Button
                         variant="ghost"
                         size="sm"
                         asChild
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium"
+                        className="text-primary hover:text-primary/80 hover:bg-primary/10 font-medium"
                       >
                         <Link href={`/dashboard/quotes/${quote.id}`}>View Details</Link>
                       </Button>
@@ -143,11 +142,11 @@ export default function Dashboard() {
             </table>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between border-t border-gray-100 bg-gray-50">
-          <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-white">
+        <CardFooter className="flex justify-between border-t border-border bg-muted/30">
+          <Button variant="outline" size="sm" className="text-muted-foreground border-border hover:bg-background">
             Previous
           </Button>
-          <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-white">
+          <Button variant="outline" size="sm" className="text-muted-foreground border-border hover:bg-background">
             Next
           </Button>
         </CardFooter>

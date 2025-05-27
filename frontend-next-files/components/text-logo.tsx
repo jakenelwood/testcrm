@@ -6,14 +6,12 @@ import { cn } from '@/lib/utils';
 interface TextLogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
-  color?: string;
   animate?: boolean;
 }
 
 export default function TextLogo({
   className,
   size = 'md',
-  color = '#0047AB', // Default to the medium blue color
   animate = true
 }: TextLogoProps) {
   // Detect if we're on an authenticated page (dashboard, etc.)
@@ -35,11 +33,10 @@ export default function TextLogo({
     <div className={cn("flex items-center", className)}>
       <span
         className={cn(
-          "font-inter font-bold tracking-tight",
+          "font-inter font-bold tracking-tight text-primary",
           sizeClasses[size],
           shouldAnimate && "animate-text-pulse"
         )}
-        style={{ color }}
       >
         ronrico
       </span>

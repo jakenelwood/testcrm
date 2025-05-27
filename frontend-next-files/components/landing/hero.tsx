@@ -128,8 +128,8 @@ export default function Hero() {
               </div>
 
               {/* Decorative elements */}
-              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[#0073ee30] rounded-full blur-2xl"></div>
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-primary/20 rounded-full blur-2xl"></div>
+              <div className="absolute -top-6 -left-6 w-24 h-24 bg-chart-4/10 rounded-full blur-2xl"></div>
             </motion.div>
           </div>
         </div>

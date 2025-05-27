@@ -26,9 +26,9 @@ export function FlyingElements({ className }: FlyingElementProps) {
 
   // Define different shapes to fly around
   const shapes = [
-    // Purple circles
+    // Primary color circles
     {
-      element: <div className="w-6 h-6 rounded-full bg-[#3B28CC]/20"></div>,
+      element: <div className="w-6 h-6 rounded-full bg-primary/20"></div>,
       initialX: '-100vw',
       initialY: '20vh',
       animateX: '120vw',
@@ -37,7 +37,7 @@ export function FlyingElements({ className }: FlyingElementProps) {
       delay: 0,
     },
     {
-      element: <div className="w-10 h-10 rounded-full bg-[#3B28CC]/10"></div>,
+      element: <div className="w-10 h-10 rounded-full bg-primary/10"></div>,
       initialX: '-50vw',
       initialY: '40vh',
       animateX: '110vw',
@@ -46,7 +46,7 @@ export function FlyingElements({ className }: FlyingElementProps) {
       delay: 5,
     },
     {
-      element: <div className="w-4 h-4 rounded-full bg-[#3B28CC]/30"></div>,
+      element: <div className="w-4 h-4 rounded-full bg-primary/30"></div>,
       initialX: '-20vw',
       initialY: '70vh',
       animateX: '110vw',

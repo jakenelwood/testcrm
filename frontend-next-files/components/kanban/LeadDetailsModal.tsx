@@ -852,21 +852,20 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         }}
       >
         <DialogContent
-          className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl rounded-lg fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50"
+          className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-background border-border shadow-xl rounded-lg fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50"
         >
           <DialogDescription id="lead-details-description" className="sr-only">
             Lead details and communication history for {typeof lead.first_name === 'string' ? lead.first_name : ''} {typeof lead.last_name === 'string' ? lead.last_name : ''}
           </DialogDescription>
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-lg"></div>
 
-          <DialogHeader className="border-b border-gray-200 pb-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50/30 -mx-6 px-6 pt-6 rounded-t-lg">
+          <DialogHeader className="border-b border-border pb-4 mb-4 bg-gradient-to-r from-primary/5 to-accent/5 -mx-6 px-6 pt-6 rounded-t-lg">
             <div className="flex items-start justify-between">
               <div>
-                <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
+                <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">
                   {typeof lead.first_name === 'string' ? lead.first_name : ''}{typeof lead.last_name === 'string' && lead.last_name ? ` ${lead.last_name}` : ''}
-                  {lead.client?.client_type === 'Business' && <span className="ml-2 text-sm font-normal text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Business</span>}
+                  {lead.client?.client_type === 'Business' && <span className="ml-2 text-sm font-normal text-primary bg-primary/10 px-2 py-1 rounded-full">Business</span>}
                 </DialogTitle>
-                <div className="text-sm text-blue-600 hover:text-blue-800 mt-1 flex items-center">
+                <div className="text-sm text-primary hover:text-primary/80 mt-1 flex items-center">
                   <a href={`/dashboard/leads/${lead.id}`} onClick={(e) => {
                     e.preventDefault();
                     onClose(); // Close the modal first
@@ -880,29 +879,29 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                 </div>
               </div>
 
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-bold shadow-sm">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-lg font-bold shadow-sm">
                 {typeof lead.first_name === 'string' && lead.first_name ? lead.first_name.charAt(0).toUpperCase() : ''}
               </div>
             </div>
           </DialogHeader>
 
           <Tabs defaultValue="data" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-            <TabsList className="grid grid-cols-3 bg-gray-100 p-1 rounded-lg">
+            <TabsList className="grid grid-cols-3 bg-muted p-1 rounded-lg">
               <TabsTrigger
                 value="data"
-                className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+                className="text-muted-foreground rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
               >
                 Lead Data
               </TabsTrigger>
               <TabsTrigger
                 value="communications"
-                className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+                className="text-muted-foreground rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
               >
                 Communication History
               </TabsTrigger>
               <TabsTrigger
                 value="marketing"
-                className="text-gray-700 rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+                className="text-muted-foreground rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
               >
                 Marketing Automation
               </TabsTrigger>
@@ -910,20 +909,20 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
             {/* Lead Data Tab */}
             <TabsContent value="data" className="space-y-4 mt-4">
-              <Card className="border border-gray-200 shadow-sm bg-white">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
-                  <CardTitle className="text-lg font-medium text-gray-900">Basic Information</CardTitle>
+              <Card className="border border-border shadow-sm bg-card">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/50 border-b border-border">
+                  <CardTitle className="text-lg font-medium text-foreground">Basic Information</CardTitle>
                   <Button
                     variant={isEditing ? "default" : "outline"}
                     onClick={() => setIsEditing(!isEditing)}
                     disabled={isSaving}
-                    className={isEditing ? "" : "bg-black hover:bg-gray-800 text-white"}
+                    className={isEditing ? "" : "bg-primary hover:bg-primary/90 text-primary-foreground"}
                   >
                     {isEditing ? "Cancel" : "Edit"}
                   </Button>
                 </CardHeader>
-                <ScrollArea className="h-[500px] bg-white">
-                  <CardContent className="grid grid-cols-2 gap-4 pt-4 bg-white">
+                <ScrollArea className="h-[500px] bg-card">
+                  <CardContent className="grid grid-cols-2 gap-4 pt-4 bg-card">
                     {isEditing ? (
                       // Editable form
                       <>
@@ -1392,9 +1391,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
               </Card>
 
               {lead.auto_data && (
-                <Card className="border border-gray-200 shadow-sm bg-white">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
-                    <CardTitle className="text-lg font-medium text-gray-900">Auto Insurance Details</CardTitle>
+                <Card className="border border-border shadow-sm bg-card">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/50 border-b border-border">
+                    <CardTitle className="text-lg font-medium text-foreground">Auto Insurance Details</CardTitle>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1405,7 +1404,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       Edit
                     </Button>
                   </CardHeader>
-                  <CardContent className="bg-white pt-4">
+                  <CardContent className="bg-card pt-4">
                     <div className="grid grid-cols-2 gap-4">
                       {/* Drivers Section */}
                       {lead.auto_data.drivers && lead.auto_data.drivers.length > 0 && (
@@ -1525,9 +1524,9 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
               )}
 
               {lead.home_data && (
-                <Card className="border border-gray-200 shadow-sm bg-white">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50 border-b border-gray-100">
-                    <CardTitle className="text-lg font-medium text-gray-900">Home Insurance Details</CardTitle>
+                <Card className="border border-border shadow-sm bg-card">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/50 border-b border-border">
+                    <CardTitle className="text-lg font-medium text-foreground">Home Insurance Details</CardTitle>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1538,7 +1537,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                       Edit
                     </Button>
                   </CardHeader>
-                  <CardContent className="bg-white pt-4">
+                  <CardContent className="bg-card pt-4">
                     <div className="grid grid-cols-2 gap-4">
                       {lead.home_data.year_built && (
                         <div>
@@ -1619,11 +1618,11 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
               )}
 
               {lead.insurance_type === 'Specialty' && lead.specialty_data && (
-                <Card className="border border-gray-200 shadow-sm bg-white">
-                  <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                    <CardTitle className="text-lg font-medium text-gray-900">Specialty Insurance Details</CardTitle>
+                <Card className="border border-border shadow-sm bg-card">
+                  <CardHeader className="pb-2 bg-muted/50 border-b border-border">
+                    <CardTitle className="text-lg font-medium text-foreground">Specialty Insurance Details</CardTitle>
                   </CardHeader>
-                  <CardContent className="bg-white pt-4">
+                  <CardContent className="bg-card pt-4">
                     <pre className="text-sm bg-gray-50 p-4 rounded-md overflow-auto">
                       {JSON.stringify(lead.specialty_data, null, 2)}
                     </pre>
@@ -1662,22 +1661,22 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                   {[...notes, ...communications].sort((a, b) =>
                     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
                   ).map((item, index) => (
-                    <Card key={index} className="bg-gray-50 border border-gray-200">
+                    <Card key={index} className="bg-muted/50 border border-border">
                       <CardContent className="pt-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <div className="text-sm font-medium text-black">
+                            <div className="text-sm font-medium text-foreground">
                               {item.type || 'Note'} {item.direction ? `(${item.direction})` : ''}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-muted-foreground">
                               {formatDateTimeMMDDYYYY(item.created_at)}
                             </div>
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             {item.created_by || 'System'}
                           </div>
                         </div>
-                        <div className="mt-2 text-black">
+                        <div className="mt-2 text-foreground">
                           {item.note_content || item.content}
                         </div>
                       </CardContent>
@@ -1695,14 +1694,14 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
             {/* Marketing Automation Tab */}
             <TabsContent value="marketing" className="space-y-4 mt-4">
-              <Card className="border border-gray-200 shadow-sm bg-white">
-                <CardHeader className="pb-2 bg-gray-50 border-b border-gray-100">
-                  <CardTitle className="text-lg font-medium text-gray-900">Marketing Campaigns</CardTitle>
+              <Card className="border border-border shadow-sm bg-card">
+                <CardHeader className="pb-2 bg-muted/50 border-b border-border">
+                  <CardTitle className="text-lg font-medium text-foreground">Marketing Campaigns</CardTitle>
                   <CardDescription className="text-sm">
                     Enable or disable marketing campaigns for this lead
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="bg-white pt-4">
+                <CardContent className="bg-card pt-4">
                   <div className="text-center py-8 text-muted-foreground">
                     Marketing automation features coming soon
                   </div>

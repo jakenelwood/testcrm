@@ -1,5 +1,7 @@
 import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemeProvider as ColorThemeProvider } from "@/lib/theme-context";
 import React from "react";
 import { inter } from "./fonts";
 
@@ -28,8 +30,17 @@ export default function RootLayout({ children }: RootLayoutProps) {
         className="min-h-screen bg-background font-sans antialiased"
         suppressHydrationWarning
       >
-        {children}
-        <ToastProvider />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ColorThemeProvider>
+            {children}
+            <ToastProvider />
+          </ColorThemeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

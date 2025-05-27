@@ -61,7 +61,7 @@ export function UserProfile({ showText = true }: UserProfileProps) {
 
   return (
     <div className={cn(
-      "border-t border-gray-100 bg-gradient-to-r from-blue-600/5 to-indigo-600/5",
+      "border-t border-border bg-gradient-to-r from-blue-600/5 to-indigo-600/5",
       shouldShowText ? "p-4" : "p-2"
     )}>
       <div className={cn(
@@ -73,8 +73,8 @@ export function UserProfile({ showText = true }: UserProfileProps) {
         </div>
         {shouldShowText && (
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{loading ? 'Loading...' : displayName}</p>
-            <p className="text-xs text-gray-500 truncate">{loading ? '' : user?.email}</p>
+            <p className="text-sm font-medium text-foreground truncate">{loading ? 'Loading...' : displayName}</p>
+            <p className="text-xs text-muted-foreground truncate">{loading ? '' : user?.email}</p>
           </div>
         )}
         <Button
@@ -82,7 +82,7 @@ export function UserProfile({ showText = true }: UserProfileProps) {
           size="sm"
           onClick={handleLogout}
           className={cn(
-            "h-8 w-8 p-0 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors",
+            "h-8 w-8 p-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors",
             !shouldShowText && "ml-0"
           )}
           title="Logout"

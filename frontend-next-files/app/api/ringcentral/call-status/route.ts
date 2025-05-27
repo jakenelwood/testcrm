@@ -129,12 +129,13 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
 
       if (error.message && error.message.includes(RINGCENTRAL_NOT_AUTHENTICATED_ERROR)) {
         // Check if the error is due to rate limiting
-        if (error.message.includes('rate limit') || error.message.includes('rate limiting')) {
+        if (error.message.includes('rate limit') || error.message.includes('rate limiting') || error.message.includes('Rate limit')) {
           console.log('Rate limiting detected, adding delay before retry');
           troubleshooting.push('Rate limiting detected, adding delay before retry');
 
-          // Add a longer delay for rate limiting (30 seconds)
-          await new Promise(resolve => setTimeout(resolve, 30000));
+          // Add a much longer delay for rate limiting (60 seconds)
+          console.log('Waiting 60 seconds due to rate limiting...');
+          await new Promise(resolve => setTimeout(resolve, 60000));
 
           // Only retry once for rate limiting
           if (retryCount < 1) {
@@ -158,8 +159,8 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
           console.log(`Authentication failed, attempting to refresh token (retry ${retryCount + 1}/2)...`);
           troubleshooting.push(`Authentication failed, attempting to refresh token (retry ${retryCount + 1}/2)...`);
 
-          // Add a delay before refreshing to avoid rate limiting
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Add a longer delay before refreshing to avoid rate limiting (5 seconds)
+          await new Promise(resolve => setTimeout(resolve, 5000));
 
           // Manually call the refresh API
           try {
@@ -176,8 +177,8 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
             if (refreshResponse.ok) {
               console.log('Token refreshed successfully, retrying call status request');
               troubleshooting.push('Token refreshed successfully, retrying call status request');
-              // Wait a moment for cookies to be set properly
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              // Wait longer for cookies to be set properly (3 seconds)
+              await new Promise(resolve => setTimeout(resolve, 3000));
               return handleCallStatus(params, clientRequest, retryCount + 1);
             } else {
               // Check if we're being rate limited
@@ -194,9 +195,18 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
                 }, { status: 429 });
               }
 
+              let refreshErrorData: any = {};
+              try {
+                refreshErrorData = await refreshResponse.json();
+              } catch (e) {
+                console.error('Could not parse refresh error response:', e);
+                refreshErrorData = { error: 'Failed to parse refresh error response' };
+              }
+
               console.error('Failed to refresh token, status:', refreshResponse.status);
               return NextResponse.json({
                 error: RINGCENTRAL_NOT_AUTHENTICATED_ERROR,
+                detail: refreshErrorData.error || 'Failed to refresh token during retry.',
                 troubleshooting,
                 authenticated: false
               }, { status: 401 });
@@ -286,11 +296,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   console.log('========== RINGCENTRAL CALL STATUS API - POST START ==========');
+  
+  // Read the request body ONLY ONCE at the top level
   let requestBody: CallStatusParams;
   try {
     requestBody = await request.json();
   } catch (e) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
+  
   return handleCallStatus(requestBody, request);
 }

@@ -174,7 +174,7 @@ export default function RingCentralTestCallPage() {
       // Start polling for call status with throttling and backoff
       const interval = setInterval(() => {
         pollCallStatus(data.callId);
-      }, 5000); // Start with 5 seconds
+      }, 15000); // Start with 15 seconds to prevent rate limiting
       setStatusPolling(interval);
 
       // Initial status check
@@ -214,9 +214,9 @@ export default function RingCentralTestCallPage() {
     }
   };
 
-  // Poll for call status
+  // Poll for call status with exponential backoff
   const pollCallStatus = (() => {
-    let pollInterval = 5000; // Start with 5 seconds
+    let pollInterval = 15000; // Start with 15 seconds to prevent rate limiting
     let consecutiveErrors = 0;
     let backoffMultiplier = 1;
     let lastCallId: string | null = null;
@@ -225,7 +225,7 @@ export default function RingCentralTestCallPage() {
       if (!id) return;
       if (lastCallId !== id) {
         // Reset backoff if new call
-        pollInterval = 5000;
+        pollInterval = 15000; // Reset to 15 seconds
         consecutiveErrors = 0;
         backoffMultiplier = 1;
         lastCallId = id;
@@ -233,14 +233,19 @@ export default function RingCentralTestCallPage() {
       try {
         const response = await fetch(`/api/ringcentral/call-status?callId=${id}&verbose=true`);
         if (!response.ok) {
-          let errorData = {};
-          try { errorData = await response.json(); } catch {}
+          let errorData: { error?: string; [key: string]: any } = {};
+          try { 
+            errorData = await response.json(); 
+          } catch {
+            errorData = { error: 'Unknown error' };
+          }
           const errorMsg = errorData.error || 'Unknown error';
           addLog(`Error checking call status: ${errorMsg}`);
-          // Handle rate limiting
-          if (errorMsg.includes('Rate limited')) {
-            backoffMultiplier = Math.min(backoffMultiplier * 2, 6); // Cap at 32s
-            pollInterval = 5000 * backoffMultiplier;
+          
+          // Handle rate limiting with much longer backoff
+          if (errorMsg.includes('rate limit') || errorMsg.includes('Rate limit')) {
+            backoffMultiplier = Math.min(backoffMultiplier * 3, 8); // Cap at 8x (2 minutes)
+            pollInterval = 15000 * backoffMultiplier;
             addLog(`Rate limited. Increasing poll interval to ${pollInterval / 1000}s.`);
           } else if (errorMsg.includes('Resource for parameter [ringOutId] is not found')) {
             addLog('Call resource not found. Stopping polling.');
@@ -251,7 +256,7 @@ export default function RingCentralTestCallPage() {
             return;
           } else {
             consecutiveErrors++;
-            pollInterval = 5000 + consecutiveErrors * 2000;
+            pollInterval = 15000 + consecutiveErrors * 5000; // Increase by 5s each error
           }
           return;
         }
@@ -273,14 +278,14 @@ export default function RingCentralTestCallPage() {
           return;
         }
         // Reset backoff on success
-        pollInterval = 5000;
+        pollInterval = 15000; // Reset to 15 seconds
         consecutiveErrors = 0;
         backoffMultiplier = 1;
       } catch (err: any) {
         addLog(`Error polling call status: ${err.message}`);
         consecutiveErrors++;
-        pollInterval = 5000 + consecutiveErrors * 2000;
-        if (consecutiveErrors >= 5) {
+        pollInterval = 15000 + consecutiveErrors * 5000; // Increase by 5s each error
+        if (consecutiveErrors >= 3) { // Reduced from 5 to 3
           addLog('Too many consecutive errors. Stopping polling.');
           if (statusPolling) {
             clearInterval(statusPolling);

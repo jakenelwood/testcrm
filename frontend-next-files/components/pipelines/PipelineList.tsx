@@ -65,18 +65,21 @@ export function PipelineList({
   return (
     <div className="space-y-2">
       {pipelines.map((pipeline) => (
-        <Button
+        <div
           key={pipeline.id}
-          variant={selectedPipelineId === pipeline.id ? "gradient" : "outline"}
-          className={`w-full justify-start transition-all duration-200 ${
+          className={`w-full border rounded-md transition-all duration-200 cursor-pointer ${
             selectedPipelineId === pipeline.id
-              ? "text-white shadow-md"
-              : "hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+              ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md border-blue-500"
+              : "border-gray-200 hover:bg-blue-50 hover:border-blue-200"
           }`}
           onClick={() => onSelect(pipeline.id)}
         >
-          <div className="flex items-center justify-between w-full">
-            <span className="truncate font-medium">{pipeline.name}</span>
+          <div className="flex items-center justify-between w-full p-3">
+            <span className={`truncate font-medium ${
+              selectedPipelineId === pipeline.id ? "text-white" : "text-gray-900"
+            }`}>
+              {pipeline.name}
+            </span>
             <div className="flex items-center">
               {!pipeline.is_default && (
                 <Button
@@ -106,7 +109,7 @@ export function PipelineList({
               )}
             </div>
           </div>
-        </Button>
+        </div>
       ))}
     </div>
   );

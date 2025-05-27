@@ -2,13 +2,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ThemeTest } from "@/components/theme/theme-test";
-import { useTheme } from "@/components/theme/theme-provider";
+import { ThemeSelector as ColorThemeSelector } from "@/components/theme-selector";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { ThemeName } from "@/lib/themes";
 import { useState, useEffect } from "react";
-import { ApplyStoneTheme } from "./apply-stone-theme";
-import { DirectThemeTest } from "./direct-theme-test";
+import { Moon, Sun, Monitor, Paintbrush } from "lucide-react";
+
 import { isRingCentralAuthenticated, authenticateWithRingCentral } from "@/utils/ringcentral";
 import { toast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +41,7 @@ export default function SettingsPage() {
   // Handle RingCentral authentication
   const handleRingCentralAuth = async () => {
     if (isRingCentralAuth) {
+      // Show error message for reconnect attempt
       toast({
         title: "Already authenticated",
         description: "You are already authenticated with RingCentral.",
@@ -61,21 +61,56 @@ export default function SettingsPage() {
     }
   };
 
-  // Debug: Log the current theme
-  console.log("Current theme in Settings page:", theme);
+  // Handle RingCentral disconnect
+  const handleRingCentralDisconnect = async () => {
+    if (!isRingCentralAuth) {
+      toast({
+        title: "Not connected",
+        description: "You are not currently connected to RingCentral.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-  // Available themes
-  const themes = [
-    { name: 'neutral', label: 'Neutral' },
-    { name: 'stone', label: 'Stone' },
-    { name: 'zinc', label: 'Zinc' },
-    { name: 'gray', label: 'Gray' },
-    { name: 'slate', label: 'Slate' }
-  ];
+    try {
+      setIsCheckingAuth(true);
+      
+      const response = await fetch('/api/ringcentral/auth?action=logout', {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        setIsRingCentralAuth(false);
+        toast({
+          title: "Disconnected successfully",
+          description: "You have been disconnected from RingCentral.",
+        });
+      } else {
+        throw new Error('Failed to disconnect from RingCentral');
+      }
+    } catch (error) {
+      console.error('Error disconnecting from RingCentral:', error);
+      toast({
+        title: "Disconnect Error",
+        description: "Failed to disconnect from RingCentral. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  // Handle RingCentral button click (connect or disconnect)
+  const handleRingCentralButtonClick = () => {
+    if (isRingCentralAuth) {
+      handleRingCentralDisconnect();
+    } else {
+      handleRingCentralAuth();
+    }
+  };
 
   return (
     <>
-      <ApplyStoneTheme />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
       </div>
@@ -91,86 +126,43 @@ export default function SettingsPage() {
         <TabsContent value="appearance" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Theme</CardTitle>
+              <CardTitle>Dark Mode</CardTitle>
               <CardDescription>
-                Customize the appearance of the application
+                Choose between light and dark mode, or use system preference
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                {themes.map((t) => (
-                  <Button
-                    key={t.name}
-                    variant={theme === t.name ? "default" : "outline"}
-                    className="w-full justify-center"
-                    onClick={() => {
-                      console.log("Changing theme from", theme, "to", t.name);
-                      setTheme(t.name as ThemeName);
-                      // Debug: Check if theme was updated after a short delay
-                      setTimeout(() => {
-                        console.log("Theme after change:", document.documentElement.dataset.theme);
-                        console.log("CSS Variables:", {
-                          background: getComputedStyle(document.documentElement).getPropertyValue('--background'),
-                          foreground: getComputedStyle(document.documentElement).getPropertyValue('--foreground'),
-                          primary: getComputedStyle(document.documentElement).getPropertyValue('--primary')
-                        });
-                      }, 100);
-                    }}
-                  >
-                    {t.label}
-                  </Button>
-                ))}
-              </div>
-
-              <div className="mt-6 p-4 border rounded-md bg-muted/50">
-                <h3 className="font-medium mb-4">Preview</h3>
-
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-primary"></div>
-                      <span>Primary</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-secondary"></div>
-                      <span>Secondary</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-accent"></div>
-                      <span>Accent</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-destructive"></div>
-                      <span>Destructive</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Button Examples</h4>
-                    <div className="flex flex-wrap gap-2">
-                      <Button variant="default">Primary</Button>
-                      <Button variant="secondary">Secondary</Button>
-                      <Button variant="outline">Outline</Button>
-                      <Button variant="destructive">Destructive</Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Card Example</h4>
-                    <Card className="w-full max-w-sm">
-                      <CardHeader>
-                        <CardTitle>Card Title</CardTitle>
-                        <CardDescription>Card description text</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p>This is sample content in a card.</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
+              <div className="flex items-center gap-4">
+                <Button
+                  variant={theme === 'light' ? 'default' : 'outline'}
+                  onClick={() => setTheme('light')}
+                  className="flex items-center gap-2"
+                >
+                  <Sun className="h-4 w-4" />
+                  Light
+                </Button>
+                <Button
+                  variant={theme === 'dark' ? 'default' : 'outline'}
+                  onClick={() => setTheme('dark')}
+                  className="flex items-center gap-2"
+                >
+                  <Moon className="h-4 w-4" />
+                  Dark
+                </Button>
+                <Button
+                  variant={theme === 'system' ? 'default' : 'outline'}
+                  onClick={() => setTheme('system')}
+                  className="flex items-center gap-2"
+                >
+                  <Monitor className="h-4 w-4" />
+                  System
+                </Button>
               </div>
             </CardContent>
           </Card>
+
+          {/* Color theme selector */}
+          <ColorThemeSelector />
         </TabsContent>
 
         <TabsContent value="account">
@@ -218,7 +210,7 @@ export default function SettingsPage() {
                   <div className="flex flex-col items-center space-y-4">
                     <div
                       className="relative w-48 h-24 cursor-pointer transition-transform hover:scale-105"
-                      onClick={handleRingCentralAuth}
+                      onClick={handleRingCentralButtonClick}
                       style={{
                         filter: 'drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.1))',
                       }}
@@ -238,11 +230,12 @@ export default function SettingsPage() {
                       </p>
 
                       <Button
-                        onClick={handleRingCentralAuth}
-                        variant={isRingCentralAuth ? "outline" : "default"}
+                        onClick={handleRingCentralButtonClick}
+                        variant={isRingCentralAuth ? "destructive" : "default"}
                         className="w-full"
+                        disabled={isCheckingAuth}
                       >
-                        {isRingCentralAuth ? "Reconnect" : "Connect"}
+                        {isCheckingAuth ? "Processing..." : (isRingCentralAuth ? "Disconnect" : "Connect")}
                       </Button>
                     </div>
                   </div>

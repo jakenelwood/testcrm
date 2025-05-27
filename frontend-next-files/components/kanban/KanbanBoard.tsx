@@ -94,17 +94,17 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
                   <div className="h-5 w-5 bg-white/20 rounded-full"></div>
                 </div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-4 min-h-[500px] shadow-sm">
+              <div className="bg-card border border-border rounded-lg p-4 min-h-[500px] shadow-sm">
                 {/* Render 3 skeleton cards per column to indicate loading */}
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="animate-pulse">
-                    <div className="bg-gray-100 h-24 mb-3 rounded-lg border border-gray-200">
+                    <div className="bg-muted h-24 mb-3 rounded-lg border border-border">
                       <div className="p-4">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                        <div className="h-4 bg-muted-foreground/20 rounded w-3/4 mb-2"></div>
+                        <div className="h-3 bg-muted-foreground/20 rounded w-1/2 mb-3"></div>
                         <div className="flex justify-between mt-4">
-                          <div className="h-5 bg-gray-200 rounded w-1/3"></div>
-                          <div className="h-5 bg-gray-200 rounded w-1/4"></div>
+                          <div className="h-5 bg-muted-foreground/20 rounded w-1/3"></div>
+                          <div className="h-5 bg-muted-foreground/20 rounded w-1/4"></div>
                         </div>
                       </div>
                     </div>
@@ -121,15 +121,15 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   // If there are no statuses, display a message
   if (statuses.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[500px] border border-gray-200 rounded-lg bg-white shadow-sm">
+      <div className="flex items-center justify-center h-[500px] border border-border rounded-lg bg-card shadow-sm">
         <div className="text-center p-8 max-w-md">
-          <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">No Pipeline Statuses</h3>
-          <p className="text-gray-600 mb-6">
+          <h3 className="text-xl font-bold text-foreground mb-2">No Pipeline Statuses</h3>
+          <p className="text-muted-foreground mb-6">
             This pipeline doesn't have any statuses defined yet. You'll need to add statuses to organize your leads.
           </p>
           <a href="/pipelines" className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-md shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all duration-200">

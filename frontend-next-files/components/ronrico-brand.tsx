@@ -8,22 +8,20 @@ interface RonricoBrandProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
   showTagline?: boolean;
-  color?: string;
 }
 
 export default function RonricoBrand({
   className,
   size = 'md',
   showTagline = false,
-  color = '#0047AB'
 }: RonricoBrandProps) {
   return (
     <div className={cn("flex flex-col", className)}>
       <div className="px-2 py-1">
-        <TextLogo size={size} color={color} />
+        <TextLogo size={size} />
       </div>
       {showTagline && (
-        <div className="text-sm mt-1 text-gray-600">
+        <div className="text-sm mt-1 text-muted-foreground">
           The pipeline whisperer
         </div>
       )}

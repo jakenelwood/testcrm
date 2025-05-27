@@ -39,17 +39,17 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-border shadow-sm overflow-hidden bg-card">
       <Table>
-        <TableHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+        <TableHeader className="bg-muted/50 border-b border-border">
           <TableRow>
-            <TableHead className="font-semibold text-gray-700">Name</TableHead>
-            <TableHead className="font-semibold text-gray-700">Contact</TableHead>
-            <TableHead className="font-semibold text-gray-700">Insurance</TableHead>
-            <TableHead className="font-semibold text-gray-700">Created</TableHead>
-            <TableHead className="font-semibold text-gray-700">Status</TableHead>
-            <TableHead className="font-semibold text-gray-700">Assigned To</TableHead>
-            <TableHead className="font-semibold text-gray-700">Actions</TableHead>
+            <TableHead className="font-semibold text-foreground">Name</TableHead>
+            <TableHead className="font-semibold text-foreground">Contact</TableHead>
+            <TableHead className="font-semibold text-foreground">Insurance</TableHead>
+            <TableHead className="font-semibold text-foreground">Created</TableHead>
+            <TableHead className="font-semibold text-foreground">Status</TableHead>
+            <TableHead className="font-semibold text-foreground">Assigned To</TableHead>
+            <TableHead className="font-semibold text-foreground">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -57,8 +57,8 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
             <TableRow>
               <TableCell colSpan={7} className="text-center py-12">
                 <div className="flex flex-col items-center justify-center">
-                  <div className="h-10 w-10 rounded-full border-4 border-t-blue-600 border-b-blue-600 border-l-transparent border-r-transparent animate-spin mb-4"></div>
-                  <p className="text-gray-500 font-medium">Loading leads...</p>
+                  <div className="h-10 w-10 rounded-full border-4 border-t-primary border-b-primary border-l-transparent border-r-transparent animate-spin mb-4"></div>
+                  <p className="text-muted-foreground font-medium">Loading leads...</p>
                 </div>
               </TableCell>
             </TableRow>
@@ -66,13 +66,13 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
             <TableRow>
               <TableCell colSpan={7} className="text-center py-16">
                 <div className="flex flex-col items-center justify-center">
-                  <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">No leads found</h3>
-                  <p className="text-gray-500 mb-6 max-w-md text-center">
+                  <h3 className="text-lg font-bold text-foreground mb-2">No leads found</h3>
+                  <p className="text-muted-foreground mb-6 max-w-md text-center">
                     Try adjusting your search filters or add a new lead to get started.
                   </p>
                 </div>
@@ -82,21 +82,21 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
             leads.map((lead) => (
               <TableRow
                 key={lead.id}
-                className="cursor-pointer hover:bg-blue-50/30 transition-colors duration-150"
+                className="cursor-pointer hover:bg-muted/50 transition-colors duration-150"
                 onClick={() => onLeadSelect(lead)}
               >
-                <TableCell className="font-medium text-gray-900">
+                <TableCell className="font-medium text-foreground">
                   {lead.first_name} {lead.last_name}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-sm text-gray-700">{lead.email || 'No email'}</span>
-                    <span className="text-sm text-gray-500">{lead.phone_number || 'No phone'}</span>
+                    <span className="text-sm text-foreground">{lead.email || 'No email'}</span>
+                    <span className="text-sm text-muted-foreground">{lead.phone_number || 'No phone'}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-sm text-gray-700">{lead.insurance_type}</span>
+                    <span className="text-sm text-foreground">{lead.insurance_type}</span>
                     {lead.current_carrier && (
                       <span className={`text-xs px-2 py-0.5 rounded-full inline-flex items-center w-fit mt-1 shadow-sm ${getCarrierColor(lead.current_carrier)}`}>
                         {lead.current_carrier}
@@ -104,7 +104,7 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="text-gray-700">
+                <TableCell className="text-foreground">
                   {formatDateMMDDYYYY(lead.created_at)}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
@@ -122,17 +122,17 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
                       <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm mr-2">
                         {lead.assigned_to.charAt(0).toUpperCase()}
                       </div>
-                      <span className="text-gray-700">{lead.assigned_to}</span>
+                      <span className="text-foreground">{lead.assigned_to}</span>
                     </div>
                   ) : (
-                    <span className="text-gray-400">Unassigned</span>
+                    <span className="text-muted-foreground">Unassigned</span>
                   )}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8 border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+                    className="h-8 w-8"
                     asChild
                   >
                     <a href={`/dashboard/leads/${lead.id}`} target="_blank" rel="noopener noreferrer" title="View full lead details">

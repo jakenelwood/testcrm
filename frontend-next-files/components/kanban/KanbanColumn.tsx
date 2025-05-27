@@ -52,7 +52,7 @@ export function KanbanColumn({ status, leads, onLeadSelect }: KanbanColumnProps)
         className={`rounded-lg p-4 min-h-[500px] transition-all duration-300 ${
           isOver
             ? 'bg-blue-50 border-2 border-dashed border-blue-500 shadow-lg scale-[1.02]'
-            : 'bg-white border border-gray-200 shadow-sm hover:border-blue-300 hover:shadow-md'
+            : 'bg-card border border-border shadow-sm hover:border-blue-300 hover:shadow-md'
         }`}
       >
         <SortableContext
@@ -71,14 +71,14 @@ export function KanbanColumn({ status, leads, onLeadSelect }: KanbanColumnProps)
         </SortableContext>
 
         {leads.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-32 border border-dashed rounded-lg border-gray-300 bg-gray-50/50 p-4">
-            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex flex-col items-center justify-center h-32 border border-dashed rounded-lg border-border bg-muted/50 p-4">
+            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </div>
-            <p className="text-sm font-medium text-gray-500">No leads in {status}</p>
-            <p className="text-xs text-gray-400 mt-1">Drag leads here or add new ones</p>
+            <p className="text-sm font-medium text-muted-foreground">No leads in {status}</p>
+            <p className="text-xs text-muted-foreground mt-1">Drag leads here or add new ones</p>
           </div>
         )}
       </div>
