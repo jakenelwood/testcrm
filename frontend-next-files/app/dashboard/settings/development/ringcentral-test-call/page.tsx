@@ -183,7 +183,7 @@ export default function RingCentralTestCallPage() {
     } catch (err: any) {
       addLog(`Error making call: ${err.message}`);
       setIsAuthError(false); // Reset auth error flag initially
-      
+
       // Check for specific error types
       if (err.message && err.message.includes('InternationalCalls')) {
         // International calling error
@@ -195,7 +195,7 @@ export default function RingCentralTestCallPage() {
         addLog('Error: A required feature is not available for your RingCentral account');
         setError('A required feature is not available for your RingCentral account. Please check your subscription.');
       } else if (err.message && (
-        err.message.includes('Not authenticated with RingCentral') || 
+        err.message.includes('Not authenticated with RingCentral') ||
         err.message.includes('authentication required') ||
         err.message.includes('invalid_grant') ||
         err.message.includes('Token is revoked') ||
@@ -234,14 +234,14 @@ export default function RingCentralTestCallPage() {
         const response = await fetch(`/api/ringcentral/call-status?callId=${id}&verbose=true`);
         if (!response.ok) {
           let errorData: { error?: string; [key: string]: any } = {};
-          try { 
-            errorData = await response.json(); 
+          try {
+            errorData = await response.json();
           } catch {
             errorData = { error: 'Unknown error' };
           }
           const errorMsg = errorData.error || 'Unknown error';
           addLog(`Error checking call status: ${errorMsg}`);
-          
+
           // Handle rate limiting with much longer backoff
           if (errorMsg.includes('rate limit') || errorMsg.includes('Rate limit')) {
             backoffMultiplier = Math.min(backoffMultiplier * 3, 8); // Cap at 8x (2 minutes)
@@ -408,10 +408,10 @@ export default function RingCentralTestCallPage() {
     <div>
       {/* RingCentral Embeddable 2.0 Widget */}
       <div style={{ marginBottom: 32 }}>
-        {/* <RingCentralEmbeddableWidget 
-          clientId={rcClientId} 
-          appServer={rcAppServer} 
-          redirectUri={rcRedirectUri} 
+        {/* <RingCentralEmbeddableWidget
+          clientId={rcClientId}
+          appServer={rcAppServer}
+          redirectUri={rcRedirectUri}
         /> */}
       </div>
 
@@ -443,12 +443,12 @@ export default function RingCentralTestCallPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">From Number</label>
+                <label className="text-sm font-medium text-foreground">From Number</label>
                 <div className="flex items-center space-x-2">
                   <Input
                     value={fromNumber || ''}
                     disabled
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                   {!fromNumber && (
                     <Alert variant="destructive" className="mt-2">
@@ -463,7 +463,7 @@ export default function RingCentralTestCallPage() {
               </div>
 
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">To Number</label>
+                <label className="text-sm font-medium text-foreground">To Number</label>
                 <div className="flex flex-col space-y-1">
                   <div className="flex items-center space-x-2">
                     <Input
@@ -474,7 +474,7 @@ export default function RingCentralTestCallPage() {
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     US numbers will automatically be formatted with +1 country code
                   </div>
                   <div className="mt-2 flex space-x-2">
@@ -526,28 +526,28 @@ export default function RingCentralTestCallPage() {
 
               {callStatus && (
                 <div className="mt-6 space-y-4">
-                  <div className="p-4 border rounded-md bg-gray-50">
-                    <h3 className="text-lg font-medium mb-2">Call Status</h3>
+                  <div className="p-4 border rounded-md bg-muted">
+                    <h3 className="text-lg font-medium mb-2 text-foreground">Call Status</h3>
                     <div className="space-y-2">
                       <div className="flex items-center">
-                        <span className="font-medium mr-2">Status:</span>
+                        <span className="font-medium mr-2 text-foreground">Status:</span>
                         <span className="text-blue-600">{callStatus.statusDescription}</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="font-medium mr-2">Next Step:</span>
-                        <span>{callStatus.nextStep}</span>
+                        <span className="font-medium mr-2 text-foreground">Next Step:</span>
+                        <span className="text-foreground">{callStatus.nextStep}</span>
                       </div>
                       {callStatus.troubleshooting && callStatus.troubleshooting.length > 0 && (
                         <div className="mt-2">
-                          <span className="font-medium">Troubleshooting Tips:</span>
-                          <ul className="list-disc pl-5 mt-1 text-sm text-gray-600">
+                          <span className="font-medium text-foreground">Troubleshooting Tips:</span>
+                          <ul className="list-disc pl-5 mt-1 text-sm text-muted-foreground">
                             {callStatus.troubleshooting.map((tip: string, i: number) => (
                               <li key={i}>{tip}</li>
                             ))}
                           </ul>
                         </div>
                       )}
-                      <div className="text-xs text-gray-500 mt-2">
+                      <div className="text-xs text-muted-foreground mt-2">
                         Last updated: {new Date(callStatus.timestamp).toLocaleTimeString()}
                       </div>
                     </div>

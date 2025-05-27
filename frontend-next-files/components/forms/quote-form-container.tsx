@@ -252,10 +252,7 @@ export function QuoteFormContainer() {
   return (
     <div className="container mx-auto py-6">
       <Card>
-        <CardHeader>
-          <CardTitle>New Lead</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-4 mb-6">
               <TabsTrigger value="client">Lead Info</TabsTrigger>

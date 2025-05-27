@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { fetchPipelines } from "@/utils/pipeline-api";
-import { Pipeline } from "@/types/lead";
+import { Pipeline, PipelineStatus } from "@/types/lead";
 
 // Function to format phone number as (555) 555-5555
 const formatPhoneNumber = (value: string) => {
@@ -70,7 +70,8 @@ const accidentSchema = z.object({
 
 // Define additional driver schema
 const additionalDriverSchema = z.object({
-  name: z.string().optional(),
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
   date_of_birth: z.string().optional(),
   license_number: z.string().optional(),
   license_state: z.string().optional(),
@@ -80,10 +81,9 @@ const additionalDriverSchema = z.object({
 
 // Define form schema
 const formSchema = z.object({
-  client_type: z.enum(["Individual", "Business"], {
-    required_error: "Client type is required",
-  }),
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  business_name: z.string().optional(),
   phone_number: z.string().optional().refine(
     (val) => !val || val === "" || /^\(\d{3}\) \d{3}-\d{4}$/.test(val) || /^\d{10}$/.test(val.replace(/\D/g, '')),
     {
@@ -122,9 +122,19 @@ const formSchema = z.object({
   accidents: z.array(accidentSchema).default([]),
   additional_drivers: z.array(additionalDriverSchema).default([]),
   pipeline_id: z.number().min(1, "Pipeline is required"),
+  status_id: z.number().min(1, "Stage is required"),
   includeAuto: z.boolean().default(false),
   includeHome: z.boolean().default(false),
   includeSpecialty: z.boolean().default(false),
+}).refine((data) => {
+  // Require either business name or first/last name
+  const hasBusinessName = data.business_name && data.business_name.trim().length > 0;
+  const hasPersonalName = data.first_name && data.first_name.trim().length > 0 &&
+                          data.last_name && data.last_name.trim().length > 0;
+  return hasBusinessName || hasPersonalName;
+}, {
+  message: "Please fill in either business name or first and last name",
+  path: ["first_name"], // This will show the error on the first_name field
 });
 
 export type LeadInfoFormValues = z.infer<typeof formSchema>;
@@ -153,6 +163,7 @@ export function LeadInfoForm({
   // State for pipelines
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [isLoadingPipelines, setIsLoadingPipelines] = useState(true);
+  const [selectedPipelineStatuses, setSelectedPipelineStatuses] = useState<PipelineStatus[]>([]);
   // State for auto-save
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -160,8 +171,9 @@ export function LeadInfoForm({
   const form = useForm<LeadInfoFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      client_type: "Individual",
-      name: "",
+      first_name: "",
+      last_name: "",
+      business_name: "",
       phone_number: "",
       email: "",
       street_address: "",
@@ -185,6 +197,7 @@ export function LeadInfoForm({
       accidents: [],
       additional_drivers: [],
       pipeline_id: 0, // Will be set by the useEffect when pipelines are loaded
+      status_id: 0, // Will be set when pipeline is selected
       includeAuto: false,
       includeHome: false,
       includeSpecialty: false,
@@ -206,6 +219,11 @@ export function LeadInfoForm({
         const defaultPipeline = data.find(p => p.is_default);
         if (defaultPipeline) {
           form.setValue('pipeline_id', defaultPipeline.id);
+          // Set the first status as default if available
+          if (defaultPipeline.statuses && defaultPipeline.statuses.length > 0) {
+            form.setValue('status_id', defaultPipeline.statuses[0].id);
+            setSelectedPipelineStatuses(defaultPipeline.statuses);
+          }
         }
       } catch (error) {
         console.error('Error loading pipelines:', error);
@@ -217,9 +235,9 @@ export function LeadInfoForm({
     loadPipelines();
   }, [form]);
 
-  // Watch for ZIP code and client type changes
+  // Watch for ZIP code and pipeline changes
   const zipCode = form.watch('zip_code');
-  const clientType = form.watch('client_type');
+  const pipelineId = form.watch('pipeline_id');
   const accidents = form.watch('accidents') || [];
   const additionalDrivers = form.watch('additional_drivers') || [];
 
@@ -239,7 +257,7 @@ export function LeadInfoForm({
   const formValues = form.watch();
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (formValues && formValues.name && formValues.name.length > 0) {
+      if (formValues && ((formValues.first_name && formValues.first_name.length > 0) || (formValues.business_name && formValues.business_name.length > 0))) {
         autoSave(formValues);
       }
     }, 1000); // Auto-save 1 second after user stops typing
@@ -262,7 +280,8 @@ export function LeadInfoForm({
   const addAdditionalDriver = () => {
     const currentDrivers = form.getValues('additional_drivers') || [];
     form.setValue('additional_drivers', [...currentDrivers, {
-      name: '',
+      first_name: '',
+      last_name: '',
       date_of_birth: '',
       license_number: '',
       license_state: '',
@@ -289,20 +308,23 @@ export function LeadInfoForm({
     }
   }, [zipCode, form]);
 
-  // Auto-select pipeline based on client type
+  // Handle pipeline changes to update available statuses
   useEffect(() => {
-    if (pipelines.length > 0 && clientType) {
-      // Find the Alpha (id: 1) and Bravo (id: 2) pipelines
-      const alphaPipeline = pipelines.find(p => p.name === 'Alpha' || p.id === 1);
-      const bravoPipeline = pipelines.find(p => p.name === 'Bravo' || p.id === 2);
+    if (pipelines.length > 0 && pipelineId) {
+      const selectedPipeline = pipelines.find(p => p.id === pipelineId);
 
-      if (clientType === 'Business' && bravoPipeline) {
-        form.setValue('pipeline_id', bravoPipeline.id);
-      } else if (clientType === 'Individual' && alphaPipeline) {
-        form.setValue('pipeline_id', alphaPipeline.id);
+      if (selectedPipeline && selectedPipeline.statuses) {
+        setSelectedPipelineStatuses(selectedPipeline.statuses);
+        // Set the first status as default if no status is currently selected
+        if (!form.getValues('status_id') && selectedPipeline.statuses.length > 0) {
+          form.setValue('status_id', selectedPipeline.statuses[0].id);
+        }
+      } else {
+        setSelectedPipelineStatuses([]);
+        form.setValue('status_id', 0);
       }
     }
-  }, [clientType, pipelines, form]);
+  }, [pipelineId, pipelines, form]);
 
   // Handle form submission
   const handleFormSubmit = (values: any) => {
@@ -340,26 +362,83 @@ export function LeadInfoForm({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Pipeline Selection */}
                 <FormField
                   control={form.control}
-                  name="client_type"
+                  name="pipeline_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Client Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <FormLabel>Pipeline</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        value={field.value?.toString() || ""}
+                        disabled={isLoadingPipelines}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select client type" />
+                            <SelectValue placeholder="Select pipeline" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Individual">Individual</SelectItem>
-                          <SelectItem value="Business">Business</SelectItem>
+                          {pipelines.map((pipeline) => (
+                            <SelectItem key={pipeline.id} value={pipeline.id.toString()}>
+                              {pipeline.name}
+                              {pipeline.is_default && " (Default)"}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Business clients will be assigned to the Bravo pipeline
+                        Choose the appropriate pipeline for this lead
                       </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Stage Selection */}
+                <FormField
+                  control={form.control}
+                  name="status_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stage</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        value={field.value?.toString() || ""}
+                        disabled={selectedPipelineStatuses.length === 0}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select stage" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {selectedPipelineStatuses.map((status) => (
+                            <SelectItem key={status.id} value={status.id.toString()}>
+                              {status.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select the current stage for this lead
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Name Fields - moved below pipeline/stage */}
+                <FormField
+                  control={form.control}
+                  name="first_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -367,13 +446,31 @@ export function LeadInfoForm({
 
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="last_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{form.watch('client_type') === 'Business' ? 'Business Name' : 'Full Name'}</FormLabel>
+                      <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder={form.watch('client_type') === 'Business' ? 'Acme Corporation' : 'John Doe'} {...field} />
+                        <Input placeholder="Doe" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Business Name Field */}
+                <FormField
+                  control={form.control}
+                  name="business_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Name (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Acme Corporation" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Fill this if this is a business lead
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1009,13 +1106,30 @@ export function LeadInfoForm({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
-                            name={`additional_drivers.${index}.name`}
+                            name={`additional_drivers.${index}.first_name`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Full Name</FormLabel>
+                                <FormLabel>First Name</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Driver's full name"
+                                    placeholder="Driver's first name"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`additional_drivers.${index}.last_name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Last Name</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Driver's last name"
                                     {...field}
                                   />
                                 </FormControl>

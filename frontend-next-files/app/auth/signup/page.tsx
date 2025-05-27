@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { EyeIcon, EyeOffIcon, Mail, Lock, User, ArrowRight, CheckCircle2, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import RonricoBrand from '@/components/ronrico-brand'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -170,13 +171,14 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       {/* Top navigation */}
       <nav className="container mx-auto py-6 px-4">
-        <div className="flex justify-center md:justify-start">
+        <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <RonricoBrand size="lg" className="h-10 flex items-center" />
           </Link>
+          <ThemeToggle />
         </div>
       </nav>
 
@@ -185,24 +187,24 @@ export default function SignUpPage() {
           {/* Left side - Signup form */}
           <div className="w-full max-w-sm">
             <div className="text-center md:text-left mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mb-3">Create an account</h1>
-              <p className="text-lg text-gray-600">
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-3">Create an account</h1>
+              <p className="text-lg text-muted-foreground">
                 Join Ronrico and start closing more deals
               </p>
             </div>
 
-            <Card className="border-none shadow-xl bg-white overflow-hidden">
+            <Card className="border-none shadow-xl bg-card overflow-hidden">
               {/* Decorative top bar */}
-              <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
+              <div className="h-1.5 w-full bg-gradient-to-r from-primary via-primary/80 to-primary/60"></div>
 
               <CardHeader className="space-y-1 pt-6 pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl font-bold">Sign up</CardTitle>
-                  <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                    <User className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="text-2xl font-bold text-card-foreground">Sign up</CardTitle>
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="h-5 w-5 text-primary" />
                   </div>
                 </div>
-                <CardDescription>
+                <CardDescription className="text-muted-foreground">
                   Enter your details to get started
                 </CardDescription>
               </CardHeader>
@@ -217,54 +219,54 @@ export default function SignUpPage() {
 
                 <form className="space-y-5" onSubmit={handleSignUp}>
                   <div className="space-y-3">
-                    <Label htmlFor="displayName" className="text-sm font-medium">Display Name</Label>
+                    <Label htmlFor="displayName" className="text-sm font-medium text-card-foreground">Display Name</Label>
                     <div className="relative group">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors h-4 w-4" />
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors h-4 w-4" />
                       <Input
                         id="displayName"
                         type="text"
                         placeholder="Your name"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
-                        className="pl-10 h-12 bg-gray-50 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all"
+                        className="pl-10 h-12 bg-background border-border rounded-lg focus:border-primary focus:ring-primary transition-all"
                         required
                       />
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                    <Label htmlFor="email" className="text-sm font-medium text-card-foreground">Email</Label>
                     <div className="relative group">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors h-4 w-4" />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors h-4 w-4" />
                       <Input
                         id="email"
                         type="email"
                         placeholder="name@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 h-12 bg-gray-50 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all"
+                        className="pl-10 h-12 bg-background border-border rounded-lg focus:border-primary focus:ring-primary transition-all"
                         required
                       />
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <Label htmlFor="password" className="text-sm font-medium text-card-foreground">Password</Label>
                     <div className="relative group">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors h-4 w-4" />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors h-4 w-4" />
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 h-12 bg-gray-50 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all"
+                        className="pl-10 h-12 bg-background border-border rounded-lg focus:border-primary focus:ring-primary transition-all"
                         required
                       />
                       <button
                         type="button"
                         onClick={togglePasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-card-foreground transition-colors"
                       >
                         {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                       </button>
@@ -281,20 +283,20 @@ export default function SignUpPage() {
                         </span>
                       </div>
                     )}
-                    <p className="text-xs text-gray-500">Password must be at least 8 characters long</p>
+                    <p className="text-xs text-muted-foreground">Password must be at least 8 characters long</p>
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</Label>
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-card-foreground">Confirm Password</Label>
                     <div className="relative group">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors h-4 w-4" />
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors h-4 w-4" />
                       <Input
                         id="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="••••••••"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`pl-10 h-12 bg-gray-50 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-all ${
+                        className={`pl-10 h-12 bg-background border-border rounded-lg focus:border-primary focus:ring-primary transition-all ${
                           passwordsMatch === false ? 'border-red-500' :
                           passwordsMatch === true ? 'border-green-500' : ''
                         }`}
@@ -303,7 +305,7 @@ export default function SignUpPage() {
                       <button
                         type="button"
                         onClick={toggleConfirmPasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-card-foreground transition-colors"
                       >
                         {showConfirmPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                       </button>
@@ -324,7 +326,7 @@ export default function SignUpPage() {
 
                   <Button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg mt-2"
+                    className="w-full h-12 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg mt-2"
                     disabled={loading || passwordsMatch === false || passwordStrength === 'weak' || !displayName.trim()}
                   >
                     {loading ? (
@@ -345,8 +347,8 @@ export default function SignUpPage() {
                 </form>
 
                 <div className="text-sm text-center">
-                  <span className="text-gray-500">Already have an account?</span>{' '}
-                  <Link href="/auth/login" className="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors">
+                  <span className="text-muted-foreground">Already have an account?</span>{' '}
+                  <Link href="/auth/login" className="text-primary hover:text-primary/80 hover:underline font-medium transition-colors">
                     Sign in
                   </Link>
                 </div>
@@ -356,15 +358,15 @@ export default function SignUpPage() {
 
           {/* Right side - Illustration */}
           <div className="hidden md:block w-full max-w-md">
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl overflow-hidden shadow-xl relative">
+            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl overflow-hidden shadow-xl relative">
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
 
               <div className="relative z-10 p-8 md:p-10">
-                <div className="text-white mb-6">
+                <div className="text-primary-foreground mb-6">
                   <h2 className="text-2xl md:text-3xl font-bold mb-4">The Pipeline Whisperer</h2>
-                  <p className="text-blue-100 mb-6">
+                  <p className="text-primary-foreground/80 mb-6">
                     CRM with brains, not baggage. Smart. Automated. Actually affordable.
                   </p>
                 </div>
@@ -372,43 +374,43 @@ export default function SignUpPage() {
                 <div className="space-y-4 mb-8">
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0">
-                        <span className="text-white">🔄</span>
+                      <div className="h-8 w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary-foreground">🔄</span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">The Gentle Nudge</p>
-                        <p className="text-xs text-blue-200">Already sent. Soft touch. Big win.</p>
+                        <p className="text-sm font-medium text-primary-foreground">The Gentle Nudge</p>
+                        <p className="text-xs text-primary-foreground/70">Already sent. Soft touch. Big win.</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0">
-                        <span className="text-white">🧠</span>
+                      <div className="h-8 w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary-foreground">🧠</span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">Deal Memory</p>
-                        <p className="text-xs text-blue-200">I never forget a lead. You're welcome.</p>
+                        <p className="text-sm font-medium text-primary-foreground">Deal Memory</p>
+                        <p className="text-xs text-primary-foreground/70">I never forget a lead. You're welcome.</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0">
-                        <span className="text-white">🤖</span>
+                      <div className="h-8 w-8 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary-foreground">🤖</span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">Street-Smart AI</p>
-                        <p className="text-xs text-blue-200">They opened it twice. Want to nudge again?</p>
+                        <p className="text-sm font-medium text-primary-foreground">Street-Smart AI</p>
+                        <p className="text-xs text-primary-foreground/70">They opened it twice. Want to nudge again?</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="text-center">
-                  <p className="text-sm text-blue-100 italic">"Where your pipeline goes to close."</p>
+                  <p className="text-sm text-primary-foreground/80 italic">"Where your pipeline goes to close."</p>
                 </div>
               </div>
             </div>
@@ -417,7 +419,7 @@ export default function SignUpPage() {
       </div>
 
       {/* Footer */}
-      <footer className="container mx-auto py-6 px-4 text-center text-gray-500 text-sm">
+      <footer className="container mx-auto py-6 px-4 text-center text-muted-foreground text-sm">
         <div className="flex justify-center mb-3">
           <RonricoBrand size="sm" className="h-6 flex items-center opacity-50" />
         </div>

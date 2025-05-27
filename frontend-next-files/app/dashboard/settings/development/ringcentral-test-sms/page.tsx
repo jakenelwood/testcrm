@@ -62,17 +62,17 @@ export default function RingCentralTestSMSPage() {
 
     // Format the phone number to ensure it's a US number with +1 prefix
     let formattedNumber = phoneNumber;
-    
+
     // Remove any non-digit characters for consistent processing
     const digitsOnly = phoneNumber.replace(/\D/g, '');
-    
+
     // If it doesn't start with +1
     if (!phoneNumber.startsWith('+1')) {
       // If it's a 10-digit number, add +1
       if (digitsOnly.length === 10) {
         formattedNumber = `+1${digitsOnly}`;
         addLog(`Automatically added +1 country code: ${formattedNumber}`);
-      } 
+      }
       // If it's an 11-digit number starting with 1, add +
       else if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
         formattedNumber = `+${digitsOnly}`;
@@ -85,23 +85,23 @@ export default function RingCentralTestSMSPage() {
         addLog(`Reformatted as US number: ${formattedNumber}`);
       }
     }
-    
+
     // If it starts with +612, it might be misformatted (should be +1612 for US)
     if (formattedNumber.startsWith('+612')) {
       formattedNumber = `+1${formattedNumber.substring(4)}`;
       addLog(`Reformatted number from +612... to +1612... format`);
     }
-    
+
     if (formattedNumber !== phoneNumber) {
       addLog(`Using reformatted phone number: ${formattedNumber}`);
       setPhoneNumber(formattedNumber);
     }
-    
+
     setIsLoading(true);
     setError(null);
     setMessageId(null);
     setMessageStatus(null);
-    
+
     // Stop any existing polling
     if (statusPolling) {
       clearInterval(statusPolling);
@@ -116,7 +116,7 @@ export default function RingCentralTestSMSPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           to: formattedNumber,
           from: fromNumber,
           text: message
@@ -135,7 +135,7 @@ export default function RingCentralTestSMSPage() {
         status: 'Sent',
         timestamp: new Date().toISOString()
       });
-      
+
       toast({
         title: "SMS Sent",
         description: "Your message has been sent successfully.",
@@ -143,7 +143,7 @@ export default function RingCentralTestSMSPage() {
 
     } catch (err: any) {
       addLog(`Error sending SMS: ${err.message}`);
-      
+
       // Check for specific error types
       if (err.message && err.message.includes('SMS')) {
         // SMS feature not available
@@ -153,7 +153,7 @@ export default function RingCentralTestSMSPage() {
         // Generic error
         setError(err.message || 'An error occurred while sending the SMS');
       }
-      
+
       toast({
         title: "Error",
         description: err.message || "Failed to send SMS",
@@ -199,12 +199,12 @@ export default function RingCentralTestSMSPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">From Number</label>
+                <label className="text-sm font-medium text-foreground">From Number</label>
                 <div className="flex items-center space-x-2">
                   <Input
                     value={fromNumber || ''}
                     disabled
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                   {!fromNumber && (
                     <Alert variant="destructive" className="mt-2">
@@ -219,7 +219,7 @@ export default function RingCentralTestSMSPage() {
               </div>
 
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">To Number</label>
+                <label className="text-sm font-medium text-foreground">To Number</label>
                 <div className="flex flex-col space-y-1">
                   <div className="flex items-center space-x-2">
                     <Input
@@ -230,14 +230,14 @@ export default function RingCentralTestSMSPage() {
                       disabled={isLoading}
                     />
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     US numbers will automatically be formatted with +1 country code
                   </div>
                 </div>
               </div>
 
               <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium">Message</label>
+                <label className="text-sm font-medium text-foreground">Message</label>
                 <Textarea
                   placeholder="Enter your message here"
                   value={message}
@@ -245,7 +245,7 @@ export default function RingCentralTestSMSPage() {
                   disabled={isLoading}
                   className="min-h-[100px]"
                 />
-                <div className="text-xs text-gray-500 flex justify-between">
+                <div className="text-xs text-muted-foreground flex justify-between">
                   <span>Maximum 160 characters per SMS</span>
                   <span>{message.length}/160 characters</span>
                 </div>
@@ -281,14 +281,14 @@ export default function RingCentralTestSMSPage() {
 
               {messageStatus && (
                 <div className="mt-6 space-y-4">
-                  <div className="p-4 border rounded-md bg-gray-50">
-                    <h3 className="text-lg font-medium mb-2">Message Status</h3>
+                  <div className="p-4 border rounded-md bg-muted">
+                    <h3 className="text-lg font-medium mb-2 text-foreground">Message Status</h3>
                     <div className="space-y-2">
                       <div className="flex items-center">
-                        <span className="font-medium mr-2">Status:</span>
+                        <span className="font-medium mr-2 text-foreground">Status:</span>
                         <span className="text-green-600">{messageStatus.status}</span>
                       </div>
-                      <div className="text-xs text-gray-500 mt-2">
+                      <div className="text-xs text-muted-foreground mt-2">
                         Sent at: {new Date(messageStatus.timestamp).toLocaleTimeString()}
                       </div>
                     </div>

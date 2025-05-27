@@ -73,6 +73,7 @@ import { fetchLeadsWithRelations, fetchLeadsByPipeline, updateLeadStatus } from 
 import { fetchPipelines, fetchPipelineById, fetchDefaultPipeline, updateLeadPipelineAndStatus } from '@/utils/pipeline-api';
 import { LeadListView } from "@/components/leads/LeadListView";
 import { PipelineSelector } from "@/components/pipelines/PipelineSelector";
+import { LeadImportModal } from "@/components/leads/LeadImportModal";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DevelopmentModeBanner } from "@/components/ui/development-mode-banner";
 
@@ -88,6 +89,9 @@ function LeadsPageContent() {
 
   // State for the current search query
   const [searchQuery, setSearchQuery] = useState('');
+
+  // State for status filtering
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
   // State for the currently selected lead (for details view)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -112,6 +116,9 @@ function LeadsPageContent() {
 
   // State for loading pipelines
   const [isPipelinesLoading, setIsPipelinesLoading] = useState(true);
+
+  // State for import modal
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -345,22 +352,31 @@ function LeadsPageContent() {
     };
   }, [selectedPipeline]);
 
-  // Filter leads based on search query
+  // Filter leads based on search query and status filter
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredLeads(leads);
-    } else {
+    let filtered = leads;
+
+    // Apply search filter
+    if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase();
-      const filtered = leads.filter(
+      filtered = filtered.filter(
         (lead) =>
           lead.first_name?.toLowerCase().includes(query) ||
           lead.last_name?.toLowerCase().includes(query) ||
           lead.email?.toLowerCase().includes(query) ||
           lead.phone_number?.toLowerCase().includes(query)
       );
-      setFilteredLeads(filtered);
     }
-  }, [searchQuery, leads]);
+
+    // Apply status filter
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter((lead) =>
+        selectedStatuses.includes(lead.status || '')
+      );
+    }
+
+    setFilteredLeads(filtered);
+  }, [searchQuery, selectedStatuses, leads]);
 
   // Handle drag start event
   const handleDragStart = (event: DragStartEvent) => {
@@ -464,10 +480,48 @@ function LeadsPageContent() {
     if (pipeline) {
       setSelectedPipeline(pipeline);
 
+      // Clear status filters when changing pipelines
+      setSelectedStatuses([]);
+
       // Update URL with the pipeline ID
       const url = new URL(window.location.href);
       url.searchParams.set('pipeline', pipelineId.toString());
       window.history.pushState({}, '', url.toString());
+    }
+  };
+
+  // Handle status filter change
+  const handleStatusFilterChange = (statuses: string[]) => {
+    setSelectedStatuses(statuses);
+  };
+
+  // Handle import leads
+  const handleImportLeads = () => {
+    setIsImportModalOpen(true);
+  };
+
+  // Handle import completion
+  const handleImportComplete = (importedCount: number) => {
+    setIsImportModalOpen(false);
+    // Refresh leads to show the newly imported ones
+    if (selectedPipeline) {
+      const fetchLeads = async () => {
+        setIsLoading(true);
+        try {
+          const isDefaultPipeline = selectedPipeline.name === 'Alpha' || selectedPipeline.is_default;
+          const leadsData = await fetchLeadsByPipeline(
+            selectedPipeline.id,
+            isDefaultPipeline
+          );
+          setLeads(leadsData);
+          setFilteredLeads(leadsData);
+        } catch (error) {
+          console.error('Error refreshing leads after import:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchLeads();
     }
   };
 
@@ -492,6 +546,7 @@ function LeadsPageContent() {
               selectedPipelineId={selectedPipeline.id}
               onPipelineChange={handlePipelineChange}
               isLoading={isPipelinesLoading}
+              onImportLeads={handleImportLeads}
             />
           )}
         </div>
@@ -647,6 +702,8 @@ function LeadsPageContent() {
             });
           }}
           statuses={selectedPipeline?.statuses || []}
+          selectedStatuses={selectedStatuses}
+          onStatusFilterChange={handleStatusFilterChange}
         />
       )}
 
@@ -656,6 +713,15 @@ function LeadsPageContent() {
           onClose={() => setIsLeadDetailsModalOpen(false)}
           lead={selectedLead}
           onLeadUpdated={handleLeadUpdated}
+        />
+      )}
+
+      {selectedPipeline && (
+        <LeadImportModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onImportComplete={handleImportComplete}
+          pipelineId={selectedPipeline.id}
         />
       )}
     </div>

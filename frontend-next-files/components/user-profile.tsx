@@ -68,8 +68,10 @@ export function UserProfile({ showText = true }: UserProfileProps) {
         "flex items-center",
         shouldShowText ? "gap-3" : "justify-center"
       )}>
-        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex-shrink-0 flex items-center justify-center text-white font-medium shadow-sm">
-          {!loading && displayName.charAt(0).toUpperCase()}
+        <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex-shrink-0 flex items-center justify-center">
+          <span className="text-sidebar-primary-foreground font-bold text-sm">
+            {!loading && displayName.charAt(0).toUpperCase()}
+          </span>
         </div>
         {shouldShowText && (
           <div className="flex-1 min-w-0">

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { UserProfile } from "@/components/user-profile";
+import { LogoutButton } from "@/components/logout-button";
 import { useLogout } from "@/utils/auth";
 import TextLogo from "@/components/text-logo";
 import RTextLogo from "@/components/r-text-logo";
@@ -24,18 +24,17 @@ import {
   LogOut,
   ChevronLeft,
   Phone,
-  MessageSquare
+  MessageSquare,
+  DollarSign
 } from "lucide-react";
-import { fetchPipelines } from "@/utils/pipeline-api";
-import { Pipeline } from "@/types/lead";
+import { usePipelines } from "@/contexts/pipeline-context";
 import { useSidebar } from "@/contexts/sidebar-context";
 
 function SidebarContent() {
   const pathname = usePathname() || '';
   const searchParams = useSearchParams();
-  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+  const { pipelines, isLoading } = usePipelines();
   const [isPipelinesOpen, setIsPipelinesOpen] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const [isHovered, setIsHovered] = useState(false);
   const [tempExpanded, setTempExpanded] = useState(false);
@@ -44,23 +43,8 @@ function SidebarContent() {
   // Get the current pipeline ID from search params
   const currentPipelineId = searchParams?.get('pipeline');
 
-  // Fetch pipelines on component mount
+  // Initialize Development section to be expanded by default
   useEffect(() => {
-    const loadPipelines = async () => {
-      try {
-        setIsLoading(true);
-        const data = await fetchPipelines();
-        setPipelines(data);
-      } catch (error) {
-        console.error('Error loading pipelines:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadPipelines();
-
-    // Initialize Development section to be expanded by default
     if (localStorage.getItem('expanded-Development') === null) {
       localStorage.setItem('expanded-Development', 'true');
     }
@@ -81,16 +65,6 @@ function SidebarContent() {
       href: "/dashboard/clients",
       active: pathname.startsWith("/dashboard/clients"),
       iconColor: "text-[#B91135]",
-      variant: undefined
-    },
-    {
-      label: "Telephony",
-      icon: Phone,
-      href: "/dashboard/telephony",
-      active: pathname.startsWith("/dashboard/telephony") || 
-             pathname.startsWith("/dashboard/settings/development/telephony") ||
-             pathname.startsWith("/dashboard/settings/development/ringcentral"),
-      iconColor: "text-[#0047AB]",
       variant: undefined
     }
   ];
@@ -186,23 +160,6 @@ function SidebarContent() {
           ]
         }
       ]
-    },
-    {
-      label: "Logout",
-      icon: LogOut,
-      href: "#",
-      active: false,
-      iconColor: "text-red-500",
-      variant: undefined,
-      onClick: async () => {
-        try {
-          await logout();
-        } catch (error) {
-          console.error('Error in sidebar logout:', error);
-          // Fallback direct navigation if the hook fails
-          window.location.href = '/auth/login';
-        }
-      }
     }
   ];
 
@@ -284,8 +241,8 @@ function SidebarContent() {
               variant={route.active ? "secondary" : "ghost"}
               className={cn(
                 "justify-start transition-all duration-200 w-full",
-                route.active 
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90" 
+                route.active
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
                   : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 !showExpanded && "justify-center px-0"
               )}
@@ -300,8 +257,8 @@ function SidebarContent() {
                 )} />
                 {showText && (
                   <span className={cn(
-                    "font-medium",
-                    route.active ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground"
+                    "text-base",
+                    route.active ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
                   )}>
                     {route.label}
                   </span>
@@ -327,13 +284,16 @@ function SidebarContent() {
               onClick={() => setIsPipelinesOpen(!isPipelinesOpen)}
               title={!showExpanded ? "Pipelines" : undefined}
             >
-              <FileText className={cn(
+              <DollarSign className={cn(
                 "h-4 w-4 text-sidebar-foreground",
                 showText ? "mr-2" : "mr-0"
               )} />
               {showText && (
                 <>
-                  <span className="font-medium text-sidebar-foreground">Pipelines</span>
+                  <span className={cn(
+                    "text-base text-sidebar-foreground",
+                    (pathname === "/dashboard/pipelines" || pathname.startsWith("/dashboard/leads")) ? "font-semibold" : "font-normal"
+                  )}>Pipelines</span>
                   {isPipelinesOpen ? (
                     <ChevronDown className="ml-auto h-4 w-4 text-sidebar-foreground" />
                   ) : (
@@ -345,6 +305,40 @@ function SidebarContent() {
 
             {isPipelinesOpen && showExpanded && (
               <div className="ml-4 space-y-1">
+                {/* Manage Pipelines Link */}
+                <Button
+                  asChild
+                  variant={pathname === "/dashboard/pipelines" ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start",
+                    pathname === "/dashboard/pipelines"
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+                      : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
+                  size="sm"
+                >
+                  <Link href="/dashboard/pipelines">
+                    <Settings className={cn(
+                      "h-4 w-4",
+                      pathname === "/dashboard/pipelines"
+                        ? "text-sidebar-primary-foreground"
+                        : "text-sidebar-foreground",
+                      showText ? "mr-2" : "mr-0"
+                    )} />
+                    {showText && (
+                      <span className={cn(
+                        "text-sm",
+                        pathname === "/dashboard/pipelines"
+                          ? "text-sidebar-primary-foreground font-semibold"
+                          : "text-sidebar-foreground font-normal"
+                      )}>
+                        Manage Pipelines
+                      </span>
+                    )}
+                  </Link>
+                </Button>
+
+                {/* Pipeline List */}
                 {isLoading ? (
                   <div className={cn(
                     "py-2 text-sm text-sidebar-foreground/70",
@@ -388,14 +382,15 @@ function SidebarContent() {
                           {showText && (
                             <>
                               <span className={cn(
+                                "text-sm",
                                 isPipelineActive
-                                  ? "text-sidebar-primary-foreground"
-                                  : "text-sidebar-foreground"
+                                  ? "text-sidebar-primary-foreground font-semibold"
+                                  : "text-sidebar-foreground font-normal"
                               )}>
                                 {pipeline.name}
                               </span>
                               {pipeline.is_default && (
-                                <span className="ml-2 text-xs opacity-70">(Default)</span>
+                                <span className="ml-2 text-sm opacity-70 font-normal">(Default)</span>
                               )}
                             </>
                           )}
@@ -435,8 +430,8 @@ function SidebarContent() {
               )} />
               {showText && (
                 <span className={cn(
-                  "font-medium",
-                  pathname === "/dashboard/settings" ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground"
+                  "text-base",
+                  pathname === "/dashboard/settings" ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
                 )}>
                   Settings
                 </span>
@@ -472,8 +467,8 @@ function SidebarContent() {
                 )} />
                 {showText && (
                   <span className={cn(
-                    "font-medium",
-                    pathname.startsWith("/dashboard/settings/development") ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground"
+                    "text-base",
+                    pathname.startsWith("/dashboard/settings/development") ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
                   )}>
                     Development
                   </span>
@@ -490,7 +485,7 @@ function SidebarContent() {
                     asChild
                     variant={pathname.startsWith("/dashboard/settings/development/telephony") ? "secondary" : "ghost"}
                     className={cn(
-                      "w-full justify-start text-sm",
+                      "w-full justify-start",
                       pathname.startsWith("/dashboard/settings/development/telephony")
                         ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
                         : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -503,7 +498,8 @@ function SidebarContent() {
                         pathname.startsWith("/dashboard/settings/development/telephony") ? "text-sidebar-primary-foreground" : "text-sidebar-foreground"
                       )} />
                       <span className={cn(
-                        pathname.startsWith("/dashboard/settings/development/telephony") ? "text-sidebar-primary-foreground" : "text-sidebar-foreground"
+                        "text-sm",
+                        pathname.startsWith("/dashboard/settings/development/telephony") ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
                       )}>
                         Telephony/SMS
                       </span>
@@ -516,45 +512,45 @@ function SidebarContent() {
                       <Button
                         asChild
                         variant="ghost"
-                        className="w-full justify-start text-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         size="sm"
                       >
                         <Link href="/dashboard/settings/development/ringcentral-test-call">
                           <Phone className="h-3 w-3 mr-2 text-sidebar-foreground" />
-                          <span className="text-sidebar-foreground">Test Call</span>
+                          <span className="text-base text-sidebar-foreground font-normal">Test Call</span>
                         </Link>
                       </Button>
                       <Button
                         asChild
                         variant="ghost"
-                        className="w-full justify-start text-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         size="sm"
                       >
                         <Link href="/dashboard/settings/development/ringcentral-test-sms">
                           <MessageSquare className="h-3 w-3 mr-2 text-sidebar-foreground" />
-                          <span className="text-sidebar-foreground">Test SMS</span>
+                          <span className="text-base text-sidebar-foreground font-normal">Test SMS</span>
                         </Link>
                       </Button>
                       <Button
                         asChild
                         variant="ghost"
-                        className="w-full justify-start text-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         size="sm"
                       >
                         <Link href="/dashboard/settings/development/ringout-demo">
                           <Phone className="h-3 w-3 mr-2 text-sidebar-foreground" />
-                          <span className="text-sidebar-foreground">RingOut Demo</span>
+                          <span className="text-base text-sidebar-foreground font-normal">RingOut Demo</span>
                         </Link>
                       </Button>
                       <Button
                         asChild
                         variant="ghost"
-                        className="w-full justify-start text-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         size="sm"
                       >
                         <Link href="/dashboard/settings/development/ringcentral-diagnostics">
                           <Settings2 className="h-3 w-3 mr-2 text-sidebar-foreground" />
-                          <span className="text-sidebar-foreground">Diagnostics</span>
+                          <span className="text-base text-sidebar-foreground font-normal">Diagnostics</span>
                         </Link>
                       </Button>
                     </div>
@@ -567,7 +563,7 @@ function SidebarContent() {
                     asChild
                     variant={pathname === "/theme-test" ? "secondary" : "ghost"}
                     className={cn(
-                      "w-full justify-start text-sm",
+                      "w-full justify-start",
                       pathname === "/theme-test"
                         ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
                         : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -580,7 +576,8 @@ function SidebarContent() {
                         pathname === "/theme-test" ? "text-sidebar-primary-foreground" : "text-sidebar-foreground"
                       )} />
                       <span className={cn(
-                        pathname === "/theme-test" ? "text-sidebar-primary-foreground" : "text-sidebar-foreground"
+                        "text-sm",
+                        pathname === "/theme-test" ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
                       )}>
                         Theme Test
                       </span>
@@ -592,26 +589,40 @@ function SidebarContent() {
           </div>
         </div>
 
-        {/* User Profile Section */}
+        {/* Logout Section */}
         <div className={cn(
           "mt-auto pt-6 border-t border-sidebar-border",
           !showExpanded ? "px-1" : "px-2"
         )}>
           <div className="space-y-2">
-            {showExpanded ? (
-              <UserProfile />
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-full h-10 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                title="User Profile"
-              >
-                <div className="w-6 h-6 bg-sidebar-primary rounded-full flex items-center justify-center">
-                  <span className="text-sidebar-primary-foreground text-xs font-medium">U</span>
-                </div>
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start hover:bg-red-50 hover:text-red-600 transition-colors",
+                !showExpanded && "justify-center px-0"
+              )}
+              size="sm"
+              onClick={async () => {
+                try {
+                  await logout();
+                } catch (error) {
+                  console.error('Error in sidebar logout:', error);
+                  // Fallback direct navigation if the hook fails
+                  window.location.href = '/auth/login';
+                }
+              }}
+              title={!showExpanded ? "Logout" : undefined}
+            >
+              <LogOut className={cn(
+                "h-4 w-4 text-red-500",
+                showText ? "mr-2" : "mr-0"
+              )} />
+              {showText && (
+                <span className="text-base text-red-500 font-normal">
+                  Logout
+                </span>
+              )}
+            </Button>
           </div>
         </div>
       </div>

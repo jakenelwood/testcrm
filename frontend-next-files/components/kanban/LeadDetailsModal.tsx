@@ -17,7 +17,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Lead, LeadNote, InsuranceType, LeadStatus } from "@/types/lead";
+import { Lead, LeadNote, InsuranceType, LeadStatus, Quote } from "@/types/lead";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,7 @@ import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 import { Phone, MessageSquare, PhoneOff, Edit } from "lucide-react";
 import { makeRingCentralCall, sendRingCentralSMS } from "@/utils/ringcentral";
 import supabase from '@/utils/supabase/client';
+import { QuoteSection } from "@/components/ui/quote-section";
 
 interface LeadDetailsModalProps {
   isOpen: boolean;
@@ -50,6 +51,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
   const [newNote, setNewNote] = useState('');
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
   const [communications, setCommunications] = useState<any[]>([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -169,8 +171,23 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         }
       };
 
+      const fetchQuotes = async () => {
+        const { data, error } = await supabase
+          .from('quotes')
+          .select('*')
+          .eq('lead_id', lead.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching quotes:', error);
+        } else {
+          setQuotes(data || []);
+        }
+      };
+
       fetchNotes();
       fetchCommunications();
+      fetchQuotes();
     }
   }, [isOpen, lead]);
 
@@ -886,12 +903,18 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           </DialogHeader>
 
           <Tabs defaultValue="data" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-            <TabsList className="grid grid-cols-3 bg-muted p-1 rounded-lg">
+            <TabsList className="grid grid-cols-4 bg-muted p-1 rounded-lg">
               <TabsTrigger
                 value="data"
                 className="text-muted-foreground rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
               >
                 Lead Data
+              </TabsTrigger>
+              <TabsTrigger
+                value="quotes"
+                className="text-muted-foreground rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                Quotes
               </TabsTrigger>
               <TabsTrigger
                 value="communications"
@@ -1690,6 +1713,63 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Quotes Tab */}
+            <TabsContent value="quotes" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Auto Quote */}
+                <QuoteSection
+                  leadId={lead.id}
+                  insuranceType="Auto"
+                  existingQuote={quotes.find(q => q.insurance_type === 'Auto' && q.is_active)}
+                  onQuoteUpdated={(updatedQuote) => {
+                    setQuotes(prev => {
+                      const filtered = prev.filter(q => !(q.insurance_type === 'Auto' && q.is_active));
+                      return [updatedQuote, ...filtered];
+                    });
+                  }}
+                />
+
+                {/* Home Quote */}
+                <QuoteSection
+                  leadId={lead.id}
+                  insuranceType="Home"
+                  existingQuote={quotes.find(q => q.insurance_type === 'Home' && q.is_active)}
+                  onQuoteUpdated={(updatedQuote) => {
+                    setQuotes(prev => {
+                      const filtered = prev.filter(q => !(q.insurance_type === 'Home' && q.is_active));
+                      return [updatedQuote, ...filtered];
+                    });
+                  }}
+                />
+
+                {/* Renters Quote */}
+                <QuoteSection
+                  leadId={lead.id}
+                  insuranceType="Renters"
+                  existingQuote={quotes.find(q => q.insurance_type === 'Renters' && q.is_active)}
+                  onQuoteUpdated={(updatedQuote) => {
+                    setQuotes(prev => {
+                      const filtered = prev.filter(q => !(q.insurance_type === 'Renters' && q.is_active));
+                      return [updatedQuote, ...filtered];
+                    });
+                  }}
+                />
+
+                {/* Specialty Quote */}
+                <QuoteSection
+                  leadId={lead.id}
+                  insuranceType="Specialty"
+                  existingQuote={quotes.find(q => q.insurance_type === 'Specialty' && q.is_active)}
+                  onQuoteUpdated={(updatedQuote) => {
+                    setQuotes(prev => {
+                      const filtered = prev.filter(q => !(q.insurance_type === 'Specialty' && q.is_active));
+                      return [updatedQuote, ...filtered];
+                    });
+                  }}
+                />
+              </div>
             </TabsContent>
 
             {/* Marketing Automation Tab */}

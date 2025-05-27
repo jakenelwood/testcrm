@@ -6,7 +6,8 @@ additional_insured_occupation,JSON Field
 additional_insured_gender,JSON Field
 additional_insured_license_state,JSON Field
 additional_insured_marital_status,JSON Field
-additional_insured_name,JSON Field
+additional_insured_first_name,JSON Field
+additional_insured_last_name,JSON Field
 additional_insured_relation_to_primary_insured,JSON Field
 additional_insured_incident_accident_description, JSON Field
 additional_insured_incident_accident_date, JSON Field
@@ -114,6 +115,8 @@ primary_named_insured_license_state,Column
 primary_named_insured_mailing_address,Column
 primary_named_insured_marital_status,Column
 primary_named_insured_name,Column
+primary_named_insured_first_name,Column
+primary_named_insured_last_name,Columns
 primary_named_insured_phone_number,Column
 primary_named_insured_prior_address,Column
 primary_named_insured_referred_by,Column
@@ -138,3 +141,65 @@ specialty_total_hp,Column
 specialty_type_toy,Column
 specialty_vin,Column
 specialty_year,Column
+auto_quote_paid_in_full,Column
+auto_quote_monthly_payment,Column
+auto_quote_term,Column
+auto_quote_date,Column
+auto_quote_carrier,Column
+auto_quote_notes,JSON Field
+home_quote_paid_in_full,Column
+home_quote_monthly_payment,Column
+home_quote_term,Column
+home_quote_date,Column
+home_quote_carrier,Column
+home_quote_notes,JSON Field
+specialty_quote_paid_in_full,Column
+specialty_quote_monthly_payment,Column
+specialty_quote_term,Column
+specialty_quote_date,Column
+specialty_quote_carrier,Column
+specialty_quote_notes,JSON Field
+renters_quote_paid_in_full,Column
+renters_quote_monthly_payment,Column
+renters_quote_term,Column
+renters_quote_date,Column
+renters_quote_carrier,Column
+renters_quote_notes,JSON Field
+quote_comparison_data,JSON Field
+quote_recommendation_ai,JSON Field
+quote_follow_up_priority,Column
+quote_status_tracking,JSON Field
+quote_carrier_responses,JSON Field
+quote_coverage_details,JSON Field
+quote_discount_applied,JSON Field
+quote_expiration_date,Column
+quote_presentation_format,JSON Field
+quote_client_feedback,JSON Field
+quote_conversion_tracking,JSON Field
+quote_carrier_name,Column
+quote_policy_number,Column
+quote_effective_date,Column
+quote_renewal_date,Column
+quote_deductible_amount,Column
+quote_coverage_limits,JSON Field
+quote_additional_coverages,JSON Field
+quote_exclusions,JSON Field
+quote_payment_method,Column
+quote_financing_options,JSON Field
+quote_commission_rate,Column
+quote_agent_notes,JSON Field
+quote_underwriting_notes,JSON Field
+quote_risk_assessment,JSON Field
+quote_competitive_analysis,JSON Field
+quote_presentation_sent_date,Column
+quote_client_response_date,Column
+quote_follow_up_schedule,JSON Field
+quote_approval_status,Column
+quote_approval_date,Column
+quote_declined_reason,JSON Field
+quote_modification_history,JSON Field
+quote_document_links,JSON Field
+quote_e_signature_status,Column
+quote_binding_date,Column
+quote_cancellation_date,Column
+quote_cancellation_reason,JSON Field

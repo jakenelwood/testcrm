@@ -30,6 +30,7 @@ export interface Pipeline {
   id: number;                // Unique identifier
   name: string;              // Pipeline name
   description?: string;      // Optional description
+  lead_type: 'Personal' | 'Business'; // Type of leads this pipeline handles
   is_default: boolean;       // Whether this is the default pipeline
   display_order?: number;    // Order for display in UI
   created_at: string;        // When the pipeline was created
@@ -194,6 +195,25 @@ export interface LeadCommunication {
 
   // Joined fields
   type?: string;             // Communication type name (joined)
+}
+
+/**
+ * Interface for insurance quotes
+ * Maps to the 'quotes' table
+ */
+export interface Quote {
+  id: string;                // Unique identifier (UUID)
+  lead_id: string;           // Reference to lead
+  insurance_type: 'Auto' | 'Home' | 'Renters' | 'Specialty'; // Type of insurance
+  paid_in_full_amount?: number;    // Full payment amount
+  monthly_payment_amount?: number; // Monthly payment amount
+  contract_term?: '6mo' | '12mo';  // Contract term
+  quote_date: string;        // When quote was generated
+  is_active: boolean;        // Whether this is the current active quote
+  notes?: string;            // Additional quote notes
+  created_by?: string;       // Who created the quote
+  created_at: string;        // When the quote was created
+  updated_at: string;        // When the quote was last updated
 }
 
 /**

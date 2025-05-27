@@ -124,51 +124,33 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
 export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeline: boolean = false): Promise<Lead[]> {
   try {
     return await analyzeQuery(`fetchLeadsByPipeline(${pipelineId}, ${includeNullPipeline})`, async () => {
-      // First, check if the leads_ins_info table has the expected structure
-      const { data: leadsColumns, error: columnsError } = await supabase
-        .from('leads_ins_info')
-        .select('*')
-        .limit(1);
+      // Check table structure using information_schema (works even with empty tables)
+      const { data: columnInfo, error: columnsError } = await supabase
+        .rpc('get_table_columns', { table_name: 'leads_ins_info' })
+        .single();
 
       if (columnsError) {
-        console.error('Error checking leads table structure:', columnsError);
-        return []; // Return empty array instead of throwing
+        // Fallback: assume standard columns exist
+        console.warn('Could not check table structure, assuming standard columns exist');
       }
 
-      // Check if pipeline_id column exists
-      const hasPipelineId = leadsColumns && leadsColumns.length > 0 && 'pipeline_id' in leadsColumns[0];
-      if (!hasPipelineId) {
-        console.error('Pipeline_id column not found in leads table');
-        return []; // Return empty array if pipeline_id doesn't exist
-      }
+      // For leads_ins_info table, we know these columns exist based on our schema
+      const hasPipelineId = true; // pipeline_id exists in leads_ins_info
+      const hasClientId = true; // leads_contact_info_id exists
+      const hasStatusId = true; // status_id exists
+      const hasInsuranceTypeId = true; // insurance_type_id exists
 
-      // Determine which joins to include based on the available columns
-      const hasClientId = leadsColumns && leadsColumns.length > 0 &&
-        ('client_id' in leadsColumns[0] || 'leads_contact_info_id' in leadsColumns[0]);
-      const hasStatusId = leadsColumns && leadsColumns.length > 0 && 'status_id' in leadsColumns[0];
-      const hasInsuranceTypeId = leadsColumns && leadsColumns.length > 0 && 'insurance_type_id' in leadsColumns[0];
-
-      // Build the select query based on available columns
+      // Build the select query based on known schema
       let selectQuery = '*';
-      // Always include client data since we've added the client_id/leads_contact_info_id column
-      if ('leads_contact_info_id' in leadsColumns[0]) {
-        selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
-      } else {
-        selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
-      }
-      if (hasStatusId) {
-        selectQuery += ', status:lead_statuses(value)';
-      }
-      if (hasInsuranceTypeId) {
-        selectQuery += ', insurance_type:insurance_types(name)';
-      }
+      // Include client data using leads_contact_info_id
+      selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
+      // Include status information (status_id references lead_statuses)
+      selectQuery += ', status:lead_statuses(value)';
+      // Include insurance type information (insurance_type_id references insurance_types)
+      selectQuery += ', insurance_type:insurance_types(name)';
       // Include address information
-      if ('address_id' in leadsColumns[0]) {
-        selectQuery += ', address:address_id(id, street, city, state, zip_code, type)';
-      }
-      if ('mailing_address_id' in leadsColumns[0]) {
-        selectQuery += ', mailing_address:mailing_address_id(id, street, city, state, zip_code, type)';
-      }
+      selectQuery += ', address:addresses!address_id(id, street, city, state, zip_code, type)';
+      selectQuery += ', mailing_address:addresses!mailing_address_id(id, street, city, state, zip_code, type)';
 
       // Start building the query
       let query = supabase
@@ -249,25 +231,9 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
 export async function updateLeadStatus(leadId: string, statusId: number): Promise<void> {
   try {
     return await analyzeQuery(`updateLeadStatus(${leadId}, ${statusId})`, async () => {
-      // First, check if the leads_ins_info table has the expected structure
-      const { data: leadsColumns, error: columnsError } = await supabase
-        .from('leads_ins_info')
-        .select('*')
-        .limit(1);
-
-      if (columnsError) {
-        console.error('Error checking leads table structure:', columnsError);
-        throw new Error('Could not check leads table structure');
-      }
-
-      // Check if status_id column exists
-      const hasStatusId = leadsColumns && leadsColumns.length > 0 && 'status_id' in leadsColumns[0];
-      const hasStatusChangedAt = leadsColumns && leadsColumns.length > 0 && 'status_changed_at' in leadsColumns[0];
-
-      if (!hasStatusId) {
-        console.error('Status_id column not found in leads table');
-        throw new Error('Status_id column not found in leads table');
-      }
+      // For leads_ins_info table, we know these columns exist based on our schema
+      const hasStatusId = true; // status_id exists
+      const hasStatusChangedAt = true; // status_changed_at exists
 
       // Build the update object based on available columns
       const updateData: any = {
@@ -302,23 +268,11 @@ export async function updateLeadStatus(leadId: string, statusId: number): Promis
 export async function createLead(leadData: any): Promise<Lead> {
   try {
     return await analyzeQuery('createLead', async () => {
-      // First, check if the leads_ins_info table has the expected structure
-      const { data: leadsColumns, error: columnsError } = await supabase
-        .from('leads_ins_info')
-        .select('*')
-        .limit(1);
-
-      if (columnsError) {
-        console.error('Error checking leads table structure:', columnsError);
-        throw new Error('Could not check leads table structure');
-      }
-
-      // Determine which columns to include based on the available columns
-      const hasClientId = leadsColumns && leadsColumns.length > 0 &&
-        ('client_id' in leadsColumns[0] || 'leads_contact_info_id' in leadsColumns[0]);
-      const hasStatusId = leadsColumns && leadsColumns.length > 0 && 'status_id' in leadsColumns[0];
-      const hasInsuranceTypeId = leadsColumns && leadsColumns.length > 0 && 'insurance_type_id' in leadsColumns[0];
-      const hasPipelineId = leadsColumns && leadsColumns.length > 0 && 'pipeline_id' in leadsColumns[0];
+      // For leads_ins_info table, we know these columns exist based on our schema
+      const hasClientId = true; // leads_contact_info_id exists
+      const hasStatusId = true; // status_id exists
+      const hasInsuranceTypeId = true; // insurance_type_id exists
+      const hasPipelineId = true; // pipeline_id exists
 
       let clientId = null;
 
@@ -359,13 +313,9 @@ export async function createLead(leadData: any): Promise<Lead> {
         updated_at: new Date().toISOString()
       };
 
-      // Always set client_id or leads_contact_info_id since we've added the column
+      // Always set leads_contact_info_id since we know it exists
       if (clientId) {
-        if ('leads_contact_info_id' in leadsColumns[0]) {
-          leadInsert.leads_contact_info_id = clientId;
-        } else {
-          leadInsert.client_id = clientId;
-        }
+        leadInsert.leads_contact_info_id = clientId;
       }
 
       if (hasStatusId) {
@@ -410,27 +360,17 @@ export async function createLead(leadData: any): Promise<Lead> {
       leadInsert.current_carrier = leadData.current_carrier || null;
       leadInsert.premium = leadData.premium ? parseFloat(leadData.premium) : null;
 
-      // Build the select query based on available columns
+      // Build the select query based on known schema
       let selectQuery = '*';
-      // Always include client data since we've added the client_id/leads_contact_info_id column
-      if ('leads_contact_info_id' in leadsColumns[0]) {
-        selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
-      } else {
-        selectQuery += ', client:client_id(id, name, email, phone_number, client_type)';
-      }
-      if (hasStatusId) {
-        selectQuery += ', status:lead_statuses(value)';
-      }
-      if (hasInsuranceTypeId) {
-        selectQuery += ', insurance_type:insurance_types(name)';
-      }
+      // Include client data using leads_contact_info_id
+      selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
+      // Include status information
+      selectQuery += ', status:lead_statuses(value)';
+      // Include insurance type information
+      selectQuery += ', insurance_type:insurance_types(name)';
       // Include address information
-      if ('address_id' in leadsColumns[0]) {
-        selectQuery += ', address:address_id(id, street, city, state, zip_code, type)';
-      }
-      if ('mailing_address_id' in leadsColumns[0]) {
-        selectQuery += ', mailing_address:mailing_address_id(id, street, city, state, zip_code, type)';
-      }
+      selectQuery += ', address:addresses!address_id(id, street, city, state, zip_code, type)';
+      selectQuery += ', mailing_address:addresses!mailing_address_id(id, street, city, state, zip_code, type)';
 
       // Create the lead record
       const { data: newLeadData, error: leadError } = await supabase

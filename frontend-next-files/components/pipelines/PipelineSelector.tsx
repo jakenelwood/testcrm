@@ -11,23 +11,25 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Settings } from "lucide-react";
+import { Settings, Upload } from "lucide-react";
 
 interface PipelineSelectorProps {
   pipelines: Pipeline[];
   selectedPipelineId: number;
   onPipelineChange: (pipelineId: number) => void;
   isLoading?: boolean;
+  onImportLeads?: () => void;
 }
 
-export function PipelineSelector({ 
-  pipelines, 
-  selectedPipelineId, 
+export function PipelineSelector({
+  pipelines,
+  selectedPipelineId,
   onPipelineChange,
-  isLoading = false
+  isLoading = false,
+  onImportLeads
 }: PipelineSelectorProps) {
   const router = useRouter();
-  
+
   // Handle pipeline change
   const handlePipelineChange = (value: string) => {
     onPipelineChange(parseInt(value));
@@ -35,7 +37,7 @@ export function PipelineSelector({
 
   // Navigate to pipeline management
   const handleManagePipelines = () => {
-    router.push('/pipelines');
+    router.push('/dashboard/pipelines');
   };
 
   return (
@@ -59,7 +61,18 @@ export function PipelineSelector({
           </SelectContent>
         </Select>
       </div>
-      
+
+      {onImportLeads && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onImportLeads}
+          title="Import Leads"
+        >
+          <Upload className="h-4 w-4" />
+        </Button>
+      )}
+
       <Button
         variant="outline"
         size="icon"

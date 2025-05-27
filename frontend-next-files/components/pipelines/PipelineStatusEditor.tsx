@@ -224,7 +224,7 @@ export function PipelineStatusEditor({
             name="ai_action_template"
             value={formData.ai_action_template}
             onChange={handleInputChange}
-            placeholder="Template for AI-suggested actions at this status"
+            placeholder="Template for AI-suggested actions at this stage"
             rows={3}
           />
           <p className="text-xs text-muted-foreground">
@@ -239,7 +239,7 @@ export function PipelineStatusEditor({
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={isSaving || !formData.name.trim()}>
-              {isSaving ? "Saving..." : "Create Status"}
+              {isSaving ? "Saving..." : "Create Stage"}
             </Button>
           </>
         ) : (

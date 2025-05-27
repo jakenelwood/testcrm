@@ -7,20 +7,20 @@ export default async function handler(
   if (req.method === 'POST') {
     try {
       const quoteData = req.body;
-      
+
       // Validate required data
-      if (!quoteData.client || !quoteData.client.name) {
+      if (!quoteData.client || (!quoteData.client.first_name && !quoteData.client.business_name)) {
         return res.status(400).json({ success: false, error: 'Client information is required' });
       }
-      
+
       // Check that at least one insurance type is included
       if (!quoteData.has_auto && !quoteData.has_home && !quoteData.has_specialty) {
-        return res.status(400).json({ 
-          success: false, 
+        return res.status(400).json({
+          success: false,
           error: 'At least one insurance type must be selected'
         });
       }
-      
+
       // Make API call to backend
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const response = await fetch(`${backendUrl}/api/quotes/`, {
@@ -31,19 +31,19 @@ export default async function handler(
         },
         body: JSON.stringify(quoteData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Failed to create quote');
       }
-      
+
       const data = await response.json();
       return res.status(201).json({ success: true, data });
     } catch (error) {
       console.error('Error creating quote:', error);
-      return res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'An unknown error occurred' 
+      return res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
       });
     }
   } else if (req.method === 'GET') {
@@ -55,18 +55,18 @@ export default async function handler(
           // You might need to add authentication headers here
         },
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Failed to fetch quotes');
       }
-      
+
       const data = await response.json();
       return res.status(200).json({ success: true, data });
     } catch (error) {
       console.error('Error fetching quotes:', error);
-      return res.status(500).json({ 
-        success: false, 
+      return res.status(500).json({
+        success: false,
         error: error instanceof Error ? error.message : 'An unknown error occurred'
       });
     }
@@ -75,4 +75,4 @@ export default async function handler(
     res.setHeader('Allow', ['GET', 'POST']);
     return res.status(405).json({ success: false, error: `Method ${req.method} Not Allowed` });
   }
-} 
+}

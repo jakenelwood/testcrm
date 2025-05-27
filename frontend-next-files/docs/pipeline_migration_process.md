@@ -73,7 +73,7 @@ CREATE TABLE pipeline_statuses (
   ai_action_template TEXT,             -- Template for AI-suggested actions at this status
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Ensure unique status names within a pipeline
   UNIQUE(pipeline_id, name)
 );
@@ -87,23 +87,23 @@ VALUES ('Default Sales Pipeline', 'Standard sales pipeline for insurance leads',
 
 -- Migrate existing lead_statuses to pipeline_statuses for the default pipeline
 INSERT INTO pipeline_statuses (
-  pipeline_id, 
-  name, 
-  description, 
-  is_final, 
-  display_order, 
-  color_hex, 
-  icon_name, 
+  pipeline_id,
+  name,
+  description,
+  is_final,
+  display_order,
+  color_hex,
+  icon_name,
   ai_action_template
 )
-SELECT 
+SELECT
   1 as pipeline_id, -- Default pipeline ID
-  value as name, 
-  description, 
-  is_final, 
-  display_order, 
-  color_hex, 
-  icon_name, 
+  value as name,
+  description,
+  is_final,
+  display_order,
+  color_hex,
+  icon_name,
   ai_action_template
 FROM lead_statuses;
 
@@ -129,7 +129,7 @@ Save the following as `20250501_rollback_pipelines.sql`:
 BEGIN;
 
 -- Update schema_versions to mark this migration as rolled back
-UPDATE schema_versions 
+UPDATE schema_versions
 SET is_active = FALSE, rolled_back_at = NOW()
 WHERE version = '20250501_add_pipelines';
 
@@ -183,7 +183,7 @@ SELECT COUNT(*) FROM leads WHERE pipeline_id IS NULL;
 
 ### 2. Test Application Features
 
-1. Navigate to `/pipelines` in your application
+1. Navigate to `/dashboard/pipelines` in your application
 2. Verify that the default pipeline appears
 3. Create a new pipeline
 4. Add statuses to the new pipeline
@@ -215,23 +215,23 @@ If issues are discovered and you need to roll back the changes:
 ```sql
 -- Verify that the pipelines table no longer exists
 SELECT EXISTS (
-   SELECT FROM information_schema.tables 
+   SELECT FROM information_schema.tables
    WHERE table_schema = 'public'
    AND table_name = 'pipelines'
 );
 
 -- Verify that the pipeline_statuses table no longer exists
 SELECT EXISTS (
-   SELECT FROM information_schema.tables 
+   SELECT FROM information_schema.tables
    WHERE table_schema = 'public'
    AND table_name = 'pipeline_statuses'
 );
 
 -- Verify that the pipeline_id column no longer exists in leads
-SELECT column_name 
-FROM information_schema.columns 
-WHERE table_schema = 'public' 
-AND table_name = 'leads' 
+SELECT column_name
+FROM information_schema.columns
+WHERE table_schema = 'public'
+AND table_name = 'leads'
 AND column_name = 'pipeline_id';
 ```
 

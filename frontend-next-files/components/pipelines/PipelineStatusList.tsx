@@ -14,9 +14,9 @@ interface PipelineStatusListProps {
   onReorder: (statusIds: number[]) => void;
 }
 
-export function PipelineStatusList({ 
-  statuses, 
-  selectedStatusId, 
+export function PipelineStatusList({
+  statuses,
+  selectedStatusId,
   onSelect,
   onReorder
 }: PipelineStatusListProps) {
@@ -28,18 +28,18 @@ export function PipelineStatusList({
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, status: PipelineStatus) => {
     setIsDragging(true);
     setDraggedStatus(status);
-    
+
     // Set the drag image and data
     e.dataTransfer.setData('text/plain', status.id.toString());
     e.dataTransfer.effectAllowed = 'move';
-    
+
     // Create a ghost image
     const ghostElement = document.createElement('div');
     ghostElement.classList.add('bg-primary', 'text-primary-foreground', 'p-2', 'rounded');
     ghostElement.textContent = status.name;
     document.body.appendChild(ghostElement);
     e.dataTransfer.setDragImage(ghostElement, 0, 0);
-    
+
     // Remove the ghost element after drag starts
     setTimeout(() => {
       document.body.removeChild(ghostElement);
@@ -55,31 +55,31 @@ export function PipelineStatusList({
   // Handle drop
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetStatus: PipelineStatus) => {
     e.preventDefault();
-    
+
     if (!draggedStatus || draggedStatus.id === targetStatus.id) {
       setIsDragging(false);
       setDraggedStatus(null);
       return;
     }
-    
+
     // Reorder the statuses
     const reorderedStatuses = [...statuses];
     const draggedIndex = reorderedStatuses.findIndex(s => s.id === draggedStatus.id);
     const targetIndex = reorderedStatuses.findIndex(s => s.id === targetStatus.id);
-    
+
     if (draggedIndex !== -1 && targetIndex !== -1) {
       // Remove the dragged status
       const [removed] = reorderedStatuses.splice(draggedIndex, 1);
       // Insert it at the target position
       reorderedStatuses.splice(targetIndex, 0, removed);
-      
+
       // Get the IDs in the new order
       const statusIds = reorderedStatuses.map(s => s.id);
-      
+
       // Call the onReorder callback
       onReorder(statusIds);
     }
-    
+
     setIsDragging(false);
     setDraggedStatus(null);
   };
@@ -93,7 +93,7 @@ export function PipelineStatusList({
   if (statuses.length === 0) {
     return (
       <div className="text-center py-4 text-muted-foreground">
-        No statuses found
+        No stages found
       </div>
     );
   }
@@ -117,7 +117,7 @@ export function PipelineStatusList({
           <div className="p-2 cursor-grab">
             <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
-          
+
           <Button
             variant="ghost"
             className="flex-1 justify-start h-auto py-2 px-3"
@@ -125,8 +125,8 @@ export function PipelineStatusList({
           >
             <div className="flex items-center space-x-2">
               {status.color_hex && (
-                <div 
-                  className="w-3 h-3 rounded-full" 
+                <div
+                  className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: status.color_hex }}
                 />
               )}

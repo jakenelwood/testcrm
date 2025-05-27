@@ -2,6 +2,7 @@ import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeProvider as ColorThemeProvider } from "@/lib/theme-context";
+import { PipelineProvider } from "@/contexts/pipeline-context";
 import React from "react";
 import { inter } from "./fonts";
 
@@ -37,8 +38,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <ColorThemeProvider>
-            {children}
-            <ToastProvider />
+            <PipelineProvider>
+              {children}
+              <ToastProvider />
+            </PipelineProvider>
           </ColorThemeProvider>
         </ThemeProvider>
       </body>

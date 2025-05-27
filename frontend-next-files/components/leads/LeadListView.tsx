@@ -2,6 +2,7 @@
 
 import { Lead, LeadStatus, PipelineStatus } from "@/types/lead";
 import { LeadStatusDropdown } from "./LeadStatusDropdown";
+import { StatusFilter } from "./StatusFilter";
 import {
   Table,
   TableBody,
@@ -20,9 +21,19 @@ interface LeadListViewProps {
   onLeadSelect: (lead: Lead) => void;
   onStatusChange: (leadId: string, newStatus: string) => void;
   statuses?: PipelineStatus[];
+  selectedStatuses?: string[];
+  onStatusFilterChange?: (statuses: string[]) => void;
 }
 
-export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, statuses = [] }: LeadListViewProps) {
+export function LeadListView({
+  leads,
+  isLoading,
+  onLeadSelect,
+  onStatusChange,
+  statuses = [],
+  selectedStatuses = [],
+  onStatusFilterChange
+}: LeadListViewProps) {
   // Using our utility function for date formatting
 
   // Determine carrier badge color
@@ -47,7 +58,18 @@ export function LeadListView({ leads, isLoading, onLeadSelect, onStatusChange, s
             <TableHead className="font-semibold text-foreground">Contact</TableHead>
             <TableHead className="font-semibold text-foreground">Insurance</TableHead>
             <TableHead className="font-semibold text-foreground">Created</TableHead>
-            <TableHead className="font-semibold text-foreground">Status</TableHead>
+            <TableHead className="font-semibold text-foreground">
+              <div className="flex items-center justify-between">
+                <span>Status</span>
+                {onStatusFilterChange && statuses.length > 0 && (
+                  <StatusFilter
+                    statuses={statuses}
+                    selectedStatuses={selectedStatuses}
+                    onStatusFilterChange={onStatusFilterChange}
+                  />
+                )}
+              </div>
+            </TableHead>
             <TableHead className="font-semibold text-foreground">Assigned To</TableHead>
             <TableHead className="font-semibold text-foreground">Actions</TableHead>
           </TableRow>

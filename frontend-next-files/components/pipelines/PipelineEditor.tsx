@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -55,6 +56,7 @@ export function PipelineEditor({
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    lead_type: 'Personal' as 'Personal' | 'Business',
     is_default: false
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -69,6 +71,7 @@ export function PipelineEditor({
       setFormData({
         name: pipeline.name,
         description: pipeline.description || '',
+        lead_type: pipeline.lead_type || 'Personal',
         is_default: pipeline.is_default
       });
     }
@@ -95,6 +98,7 @@ export function PipelineEditor({
         const newPipeline = await createPipeline({
           name: formData.name,
           description: formData.description,
+          lead_type: formData.lead_type,
           is_default: formData.is_default,
           display_order: 999 // Will be ordered last by default
         });
@@ -105,6 +109,7 @@ export function PipelineEditor({
         const updatedPipeline = await updatePipeline(pipeline.id, {
           name: formData.name,
           description: formData.description,
+          lead_type: formData.lead_type,
           is_default: formData.is_default
         });
 
@@ -251,7 +256,7 @@ export function PipelineEditor({
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="details">Pipeline Details</TabsTrigger>
-            {mode === 'edit' && <TabsTrigger value="statuses">Pipeline Statuses</TabsTrigger>}
+            {mode === 'edit' && <TabsTrigger value="statuses">Pipeline Stages</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="details" className="space-y-4">
@@ -279,11 +284,32 @@ export function PipelineEditor({
               />
             </div>
 
-            <div className="mt-6 p-4 border border-gray-200 rounded-md bg-gray-50">
+            <div className="space-y-2">
+              <Label htmlFor="lead_type">Lead Type</Label>
+              <Select
+                value={formData.lead_type}
+                onValueChange={(value: 'Personal' | 'Business') =>
+                  setFormData(prev => ({ ...prev, lead_type: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select lead type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Personal">Personal</SelectItem>
+                  <SelectItem value="Business">Business</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                Personal pipelines handle individual clients, Business pipelines handle corporate accounts
+              </p>
+            </div>
+
+            <div className="mt-6 p-4 border rounded-md bg-muted/50">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-medium text-gray-900">Default Pipeline</h3>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <h3 className="text-base font-medium">Default Pipeline</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
                     Make this the default pipeline for new leads
                   </p>
                 </div>
@@ -291,7 +317,6 @@ export function PipelineEditor({
                   id="is_default"
                   checked={formData.is_default}
                   onCheckedChange={(checked) => handleSwitchChange('is_default', checked)}
-                  className={formData.is_default ? "bg-green-600 data-[state=checked]:bg-green-600" : ""}
                 />
               </div>
             </div>
@@ -304,7 +329,7 @@ export function PipelineEditor({
                 <div className="md:col-span-1">
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-sm font-medium">Pipeline Statuses</h3>
+                      <h3 className="text-sm font-medium">Pipeline Stages</h3>
                       <Button
                         size="sm"
                         variant="outline"
@@ -324,7 +349,7 @@ export function PipelineEditor({
                       />
                     ) : (
                       <div className="text-center py-4 text-muted-foreground">
-                        No statuses defined
+                        No stages defined
                       </div>
                     )}
                   </div>
@@ -347,8 +372,8 @@ export function PipelineEditor({
                       onStatusDeleted={handleStatusDeleted}
                     />
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground border rounded-md p-4">
-                      Select a status to edit or create a new one
+                    <div className="text-center py-8 text-muted-foreground border rounded-md bg-muted/20 p-4">
+                      Select a stage to edit or create a new one
                     </div>
                   )}
                 </div>
@@ -380,7 +405,7 @@ export function PipelineEditor({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete the pipeline and all its statuses.
+                    This will permanently delete the pipeline and all its stages.
                     This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>

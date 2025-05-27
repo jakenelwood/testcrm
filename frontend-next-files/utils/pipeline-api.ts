@@ -114,6 +114,7 @@ export async function createPipeline(pipeline: Omit<Pipeline, 'id' | 'created_at
       .insert({
         name: pipeline.name,
         description: pipeline.description || null,
+        lead_type: pipeline.lead_type || 'Personal',
         is_default: pipeline.is_default || false,
         display_order: pipeline.display_order || 999,
         created_at: new Date().toISOString(),

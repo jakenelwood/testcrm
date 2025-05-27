@@ -50,10 +50,10 @@ export function PipelineList({
   };
   if (pipelines.length === 0) {
     return (
-      <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="text-center py-6 text-muted-foreground bg-muted/50 rounded-lg border">
         <div className="flex flex-col items-center">
-          <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-            <span className="text-gray-400 text-lg">📋</span>
+          <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
+            <span className="text-muted-foreground text-lg">📋</span>
           </div>
           <p className="font-medium">No pipelines found</p>
           <p className="text-sm mt-1">Create your first pipeline to get started</p>
@@ -69,27 +69,26 @@ export function PipelineList({
           key={pipeline.id}
           className={`w-full border rounded-md transition-all duration-200 cursor-pointer ${
             selectedPipelineId === pipeline.id
-              ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md border-blue-500"
-              : "border-gray-200 hover:bg-blue-50 hover:border-blue-200"
+              ? "bg-primary text-primary-foreground shadow-md border-primary"
+              : "border-border hover:bg-accent hover:text-accent-foreground"
           }`}
           onClick={() => onSelect(pipeline.id)}
         >
           <div className="flex items-center justify-between w-full p-3">
-            <span className={`truncate font-medium ${
-              selectedPipelineId === pipeline.id ? "text-white" : "text-gray-900"
-            }`}>
-              {pipeline.name}
-            </span>
+            <div className="flex flex-col">
+              <span className="truncate font-medium">
+                {pipeline.name}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {pipeline.lead_type} Leads
+              </span>
+            </div>
             <div className="flex items-center">
               {!pipeline.is_default && (
                 <Button
                   variant={selectedPipelineId === pipeline.id ? "outline" : "secondary"}
                   size="sm"
-                  className={`h-7 px-2 mr-1 ${
-                    selectedPipelineId === pipeline.id
-                      ? "border-white/30 text-white hover:text-white hover:bg-blue-600/30"
-                      : "bg-gray-800 text-white hover:bg-gray-700"
-                  }`}
+                  className="h-7 px-2 mr-1"
                   onClick={(e) => handleSetAsDefault(e, pipeline)}
                   title="Set as default pipeline"
                 >
@@ -98,12 +97,8 @@ export function PipelineList({
                 </Button>
               )}
               {pipeline.is_default && (
-                <Badge className={`ml-2 ${
-                  selectedPipelineId === pipeline.id
-                    ? "bg-green-600 text-white border-green-700"
-                    : "bg-green-600 text-white border-green-700"
-                }`}>
-                  <CheckCircle2 className="h-3 w-3 mr-1 fill-white" />
+                <Badge variant="default" className="ml-2 bg-green-600 hover:bg-green-700">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
                   Default
                 </Badge>
               )}
