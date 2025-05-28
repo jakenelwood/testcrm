@@ -24,10 +24,10 @@ export const RINGCENTRAL_FROM_NUMBER = process.env.RINGCENTRAL_FROM_NUMBER || pr
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // NEXT_PUBLIC_APP_URL: Use environment variable if set.
-// Fallback to 'https://crm-sepia-alpha.vercel.app' in production if not set (though it should always be set in Vercel).
+// Fallback to 'https://crm-jakenelwoods-projects.vercel.app' in production if not set (though it should always be set in Vercel).
 // Fallback to 'http://localhost:3000' in development.
 export const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL ||
-  (IS_PRODUCTION ? 'https://crm-sepia-alpha.vercel.app' : 'http://localhost:3000');
+  (IS_PRODUCTION ? 'https://crm-jakenelwoods-projects.vercel.app' : 'http://localhost:3000');
 
 // REDIRECT_URI: Use environment variable if set, otherwise construct from NEXT_PUBLIC_APP_URL.
 // This ensures Vercel's REDIRECT_URI environment variable is used if present.
