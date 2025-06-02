@@ -17,8 +17,10 @@ import type { ResponseCookies } from 'next/dist/server/web/spec-extension/cookie
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute window
-const MAX_REQUESTS_PER_WINDOW = 10; // Maximum 10 requests per minute
+const MAX_REQUESTS_PER_WINDOW = 5; // Reduced from 10 to 5 requests per minute
 const RATE_LIMIT_COOLDOWN_MS = 300000; // 5 minute cooldown after hitting rate limit
+const RATE_LIMIT_MAX_BACKOFF_MS = 900000; // Maximum 15 minute backoff
+const RATE_LIMIT_BACKOFF_MULTIPLIER = 2; // Exponential backoff multiplier
 
 // In-memory rate limiting store (in production, use Redis or similar)
 // This will be reset when the server restarts
@@ -27,6 +29,9 @@ interface RateLimitEntry {
   windowStart: number;
   isLimited: boolean;
   cooldownUntil: number;
+  backoffLevel: number; // Track exponential backoff level
+  consecutiveFailures: number; // Track consecutive failures for circuit breaker
+  lastFailureTime: number; // Track last failure for circuit breaker
 }
 const rateLimitStore: Record<string, RateLimitEntry> = {};
 
@@ -69,6 +74,10 @@ export async function GET(request: NextRequest) {
       return handleGetToken(request, cookieStore);
     case 'refresh':
       return handleTokenRefresh(request, cookieStore);
+    case 'reset':
+      return handleTokenReset(request, cookieStore);
+    case 'cleanup':
+      return handleTokenCleanup(request, cookieStore);
     default:
       console.warn(`[AUTH_ROUTE] Invalid action received: ${action}`);
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -770,7 +779,10 @@ function checkRateLimit(userId: string): { isLimited: boolean, resetTime?: Date 
       count: 0,
       windowStart: now,
       isLimited: false,
-      cooldownUntil: 0
+      cooldownUntil: 0,
+      backoffLevel: 0,
+      consecutiveFailures: 0,
+      lastFailureTime: 0
     };
   }
 
@@ -789,6 +801,7 @@ function checkRateLimit(userId: string): { isLimited: boolean, resetTime?: Date 
     entry.isLimited = false;
     entry.count = 0;
     entry.windowStart = now;
+    // Don't reset backoffLevel immediately - let it decay gradually
   }
 
   // Start a new window if the current one has expired
@@ -803,11 +816,30 @@ function checkRateLimit(userId: string): { isLimited: boolean, resetTime?: Date 
   // Check if rate limit is exceeded
   if (entry.count > MAX_REQUESTS_PER_WINDOW) {
     entry.isLimited = true;
-    entry.cooldownUntil = now + RATE_LIMIT_COOLDOWN_MS;
+    entry.consecutiveFailures++;
+    entry.lastFailureTime = now;
+    entry.backoffLevel = Math.min(entry.backoffLevel + 1, 10); // Max backoff level of 10
+
+    // Calculate exponential backoff with jitter
+    const baseBackoff = RATE_LIMIT_COOLDOWN_MS * Math.pow(RATE_LIMIT_BACKOFF_MULTIPLIER, entry.backoffLevel);
+    const jitter = Math.random() * 0.1 * baseBackoff; // Add up to 10% jitter
+    const backoffTime = Math.min(baseBackoff + jitter, RATE_LIMIT_MAX_BACKOFF_MS);
+
+    entry.cooldownUntil = now + backoffTime;
+
+    console.log(`[RATE_LIMIT] User ${userId} rate limited. Level: ${entry.backoffLevel}, Backoff: ${Math.round(backoffTime/1000)}s, Consecutive failures: ${entry.consecutiveFailures}`);
+
     return {
       isLimited: true,
       resetTime: new Date(entry.cooldownUntil)
     };
+  }
+
+  // Reset consecutive failures on successful request
+  if (entry.consecutiveFailures > 0) {
+    entry.consecutiveFailures = 0;
+    // Gradually reduce backoff level on success
+    entry.backoffLevel = Math.max(0, entry.backoffLevel - 1);
   }
 
   return { isLimited: false };
@@ -819,5 +851,119 @@ async function clearStaleTokens(supabase: any, userId: string | undefined, cooki
   // It can still be a utility for DB cleanup if needed separately.
   if (userId && supabase) {
     // ... (database clearing logic as before) ...
+  }
+}
+
+/**
+ * Handle token reset - force clear all tokens and reset rate limiting
+ */
+async function handleTokenReset(request: NextRequest, cookieStore: ReadonlyRequestCookies) {
+  const resetId = crypto.randomBytes(4).toString('hex');
+  console.log(`[AUTH_TOKEN_RESET][${resetId}] Start. Timestamp: ${new Date().toISOString()}`);
+
+  const response = NextResponse.json({ success: true, message: 'Tokens reset successfully', resetId });
+  const supabase = createClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
+
+  try {
+    // Clear all cookies
+    clearTokenCookies(response.cookies);
+    console.log(`[AUTH_TOKEN_RESET][${resetId}] Cleared all token cookies`);
+
+    // Clear database tokens if user exists
+    if (user) {
+      const { error: deleteError } = await supabase
+        .from('ringcentral_tokens')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (deleteError) {
+        console.error(`[AUTH_TOKEN_RESET][${resetId}] Error deleting DB tokens:`, deleteError);
+      } else {
+        console.log(`[AUTH_TOKEN_RESET][${resetId}] Successfully deleted DB tokens for user ${user.id}`);
+      }
+
+      // Reset rate limiting for this user
+      if (rateLimitStore[user.id]) {
+        delete rateLimitStore[user.id];
+        console.log(`[AUTH_TOKEN_RESET][${resetId}] Reset rate limiting for user ${user.id}`);
+      }
+    }
+
+    console.log(`[AUTH_TOKEN_RESET][${resetId}] Token reset completed successfully`);
+    return response;
+
+  } catch (error: any) {
+    console.error(`[AUTH_TOKEN_RESET][${resetId}] Error during token reset:`, error);
+    return NextResponse.json({
+      error: error.message || 'Failed to reset tokens',
+      resetId
+    }, { status: 500 });
+  }
+}
+
+/**
+ * Handle token cleanup - remove expired tokens from database and reset rate limits
+ */
+async function handleTokenCleanup(request: NextRequest, cookieStore: ReadonlyRequestCookies) {
+  const cleanupId = crypto.randomBytes(4).toString('hex');
+  console.log(`[AUTH_TOKEN_CLEANUP][${cleanupId}] Start. Timestamp: ${new Date().toISOString()}`);
+
+  const supabase = createClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
+
+  try {
+    let cleanedCount = 0;
+
+    if (user) {
+      // Clean up expired tokens for this user
+      const { data: deletedTokens, error: deleteError } = await supabase
+        .from('ringcentral_tokens')
+        .delete()
+        .eq('user_id', user.id)
+        .or('expires_at.lt.now(),refresh_token_expires_at.lt.now()')
+        .select('id');
+
+      if (deleteError) {
+        console.error(`[AUTH_TOKEN_CLEANUP][${cleanupId}] Error cleaning up expired tokens:`, deleteError);
+      } else {
+        cleanedCount = deletedTokens?.length || 0;
+        console.log(`[AUTH_TOKEN_CLEANUP][${cleanupId}] Cleaned up ${cleanedCount} expired tokens for user ${user.id}`);
+      }
+
+      // Reset rate limiting for this user
+      if (rateLimitStore[user.id]) {
+        delete rateLimitStore[user.id];
+        console.log(`[AUTH_TOKEN_CLEANUP][${cleanupId}] Reset rate limiting for user ${user.id}`);
+      }
+    }
+
+    // Global cleanup of rate limit store (remove entries older than 1 hour)
+    const oneHourAgo = Date.now() - (60 * 60 * 1000);
+    let rateLimitCleaned = 0;
+
+    for (const [userId, entry] of Object.entries(rateLimitStore)) {
+      if (entry.windowStart < oneHourAgo && !entry.isLimited) {
+        delete rateLimitStore[userId];
+        rateLimitCleaned++;
+      }
+    }
+
+    console.log(`[AUTH_TOKEN_CLEANUP][${cleanupId}] Cleanup completed. Tokens: ${cleanedCount}, Rate limits: ${rateLimitCleaned}`);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Token cleanup completed',
+      cleanupId,
+      tokensRemoved: cleanedCount,
+      rateLimitsReset: rateLimitCleaned + (user && rateLimitStore[user.id] ? 1 : 0)
+    });
+
+  } catch (error: any) {
+    console.error(`[AUTH_TOKEN_CLEANUP][${cleanupId}] Error during cleanup:`, error);
+    return NextResponse.json({
+      error: error.message || 'Failed to cleanup tokens',
+      cleanupId
+    }, { status: 500 });
   }
 }

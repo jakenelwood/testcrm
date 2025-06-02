@@ -10,6 +10,9 @@ import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/l
 import { RingCentralResourceNotFoundError } from '@/utils/ringcentral-client';
 import { RingCentralTokenRevokedError } from '@/utils/ringcentral-client';
 
+// Reduced timeout for call status checks to prevent 504 errors
+const CALL_STATUS_TIMEOUT_MS = 25000; // 25 seconds instead of 60
+
 interface CallStatusParams {
   callId?: string;
   ringSessionId?: string;
@@ -78,11 +81,21 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
       return NextResponse.json({ error: 'Internal error: callId or ringSessionId became undefined' }, { status: 500 });
     }
 
-    console.log(`Fetching call status from endpoint: ${endpoint}`);
-    troubleshooting.push(`Fetching call status from endpoint: ${endpoint}`);
+    console.log(`Fetching call status from endpoint: ${endpoint} with timeout protection`);
+    troubleshooting.push(`Fetching call status from endpoint: ${endpoint} with ${CALL_STATUS_TIMEOUT_MS}ms timeout`);
 
     try {
-      const callData = await client.get(endpoint);
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Call status check timed out')), CALL_STATUS_TIMEOUT_MS);
+      });
+
+      // Race between the API call and timeout
+      const callData = await Promise.race([
+        client.get(endpoint),
+        timeoutPromise
+      ]);
+
       console.log('Call status data:', callData);
       troubleshooting.push('Successfully fetched call status data.');
 
@@ -104,6 +117,18 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
     } catch (error: any) {
       console.error('Error fetching call status:', error);
       troubleshooting.push(`Error fetching call status: ${error.message}`);
+
+      // Check for timeout error
+      if (error.message && error.message.includes('timed out')) {
+        console.log('Call status check timed out');
+        troubleshooting.push('Call status check timed out - request took too long');
+        return NextResponse.json({
+          error: 'Call status check timed out',
+          message: 'The call status check took too long to respond',
+          troubleshooting,
+          timestamp: new Date().toISOString()
+        }, { status: 408 }); // Request Timeout
+      }
 
       // Check for resource not found error (common with RingOut calls that have ended)
       if (error.message && (
@@ -296,7 +321,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   console.log('========== RINGCENTRAL CALL STATUS API - POST START ==========');
-  
+
   // Read the request body ONLY ONCE at the top level
   let requestBody: CallStatusParams;
   try {
@@ -304,6 +329,6 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
-  
+
   return handleCallStatus(requestBody, request);
 }

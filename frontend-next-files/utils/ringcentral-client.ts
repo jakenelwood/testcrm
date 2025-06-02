@@ -159,6 +159,9 @@ export class RingCentralClient {
             // Update refresh token if provided
             const newRefreshTokenCookie = resolvedCookieStore.get('ringcentral_refresh_token');
             this.refreshToken = newRefreshTokenCookie?.value || this.refreshToken;
+
+            // Mark successful operation to reset failure counters
+            rateLimitProtection.markSuccess();
             console.log('RingCentralClient: Token refreshed successfully via internal API call.');
           } else {
             throw new Error('Invalid response from token refresh endpoint');
