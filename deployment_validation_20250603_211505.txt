@@ -1,0 +1,22 @@
+TwinCiGo CRM Deployment Validation Report
+Generated: Tue Jun  3 09:15:05 PM CDT 2025
+==========================================
+
+Node Configuration:
+  east-1: 5.161.110.205
+  east-2: 178.156.186.10
+  west-1: 5.78.103.224
+
+Validation Results:
+- Docker Installation: Run check_docker_installation()
+- Deployment Files: Run check_deployment_files()
+- Running Containers: Run check_running_containers()
+- Network Connectivity: Run check_network_connectivity()
+- Service Health: Run check_service_health()
+
+Next Steps:
+1. Fix any Docker installation issues
+2. Ensure all deployment files are present
+3. Start services using the fixed deployment script
+4. Monitor logs for any errors
+5. Test connectivity from localhost:3000

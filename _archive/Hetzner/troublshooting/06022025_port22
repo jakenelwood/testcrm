@@ -1,0 +1,77 @@
+# ✅ SSH Recovery Summary – Hetzner Cloud (Ubuntu 24.04)
+
+## 🔍 Problem
+
+SSH connection to the server at `5.161.110.205` was hanging indefinitely. The key was correct, but no prompt appeared. Network connectivity (ping) was confirmed.
+
+## 🧩 Root Causes
+
+* `sshd_config` was misconfigured:
+
+  * `Port 22` was commented out
+  * `PasswordAuthentication` was commented out
+  * `PermitRootLogin` and `PubkeyAuthentication` were missing
+* SSH service was **running**, but **disabled on system boot**
+* `ufw` firewall may have previously blocked port 22 (ultimately disabled)
+
+## 🛠️ Resolution Steps
+
+### 1. Accessed Console
+
+Used Hetzner’s Cloud Console to access the machine directly without SSH:
+
+> [https://console.hetzner.cloud](https://console.hetzner.cloud)
+
+### 2. Fixed SSH Configuration
+
+Edited the SSH config file:
+
+```bash
+nano /etc/ssh/sshd_config
+```
+
+Updated or added these lines:
+
+```ini
+Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+PubkeyAuthentication yes
+```
+
+Saved and exited nano:
+
+* `Ctrl + O`, `Enter`
+* `Ctrl + X`
+
+### 3. Restarted & Enabled SSH
+
+```bash
+systemctl restart ssh
+systemctl enable ssh
+```
+
+### 4. Disabled UFW Firewall (temporary measure)
+
+```bash
+ufw disable
+```
+
+### 5. Reconnected Successfully
+
+From local machine:
+
+```bash
+ssh -i ~/.ssh/id_ed25519 root@5.161.110.205
+```
+
+✅ SSH is now working normally.
+
+---
+
+## 🧱 Notes for Future
+
+* Always verify `sshd_config` on setup
+* Consider automating these fixes in a `recover-ssh.sh` script
+* Re-enable and configure `ufw` properly if needed (allow port 22 explicitly)
+* Use `systemctl enable ssh` to ensure persistence across reboots
