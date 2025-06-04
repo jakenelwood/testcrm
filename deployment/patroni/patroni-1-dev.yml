@@ -1,0 +1,131 @@
+# 🐘 Patroni Configuration for Development Node 1
+# High Availability PostgreSQL simulation for development environment
+
+scope: gardenos-dev-cluster
+namespace: /db/
+name: postgres-1
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: postgres-1:8008
+
+etcd3:
+  hosts: etcd:2379
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 30
+    maximum_lag_on_failover: 1048576
+    master_start_timeout: 300
+    synchronous_mode: false
+    
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        # Performance settings (Development optimized)
+        max_connections: 100
+        shared_buffers: 256MB
+        effective_cache_size: 1GB
+        work_mem: 4MB
+        maintenance_work_mem: 64MB
+        
+        # WAL settings for development
+        wal_buffers: 8MB
+        checkpoint_completion_target: 0.9
+        checkpoint_timeout: 10min
+        max_wal_size: 1GB
+        min_wal_size: 512MB
+        
+        # Logging (Development level - more verbose)
+        log_destination: 'stderr'
+        log_line_prefix: '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+        log_checkpoints: on
+        log_connections: on
+        log_disconnections: on
+        log_lock_waits: on
+        log_temp_files: 0
+        log_min_duration_statement: 500  # Log queries > 500ms
+        
+        # Replication settings
+        wal_level: logical  # Required for Supabase
+        max_wal_senders: 10
+        max_replication_slots: 10
+        hot_standby: on
+        
+        # Extensions
+        shared_preload_libraries: 'pg_stat_statements'
+        
+        # Security settings (Development - relaxed)
+        ssl: off
+        password_encryption: scram-sha-256
+        
+        # Performance tuning (Development)
+        random_page_cost: 1.1  # SSD optimized
+        effective_io_concurrency: 100
+        
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+    - locale: en_US.UTF-8
+    
+  pg_hba:
+    - host replication replicator 0.0.0.0/0 scram-sha-256
+    - host all all 0.0.0.0/0 scram-sha-256
+    - local all postgres peer
+    - local all all peer
+    
+  users:
+    admin:
+      password: admin_password
+      options:
+        - createdb
+        - createrole
+    crm_user:
+      password: crm_dev_password
+      options:
+        - createdb
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: postgres-1:5432
+  data_dir: /data/postgres
+  bin_dir: /usr/lib/postgresql/16/bin
+  pgpass: /tmp/pgpass
+  
+  authentication:
+    replication:
+      username: replicator
+      password: replicator_password
+    superuser:
+      username: postgres
+      password: postgres_password
+      
+  parameters:
+    unix_socket_directories: '/var/run/postgresql'
+    
+  create_replica_methods:
+    - basebackup
+    
+  basebackup:
+    checkpoint: 'fast'
+
+tags:
+  nofailover: false
+  noloadbalance: false
+  clonefrom: false
+  nosync: false
+
+# Development-specific settings
+watchdog:
+  mode: off  # Disabled for development
+
+# Development callbacks (optional)
+callbacks:
+  on_start: echo "Node 1 started"
+  on_stop: echo "Node 1 stopped"
+  on_restart: echo "Node 1 restarted"
+  on_reload: echo "Node 1 reloaded"
+  on_role_change: echo "Node 1 role changed"

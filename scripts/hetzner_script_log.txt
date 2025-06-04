@@ -1,0 +1,128 @@
+brian@brian-B735:~/Dev/crm$ ./scripts/final-spilo-fix.sh
+[2025-06-03 21:47:31] 🎯 Starting FINAL Spilo Configuration Fix
+
+This applies the CORRECT Spilo environment variables based on official documentation:
+  • ETCD3_HOSTS (not PATRONI_ETCD3_HOSTS)
+  • ETCD3_PROTOCOL (not PATRONI_ETCD3_PROTOCOL)
+  • SCOPE for cluster identification
+
+[2025-06-03 21:47:31] 🎯 Applying CORRECT Spilo environment variables
+[2025-06-03 21:47:31] Stopping all Patroni containers...
+time="2025-06-04T02:47:32Z" level=warning msg="/opt/twincigo-crm/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container gardenos-postgres-1-dev  Stopping
+ Container gardenos-postgres-2-dev  Stopping
+ Container gardenos-postgres-3-dev  Stopping
+ Container gardenos-postgres-3-dev  Stopped
+ Container gardenos-postgres-2-dev  Stopped
+ Container gardenos-postgres-1-dev  Stopped
+[2025-06-03 21:47:33] Creating final configuration backup...
+[2025-06-03 21:47:34] Applying correct Spilo environment variables...
+✅ Correct Spilo configuration applied
+[2025-06-03 21:47:35] Verifying Spilo configuration...
+New Spilo environment variables:
+      ETCD3_HOSTS: etcd:2379
+      ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_ETCD3_PASSWORD: ""
+      PATRONI_ETCD3_PREFIX: /db/
+      PATRONI_ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_USERNAME: ""
+      PATRONI_SCOPE: gardenos-dev-cluster
+      SCOPE: gardenos-dev-cluster
+      ETCD3_HOSTS: etcd:2379
+      ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_ETCD3_PASSWORD: ""
+      PATRONI_ETCD3_PREFIX: /db/
+      PATRONI_ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_USERNAME: ""
+      PATRONI_SCOPE: gardenos-dev-cluster
+      SCOPE: gardenos-dev-cluster
+      ETCD3_HOSTS: etcd:2379
+      ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_ETCD3_PASSWORD: ""
+      PATRONI_ETCD3_PREFIX: /db/
+      PATRONI_ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_USERNAME: ""
+      PATRONI_SCOPE: gardenos-dev-cluster
+      SCOPE: gardenos-dev-cluster
+time="2025-06-04T02:47:36Z" level=warning msg="/opt/twincigo-crm/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+
+[2025-06-03 21:47:36] 🚀 Starting cluster with correct Spilo configuration
+[2025-06-03 21:47:36] Starting primary node (postgres-1)...
+time="2025-06-04T02:47:37Z" level=warning msg="/opt/twincigo-crm/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container gardenos-etcd-dev  Running
+ Container gardenos-postgres-1-dev  Recreate
+ Container gardenos-postgres-1-dev  Recreated
+ Container gardenos-etcd-dev  Waiting
+ Container gardenos-etcd-dev  Healthy
+ Container gardenos-postgres-1-dev  Starting
+ Container gardenos-postgres-1-dev  Started
+[2025-06-03 21:47:38] Waiting for primary node to initialize (60 seconds)...
+✅ Primary node is HEALTHY!
+[2025-06-03 21:48:39] Starting replica nodes...
+time="2025-06-04T02:48:41Z" level=warning msg="/opt/twincigo-crm/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container gardenos-etcd-dev  Running
+ Container gardenos-postgres-2-dev  Recreate
+ Container gardenos-postgres-3-dev  Recreate
+ Container gardenos-postgres-2-dev  Recreated
+ Container gardenos-postgres-3-dev  Recreated
+ Container gardenos-etcd-dev  Waiting
+ Container gardenos-etcd-dev  Waiting
+ Container gardenos-etcd-dev  Healthy
+ Container gardenos-postgres-2-dev  Starting
+ Container gardenos-etcd-dev  Healthy
+ Container gardenos-postgres-3-dev  Starting
+ Container gardenos-postgres-2-dev  Started
+ Container gardenos-postgres-3-dev  Started
+✅ Cluster started with correct Spilo configuration
+
+[2025-06-03 21:49:12] 🔍 Validating the working cluster
+
+=== CLUSTER HEALTH STATUS ===
+✅ Node 8008: HEALTHY
+✅ Node 8009: HEALTHY
+✅ Node 8010: HEALTHY
+
+=== PATRONI CLUSTER STATUS ===
+{
+    "members": [
+        {
+            "name": "48957cf6ff0f",
+            "role": "leader",
+            "state": "running",
+            "api_url": "http://172.21.0.3:8008/patroni",
+            "host": "172.21.0.3",
+            "port": 5432,
+            "timeline": 1
+        },
+        {
+            "name": "77ab2bead209",
+            "role": "replica",
+            "state": "creating replica",
+            "api_url": "http://172.21.0.5:8008/patroni",
+            "host": "172.21.0.5",
+            "port": 5432,
+            "lag": "unknown"
+        },
+        {
+            "name": "7ce9fb69855d",
+            "role": "replica",
+            "state": "creating replica",
+            "api_url": "http://172.21.0.4:8008/patroni",
+            "host": "172.21.0.4",
+            "port": 5432,
+            "lag": "unknown"
+        }
+    ],
+    "scope": "gardenos-dev-cluster"
+}
+
+=== ETCD DATA ===
+
+=== DATABASE CONNECTIVITY ===
+✅ PostgreSQL: READY for connections
+
+./scripts/final-spilo-fix.sh: line 168: ports: unbound variable
+brian@brian-B735:~/Dev/crm$ 
