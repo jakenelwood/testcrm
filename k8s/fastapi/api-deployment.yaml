@@ -1,0 +1,161 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-api
+  namespace: fastapi
+  labels:
+    app: fastapi-api
+    component: api
+    app.kubernetes.io/name: fastapi-api
+    app.kubernetes.io/part-of: gardenos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastapi-api
+  template:
+    metadata:
+      labels:
+        app: fastapi-api
+        component: api
+    spec:
+      nodeSelector:
+        node.gardenos.io/tier: hybrid
+      containers:
+      - name: fastapi-api
+        image: gardenos/fastapi-api:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: PORT
+          value: "8000"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: WORKERS
+          value: "2"
+        envFrom:
+        - configMapRef:
+            name: fastapi-config
+        - secretRef:
+            name: fastapi-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: app-logs
+          mountPath: /app/logs
+      volumes:
+      - name: app-logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-api
+  namespace: fastapi
+  labels:
+    app: fastapi-api
+    component: api
+spec:
+  selector:
+    app: fastapi-api
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-ai-agents
+  namespace: fastapi
+  labels:
+    app: fastapi-ai-agents
+    component: ai
+    app.kubernetes.io/name: fastapi-ai-agents
+    app.kubernetes.io/part-of: gardenos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-ai-agents
+  template:
+    metadata:
+      labels:
+        app: fastapi-ai-agents
+        component: ai
+    spec:
+      nodeSelector:
+        node.gardenos.io/tier: hybrid
+      containers:
+      - name: ai-agents
+        image: gardenos/ai-agents:latest
+        ports:
+        - containerPort: 8001
+          name: http
+        env:
+        - name: PORT
+          value: "8001"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: AGENT_TYPE
+          value: "langgraph"
+        envFrom:
+        - configMapRef:
+            name: fastapi-config
+        - secretRef:
+            name: fastapi-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-ai-agents
+  namespace: fastapi
+  labels:
+    app: fastapi-ai-agents
+    component: ai
+spec:
+  selector:
+    app: fastapi-ai-agents
+  ports:
+  - port: 8001
+    targetPort: 8001
+    name: http
+  type: ClusterIP

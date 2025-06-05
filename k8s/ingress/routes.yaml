@@ -1,0 +1,110 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: supabase-ingress
+  namespace: supabase
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://crm-jakenelwoods-projects.vercel.app,http://localhost:3000"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,apikey"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.gardenos.local
+    http:
+      paths:
+      # Supabase Auth
+      - path: /auth(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: gotrue
+            port:
+              number: 9999
+      # Supabase REST API
+      - path: /rest(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: postgrest
+            port:
+              number: 3000
+      # Supabase Storage
+      - path: /storage(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: storage-api
+            port:
+              number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fastapi-ingress
+  namespace: fastapi
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://crm-jakenelwoods-projects.vercel.app,http://localhost:3000"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,apikey"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.gardenos.local
+    http:
+      paths:
+      # FastAPI Main API
+      - path: /api(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: fastapi-api
+            port:
+              number: 8000
+      # AI Agents API
+      - path: /ai(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: fastapi-ai-agents
+            port:
+              number: 8001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  namespace: kube-system
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - GardenOS Monitoring'
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: monitoring.gardenos.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kubernetes-dashboard
+            port:
+              number: 80
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: basic-auth
+  namespace: kube-system
+type: Opaque
+data:
+  # admin:admin (change this!)
+  auth: YWRtaW46JGFwcjEkSDY1dnVhNzAkLnRiTXhPbGRBWVY1LkNSV3BuZGJoLw==

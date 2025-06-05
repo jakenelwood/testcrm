@@ -1,0 +1,205 @@
+#!/bin/bash
+
+# 🚀 K3s Control Plane Bootstrap Script for GardenOS
+# This script bootstraps the first K3s control-plane node using external etcd cluster
+# Part of the GardenOS high-availability CRM stack on Hetzner
+
+set -euo pipefail
+
+# Configuration
+ETCD_ENDPOINTS="${ETCD_ENDPOINTS:-http://5.78.103.224:2379,http://5.161.110.205:2379,http://178.156.186.10:2379}"
+K3S_TOKEN="${K3S_TOKEN:-$(openssl rand -hex 32)}"
+NODE_NAME="${NODE_NAME:-$(hostname)}"
+CLUSTER_INIT="${CLUSTER_INIT:-true}"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+log() {
+    echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}"
+}
+
+warn() {
+    echo -e "${YELLOW}[$(date +'%Y-%m-%d %H:%M:%S')] WARNING: $1${NC}"
+}
+
+error() {
+    echo -e "${RED}[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}"
+    exit 1
+}
+
+# Check if running as root
+if [[ $EUID -ne 0 ]]; then
+   error "This script must be run as root"
+fi
+
+# Check system requirements
+check_requirements() {
+    log "Checking system requirements..."
+    
+    # Check OS
+    if ! grep -q "Ubuntu 22.04" /etc/os-release; then
+        warn "This script is optimized for Ubuntu 22.04"
+    fi
+    
+    # Check memory (minimum 2GB recommended)
+    MEMORY_GB=$(free -g | awk '/^Mem:/{print $2}')
+    if [[ $MEMORY_GB -lt 2 ]]; then
+        warn "Less than 2GB RAM detected. K3s may not perform optimally."
+    fi
+    
+    # Check disk space (minimum 10GB recommended)
+    DISK_GB=$(df / | awk 'NR==2{print int($4/1024/1024)}')
+    if [[ $DISK_GB -lt 10 ]]; then
+        warn "Less than 10GB free disk space. Consider cleaning up."
+    fi
+    
+    log "System requirements check completed"
+}
+
+# Install K3s with external etcd
+install_k3s() {
+    log "Installing K3s control plane with external etcd..."
+    
+    # Create K3s configuration directory
+    mkdir -p /etc/rancher/k3s
+    
+    # Generate K3s configuration
+    cat > /etc/rancher/k3s/config.yaml << EOF
+# K3s Configuration for GardenOS
+# External etcd datastore configuration
+datastore-endpoint: "${ETCD_ENDPOINTS}"
+token: "${K3S_TOKEN}"
+node-name: "${NODE_NAME}"
+
+# Server configuration
+server: true
+cluster-init: ${CLUSTER_INIT}
+
+# Network configuration
+cluster-cidr: "10.42.0.0/16"
+service-cidr: "10.43.0.0/16"
+cluster-dns: "10.43.0.10"
+
+# Security
+protect-kernel-defaults: false
+secrets-encryption: true
+
+# Disable components we don't need
+disable:
+  - traefik
+  - servicelb
+  - local-storage
+
+# Node labels for workload scheduling
+node-label:
+  - "node.gardenos.io/role=control-plane"
+  - "node.gardenos.io/tier=system"
+
+# Node taints (control plane nodes)
+node-taint:
+  - "node-role.kubernetes.io/control-plane:NoSchedule"
+
+# Logging
+log: "/var/log/k3s.log"
+alsologtostderr: true
+EOF
+
+    # Download and install K3s
+    log "Downloading K3s installer..."
+    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -s -
+    
+    # Wait for K3s to be ready
+    log "Waiting for K3s to be ready..."
+    timeout=300
+    while ! kubectl get nodes &>/dev/null && [[ $timeout -gt 0 ]]; do
+        sleep 5
+        ((timeout-=5))
+        echo -n "."
+    done
+    echo
+    
+    if [[ $timeout -le 0 ]]; then
+        error "K3s failed to start within 5 minutes"
+    fi
+    
+    log "K3s control plane installed successfully!"
+}
+
+# Configure kubectl access
+configure_kubectl() {
+    log "Configuring kubectl access..."
+    
+    # Copy kubeconfig to standard location
+    mkdir -p ~/.kube
+    cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    chmod 600 ~/.kube/config
+    
+    # Update server address for external access
+    EXTERNAL_IP=$(curl -s ifconfig.me || hostname -I | awk '{print $1}')
+    sed -i "s/127.0.0.1/${EXTERNAL_IP}/g" ~/.kube/config
+    
+    log "kubectl configured for external access"
+}
+
+# Display cluster information
+show_cluster_info() {
+    log "K3s Control Plane Bootstrap Complete!"
+    echo
+    echo -e "${BLUE}=== Cluster Information ===${NC}"
+    echo "Node Name: ${NODE_NAME}"
+    echo "K3s Token: ${K3S_TOKEN}"
+    echo "External IP: $(curl -s ifconfig.me || hostname -I | awk '{print $1}')"
+    echo
+    echo -e "${BLUE}=== Kubeconfig Location ===${NC}"
+    echo "Server: /etc/rancher/k3s/k3s.yaml"
+    echo "User: ~/.kube/config"
+    echo
+    echo -e "${BLUE}=== Next Steps ===${NC}"
+    echo "1. Copy kubeconfig to your local machine:"
+    echo "   scp root@$(curl -s ifconfig.me):/etc/rancher/k3s/k3s.yaml ~/.kube/config"
+    echo
+    echo "2. Update server address in local kubeconfig:"
+    echo "   sed -i 's/127.0.0.1/$(curl -s ifconfig.me)/g' ~/.kube/config"
+    echo
+    echo "3. Add additional control plane nodes using:"
+    echo "   ./join-k3s-server.sh"
+    echo
+    echo "4. Add worker nodes using:"
+    echo "   ./join-k3s-agent.sh"
+    echo
+    echo -e "${GREEN}Bootstrap completed successfully!${NC}"
+}
+
+# Save cluster information for other scripts
+save_cluster_info() {
+    cat > /etc/rancher/k3s/cluster-info.env << EOF
+# K3s Cluster Information - Generated by bootstrap script
+K3S_TOKEN="${K3S_TOKEN}"
+K3S_URL="https://$(curl -s ifconfig.me || hostname -I | awk '{print $1}'):6443"
+ETCD_ENDPOINTS="${ETCD_ENDPOINTS}"
+NODE_NAME="${NODE_NAME}"
+BOOTSTRAP_DATE="$(date)"
+EOF
+    
+    log "Cluster information saved to /etc/rancher/k3s/cluster-info.env"
+}
+
+# Main execution
+main() {
+    log "Starting K3s Control Plane Bootstrap for GardenOS"
+    log "Using etcd endpoints: ${ETCD_ENDPOINTS}"
+    
+    check_requirements
+    install_k3s
+    configure_kubectl
+    save_cluster_info
+    show_cluster_info
+}
+
+# Run main function
+main "$@"
