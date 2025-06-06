@@ -103,35 +103,96 @@ They operate **independently but symbiotically**:
 
 ---
 
-## 🤖 Coroutine-Based Agent Framework (Jules-Inspired)
+## 🤖 Custom Coroutine-Based AI Orchestration Layer
 
-Instead of relying on LangGraph or LangChain, GardenOS implements a lightweight **coroutine-based AI orchestration system**, inspired by the Jules multi-agent prototype.
+**MAJOR MILESTONE ACHIEVED**: GardenOS now features a production-grade **custom coroutine-based AI orchestration layer** that provides full control, horizontal scalability, and modularity for enterprise AI workflows.
 
-### Key Concepts:
+### Architecture Overview
 
-* **Agents**: Async Python functions that operate on shared `context`
-* **Tools**: Modular utility functions called by agents
-* **Context**: A mutable dictionary passed between steps
-* **Orchestrator**: A control loop that sequences agents, similar to a directed graph
+Instead of relying on LangChain or other frameworks, we built a **native async/await orchestration system** optimized for CRM intelligence:
 
-### Benefits:
+| Component | Role | Scalability |
+| --------- | ---- | ----------- |
+| **BaseAIAgent** | Abstract coroutine class for all AI agents | Horizontal scaling via agent pools |
+| **LeadAnalysisAgent** | Specialized agent for lead quality scoring | Dynamic scaling 1-10 agents |
+| **FollowUpAgent** | Specialized agent for message generation | Dynamic scaling 1-10 agents |
+| **AIOrchestrator** | Load balancer and agent lifecycle manager | Single instance managing all agents |
 
-* No external dependencies (fully owned system)
-* Deterministic and debuggable workflows
-* Tailored control over cost, memory, and API behavior
+### Key Features Implemented
 
-### Example Flow:
-
+#### **🔄 Dynamic Scaling**
 ```python
-async def orchestrator(lead_id):
-    context = {}
-    context = await load_lead(lead_id, context)
-    context = await score_lead(context)
-    context = await generate_follow_up(context)
-    return context
+# Scale agents based on load
+await orchestrator.scale_agents("lead_analysis", 5)  # Scale up
+await orchestrator.scale_agents("follow_up", 2)      # Scale down
 ```
 
-This system integrates with FastAPI, pgvector, and the rest of the GardenOS stack, enabling low-latency, high-control AI behavior with future extensibility across multiple domains.
+#### **⚡ Task Queue Management**
+```python
+# Priority-based task processing
+task = AgentTask(
+    id="analysis-abc123",
+    priority=1,  # High priority
+    payload={"lead_data": {...}},
+    max_retries=3
+)
+```
+
+#### **📊 Real-Time Monitoring**
+```python
+# Comprehensive metrics
+GET /ai/status          # System-wide metrics
+GET /ai/agents/{id}/metrics  # Agent-specific performance
+GET /ai/debug/queues    # Queue inspection
+```
+
+### Production Benefits
+
+* ✅ **Horizontal Scalability**: Add/remove agents dynamically based on demand
+* ✅ **Fault Tolerance**: Individual agent failures don't affect system
+* ✅ **Resource Efficiency**: Agents idle when no work (cost optimization)
+* ✅ **K3s Native**: Perfect for Kubernetes orchestration and auto-scaling
+* ✅ **Cost Optimized**: DeepSeek-V3 via DeepInfra (90% cheaper than GPT-4)
+
+### AI Model Integration
+
+**DeepSeek-V3 via DeepInfra**:
+- **Model**: `deepseek-ai/DeepSeek-V3-0324`
+- **Cost**: ~$0.27/1M input tokens, ~$1.10/1M output tokens
+- **Performance**: Competitive with GPT-4 on reasoning tasks
+- **API**: OpenAI-compatible for seamless integration
+
+### Business Intelligence Features
+
+#### **Lead Analysis**
+```python
+# Automated lead scoring
+analysis = await orchestrator.analyze_lead({
+    "first_name": "John",
+    "company": "TechCorp",
+    "source": "website"
+})
+# Returns: quality_score, conversion_probability, next_actions
+```
+
+#### **Follow-Up Generation**
+```python
+# Personalized message creation
+follow_up = await orchestrator.generate_follow_up({
+    "first_name": "John",
+    "company": "TechCorp"
+}, context="Initial consultation call")
+# Returns: subject, body, full_message
+```
+
+### Integration with GardenOS Stack
+
+This AI orchestration layer integrates seamlessly with:
+- **FastAPI**: RESTful endpoints for AI operations
+- **PostgreSQL**: Lead data storage and retrieval
+- **pgvector**: Future semantic search capabilities
+- **K3s**: Container orchestration and scaling
+- **Prometheus/Grafana**: AI performance monitoring
 
 ---
 

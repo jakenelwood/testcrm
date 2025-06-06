@@ -28,13 +28,17 @@ const getApiBaseUrl = (): string => {
     case 'hetzner-initial':
       return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://65.21.174.252:8000';
     case 'hetzner':
-      return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.65.21.174.252.nip.io';
+      // Updated for K3s cluster with ingress
+      return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://api.gardenos.local';
+    case 'hetzner-k3s':
+      // New deployment target for K3s cluster
+      return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://api.gardenos.local';
     case 'vercel':
     case 'cloudflare':
-      // For Vercel/Cloudflare, use relative path to avoid CORS issues
-      return process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+      // For Vercel/Cloudflare, use K3s backend via ingress
+      return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://api.gardenos.local';
     default:
-      return '/api';
+      return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://api.gardenos.local';
   }
 };
 
@@ -66,6 +70,7 @@ export const config = {
     isVercel: getDeploymentTarget() === 'vercel',
     isCloudflare: getDeploymentTarget() === 'cloudflare',
     isHetzner: getDeploymentTarget() === 'hetzner',
+    isHetznerK3s: getDeploymentTarget() === 'hetzner-k3s',
     isHetznerInitial: getDeploymentTarget() === 'hetzner-initial',
     isDevelopment: getDeploymentTarget() === 'development',
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
