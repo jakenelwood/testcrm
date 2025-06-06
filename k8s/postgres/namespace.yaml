@@ -1,0 +1,286 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: postgres-cluster
+  labels:
+    name: postgres-cluster
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/part-of: gardenos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: postgres-cluster
+data:
+  # PostgreSQL Configuration
+  postgresql.conf: |
+    # Basic settings
+    listen_addresses = '*'
+    port = 5432
+    max_connections = 100
+    shared_buffers = 256MB
+    effective_cache_size = 1GB
+    work_mem = 4MB
+    maintenance_work_mem = 64MB
+    
+    # WAL settings for replication
+    wal_level = replica
+    max_wal_senders = 3
+    max_replication_slots = 3
+    hot_standby = on
+    
+    # Logging
+    log_destination = 'stderr'
+    logging_collector = off
+    log_statement = 'none'
+    log_min_duration_statement = 1000
+    
+    # Performance
+    checkpoint_completion_target = 0.9
+    wal_buffers = 16MB
+    default_statistics_target = 100
+    
+  # pg_hba.conf with K3s network support
+  pg_hba.conf: |
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    
+    # Local connections
+    local   all             all                                     trust
+    
+    # K3s pod network connections
+    host    all             all             172.21.0.0/16           md5
+    host    all             all             10.42.0.0/16            md5
+    host    all             all             10.43.0.0/16            md5
+    
+    # Localhost connections
+    host    all             all             127.0.0.1/32            md5
+    host    all             all             ::1/128                 md5
+    
+    # Replication connections
+    host    replication     replicator      172.21.0.0/16           md5
+    host    replication     replicator      10.42.0.0/16            md5
+    host    replication     replicator      127.0.0.1/32            md5
+    
+    # Inter-node replication (for StatefulSet pods)
+    host    replication     postgres        172.21.0.0/16           md5
+    host    replication     postgres        10.42.0.0/16            md5
+---
+# ServiceAccount for Patroni pods
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: patroni
+  namespace: postgres-cluster
+---
+# ClusterRole with permissions for Patroni to manage pod labels
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: patroni
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "patch", "update"]
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get", "list", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "create", "update", "patch", "delete"]
+---
+# ClusterRoleBinding to bind the role to the service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: patroni
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: patroni
+subjects:
+- kind: ServiceAccount
+  name: patroni
+  namespace: postgres-cluster
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: patroni-config
+  namespace: postgres-cluster
+data:
+  patroni.yml: |
+    scope: postgres-cluster
+
+    # Kubernetes integration - Using endpoints for service discovery
+    kubernetes:
+      use_endpoints: true
+
+    restapi:
+      listen: 0.0.0.0:8008
+
+    etcd3:
+      hosts:
+        - 5.78.103.224:2379
+        - 5.161.110.205:2379
+        - 178.156.186.10:2379
+    
+    bootstrap:
+      dcs:
+        ttl: 30
+        loop_wait: 10
+        retry_timeout: 30
+        maximum_lag_on_failover: 1048576
+        postgresql:
+          use_pg_rewind: true
+          use_slots: true
+          parameters:
+            wal_level: replica
+            hot_standby: "on"
+            max_connections: 100
+            max_wal_senders: 3
+            max_replication_slots: 3
+            wal_keep_segments: 8
+            logging_collector: "off"
+      
+      initdb:
+        - encoding: UTF8
+        - data-checksums
+      
+
+      
+      users:
+        admin:
+          password: admin
+          options:
+            - createrole
+            - createdb
+    
+    postgresql:
+      listen: 0.0.0.0:5432
+      data_dir: /var/lib/postgresql/data
+      bin_dir: /usr/lib/postgresql/13/bin
+      config_dir: /var/lib/postgresql/data
+      pgpass: /tmp/pgpass
+      authentication:
+        superuser:
+          username: postgres
+          password: postgres
+        replication:
+          username: standby
+          password: standby
+      parameters:
+        unix_socket_directories: '/var/run/postgresql'
+      pg_hba:
+        - local all all trust
+        - host all all 127.0.0.1/32 md5
+        - host all all 172.21.0.0/16 md5
+        - host all all 10.42.0.0/16 md5
+        - host all all 10.43.0.0/16 md5
+        - host replication standby 127.0.0.1/32 md5
+        - host replication standby 172.21.0.0/16 md5
+        - host replication standby 10.42.0.0/16 md5
+        - host replication standby 10.43.0.0/16 md5
+        
+    tags:
+      nofailover: false
+      noloadbalance: false
+      clonefrom: false
+      nosync: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: discovery-sidecar-script
+  namespace: postgres-cluster
+data:
+  discovery.sh: |
+    #!/bin/sh
+    set -e
+
+    # Configuration
+    POD_IP="${POD_IP}"
+    LEADER_ENDPOINT_NAME="postgres-primary"
+    NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+    PATRONI_API_URL="http://localhost:8008"
+
+    echo "🚀 Starting discovery sidecar for pod at $POD_IP in namespace $NAMESPACE"
+    echo "📡 Monitoring Patroni API at $PATRONI_API_URL"
+    echo "🎯 Managing endpoint: $LEADER_ENDPOINT_NAME"
+
+    # Wait for Patroni to be ready
+    echo "⏳ Waiting for Patroni to be ready..."
+    while ! curl -s "$PATRONI_API_URL/health" > /dev/null 2>&1; do
+      echo "   Patroni not ready yet, waiting 5 seconds..."
+      sleep 5
+    done
+    echo "✅ Patroni is ready!"
+
+    # Main discovery loop
+    while true; do
+      # Query the local Patroni REST API to check if this pod is the leader
+      ROLE_RESPONSE=$(curl -s "$PATRONI_API_URL/master" 2>/dev/null || echo "")
+
+      if [ -n "$ROLE_RESPONSE" ]; then
+        # Check if the response indicates this is the primary/leader
+        if echo "$ROLE_RESPONSE" | grep -q 'role.*primary'; then
+          echo "🎖️  This pod is the leader. Updating endpoint $LEADER_ENDPOINT_NAME..."
+
+          # Create or update the Endpoints object with this pod's IP
+          kubectl patch endpoints "$LEADER_ENDPOINT_NAME" -n "$NAMESPACE" \
+            --type='json' \
+            -p='[{"op": "replace", "path": "/subsets", "value": [{"addresses": [{"ip": "'"$POD_IP"'"}], "ports": [{"port": 5432, "name": "postgres"}]}]}]' \
+            2>/dev/null || {
+
+            # If patch fails, try to create the endpoint
+            echo "🔧 Endpoint doesn't exist, creating it..."
+            kubectl apply -f - <<EOF
+    apiVersion: v1
+    kind: Endpoints
+    metadata:
+      name: $LEADER_ENDPOINT_NAME
+      namespace: $NAMESPACE
+      labels:
+        app: postgres
+        component: database
+        role: primary
+        managed-by: discovery-sidecar
+    subsets:
+    - addresses:
+      - ip: $POD_IP
+      ports:
+      - port: 5432
+        name: postgres
+    EOF
+          }
+
+          echo "✅ Successfully updated $LEADER_ENDPOINT_NAME endpoint with IP $POD_IP"
+        else
+          echo "🔄 This pod is a replica. No action needed."
+        fi
+      else
+        echo "⚠️  Could not query Patroni API, will retry..."
+      fi
+
+      # Wait before next check
+      sleep 10
+    done
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secrets
+  namespace: postgres-cluster
+type: Opaque
+stringData:
+  # PostgreSQL superuser password
+  POSTGRES_PASSWORD: "postgres"
+
+  # Replication user password
+  REPLICATION_PASSWORD: "replicator"
+
+  # Admin user password
+  ADMIN_PASSWORD: "admin"
+
+  # Supabase database user
+  SUPABASE_PASSWORD: "supabase_secure_password"

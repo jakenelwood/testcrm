@@ -1,0 +1,404 @@
+# 🌱 GardenOS Development Environment - Hetzner Multi-Node HA Simulation
+# Development setup simulating full production HA with 3 Patroni nodes
+# Based on docs/database/gardenOS_dev_vs_production.md - Development strategy with HA simulation
+
+version: '3.8'
+
+networks:
+  gardenos-dev:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+volumes:
+  postgres_data_1:
+  postgres_data_2:
+  postgres_data_3:
+  etcd_data:
+  redis_data:
+
+services:
+  # =============================================================================
+  # ETCD - Coordination Service for Patroni Cluster (Development)
+  # =============================================================================
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.9
+    container_name: gardenos-etcd-dev
+    networks:
+      - gardenos-dev
+    environment:
+      ETCD_NAME: etcd-server
+      ETCD_DATA_DIR: /etcd-data
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd:2379
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd:2380
+      ETCD_INITIAL_CLUSTER: etcd-server=http://etcd:2380
+      ETCD_INITIAL_CLUSTER_TOKEN: etcd-cluster-token-dev
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_AUTO_COMPACTION_RETENTION: 1
+      ETCD_LOG_LEVEL: info
+    volumes:
+      - etcd_data:/etcd-data
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # =============================================================================
+  # PATRONI POSTGRESQL CLUSTER - 3 Node HA Simulation (Development)
+  # =============================================================================
+  postgres-1:
+    image: ghcr.io/zalando/spilo-17:4.0-p2
+    container_name: gardenos-postgres-1-dev
+    networks:
+      - gardenos-dev
+    environment:
+      PATRONI_SCOPE: gardenos-dev-cluster
+      PATRONI_NAME: postgres-1
+      PATRONI_NAMESPACE: /db/
+      PATRONI_SUPERUSER_USERNAME: postgres
+      PATRONI_SUPERUSER_PASSWORD: ${POSTGRES_PASSWORD}
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: ${POSTGRES_REPLICATION_PASSWORD}
+      PATRONI_admin_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      PATRONI_admin_OPTIONS: createdb,createrole
+      PATRONI_crm_user_PASSWORD: ${CRM_USER_PASSWORD}
+      PATRONI_crm_user_OPTIONS: createdb
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_PREFIX: /db/
+      PATRONI_ETCD3_USERNAME: ""
+      PATRONI_ETCD3_PASSWORD: ""
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres-1:8008
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres-1:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /data/postgres
+      PATRONI_BOOTSTRAP_DCS_TTL: 30
+      PATRONI_BOOTSTRAP_DCS_LOOP_WAIT: 10
+      PATRONI_BOOTSTRAP_DCS_RETRY_TIMEOUT: 60
+    volumes:
+      - postgres_data_1:/data/postgres
+    ports:
+      - "5435:5432"
+      - "8008:8008"
+    depends_on:
+      etcd:
+        condition: service_healthy
+
+  postgres-2:
+    image: ghcr.io/zalando/spilo-17:4.0-p2
+    container_name: gardenos-postgres-2-dev
+    networks:
+      - gardenos-dev
+    environment:
+      PATRONI_SCOPE: gardenos-dev-cluster
+      PATRONI_NAME: postgres-2
+      PATRONI_NAMESPACE: /db/
+      PATRONI_SUPERUSER_USERNAME: postgres
+      PATRONI_SUPERUSER_PASSWORD: ${POSTGRES_PASSWORD}
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: ${POSTGRES_REPLICATION_PASSWORD}
+      PATRONI_admin_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      PATRONI_admin_OPTIONS: createdb,createrole
+      PATRONI_crm_user_PASSWORD: ${CRM_USER_PASSWORD}
+      PATRONI_crm_user_OPTIONS: createdb
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_PREFIX: /db/
+      PATRONI_ETCD3_USERNAME: ""
+      PATRONI_ETCD3_PASSWORD: ""
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres-2:8008
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres-2:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /data/postgres
+      PATRONI_BOOTSTRAP_DCS_TTL: 30
+      PATRONI_BOOTSTRAP_DCS_LOOP_WAIT: 10
+      PATRONI_BOOTSTRAP_DCS_RETRY_TIMEOUT: 60
+    volumes:
+      - postgres_data_2:/data/postgres
+    ports:
+      - "5433:5432"
+      - "8009:8008"
+    depends_on:
+      etcd:
+        condition: service_healthy
+
+  postgres-3:
+    image: ghcr.io/zalando/spilo-17:4.0-p2
+    container_name: gardenos-postgres-3-dev
+    networks:
+      - gardenos-dev
+    environment:
+      PATRONI_SCOPE: gardenos-dev-cluster
+      PATRONI_NAME: postgres-3
+      PATRONI_NAMESPACE: /db/
+      PATRONI_SUPERUSER_USERNAME: postgres
+      PATRONI_SUPERUSER_PASSWORD: ${POSTGRES_PASSWORD}
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: ${POSTGRES_REPLICATION_PASSWORD}
+      PATRONI_admin_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      PATRONI_admin_OPTIONS: createdb,createrole
+      PATRONI_crm_user_PASSWORD: ${CRM_USER_PASSWORD}
+      PATRONI_crm_user_OPTIONS: createdb
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_ETCD3_PROTOCOL: http
+      PATRONI_ETCD3_PREFIX: /db/
+      PATRONI_ETCD3_USERNAME: ""
+      PATRONI_ETCD3_PASSWORD: ""
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres-3:8008
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres-3:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /data/postgres
+      PATRONI_BOOTSTRAP_DCS_TTL: 30
+      PATRONI_BOOTSTRAP_DCS_LOOP_WAIT: 10
+      PATRONI_BOOTSTRAP_DCS_RETRY_TIMEOUT: 60
+    volumes:
+      - postgres_data_3:/data/postgres
+    ports:
+      - "5434:5432"
+      - "8010:8008"
+    depends_on:
+      etcd:
+        condition: service_healthy
+
+  # =============================================================================
+  # HAPROXY - Load Balancer for PostgreSQL Cluster (Development)
+  # =============================================================================
+  haproxy:
+    image: haproxy:2.8
+    container_name: gardenos-haproxy-dev
+    networks:
+      - gardenos-dev
+    volumes:
+      - ./haproxy/haproxy-dev.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "5000:5000"  # PostgreSQL primary
+      - "5001:5001"  # PostgreSQL replicas
+      - "7000:7000"  # HAProxy stats
+    depends_on:
+      - postgres-1
+      - postgres-2
+      - postgres-3
+
+  # =============================================================================
+  # SUPABASE SERVICES - Development Configuration (Minus Analytics)
+  # =============================================================================
+  supabase-auth:
+    image: supabase/gotrue:v2.143.0
+    container_name: gardenos-auth-dev
+    networks:
+      - gardenos-dev
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@haproxy:5000/crm
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_LOG_LEVEL: debug
+      API_EXTERNAL_URL: http://5.161.110.205:9999
+    ports:
+      - "9999:9999"
+    depends_on:
+      - haproxy
+
+  supabase-rest:
+    image: postgrest/postgrest:v12.0.1
+    container_name: gardenos-rest-dev
+    networks:
+      - gardenos-dev
+    environment:
+      PGRST_DB_URI: postgres://postgres:${POSTGRES_PASSWORD}@haproxy:5000/crm
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_LOG_LEVEL: info
+    ports:
+      - "3000:3000"
+    depends_on:
+      - haproxy
+
+  supabase-realtime:
+    image: supabase/realtime:v2.25.50
+    container_name: gardenos-realtime-dev
+    networks:
+      - gardenos-dev
+    environment:
+      PORT: 4000
+      DB_HOST: haproxy
+      DB_PORT: 5000
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: crm
+      DB_SSL: "false"
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      JWT_SECRET: ${JWT_SECRET}
+      REALTIMEDB_SECURE_CHANNELS: "false"
+      APP_NAME: ${APP_NAME}
+    ports:
+      - "4000:4000"
+    depends_on:
+      - haproxy
+
+  supabase-storage:
+    image: supabase/storage-api:v0.46.4
+    container_name: gardenos-storage-dev
+    networks:
+      - gardenos-dev
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://supabase-rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@haproxy:5000/crm
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: us-east-1
+      GLOBAL_S3_BUCKET: stub
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./storage:/var/lib/storage
+    depends_on:
+      - haproxy
+      - supabase-rest
+
+  # =============================================================================
+  # SUPABASE STUDIO - Admin Interface
+  # =============================================================================
+  supabase-studio:
+    image: supabase/studio:20240326-5e5586d
+    container_name: gardenos-studio-dev
+    networks:
+      - gardenos-dev
+    environment:
+      STUDIO_PG_META_URL: http://supabase-meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: ${DEFAULT_ORGANIZATION_NAME}
+      DEFAULT_PROJECT_NAME: ${DEFAULT_PROJECT_NAME}
+      SUPABASE_URL: http://supabase-rest:3000
+      SUPABASE_REST_URL: http://supabase-rest:3000
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - supabase-meta
+
+  supabase-meta:
+    image: supabase/postgres-meta:v0.75.0
+    container_name: gardenos-meta-dev
+    networks:
+      - gardenos-dev
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: haproxy
+      PG_META_DB_PORT: 5000
+      PG_META_DB_NAME: crm
+      PG_META_DB_USER: postgres
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - haproxy
+
+  # =============================================================================
+  # REDIS - Caching and Session Storage
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: gardenos-redis-dev
+    networks:
+      - gardenos-dev
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # =============================================================================
+  # FASTAPI BACKEND - AI Agents and API Services (Optional for Phase 2)
+  # =============================================================================
+  fastapi-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gardenos-backend-dev
+    networks:
+      - gardenos-dev
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@haproxy:5000/crm
+      REDIS_URL: redis://redis:6379
+      SUPABASE_URL: http://supabase-rest:3000
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      ENVIRONMENT: development
+      LOG_LEVEL: debug
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    depends_on:
+      - haproxy
+      - redis
+    # Uncomment when FastAPI backend is ready
+    # profiles:
+    #   - backend
+
+  # =============================================================================
+  # MONITORING - Simple Development Monitoring
+  # =============================================================================
+  adminer:
+    image: adminer:4.8.1
+    container_name: gardenos-adminer-dev
+    networks:
+      - gardenos-dev
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: haproxy
+      ADMINER_DEFAULT_DB_HOST: haproxy
+      ADMINER_DEFAULT_DB_NAME: crm
+    depends_on:
+      - haproxy
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: gardenos-redis-commander-dev
+    networks:
+      - gardenos-dev
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8082:8081"
+    depends_on:
+      redis:
+        condition: service_healthy

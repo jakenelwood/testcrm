@@ -1,29 +1,3 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-ENV/
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-*.db
-*.sqlite3
-*.db-journal
-
 # Node.js
 node_modules/
 npm-debug.log
@@ -69,19 +43,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Submodule directories to ignore
-frontend/node_modules/
-frontend-next/node_modules/
-frontend-next-backup/
-frontend-next-clean/
-frontend-next-fresh/
+# Temporary files
+temp_*
+*.tmp
+*.temp
 
-# Python virtual environment
-backend/venv/
-
-# RingCentral environment variables
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-ringcentral-env/
+# Database files
+*.db
+*.sqlite3
+*.db-journal

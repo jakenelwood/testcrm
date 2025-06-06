@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: supabase
+  labels:
+    name: supabase
+    app.kubernetes.io/name: supabase
+    app.kubernetes.io/part-of: gardenos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: supabase-config
+  namespace: supabase
+data:
+  # Database connection (K3s PostgreSQL cluster - primary for writes)
+  POSTGRES_HOST: "postgres-primary.postgres-cluster.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "postgres"
+  POSTGRES_USER: "postgres"
+  
+  # JWT Configuration
+  JWT_EXPIRY: "3600"
+  JWT_DEFAULT_GROUP_NAME: "authenticated"
+  
+  # API Configuration
+  API_EXTERNAL_URL: "https://crm-jakenelwoods-projects.vercel.app"
+  
+  # Auth Configuration
+  SITE_URL: "https://crm-jakenelwoods-projects.vercel.app"
+  ADDITIONAL_REDIRECT_URLS: ""
+  JWT_AUD: "authenticated"
+  JWT_DEFAULT_GROUP_NAME: "authenticated"
+  
+  # Disable problematic services
+  ENABLE_EMAIL_CONFIRMATIONS: "false"
+  ENABLE_EMAIL_AUTOCONFIRM: "true"
+  ENABLE_PHONE_CONFIRMATIONS: "false"
+  ENABLE_PHONE_AUTOCONFIRM: "true"
+  
+  # Storage Configuration
+  STORAGE_BACKEND: "file"
+  FILE_SIZE_LIMIT: "52428800"
+  
+  # Realtime Configuration
+  REALTIME_ENABLE_MULTIPLAYER: "true"
+  REALTIME_ENABLE_BROADCAST: "true"
+  REALTIME_ENABLE_PRESENCE: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: supabase-secrets
+  namespace: supabase
+type: Opaque
+stringData:
+  # Database password (default from Docker Compose)
+  POSTGRES_PASSWORD: "postgres"
+  
+  # JWT Secret (generate with: openssl rand -base64 32)
+  JWT_SECRET: "dGVzdC1qd3Qtc2VjcmV0LWZvci1kZXZlbG9wbWVudC1vbmx5LXJlcGxhY2UtaW4tcHJvZA=="
+
+  # Service Role Key (generate with: openssl rand -base64 32)
+  SERVICE_ROLE_KEY: "dGVzdC1zZXJ2aWNlLXJvbGUta2V5LWZvci1kZXZlbG9wbWVudC1vbmx5LXJlcGxhY2U="
+
+  # Anonymous Key (generate with: openssl rand -base64 32)
+  ANON_KEY: "dGVzdC1hbm9uLWtleS1mb3ItZGV2ZWxvcG1lbnQtb25seS1yZXBsYWNlLWluLXByb2Q="

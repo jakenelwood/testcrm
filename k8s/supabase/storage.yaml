@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-api
+  namespace: supabase
+  labels:
+    app: storage-api
+    component: storage
+    app.kubernetes.io/name: storage-api
+    app.kubernetes.io/part-of: supabase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage-api
+  template:
+    metadata:
+      labels:
+        app: storage-api
+        component: storage
+    spec:
+      nodeSelector:
+        node.gardenos.io/tier: hybrid
+      containers:
+      - name: storage-api
+        image: supabase/storage-api:v1.11.8
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-secrets
+              key: ANON_KEY
+        - name: SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-secrets
+              key: SERVICE_ROLE_KEY
+        - name: POSTGREST_URL
+          value: "http://postgrest:3000"
+        - name: PGRST_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: supabase-secrets
+              key: JWT_SECRET
+        - name: DATABASE_URL
+          value: "postgres://postgres:postgres@postgres-primary.postgres-cluster.svc.cluster.local:5432/postgres"
+        - name: FILE_SIZE_LIMIT
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: FILE_SIZE_LIMIT
+        - name: STORAGE_BACKEND
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: STORAGE_BACKEND
+        - name: FILE_STORAGE_BACKEND_PATH
+          value: "/var/lib/storage"
+        - name: TENANT_ID
+          value: "stub"
+        - name: REGION
+          value: "stub"
+        - name: GLOBAL_S3_BUCKET
+          value: "stub"
+        envFrom:
+        - configMapRef:
+            name: supabase-config
+        - secretRef:
+            name: supabase-secrets
+        volumeMounts:
+        - name: storage-data
+          mountPath: /var/lib/storage
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: storage-data
+        persistentVolumeClaim:
+          claimName: storage-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storage-api
+  namespace: supabase
+  labels:
+    app: storage-api
+    component: storage
+spec:
+  selector:
+    app: storage-api
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: storage-data-pvc
+  namespace: supabase
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
