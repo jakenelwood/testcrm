@@ -1,6 +1,6 @@
 # 🌱 TwinCiGo CRM Development Environment - Multi-Node HA Simulation
 
-Development environment implementing the full TwinCiGo CRM architecture with multi-node HA simulation as recommended in `docs/database/supabase_patroni_strategy_roles.md` and `docs/database/gardenOS_dev_vs_production.md`.
+Development environment implementing the full TwinCiGo CRM architecture with multi-node HA simulation as recommended in `docs/database/gardenos_architecture_overview.md` and `docs/database/gardenOS_dev_vs_production.md`.
 
 ## 🎯 Purpose
 

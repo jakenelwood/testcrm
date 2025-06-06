@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 HETZNER_HOST="5.161.110.205"
-DEPLOY_DIR="/opt/gardenos-dev/deployment"
+DEPLOY_DIR="/opt/gardenos-dev"  # Updated based on server inspection
 
 # Colors for output
 RED='\033[0;31m'

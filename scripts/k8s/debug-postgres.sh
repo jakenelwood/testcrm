@@ -224,19 +224,143 @@ generate_remediation() {
     fi
 }
 
+# Check cluster connectivity and API server health
+check_cluster_connectivity() {
+    section "Cluster Connectivity Check"
+
+    info "Testing K3s API server connectivity..."
+    for server in "${ETCD_SERVERS[@]}"; do
+        echo -n "K3s API server $server:6443: "
+        if timeout 5 curl -k -s "https://$server:6443/healthz" >/dev/null 2>&1; then
+            echo -e "${GREEN}ACCESSIBLE${NC}"
+        else
+            echo -e "${RED}INACCESSIBLE${NC}"
+        fi
+    done
+    echo
+
+    info "Testing kubectl basic connectivity..."
+    if timeout 10 kubectl get nodes --request-timeout=5s >/dev/null 2>&1; then
+        echo -e "${GREEN}kubectl connectivity: OK${NC}"
+    else
+        echo -e "${RED}kubectl connectivity: FAILED${NC}"
+        warn "kubectl commands are failing - this indicates cluster connectivity issues"
+    fi
+    echo
+}
+
+# Check etcd cluster state and Patroni DCS
+check_etcd_patroni_state() {
+    section "etcd and Patroni DCS State Check"
+
+    info "Checking etcd cluster members..."
+    for server in "${ETCD_SERVERS[@]}"; do
+        echo "etcd member list from $server:"
+        curl -s "http://$server:$ETCD_PORT/v2/members" | jq '.' 2>/dev/null || echo "Failed to get member list"
+        echo
+    done
+
+    info "Checking Patroni cluster state in etcd..."
+    for server in "${ETCD_SERVERS[@]}"; do
+        echo "Patroni cluster state from $server:"
+        curl -s "http://$server:$ETCD_PORT/v2/keys/service/postgres-cluster?recursive=true" | jq '.' 2>/dev/null || echo "No Patroni state found"
+        echo
+    done
+}
+
+# Deep dive into PostgreSQL replication issues
+check_replication_detailed() {
+    section "Detailed Replication Analysis"
+
+    # Check if any postgres pods are accessible
+    local accessible_pod=""
+    for pod in postgres-0 postgres-1 postgres-2; do
+        if timeout 5 kubectl get pod "$pod" -n postgres-cluster >/dev/null 2>&1; then
+            if timeout 5 kubectl exec "$pod" -n postgres-cluster -- pg_isready >/dev/null 2>&1; then
+                accessible_pod="$pod"
+                break
+            fi
+        fi
+    done
+
+    if [[ -n "$accessible_pod" ]]; then
+        info "Found accessible pod: $accessible_pod"
+
+        info "Current replication users:"
+        kubectl exec "$accessible_pod" -n postgres-cluster -- psql -U postgres -c "SELECT usename, userepl FROM pg_user;" 2>/dev/null || echo "Failed to query users"
+
+        info "Current pg_hba.conf:"
+        kubectl exec "$accessible_pod" -n postgres-cluster -- cat /var/lib/postgresql/data/pg_hba.conf 2>/dev/null || echo "Failed to read pg_hba.conf"
+
+        info "Patroni configuration in use:"
+        kubectl exec "$accessible_pod" -n postgres-cluster -- patronictl show-config 2>/dev/null || echo "Failed to get Patroni config"
+
+        info "Patroni cluster status:"
+        kubectl exec "$accessible_pod" -n postgres-cluster -- patronictl list 2>/dev/null || echo "Failed to get cluster status"
+
+    else
+        warn "No accessible PostgreSQL pods found for detailed analysis"
+    fi
+}
+
+# Check Spilo-specific configuration
+check_spilo_configuration() {
+    section "Spilo Configuration Analysis"
+
+    info "Checking Spilo environment variables in StatefulSet..."
+    kubectl get statefulset postgres -n postgres-cluster -o yaml 2>/dev/null | grep -A 20 -B 5 "PGUSER_STANDBY\|PGPASSWORD_STANDBY" || echo "StatefulSet not found or no Spilo env vars"
+
+    info "Checking ConfigMap patroni-config content..."
+    kubectl get configmap patroni-config -n postgres-cluster -o yaml 2>/dev/null | grep -A 50 "patroni.yml" || echo "ConfigMap not found"
+}
+
+# Network connectivity tests
+check_network_connectivity() {
+    section "Network Connectivity Tests"
+
+    info "Testing pod-to-pod connectivity..."
+    local pods
+    pods=$(kubectl get pods -n postgres-cluster --no-headers 2>/dev/null | awk '{print $1}' || echo "")
+
+    for pod in $pods; do
+        if kubectl get pod "$pod" -n postgres-cluster >/dev/null 2>&1; then
+            local pod_ip
+            pod_ip=$(kubectl get pod "$pod" -n postgres-cluster -o jsonpath='{.status.podIP}' 2>/dev/null)
+            echo "Testing connectivity to $pod ($pod_ip):"
+
+            # Test from other pods
+            for test_pod in $pods; do
+                if [[ "$test_pod" != "$pod" ]] && kubectl get pod "$test_pod" -n postgres-cluster >/dev/null 2>&1; then
+                    echo -n "  From $test_pod: "
+                    if kubectl exec "$test_pod" -n postgres-cluster -- ping -c 1 -W 2 "$pod_ip" >/dev/null 2>&1; then
+                        echo -e "${GREEN}OK${NC}"
+                    else
+                        echo -e "${RED}FAILED${NC}"
+                    fi
+                fi
+            done
+        fi
+    done
+}
+
 # Main execution
 main() {
     print_header "PostgreSQL K3s Debugging Tool" "Comprehensive debugging for PostgreSQL deployment issues"
-    
+
+    check_cluster_connectivity
     check_cluster_health
+    check_etcd_patroni_state
     check_postgres_resources
     check_postgres_pods
+    check_replication_detailed
+    check_spilo_configuration
+    check_network_connectivity
     check_pvc_issues
     check_node_scheduling
     check_storage_provisioner
     show_debug_logs
     generate_remediation
-    
+
     log "Debugging complete. Review the output above for issues and remediation steps."
 }
 

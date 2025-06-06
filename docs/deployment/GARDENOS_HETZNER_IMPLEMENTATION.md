@@ -1,6 +1,6 @@
 # 🌱 GardenOS Hetzner Implementation Guide
 
-Complete implementation of the GardenOS architecture recommendations from `docs/database/supabase_patroni_strategy_roles.md` on Hetzner server.
+Complete implementation of the GardenOS architecture recommendations from `docs/database/gardenos_architecture_overview.md` on Hetzner server.
 
 ## 📋 Overview
 
@@ -276,7 +276,8 @@ After successful deployment, you should have:
 
 ## 📚 Related Documentation
 
-- [Supabase Patroni Strategy](../database/supabase_patroni_strategy_roles.md) - Original recommendations
+- [GardenOS Architecture Overview](../database/gardenos_architecture_overview.md) - Complete system architecture
+- [K3s HA Setup Guide](./K3S_HA_SETUP_GUIDE.md) - Kubernetes orchestration setup
 - [Production Deployment](./PRODUCTION_DEPLOYMENT.md) - Vercel deployment guide
 - [Supabase Setup](./SUPABASE_SETUP.md) - Basic Supabase configuration
 - [Hetzner Supabase Setup](./HETZNER_SUPABASE_SETUP.md) - Previous setup guide

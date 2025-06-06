@@ -13,8 +13,8 @@ metadata:
   name: supabase-config
   namespace: supabase
 data:
-  # Database connection (K3s PostgreSQL cluster)
-  POSTGRES_HOST: "postgres-cluster.postgres-cluster.svc.cluster.local"
+  # Database connection (K3s PostgreSQL cluster - primary for writes)
+  POSTGRES_HOST: "postgres-primary.postgres-cluster.svc.cluster.local"
   POSTGRES_PORT: "5432"
   POSTGRES_DB: "postgres"
   POSTGRES_USER: "postgres"
@@ -58,10 +58,10 @@ stringData:
   POSTGRES_PASSWORD: "postgres"
   
   # JWT Secret (generate with: openssl rand -base64 32)
-  JWT_SECRET: "your-jwt-secret-key-here"
-  
+  JWT_SECRET: "dGVzdC1qd3Qtc2VjcmV0LWZvci1kZXZlbG9wbWVudC1vbmx5LXJlcGxhY2UtaW4tcHJvZA=="
+
   # Service Role Key (generate with: openssl rand -base64 32)
-  SERVICE_ROLE_KEY: "your-service-role-key-here"
-  
+  SERVICE_ROLE_KEY: "dGVzdC1zZXJ2aWNlLXJvbGUta2V5LWZvci1kZXZlbG9wbWVudC1vbmx5LXJlcGxhY2U="
+
   # Anonymous Key (generate with: openssl rand -base64 32)
-  ANON_KEY: "your-anon-key-here"
+  ANON_KEY: "dGVzdC1hbm9uLWtleS1mb3ItZGV2ZWxvcG1lbnQtb25seS1yZXBsYWNlLWluLXByb2Q="

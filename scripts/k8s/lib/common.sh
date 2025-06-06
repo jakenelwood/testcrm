@@ -26,6 +26,25 @@ export ETCD_ENDPOINTS="http://${ETCD_SERVERS[0]}:${ETCD_PORT},http://${ETCD_SERV
 export POSTGRES_NAMESPACE="postgres-cluster"
 export SUPABASE_NAMESPACE="supabase"
 export FASTAPI_NAMESPACE="fastapi"
+
+# Generate etcd configuration for different formats
+generate_etcd_hosts_yaml() {
+    for server in "${ETCD_SERVERS[@]}"; do
+        echo "        - $server:$ETCD_PORT"
+    done
+}
+
+generate_etcd_hosts_env() {
+    local hosts=""
+    for server in "${ETCD_SERVERS[@]}"; do
+        if [[ -n "$hosts" ]]; then
+            hosts="$hosts,$server:$ETCD_PORT"
+        else
+            hosts="$server:$ETCD_PORT"
+        fi
+    done
+    echo "$hosts"
+}
 export INGRESS_NAMESPACE="ingress-nginx"
 
 # Timeouts (seconds)

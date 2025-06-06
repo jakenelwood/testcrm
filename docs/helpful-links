@@ -1,0 +1,63 @@
+Patroni https://patroni.readthedocs.io/en/latest/tools_integration.html
+
+Docker https://docs.docker.com/build/building/best-practices/
+https://docs.docker.com/
+
+Spilo/Patroni PostgreSQL Replication Configuration:
+https://github.com/zalando/spilo/blob/master/ENVIRONMENT.rst - Spilo environment variables including PGUSER_STANDBY
+https://github.com/zalando/postgres-operator/issues/1220 - Common replication user configuration issues
+https://github.com/zalando/spilo/blob/master/postgres-appliance/scripts/configure_spilo.py - Shows pg_hba.conf template for standby user
+https://github.com/patroni/patroni/issues/2315 - Patroni dynamically manages pg_hba.conf, don't edit manually
+https://www.dbi-services.com/blog/troubleshooting-patroni-cluster-pg_hba-configuration-not-applied/ - Patroni configuration precedence
+https://patroni.readthedocs.io/en/latest/patroni_configuration.html - Official Patroni configuration documentation
+
+CRITICAL INSIGHTS:
+- Spilo uses PGUSER_STANDBY='standby' and PGPASSWORD_STANDBY='standby' by default
+- Patroni dynamically generates pg_hba.conf - NEVER edit manually
+- Use postgresql.pg_hba section in patroni.yml to configure replication access
+- Patroni configuration precedence: Defaults → YAML → Environment Variables
+
+Kubernetes Troubleshooting:
+https://kubernetes.io/docs/tasks/debug/debug-cluster/troubleshoot-kubectl/ - Official kubectl troubleshooting guide
+https://stackoverflow.com/questions/71841383/kubectl-with-postgres-query-doesnt-work-and-throws-line-1-select-from-empl - kubectl hanging issues
+https://www.crunchydata.com/blog/troubleshooting-postgres-in-kubernetes - PostgreSQL in Kubernetes troubleshooting
+https://www.enterprisedb.com/docs/postgres_for_kubernetes/latest/troubleshooting/ - EDB PostgreSQL Kubernetes troubleshooting
+https://stackoverflow.com/questions/59876496/kubectl-get-cli-response-time-too-high-on-k8s-cluster - kubectl performance issues
+
+Patroni Leader Election and DCS Issues:
+https://www.dragonflydb.io/faq/postgres-cluster-has-no-leader - Patroni cluster has no leader troubleshooting
+https://bootvar.com/patroni-troubleshooting/ - Comprehensive Patroni troubleshooting guide
+https://cray-hpe.github.io/docs-csm/en-15/operations/kubernetes/troubleshoot_postgres_database/ - Patroni cluster troubleshooting
+https://patroni.readthedocs.io/en/latest/watchdog.html - Patroni watchdog and split-brain prevention
+https://patroni.readthedocs.io/en/latest/dcs_failsafe_mode.html - Patroni DCS failsafe mode
+
+etcd Troubleshooting and Management:
+https://etcd.io/docs/v3.5/op-guide/recovery/ - etcd disaster recovery
+https://etcd.io/docs/v3.5/dev-guide/api_reference_v3/ - etcd v3 API reference
+https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/ - Kubernetes etcd administration
+
+CRITICAL TROUBLESHOOTING INSIGHTS:
+- kubectl commands hanging for specific namespaces usually indicate operator/webhook issues
+- Use kubectl -v=8 to debug API server communication and identify where requests hang
+- Patroni "waiting for leader to bootstrap" with "Lock owner: None" = DCS connectivity/state issues
+- Clear stale etcd cluster state with v3 API deleterange when reinitializing Patroni clusters
+- StatefulSets create pods sequentially - first pod must be ready before next pod starts
+
+
+Spilo PostgreSQL https://github.com/zalando/spilo
+https://github.com/zalando/spilo/wiki/FAQ
+https://github.com/zalando/spilo/wiki/Configuration
+https://github.com/zalando/spilo/wiki/Operational-aspects
+https://github.com/zalando/spilo/wiki/Upgrading
+https://spilo.readthedocs.io/en/latest/
+https://spilo.readthedocs.io/en/latest/configuration/
+https://github.com/patroni/patroni
+https://github.com/patroni/patroni/issues/2315
+https://www.dbi-services.com/blog/troubleshooting-patroni-cluster-pg_hba-configuration-not-applied/
+https://patroni.readthedocs.io/en/latest/patroni_configuration.html
+
+Tutorial
+https://proventa.de/en/setting-up-postgresql-cluster-with-patroni-using-spilo-image/
+
+Supabase
+https://supabase.com/docs/guides/self-hosting/docker

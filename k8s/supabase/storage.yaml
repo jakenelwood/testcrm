@@ -46,7 +46,7 @@ spec:
               name: supabase-secrets
               key: JWT_SECRET
         - name: DATABASE_URL
-          value: "postgres://postgres:postgres@postgres-cluster.postgres-cluster.svc.cluster.local:5432/postgres"
+          value: "postgres://postgres:postgres@postgres-primary.postgres-cluster.svc.cluster.local:5432/postgres"
         - name: FILE_SIZE_LIMIT
           valueFrom:
             configMapKeyRef:

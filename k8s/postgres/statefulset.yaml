@@ -20,6 +20,8 @@ spec:
         app: postgres
         component: database
     spec:
+      serviceAccountName: patroni
+      automountServiceAccountToken: true
       nodeSelector:
         node.gardenos.io/tier: hybrid
       securityContext:
@@ -88,7 +90,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: PATRONI_KUBERNETES_LABELS
-          value: "app=postgres"
+          value: '{"app": "postgres", "component": "database", "role": "{role}"}'
         - name: PATRONI_RESTAPI_LISTEN
           value: "0.0.0.0:8008"
         - name: PATRONI_RESTAPI_CONNECT_ADDRESS
@@ -105,6 +107,13 @@ spec:
           value: "standby"
         - name: PGPASSWORD_STANDBY
           value: "standby"
+        # Enable Kubernetes integration for Spilo
+        - name: PATRONI_KUBERNETES_USE_ENDPOINTS
+          value: "true"
+        - name: KUBERNETES_SERVICE_HOST
+          value: "kubernetes.default.svc.cluster.local"
+        - name: KUBERNETES_SERVICE_PORT
+          value: "443"
         volumeMounts:
         - name: postgres-data
           mountPath: /var/lib/postgresql/data
@@ -133,10 +142,45 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+      # ⬇️ DISCOVERY SIDECAR CONTAINER ⬇️
+      - name: discovery-sidecar
+        image: alpine/k8s:1.28.4
+        command: ["/bin/sh", "/app/discovery.sh"]
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        volumeMounts:
+        - name: discovery-script
+          mountPath: /app
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
       volumes:
       - name: patroni-config
         configMap:
           name: patroni-config
+      - name: discovery-script
+        configMap:
+          name: discovery-sidecar-script
+          defaultMode: 0755
   volumeClaimTemplates:
   - metadata:
       name: postgres-data
@@ -156,8 +200,7 @@ metadata:
     app: postgres
     component: database
 spec:
-  selector:
-    app: postgres
+  # No selector - Patroni will manage the endpoints directly
   ports:
   - port: 5432
     targetPort: 5432
@@ -176,10 +219,10 @@ metadata:
     app: postgres
     component: database
     role: primary
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
-  selector:
-    app: postgres
-    role: master
+  # No selector - Discovery sidecar will manage the endpoints directly
   ports:
   - port: 5432
     targetPort: 5432

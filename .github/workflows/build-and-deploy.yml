@@ -1,0 +1,83 @@
+name: Build and Deploy to GHCR
+
+on:
+  push:
+    branches: [ main, feature/hetzner-ha-deployment ]
+    paths:
+      - 'deployment/backend/**'
+      - 'deployment/ai-agents/**'
+      - '.github/workflows/build-and-deploy.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'deployment/backend/**'
+      - 'deployment/ai-agents/**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_API: ${{ github.repository }}/fastapi-api
+  IMAGE_NAME_AI: ${{ github.repository }}/ai-agents
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata for FastAPI API
+      id: meta-api
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Extract metadata for AI Agents
+      id: meta-ai
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_AI }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push FastAPI API image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./deployment/backend
+        file: ./deployment/backend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-api.outputs.tags }}
+        labels: ${{ steps.meta-api.outputs.labels }}
+
+    - name: Build and push AI Agents image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./deployment/ai-agents
+        file: ./deployment/ai-agents/Dockerfile
+        push: true
+        tags: ${{ steps.meta-ai.outputs.tags }}
+        labels: ${{ steps.meta-ai.outputs.labels }}
+
+    - name: Output image URLs
+      run: |
+        echo "FastAPI API Image: ${{ steps.meta-api.outputs.tags }}"
+        echo "AI Agents Image: ${{ steps.meta-ai.outputs.tags }}"

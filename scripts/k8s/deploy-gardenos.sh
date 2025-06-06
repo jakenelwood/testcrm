@@ -39,6 +39,7 @@ usage() {
     echo "  deploy-ingress        Deploy ingress controller only"
     echo "  deploy-supabase       Deploy Supabase stack only"
     echo "  deploy-fastapi        Deploy FastAPI services only"
+    echo "  deploy-monitoring     Deploy Prometheus + Grafana monitoring"
     echo "  status                Check deployment status"
     echo "  logs SERVICE          Show logs for a service"
     echo "  restart SERVICE       Restart a service"
@@ -134,29 +135,58 @@ deploy_supabase() {
 # Deploy FastAPI services
 deploy_fastapi() {
     log "Deploying FastAPI services..."
-    
+
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
         echo "Would apply FastAPI manifests from: $K8S_DIR/fastapi/"
         return
     fi
-    
+
     # Apply namespace and config first
     kubectl apply -f "$K8S_DIR/fastapi/namespace.yaml"
-    
+
     # Wait a moment for namespace to be ready
     sleep 2
-    
+
     # Apply services
     kubectl apply -f "$K8S_DIR/fastapi/api-deployment.yaml"
-    
-    # Wait for deployments to be ready
-    log "Waiting for FastAPI services to be ready..."
+
+    # Wait for deployments to be ready (with longer timeout for image pulls)
+    log "Waiting for FastAPI services to be ready (this may take a while for first-time image pulls)..."
     kubectl wait --namespace fastapi \
         --for=condition=available deployment \
         --all \
-        --timeout=300s
-    
+        --timeout=600s
+
     log "FastAPI services deployed successfully"
+}
+
+# Deploy monitoring stack
+deploy_monitoring() {
+    log "Deploying Prometheus + Grafana monitoring stack..."
+
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        echo "Would apply monitoring manifests from: $K8S_DIR/monitoring/"
+        return
+    fi
+
+    # Apply namespace first
+    kubectl apply -f "$K8S_DIR/monitoring/namespace.yaml"
+
+    # Wait a moment for namespace to be ready
+    sleep 2
+
+    # Apply monitoring services
+    kubectl apply -f "$K8S_DIR/monitoring/prometheus.yaml"
+    kubectl apply -f "$K8S_DIR/monitoring/grafana.yaml"
+
+    # Wait for deployments to be ready
+    log "Waiting for monitoring services to be ready..."
+    kubectl wait --namespace monitoring \
+        --for=condition=available deployment \
+        --all \
+        --timeout=300s
+
+    log "Monitoring stack deployed successfully"
 }
 
 # Deploy ingress routes
@@ -176,13 +206,14 @@ deploy_routes() {
 # Deploy all services
 deploy_all() {
     log "Starting complete GardenOS deployment..."
-    
+
     check_prerequisites
     deploy_ingress
     deploy_supabase
+    deploy_monitoring
     deploy_fastapi
     deploy_routes
-    
+
     log "Complete GardenOS deployment finished!"
     show_status
 }
@@ -207,7 +238,11 @@ show_status() {
     echo -e "${BLUE}=== FastAPI Services ===${NC}"
     kubectl get pods -n fastapi
     echo
-    
+
+    echo -e "${BLUE}=== Monitoring Services ===${NC}"
+    kubectl get pods -n monitoring
+    echo
+
     echo -e "${BLUE}=== Ingress Routes ===${NC}"
     kubectl get ingress -A
     echo
@@ -305,7 +340,7 @@ parse_args() {
     
     while [[ $# -gt 0 ]]; do
         case $1 in
-            deploy-all|deploy-ingress|deploy-supabase|deploy-fastapi|status)
+            deploy-all|deploy-ingress|deploy-supabase|deploy-fastapi|deploy-monitoring|status)
                 COMMAND="$1"
                 shift
                 ;;
@@ -366,6 +401,10 @@ main() {
         deploy-fastapi)
             check_prerequisites
             deploy_fastapi
+            ;;
+        deploy-monitoring)
+            check_prerequisites
+            deploy_monitoring
             ;;
         status)
             show_status

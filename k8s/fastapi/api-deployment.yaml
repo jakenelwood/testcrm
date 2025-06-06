@@ -23,7 +23,7 @@ spec:
         node.gardenos.io/tier: hybrid
       containers:
       - name: fastapi-api
-        image: gardenos/fastapi-api:latest
+        image: ghcr.io/jakenelwood/crm/fastapi-api:latest
         ports:
         - containerPort: 8000
           name: http
@@ -107,7 +107,7 @@ spec:
         node.gardenos.io/tier: hybrid
       containers:
       - name: ai-agents
-        image: gardenos/ai-agents:latest
+        image: ghcr.io/jakenelwood/crm/ai-agents:latest
         ports:
         - containerPort: 8001
           name: http

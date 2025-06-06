@@ -29,7 +29,7 @@ spec:
           name: http
         env:
         - name: PGRST_DB_URI
-          value: "postgres://postgres:postgres@postgres-cluster.postgres-cluster.svc.cluster.local:5432/postgres"
+          value: "postgres://postgres:postgres@postgres-cluster.postgres-cluster.svc.cluster.local:5432/postgres?target_session_attrs=read-write"
         - name: PGRST_DB_SCHEMAS
           value: "public,storage,graphql_public"
         - name: PGRST_DB_ANON_ROLE

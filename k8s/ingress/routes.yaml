@@ -80,31 +80,27 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: monitoring-ingress
-  namespace: kube-system
-  annotations:
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - GardenOS Monitoring'
+  namespace: monitoring
 spec:
   ingressClassName: nginx
   rules:
   - host: monitoring.gardenos.local
     http:
       paths:
+      # Grafana Dashboard
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: kubernetes-dashboard
+            name: grafana
             port:
-              number: 80
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: basic-auth
-  namespace: kube-system
-type: Opaque
-data:
-  # admin:admin (change this!)
-  auth: YWRtaW46JGFwcjEkSDY1dnVhNzAkLnRiTXhPbGRBWVY1LkNSV3BuZGJoLw==
+              number: 3000
+      # Prometheus (for advanced users)
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus
+            port:
+              number: 9090
+
