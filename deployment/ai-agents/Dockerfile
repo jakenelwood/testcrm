@@ -2,14 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Configure DNS for build process
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies with DNS fix and timeout settings
+# Install Python dependencies with timeout settings
 RUN pip install --no-cache-dir --upgrade pip --timeout 60 --retries 3 && \
     pip install --no-cache-dir -r requirements.txt --timeout 60 --retries 3
 
