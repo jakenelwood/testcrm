@@ -15,8 +15,8 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 
-# HTTP client
-httpx==0.25.2
+# HTTP client (compatible with supabase 2.0.2)
+httpx==0.24.1
 
 # Data validation and serialization
 pydantic==2.5.0
