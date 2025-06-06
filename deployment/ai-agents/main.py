@@ -10,6 +10,9 @@ from typing import Optional, Dict, Any, List
 import json
 import pandas as pd
 from io import StringIO
+from ai_endpoints import ai_router
+from ai_service import orchestrator
+from ai_service import ai_agent
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -40,6 +43,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include AI orchestration router
+app.include_router(ai_router)
+
 # Database connection pool
 db_pool: Optional[asyncpg.Pool] = None
 
@@ -62,26 +68,46 @@ async def get_db_pool():
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database connection on startup"""
+    """Initialize database connection and AI orchestration on startup"""
     await get_db_pool()
-    logger.info("AI Agents service started successfully")
+    await orchestrator.start()
+    logger.info("AI Agents service with coroutine-based orchestration started successfully")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Close database connections on shutdown"""
+    """Close database connections and stop AI orchestration on shutdown"""
     global db_pool
     if db_pool:
         await db_pool.close()
         logger.info("AI Agents database connections closed")
 
+    await orchestrator.stop()
+    logger.info("AI orchestration layer stopped")
+
 @app.get("/")
 async def root():
     """Root endpoint"""
+    ai_metrics = orchestrator.get_system_metrics() if orchestrator.is_running else {"status": "stopped"}
+
     return {
-        "message": "GardenOS AI Agents",
+        "message": "GardenOS AI Agents - Coroutine-Based Orchestration",
         "status": "running",
-        "version": "1.0.0",
-        "capabilities": ["csv_import", "lead_analysis", "memory_management"],
+        "version": "2.0.0",
+        "architecture": "custom_coroutine_agents",
+        "model": "deepseek-v3-0324",
+        "capabilities": [
+            "csv_import",
+            "lead_analysis",
+            "follow_up_generation",
+            "horizontal_scaling",
+            "real_time_metrics",
+            "dynamic_load_balancing"
+        ],
+        "ai_orchestration": {
+            "status": "running" if orchestrator.is_running else "stopped",
+            "total_agents": ai_metrics.get("total_agents", 0),
+            "processed_tasks": ai_metrics.get("total_processed", 0)
+        },
         "timestamp": datetime.utcnow().isoformat()
     }
 
