@@ -12,7 +12,6 @@ import pandas as pd
 from io import StringIO
 from ai_endpoints import ai_router
 from ai_service import orchestrator
-from ai_service import ai_agent
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

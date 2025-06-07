@@ -578,10 +578,10 @@ INSERT INTO pipeline_statuses (pipeline_id, name, description, display_order, co
 
 -- Insert default AI agents
 INSERT INTO ai_agents (name, role, description, config) VALUES
-('Follow-up Agent', 'follow_up', 'Manages automated follow-ups with leads and clients', '{"model": "gpt-4", "temperature": 0.7}'),
-('Insight Agent', 'insight', 'Analyzes client data and provides insights', '{"model": "gpt-4", "temperature": 0.3}'),
-('Marketing Agent', 'marketing', 'Optimizes campaigns and content performance', '{"model": "gpt-4", "temperature": 0.5}'),
-('Support Agent', 'support', 'Handles customer support inquiries', '{"model": "gpt-3.5-turbo", "temperature": 0.5}');
+('Follow-up Agent', 'follow_up', 'Manages automated follow-ups with leads and clients', '{"model": "deepseek-ai/DeepSeek-V3-0324", "temperature": 0.7, "provider": "deepinfra"}'),
+('Insight Agent', 'insight', 'Analyzes client data and provides insights', '{"model": "deepseek-ai/DeepSeek-V3-0324", "temperature": 0.3, "provider": "deepinfra"}'),
+('Marketing Agent', 'marketing', 'Optimizes campaigns and content performance', '{"model": "deepseek-ai/DeepSeek-V3-0324", "temperature": 0.5, "provider": "deepinfra"}'),
+('Support Agent', 'support', 'Handles customer support inquiries', '{"model": "deepseek-ai/DeepSeek-V3-0324", "temperature": 0.5, "provider": "deepinfra"}');
 
 -- Record schema version
 INSERT INTO schema_versions (version, description)

@@ -40,7 +40,7 @@ aiofiles==23.2.1
 # Supabase integration
 supabase==2.0.2
 
-# AI and ML (DeepSeek-V3 via DeepInfra - OpenAI compatible)
+# AI and ML (DeepSeek-V3-0324 via DeepInfra - OpenAI compatible API)
 openai>=1.50.0,<2.0.0
 
 # Vector database support
