@@ -1,8 +1,8 @@
-# 📚 GardenOS Documentation Index
+# 📚 CRM Documentation Index
 
 ## 🎉 **Current Status: Production-Grade Infrastructure Ready**
 
-**MAJOR MILESTONE**: PostgreSQL cluster with bulletproof service discovery is operational and ready for application deployment.
+**MAJOR MILESTONE**: Complete CRM system operational with AI agents, PostgreSQL HA cluster, and scalable K3s infrastructure. Ready for development and production use.
 
 ## Essential Documentation
 
@@ -19,7 +19,8 @@
 - **[dev_journal/06042025.md](dev_journal/06042025.md)** - Latest breakthrough documentation
 
 ### **🎯 Application Development**
-- **[setup-guide.md](setup-guide.md)** - Application setup instructions
+- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - **START HERE** - Complete developer onboarding guide
+- **[setup-guide.md](setup-guide.md)** - Basic development environment setup
 - **[next_steps.md](next_steps.md)** - CRM development roadmap
 
 ### **Database**
