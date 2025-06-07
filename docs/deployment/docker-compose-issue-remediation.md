@@ -42,7 +42,7 @@ The `docker-compose-plugin` was successfully installed, but scripts still use ol
 ✅ **Error Handling**: Improved error handling and validation
 
 ### Phase 2: Deployment Architecture Fix
-✅ **Single-Node Strategy**: Simplified to run all services on west-1 for development
+✅ **Single-Node Strategy**: Simplified to run all services on ubuntu-8gb-hil-1 for development
 ✅ **Service Startup**: Sequential startup with proper health checks
 ✅ **Validation Tools**: Created comprehensive validation scripts
 

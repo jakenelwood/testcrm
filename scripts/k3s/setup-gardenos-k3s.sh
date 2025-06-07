@@ -12,9 +12,9 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Server configuration (update these to match your servers)
 SERVERS=(
-    "5.78.103.224"   # west-1
-    "5.161.110.205"  # east-1  
-    "178.156.186.10" # east-2
+    "5.78.103.224"   # ubuntu-8gb-hil-1
+    "5.161.110.205"  # ubuntu-8gb-ash-1
+    "178.156.186.10" # ubuntu-8gb-ash-2
 )
 
 # Colors for output

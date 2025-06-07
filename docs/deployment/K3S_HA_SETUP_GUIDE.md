@@ -19,14 +19,14 @@ This guide implements the K3s orchestration layer from the [GardenOS Architectur
 │                    GardenOS K3s Cluster                     │
 ├─────────────────────────────────────────────────────────────┤
 │  HAProxy LB (6443) ──► K3s Control Plane Nodes             │
-│  ├─ west-1:  5.78.103.224:6443                             │
-│  ├─ east-1:  5.161.110.205:6443                            │
-│  └─ east-2:  178.156.186.10:6443                           │
+│  ├─ ubuntu-8gb-hil-1:  5.78.103.224:6443                   │
+│  ├─ ubuntu-8gb-ash-1:  5.161.110.205:6443                 │
+│  └─ ubuntu-8gb-ash-2:  178.156.186.10:6443                │
 │                                                             │
 │  External etcd Cluster (shared with Patroni)               │
-│  ├─ west-1:  5.78.103.224:2379                             │
-│  ├─ east-1:  5.161.110.205:2379                            │
-│  └─ east-2:  178.156.186.10:2379                           │
+│  ├─ ubuntu-8gb-hil-1:  5.78.103.224:2379                   │
+│  ├─ ubuntu-8gb-ash-1:  5.161.110.205:2379                 │
+│  └─ ubuntu-8gb-ash-2:  178.156.186.10:2379                │
 │                                                             │
 │  Worker Nodes (labeled for workload scheduling)            │
 │  ├─ AI Agents:     node.gardenos.io/role=ai                │
@@ -40,7 +40,7 @@ This guide implements the K3s orchestration layer from the [GardenOS Architectur
 
 ### 1. Bootstrap First Control Plane Node
 
-On your first server (west-1: 5.78.103.224):
+On your first server (ubuntu-8gb-hil-1: 5.78.103.224):
 
 ```bash
 # Make script executable
@@ -58,7 +58,7 @@ The script will:
 
 ### 2. Join Additional Control Plane Nodes
 
-On servers east-1 and east-2:
+On servers ubuntu-8gb-ash-1 and ubuntu-8gb-ash-2:
 
 ```bash
 # Copy the join script

@@ -7,9 +7,9 @@ TwinCiGo CRM uses a high-availability PostgreSQL cluster with Patroni for automa
 ## 🏗️ Architecture
 
 ### 3-Node Cluster Configuration
-- **west-1** (5.78.103.224): Primary Patroni leader + Supabase services
-- **east-1** (5.161.110.205): Patroni replica + FastAPI backend  
-- **east-2** (178.156.186.10): Patroni replica + monitoring
+- **ubuntu-8gb-hil-1** (5.78.103.224): Primary Patroni leader + Supabase services
+- **ubuntu-8gb-ash-1** (5.161.110.205): Patroni replica + FastAPI backend
+- **ubuntu-8gb-ash-2** (178.156.186.10): Patroni replica + monitoring
 
 ### Technology Stack
 - **Database**: PostgreSQL 15 with Patroni HA
@@ -45,9 +45,9 @@ TwinCiGo CRM uses a high-availability PostgreSQL cluster with Patroni for automa
 ### Prerequisites
 ```bash
 # Ensure SSH access to all nodes
-ssh root@5.78.103.224   # west-1
-ssh root@5.161.110.205  # east-1  
-ssh root@178.156.186.10 # east-2
+ssh root@5.78.103.224   # ubuntu-8gb-hil-1
+ssh root@5.161.110.205  # ubuntu-8gb-ash-1
+ssh root@178.156.186.10 # ubuntu-8gb-ash-2
 ```
 
 ### Automated Deployment

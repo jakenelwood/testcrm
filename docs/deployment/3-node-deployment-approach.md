@@ -27,7 +27,7 @@ This document outlines the comprehensive approach for deploying TwinCiGo CRM acr
 ┌─────────────────────────────────────────────────────────────┐
 │                    TwinCiGo CRM Cluster                     │
 ├─────────────────┬─────────────────┬─────────────────────────┤
-│    west-1       │     east-1      │       east-2            │
+│ ubuntu-8gb-hil-1│ ubuntu-8gb-ash-1│   ubuntu-8gb-ash-2      │
 │ 5.78.103.224    │ 5.161.110.205   │   178.156.186.10        │
 ├─────────────────┼─────────────────┼─────────────────────────┤
 │ • Patroni Leader│ • Patroni Replica│ • Patroni Replica       │
@@ -40,9 +40,9 @@ This document outlines the comprehensive approach for deploying TwinCiGo CRM acr
 ```
 
 ### Service Distribution Strategy
-- **west-1**: Primary database + user-facing services
-- **east-1**: Application logic + AI processing
-- **east-2**: Monitoring + backup operations
+- **ubuntu-8gb-hil-1**: Primary database + user-facing services
+- **ubuntu-8gb-ash-1**: Application logic + AI processing
+- **ubuntu-8gb-ash-2**: Monitoring + backup operations
 
 ## 📊 Database Expert Recommendations
 
@@ -85,24 +85,24 @@ This document outlines the comprehensive approach for deploying TwinCiGo CRM acr
 ```bash
 # Sequential deployment
 1. Deploy etcd cluster (all nodes)
-2. Deploy Patroni leader (west-1)
-3. Deploy Patroni replicas (east-1, east-2)
+2. Deploy Patroni leader (ubuntu-8gb-hil-1)
+3. Deploy Patroni replicas (ubuntu-8gb-ash-1, ubuntu-8gb-ash-2)
 4. Deploy HAProxy load balancer
 5. Verify cluster formation
 ```
 
 **Validation:**
-- Patroni cluster status: `curl http://west-1:8008/cluster`
+- Patroni cluster status: `curl http://ubuntu-8gb-hil-1:8008/cluster`
 - Replication lag: < 1 second
 - Failover test: Automatic leader promotion
 
 ### Phase 3: Schema Application (15 minutes)
 ```bash
 # Apply complete schema
-psql -h west-1 -p 5000 -U postgres -d crm < twincigo_crm_complete_schema.sql
+psql -h ubuntu-8gb-hil-1 -p 5000 -U postgres -d crm < twincigo_crm_complete_schema.sql
 
 # Verify across replicas
-for node in west-1 east-1 east-2; do
+for node in ubuntu-8gb-hil-1 ubuntu-8gb-ash-1 ubuntu-8gb-ash-2; do
   psql -h $node -p 5432 -U postgres -d crm -c "\dt"
 done
 ```
@@ -114,13 +114,13 @@ done
 
 ### Phase 4: Application Services (30 minutes)
 ```bash
-# Deploy Supabase services (west-1)
+# Deploy Supabase services (ubuntu-8gb-hil-1)
 docker-compose up -d supabase-auth supabase-rest supabase-realtime
 
-# Deploy FastAPI backend (east-1)
+# Deploy FastAPI backend (ubuntu-8gb-ash-1)
 docker-compose up -d fastapi-backend
 
-# Deploy monitoring (east-2)
+# Deploy monitoring (ubuntu-8gb-ash-2)
 docker-compose up -d grafana loki prometheus
 ```
 
@@ -151,7 +151,7 @@ POSTGRES_REPLICATION_PASSWORD=CRM_Replication_Dev_2025_Hetzner
 POSTGRES_ADMIN_PASSWORD=CRM_Admin_Dev_2025_Hetzner
 
 # Node-specific
-NODE_NAME=west-1|east-1|east-2
+NODE_NAME=ubuntu-8gb-hil-1|ubuntu-8gb-ash-1|ubuntu-8gb-ash-2
 NODE_IP=5.78.103.224|5.161.110.205|178.156.186.10
 
 # Application

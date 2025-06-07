@@ -8,9 +8,9 @@ set -euo pipefail
 
 # Node configuration
 declare -A NODES=(
-    ["west-1"]="5.78.103.224"
-    ["east-1"]="5.161.110.205" 
-    ["east-2"]="178.156.186.10"
+    ["ubuntu-8gb-hil-1"]="5.78.103.224"
+    ["ubuntu-8gb-ash-1"]="5.161.110.205"
+    ["ubuntu-8gb-ash-2"]="178.156.186.10"
 )
 
 # Colors
@@ -40,7 +40,7 @@ error() {
 install_docker_remaining_nodes() {
     log "🐳 Installing Docker on remaining nodes..."
 
-    for node in west-1 east-2; do
+    for node in ubuntu-8gb-hil-1 ubuntu-8gb-ash-2; do
         ip="${NODES[$node]}"
         log "Installing Docker on $node ($ip)..."
 
@@ -135,8 +135,8 @@ update_node_environment() {
 start_etcd_cluster() {
     log "🔧 Starting etcd cluster..."
 
-    # Start etcd only on the primary node (west-1) for simplicity
-    local primary_node="west-1"
+    # Start etcd only on the primary node (ubuntu-8gb-hil-1) for simplicity
+    local primary_node="ubuntu-8gb-hil-1"
     local primary_ip="${NODES[$primary_node]}"
     log "Starting etcd on $primary_node..."
 
@@ -166,8 +166,8 @@ start_postgres_cluster() {
     log "🗄️  Starting PostgreSQL cluster with Patroni..."
 
     # Start all PostgreSQL nodes on the primary server for development
-    log "Starting Patroni cluster on west-1..."
-    ssh root@"${NODES[west-1]}" "
+    log "Starting Patroni cluster on ubuntu-8gb-hil-1..."
+    ssh root@"${NODES[ubuntu-8gb-hil-1]}" "
         cd /opt/twincigo-crm &&
         docker compose up -d postgres-1 postgres-2 postgres-3
     "
@@ -179,7 +179,7 @@ start_postgres_cluster() {
     sleep 30
 
     # Verify cluster
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     if ssh root@"$primary_ip" "curl -s http://localhost:8008/cluster" >/dev/null 2>&1; then
         success "Patroni cluster is healthy"
     else
@@ -200,7 +200,7 @@ start_postgres_cluster() {
 start_haproxy() {
     log "⚖️  Starting HAProxy load balancer..."
 
-    ssh root@"${NODES[west-1]}" "
+    ssh root@"${NODES[ubuntu-8gb-hil-1]}" "
         cd /opt/twincigo-crm &&
         docker compose up -d haproxy
     "
@@ -208,7 +208,7 @@ start_haproxy() {
     sleep 10
 
     # Verify HAProxy
-    if ssh root@"${NODES[west-1]}" "curl -s http://localhost:7000/stats" >/dev/null 2>&1; then
+    if ssh root@"${NODES[ubuntu-8gb-hil-1]}" "curl -s http://localhost:7000/stats" >/dev/null 2>&1; then
         success "HAProxy is running"
     else
         warning "HAProxy may have issues - check logs"
@@ -219,7 +219,7 @@ start_haproxy() {
 apply_database_schema() {
     log "📋 Applying database schema..."
 
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
 
     # Wait for PostgreSQL to be ready
     local retries=0
@@ -287,10 +287,10 @@ main() {
     success "🎉 TwinCiGo CRM deployment fix complete!"
     
     log "📊 Access Information:"
-    log "  Database (HAProxy): ${NODES[west-1]}:5000"
-    log "  Supabase Dashboard: http://${NODES[west-1]}:3000"
-    log "  FastAPI Backend: http://${NODES[east-1]}:8000"
-    log "  HAProxy Stats: http://${NODES[west-1]}:7000/stats"
+    log "  Database (HAProxy): ${NODES[ubuntu-8gb-hil-1]}:5000"
+    log "  Supabase Dashboard: http://${NODES[ubuntu-8gb-hil-1]}:3000"
+    log "  FastAPI Backend: http://${NODES[ubuntu-8gb-ash-1]}:8000"
+    log "  HAProxy Stats: http://${NODES[ubuntu-8gb-hil-1]}:7000/stats"
 }
 
 main "$@"

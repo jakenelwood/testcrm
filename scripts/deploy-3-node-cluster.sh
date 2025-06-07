@@ -13,9 +13,9 @@ set -euo pipefail
 
 # Node configuration
 declare -A NODES=(
-    ["west-1"]="5.78.103.224"
-    ["east-1"]="5.161.110.205" 
-    ["east-2"]="178.156.186.10"
+    ["ubuntu-8gb-hil-1"]="5.78.103.224"
+    ["ubuntu-8gb-ash-1"]="5.161.110.205"
+    ["ubuntu-8gb-ash-2"]="178.156.186.10"
 )
 
 # Service distribution
@@ -162,7 +162,7 @@ deploy_to_node() {
 
 # Apply database schema
 apply_schema() {
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     
     log "Waiting for PostgreSQL cluster to be ready..."
     sleep 30
@@ -211,7 +211,7 @@ verify_cluster() {
     done
     
     # Check HAProxy stats
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     log "Checking HAProxy load balancer..."
     ssh root@"$primary_ip" "curl -s http://localhost:7000/stats || echo 'HAProxy not ready yet'"
     
@@ -247,16 +247,16 @@ main() {
     
     # Phase 3: Deploy PostgreSQL cluster
     log "🗄️  Phase 3: Deploying PostgreSQL cluster..."
-    deploy_to_node "west-1" "${NODES[west-1]}" "postgres-1"
+    deploy_to_node "ubuntu-8gb-hil-1" "${NODES[ubuntu-8gb-hil-1]}" "postgres-1"
     sleep 10
-    deploy_to_node "east-1" "${NODES[east-1]}" "postgres-2"
+    deploy_to_node "ubuntu-8gb-ash-1" "${NODES[ubuntu-8gb-ash-1]}" "postgres-2"
     sleep 10
-    deploy_to_node "east-2" "${NODES[east-2]}" "postgres-3"
+    deploy_to_node "ubuntu-8gb-ash-2" "${NODES[ubuntu-8gb-ash-2]}" "postgres-3"
     sleep 10
     
     # Phase 4: Deploy HAProxy
     log "⚖️  Phase 4: Deploying load balancer..."
-    deploy_to_node "west-1" "${NODES[west-1]}" "haproxy"
+    deploy_to_node "ubuntu-8gb-hil-1" "${NODES[ubuntu-8gb-hil-1]}" "haproxy"
     
     # Phase 5: Apply database schema
     log "📋 Phase 5: Applying database schema..."
@@ -264,9 +264,9 @@ main() {
     
     # Phase 6: Deploy application services
     log "🚀 Phase 6: Deploying application services..."
-    deploy_to_node "west-1" "${NODES[west-1]}" "supabase-auth supabase-rest supabase-realtime"
-    deploy_to_node "east-1" "${NODES[east-1]}" "fastapi-backend"
-    deploy_to_node "east-2" "${NODES[east-2]}" "monitoring"
+    deploy_to_node "ubuntu-8gb-hil-1" "${NODES[ubuntu-8gb-hil-1]}" "supabase-auth supabase-rest supabase-realtime"
+    deploy_to_node "ubuntu-8gb-ash-1" "${NODES[ubuntu-8gb-ash-1]}" "fastapi-backend"
+    deploy_to_node "ubuntu-8gb-ash-2" "${NODES[ubuntu-8gb-ash-2]}" "monitoring"
     
     # Phase 7: Verify deployment
     log "✅ Phase 7: Verifying deployment..."
@@ -275,11 +275,11 @@ main() {
     success "🎉 TwinCiGo CRM 3-Node Cluster Deployment Complete!"
     
     log "📊 Cluster Access Information:"
-    log "  Database (HAProxy): ${NODES[west-1]}:5000"
-    log "  Supabase Dashboard: ${NODES[west-1]}:3000"
-    log "  FastAPI Backend: ${NODES[east-1]}:8000"
-    log "  HAProxy Stats: ${NODES[west-1]}:7000/stats"
-    log "  Monitoring: ${NODES[east-2]}:3001"
+    log "  Database (HAProxy): ${NODES[ubuntu-8gb-hil-1]}:5000"
+    log "  Supabase Dashboard: ${NODES[ubuntu-8gb-hil-1]}:3000"
+    log "  FastAPI Backend: ${NODES[ubuntu-8gb-ash-1]}:8000"
+    log "  HAProxy Stats: ${NODES[ubuntu-8gb-hil-1]}:7000/stats"
+    log "  Monitoring: ${NODES[ubuntu-8gb-ash-2]}:3001"
 }
 
 # Run main function

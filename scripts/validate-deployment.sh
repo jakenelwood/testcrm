@@ -8,9 +8,9 @@ set -euo pipefail
 
 # Node configuration
 declare -A NODES=(
-    ["west-1"]="5.78.103.224"
-    ["east-1"]="5.161.110.205" 
-    ["east-2"]="178.156.186.10"
+    ["ubuntu-8gb-hil-1"]="5.78.103.224"
+    ["ubuntu-8gb-ash-1"]="5.161.110.205"
+    ["ubuntu-8gb-ash-2"]="178.156.186.10"
 )
 
 # Colors
@@ -109,7 +109,7 @@ check_deployment_files() {
 check_running_containers() {
     log "🔍 Checking running containers..."
     
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     
     ssh root@"$primary_ip" "
         cd /opt/twincigo-crm 2>/dev/null || cd /
@@ -131,7 +131,7 @@ check_running_containers() {
 check_network_connectivity() {
     log "🌐 Checking network connectivity..."
     
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     
     # Check if services are listening on expected ports
     local ports=(2379 5000 5001 7000 3000 3001 4000 5002 8080 9999 8008 8009 8010)
@@ -153,7 +153,7 @@ check_network_connectivity() {
 check_service_health() {
     log "🏥 Checking service health endpoints..."
     
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     
     # etcd health
     if ssh root@"$primary_ip" "curl -s http://localhost:2379/health" >/dev/null 2>&1; then
@@ -204,7 +204,7 @@ check_service_health() {
 show_service_logs() {
     log "📋 Showing recent service logs for troubleshooting..."
     
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     
     ssh root@"$primary_ip" "
         cd /opt/twincigo-crm 2>/dev/null || cd /

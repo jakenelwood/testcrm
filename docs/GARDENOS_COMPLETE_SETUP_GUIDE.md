@@ -36,9 +36,9 @@ GardenOS is a high-availability CRM system built on modern cloud-native technolo
 │  └─ HAProxy load balancer (port 5432)                     │
 │                                                             │
 │  🖥️ Infrastructure Layer (Hetzner)                         │
-│  ├─ west-1: 5.78.103.224 (CCX-class VPS)                 │
-│  ├─ east-1: 5.161.110.205 (CCX-class VPS)                │
-│  └─ east-2: 178.156.186.10 (CCX-class VPS)               │
+│  ├─ ubuntu-8gb-hil-1: 5.78.103.224 (CCX-class VPS)       │
+│  ├─ ubuntu-8gb-ash-1: 5.161.110.205 (CCX-class VPS)     │
+│  └─ ubuntu-8gb-ash-2: 178.156.186.10 (CCX-class VPS)    │
 └─────────────────────────────────────────────────────────────┘
 ```
 

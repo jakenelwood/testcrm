@@ -1,0 +1,102 @@
+# CRM Infrastructure Server Configuration
+# This is the single source of truth for all server definitions
+# Update this file when adding/removing/renaming servers
+
+version: "1.0"
+updated: "2025-01-07"
+
+# Server definitions
+servers:
+  # Primary cluster nodes
+  ubuntu-8gb-hil-1:
+    ip: "5.78.103.224"
+    region: "hillsboro"
+    datacenter: "hil"
+    role: "primary"
+    services:
+      - "k3s-master"
+      - "postgresql-primary"
+      - "supabase"
+      - "ingress"
+    specs:
+      cpu: "4 vCPU"
+      memory: "8 GB"
+      storage: "160 GB SSD"
+      provider: "Hetzner CCX13"
+
+  ubuntu-8gb-ash-1:
+    ip: "5.161.110.205"
+    region: "ashburn"
+    datacenter: "ash"
+    role: "worker"
+    services:
+      - "k3s-worker"
+      - "postgresql-replica"
+      - "fastapi-backend"
+      - "ai-agents"
+    specs:
+      cpu: "4 vCPU"
+      memory: "8 GB"
+      storage: "160 GB SSD"
+      provider: "Hetzner CCX13"
+
+  ubuntu-8gb-ash-2:
+    ip: "178.156.186.10"
+    region: "ashburn"
+    datacenter: "ash"
+    role: "worker"
+    services:
+      - "k3s-worker"
+      - "postgresql-replica"
+      - "monitoring"
+      - "backup"
+    specs:
+      cpu: "4 vCPU"
+      memory: "8 GB"
+      storage: "160 GB SSD"
+      provider: "Hetzner CCX13"
+
+# Legacy server name mappings (for reference)
+legacy_mappings:
+  west-1: "ubuntu-8gb-hil-1"
+  east-1: "ubuntu-8gb-ash-1"
+  east-2: "ubuntu-8gb-ash-2"
+
+# Service distribution strategy
+service_distribution:
+  database:
+    primary: "ubuntu-8gb-hil-1"
+    replicas:
+      - "ubuntu-8gb-ash-1"
+      - "ubuntu-8gb-ash-2"
+  
+  k3s:
+    masters:
+      - "ubuntu-8gb-hil-1"
+    workers:
+      - "ubuntu-8gb-ash-1"
+      - "ubuntu-8gb-ash-2"
+  
+  applications:
+    supabase: "ubuntu-8gb-hil-1"
+    fastapi: "ubuntu-8gb-ash-1"
+    ai_agents: "ubuntu-8gb-ash-1"
+    monitoring: "ubuntu-8gb-ash-2"
+
+# Network configuration
+network:
+  cluster_cidr: "10.42.0.0/16"
+  service_cidr: "10.43.0.0/16"
+  pod_cidr: "10.244.0.0/16"
+
+# Future expansion slots (for planning)
+expansion_plan:
+  next_servers:
+    - name: "ubuntu-8gb-fra-1"
+      region: "frankfurt"
+      role: "worker"
+      planned_services: ["cdn", "edge-cache"]
+    - name: "ubuntu-8gb-hel-1"
+      region: "helsinki"
+      role: "worker"
+      planned_services: ["backup", "disaster-recovery"]

@@ -14,9 +14,9 @@ ETCD_CONFIG_DIR="/etc/etcd"
 
 # Server configuration (update these to match your servers)
 declare -A SERVERS=(
-    ["west-1"]="5.78.103.224"
-    ["east-1"]="5.161.110.205"
-    ["east-2"]="178.156.186.10"
+    ["ubuntu-8gb-hil-1"]="5.78.103.224"
+    ["ubuntu-8gb-ash-1"]="5.161.110.205"
+    ["ubuntu-8gb-ash-2"]="178.156.186.10"
 )
 
 # Colors for output
@@ -51,13 +51,13 @@ usage() {
     echo "  cleanup-old           Clean up old etcd installation"
     echo
     echo "Options:"
-    echo "  --node NODE           Run command on specific node (west-1, east-1, east-2)"
+    echo "  --node NODE           Run command on specific node (ubuntu-8gb-hil-1, ubuntu-8gb-ash-1, ubuntu-8gb-ash-2)"
     echo "  --help                Show this help message"
     echo
     echo "Examples:"
     echo "  $0 setup-cluster"
     echo "  $0 status-cluster"
-    echo "  $0 install-etcd --node west-1"
+    echo "  $0 install-etcd --node ubuntu-8gb-hil-1"
     echo
 }
 
@@ -321,7 +321,7 @@ check_cluster_status() {
     # Check cluster membership from first node
     echo
     echo -e "${BLUE}=== Cluster Membership ===${NC}"
-    local first_ip="${SERVERS[west-1]}"
+    local first_ip="${SERVERS[ubuntu-8gb-hil-1]}"
     if ssh "root@$first_ip" "curl -s http://localhost:2379/v2/members" 2>/dev/null; then
         echo "✅ Cluster membership retrieved"
     else

@@ -8,9 +8,9 @@ set -euo pipefail
 
 # Node configuration
 declare -A NODES=(
-    ["west-1"]="5.78.103.224"
-    ["east-1"]="5.161.110.205" 
-    ["east-2"]="178.156.186.10"
+    ["ubuntu-8gb-hil-1"]="5.78.103.224"
+    ["ubuntu-8gb-ash-1"]="5.161.110.205" 
+    ["ubuntu-8gb-ash-2"]="178.156.186.10"
 )
 
 # Colors
@@ -79,7 +79,7 @@ fix_docker_compose_command() {
 start_services_safely() {
     log "🚀 Starting services with improved error handling..."
     
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     
     # Start etcd first
     log "Starting etcd..."
@@ -147,7 +147,7 @@ start_services_safely() {
 perform_health_check() {
     log "🏥 Performing comprehensive health check..."
     
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     local all_healthy=true
     
     # Check etcd
@@ -201,7 +201,7 @@ perform_health_check() {
 show_service_status() {
     log "📊 Service Status Summary:"
     
-    local primary_ip="${NODES[west-1]}"
+    local primary_ip="${NODES[ubuntu-8gb-hil-1]}"
     
     echo ""
     echo "🔗 Access URLs:"

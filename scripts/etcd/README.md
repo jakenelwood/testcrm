@@ -20,18 +20,18 @@ The etcd cluster provides distributed consensus and key-value storage for:
 ┌─────────────────────────────────────────────────────────────┐
 │                    etcd Cluster Layout                      │
 ├─────────────────────────────────────────────────────────────┤
-│  Node: west-1 (5.78.103.224)                               │
-│  ├─ etcd member: west-1                                     │
+│  Node: ubuntu-8gb-hil-1 (5.78.103.224)                               │
+│  ├─ etcd member: ubuntu-8gb-hil-1                                     │
 │  ├─ Client port: 2379                                       │
 │  └─ Peer port: 2380                                         │
 │                                                             │
-│  Node: east-1 (5.161.110.205)                              │
-│  ├─ etcd member: east-1                                     │
+│  Node: ubuntu-8gb-ash-1 (5.161.110.205)                              │
+│  ├─ etcd member: ubuntu-8gb-ash-1                                     │
 │  ├─ Client port: 2379                                       │
 │  └─ Peer port: 2380                                         │
 │                                                             │
-│  Node: east-2 (178.156.186.10)                             │
-│  ├─ etcd member: east-2                                     │
+│  Node: ubuntu-8gb-ash-2 (178.156.186.10)                             │
+│  ├─ etcd member: ubuntu-8gb-ash-2                                     │
 │  ├─ Client port: 2379                                       │
 │  └─ Peer port: 2380                                         │
 └─────────────────────────────────────────────────────────────┘
@@ -59,7 +59,7 @@ The etcd cluster provides distributed consensus and key-value storage for:
 ./setup-etcd-cluster.sh install-etcd
 
 # Install on specific node
-./setup-etcd-cluster.sh install-etcd --node west-1
+./setup-etcd-cluster.sh install-etcd --node ubuntu-8gb-hil-1
 
 # Stop cluster
 ./setup-etcd-cluster.sh stop-cluster
@@ -76,9 +76,9 @@ The script uses these default server mappings:
 
 ```bash
 declare -A SERVERS=(
-    ["west-1"]="5.78.103.224"
-    ["east-1"]="5.161.110.205"
-    ["east-2"]="178.156.186.10"
+    ["ubuntu-8gb-hil-1"]="5.78.103.224"
+    ["ubuntu-8gb-ash-1"]="5.161.110.205"
+    ["ubuntu-8gb-ash-2"]="178.156.186.10"
 )
 ```
 
@@ -88,7 +88,7 @@ Each node gets configured with:
 
 ```yaml
 # Node identity
-ETCD_NAME: "west-1|east-1|east-2"
+ETCD_NAME: "ubuntu-8gb-hil-1|ubuntu-8gb-ash-1|ubuntu-8gb-ash-2"
 ETCD_DATA_DIR: "/var/lib/etcd"
 
 # Network configuration
@@ -98,7 +98,7 @@ ETCD_ADVERTISE_CLIENT_URLS: "http://NODE_IP:2379"
 ETCD_INITIAL_ADVERTISE_PEER_URLS: "http://NODE_IP:2380"
 
 # Cluster configuration
-ETCD_INITIAL_CLUSTER: "west-1=http://5.78.103.224:2380,east-1=http://5.161.110.205:2380,east-2=http://178.156.186.10:2380"
+ETCD_INITIAL_CLUSTER: "ubuntu-8gb-hil-1=http://5.78.103.224:2380,ubuntu-8gb-ash-1=http://5.161.110.205:2380,ubuntu-8gb-ash-2=http://178.156.186.10:2380"
 ETCD_INITIAL_CLUSTER_STATE: "new"
 ETCD_INITIAL_CLUSTER_TOKEN: "gardenos-etcd-cluster"
 

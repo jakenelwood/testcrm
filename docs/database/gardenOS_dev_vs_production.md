@@ -20,9 +20,9 @@ This document outlines the complete infrastructure, integration, scaling strateg
 
 | Component  | Details                                                 |
 | ---------- | ------------------------------------------------------- |
-| **Servers**    | **west-1**: 5.78.103.224 (Hetzner CCX13)               |
-|            | **east-1**: 5.161.110.205 (Hetzner CCX13)               |
-|            | **east-2**: 178.156.186.10 (Hetzner CCX13)              |
+| **Servers**    | **ubuntu-8gb-hil-1**: 5.78.103.224 (Hetzner CCX13)     |
+|            | **ubuntu-8gb-ash-1**: 5.161.110.205 (Hetzner CCX13)     |
+|            | **ubuntu-8gb-ash-2**: 178.156.186.10 (Hetzner CCX13)    |
 | PostgreSQL | Patroni (HA with etcd + HAProxy on separate containers) |
 | Supabase   | Deployed on 1–2 nodes (lightweight services only)       |
 | Backend    | FastAPI + LangGraph agents (distributed or colocated)   |
@@ -115,9 +115,9 @@ This phased strategy preserves initial velocity while removing Supabase dependen
 ## 🪠 Dev Bootstrap Script (3× CCX13 Nodes)
 
 ### Node Configuration
-- **west-1** (5.78.103.224): Primary Patroni leader + Supabase services
-- **east-1** (5.161.110.205): Patroni replica + FastAPI backend
-- **east-2** (178.156.186.10): Patroni replica + monitoring
+- **ubuntu-8gb-hil-1** (5.78.103.224): Primary Patroni leader + Supabase services
+- **ubuntu-8gb-ash-1** (5.161.110.205): Patroni replica + FastAPI backend
+- **ubuntu-8gb-ash-2** (178.156.186.10): Patroni replica + monitoring
 
 ```bash
 # Deploy to all 3 nodes using automated script

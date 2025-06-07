@@ -273,7 +273,7 @@ services:
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
       TENANT_ID: stub
-      REGION: us-east-1
+      REGION: us-ubuntu-8gb-ash-1
       GLOBAL_S3_BUCKET: stub
     ports:
       - "5002:5000"
