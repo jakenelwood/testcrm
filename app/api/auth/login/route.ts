@@ -2,44 +2,61 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/database/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import { jwt as jwtConfig } from '@/lib/config/environment';
+
+// Input validation schema
+const loginSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(1, 'Password is required'),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    // Parse and validate request body
+    const body = await request.json();
+    const validationResult = loginSchema.safeParse(body);
 
-    if (!email || !password) {
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        {
+          error: 'Invalid input',
+          details: validationResult.error.errors.map(err => err.message)
+        },
         { status: 400 }
       );
     }
 
-    // Check if user exists in the database
+    const { email, password } = validationResult.data;
+
+    // Check if user exists in the database with password hash
     const result = await query(`
-      SELECT id, email, full_name, role, organization_id, is_active
+      SELECT id, email, full_name, role, organization_id, is_active, password_hash
       FROM users
       WHERE email = $1 AND is_active = true
     `, [email]);
 
     if (result.rows.length === 0) {
+      // Use generic error message to prevent user enumeration
       return NextResponse.json(
-        { error: 'User not found or inactive' },
+        { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
     const user = result.rows[0];
 
-    // Development bypass - accept any password for existing users
-    // In production, you'd want proper password authentication
-    if (password !== 'dev123') {
+    // Verify password using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!isPasswordValid) {
       return NextResponse.json(
-        { error: 'Invalid password. Use "dev123" for development.' },
+        { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
-    // Create JWT token
+    // Create JWT token with secure configuration
     const token = jwt.sign(
       {
         userId: user.id,
@@ -47,11 +64,18 @@ export async function POST(request: NextRequest) {
         role: user.role,
         organizationId: user.organization_id
       },
-      process.env.JWT_SECRET || 'dev-secret-key',
-      { expiresIn: '24h' }
+      jwtConfig.secret,
+      {
+        expiresIn: jwtConfig.expiresIn,
+        issuer: 'aicrm',
+        audience: 'aicrm-users'
+      }
     );
 
-    // Create response with user data
+    // Log successful authentication (without sensitive data)
+    console.log(`User authenticated: ${user.email} (ID: ${user.id})`);
+
+    // Create response with user data (exclude sensitive fields)
     const response = NextResponse.json({
       user: {
         id: user.id,
@@ -60,22 +84,29 @@ export async function POST(request: NextRequest) {
         role: user.role,
         organization_id: user.organization_id
       },
-      token
+      token,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     });
 
-    // Set HTTP-only cookie for authentication
+    // Set secure HTTP-only cookie
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 86400 // 24 hours
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/'
     });
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
+    // Log error without exposing sensitive information
+    console.error('Authentication error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Authentication failed' },
       { status: 500 }
     );
   }

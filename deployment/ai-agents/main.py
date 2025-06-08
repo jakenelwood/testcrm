@@ -29,7 +29,7 @@ app = FastAPI(
 # Security
 security = HTTPBearer()
 
-# CORS middleware
+# Secure CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -38,8 +38,18 @@ app.add_middleware(
         "http://api.gardenos.local"
     ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=[
+        "Accept",
+        "Accept-Language",
+        "Content-Language",
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "X-CSRF-Token"
+    ],
+    expose_headers=["X-Total-Count", "X-Page-Count"],
+    max_age=600,  # 10 minutes
 )
 
 # Include AI orchestration router

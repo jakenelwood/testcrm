@@ -21,17 +21,88 @@ This directory contains deployment and maintenance scripts for the CRM system.
   - Corrects invalid `depends_on` sections
   - Handles environment variable misplacements
 
+### Monitoring & Health Check Scripts
+
+- **`comprehensive-health-check.sh`** - **PRIMARY MONITORING TOOL**
+  - Tests all infrastructure components (27 checks across 7 categories)
+  - Provides health scoring and detailed reports
+  - Documentation: [docs/reporting/comprehensive-health-check.md](../docs/reporting/comprehensive-health-check.md)
+
+- **`cluster-status.sh`** - PostgreSQL HA cluster status
+  - Patroni cluster health and topology
+  - Database connectivity and replication status
+  - Quick cluster overview
+
+- **`monitor-cluster-health.sh`** - Continuous monitoring
+  - Background health monitoring
+  - Alert generation and logging
+  - Performance metrics collection
+
+### Session Management Scripts
+
+- **`start-session.sh`** - Start development session
+  - Downloads latest environment files from server
+  - Environment selection (development/production)
+  - Server-centralized environment management
+  - Documentation: [docs/reporting/session-management.md](../docs/reporting/session-management.md)
+
+- **`end-session.sh`** - End development session
+  - Backs up environment changes to server
+  - Session cleanup and synchronization
+
 ### Validation Scripts
 
-- **`validate-ringcentral-config.js`** - Validates RingCentral configuration
-  - Checks environment variables
-  - Validates API credentials
-  - Tests connectivity
+- **`validate-security.js`** - **SECURITY COMPLIANCE TOOL**
+  - 17 comprehensive security checks
+  - Hardcoded secrets detection
+  - Authentication and authorization validation
+  - Documentation: [docs/reporting/security-monitoring.md](../docs/reporting/security-monitoring.md)
+
+- **`validate-ringcentral-config.js`** - RingCentral configuration validation
+  - Environment variables validation
+  - API credentials testing
+  - Connectivity verification
 
 ## Usage
 
-### Supabase Setup on Hetzner
+### 🏥 Monitoring & Health Checks
 
+#### Comprehensive Health Check (Recommended)
+```bash
+# Run complete infrastructure health check
+./scripts/comprehensive-health-check.sh
+
+# View generated report
+cat health_report_YYYYMMDD_HHMMSS.txt
+```
+
+#### Daily Monitoring Routine
+```bash
+# Morning health check
+./scripts/comprehensive-health-check.sh
+
+# Start development session
+./scripts/start-session.sh
+
+# Check cluster status (as needed)
+./scripts/cluster-status.sh
+
+# End session with backup
+./scripts/end-session.sh
+```
+
+#### Security Validation
+```bash
+# Run comprehensive security check
+node scripts/validate-security.js
+
+# RingCentral configuration validation
+node scripts/validate-ringcentral-config.js
+```
+
+### 🚀 Production Deployment
+
+#### Supabase Setup on Hetzner
 ```bash
 # Copy script to server
 scp scripts/setup-supabase-on-hetzner.sh root@your-server:/tmp/
@@ -42,13 +113,6 @@ chmod +x /tmp/setup-supabase-on-hetzner.sh
 /tmp/setup-supabase-on-hetzner.sh
 ```
 
-### RingCentral Configuration Validation
-
-```bash
-# Run locally
-node scripts/validate-ringcentral-config.js
-```
-
 ## Development Scripts
 
 For development-specific scripts, see:
@@ -57,6 +121,13 @@ For development-specific scripts, see:
 
 ## Documentation
 
+### 🏥 Reporting & Monitoring Documentation
+- **[Reporting Overview](../docs/reporting/README.md)** - **COMPREHENSIVE MONITORING GUIDE**
+- **[Comprehensive Health Check](../docs/reporting/comprehensive-health-check.md)** - Primary monitoring tool
+- **[Session Management](../docs/reporting/session-management.md)** - Environment management system
+- **[Security Monitoring](../docs/reporting/security-monitoring.md)** - Security validation tools
+
+### 🚀 Deployment Documentation
 - **[Supabase Setup Guide](../docs/deployment/SUPABASE_SETUP.md)** - Comprehensive setup documentation
 - **[Hetzner Supabase Setup](../docs/deployment/HETZNER_SUPABASE_SETUP.md)** - Quick troubleshooting guide
 - **[Production Deployment](../docs/deployment/PRODUCTION_DEPLOYMENT.md)** - General deployment guide

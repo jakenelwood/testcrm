@@ -1,0 +1,79 @@
+Comprehensive Server Health Check Report
+Generated: Sat Jun  7 10:29:26 PM CDT 2025
+Primary Host: 5.78.103.224
+=========================================
+
+[1m[0;34m🌐 Host Connectivity Tests[0m
+[0;34m==================================================[0m
+[0;32m✅ Primary host 5.78.103.224 is reachable[0m
+[0;36mℹ️  Testing SSH connection to 5.78.103.224...[0m
+[0;32m✅ SSH connection to 5.78.103.224 successful[0m
+[0;32m✅ Backup host 5.161.110.205 is reachable[0m
+[0;32m✅ Backup host 178.156.186.10 is reachable[0m
+
+[1m[0;34m🔧 etcd Cluster Health[0m
+[0;34m==================================================[0m
+[0;32m✅ etcd on 5.78.103.224 is healthy[0m
+[0;32m✅ etcd on 5.161.110.205 is healthy[0m
+[0;32m✅ etcd on 178.156.186.10 is healthy[0m
+[0;32m✅ etcd cluster is fully healthy (3/3 nodes)[0m
+
+[1m[0;34m☸️  K3s Cluster Health[0m
+[0;34m==================================================[0m
+[0;36mℹ️  Checking K3s service status...[0m
+[0;32m✅ K3s service is running[0m
+[0;32m✅ All K3s nodes are Ready (3/3)[0m
+[0;32m✅ K3s core system pods are running (2/3)[0m
+
+[1m[0;34m🐳 Docker Services Health[0m
+[0;34m==================================================[0m
+[0;36mℹ️  Checking Docker service status...[0m
+[0;32m✅ Docker service is running[0m
+[0;32m✅ Docker containers are running (3/3)[0m
+[0;32m✅ PostgreSQL containers are running[0m
+
+[1m[0;34m🗄️  Patroni PostgreSQL Cluster[0m
+[0;34m==================================================[0m
+[0;32m✅ Patroni API on port 8008 is responding[0m
+[0;32m✅ Patroni cluster is healthy (1 leader, 2 replicas, 3 total)[0m
+[0;32m✅ PostgreSQL is accepting connections on port 5435[0m
+[0;32m✅ PostgreSQL is accepting connections on port 5433[0m
+[0;32m✅ PostgreSQL is accepting connections on port 5434[0m
+
+[1m[0;34m🚀 Application Services[0m
+[0;34m==================================================[0m
+[0;32m✅ HAProxy Web Frontend is listening on port 8080[0m
+[0;32m✅ HAProxy Stats is listening on port 8404[0m
+[0;32m✅ HAProxy PostgreSQL LB is listening on port 5432[0m
+[0;32m✅ HAProxy K3s API LB is listening on port 6443[0m
+[0;36mℹ️  Checking K3s-based Supabase services...[0m
+[0;32m✅ Supabase Auth is running in K3s (2 pods)[0m
+[0;32m✅ Supabase REST is running in K3s (2 pods)[0m
+[0;32m✅ Supabase Storage is running in K3s (1 pods)[0m
+
+[1m[0;34m🔒 Security Compliance[0m
+[0;34m==================================================[0m
+[0;36mℹ️  Running security validation...[0m
+[0;31m❌ Security compliance: 31
+0
+0 critical issues found[0m
+[1;33m⚠️  Local .env.local file exists with template values (consider server-centralized management)[0m
+
+[1m[0;34m📊 Health Check Summary[0m
+[0;34m==================================================[0m
+
+[1mOverall Health Score: 92%[0m
+[0;32m✅ Passed: 26[0m
+[1;33m⚠️  Warnings: 1[0m
+[0;31m❌ Failed: 1[0m
+[0;34m📋 Total Checks: 28[0m
+
+[0;32m🎉 EXCELLENT HEALTH - Production Ready![0m
+
+[0;31m🚨 Critical Issues:[0m
+[0;31m  • Security compliance: 31
+0
+0 critical issues found[0m
+
+[1;33m⚠️  Warnings:[0m
+[1;33m  • Local .env.local file exists with template values (consider server-centralized management)[0m

@@ -158,16 +158,25 @@ check_patroni_cluster() {
 check_etcd() {
     log "🔧 Checking etcd health..."
 
-    if etcd_health=$(ssh root@"$HETZNER_HOST" "cd $COMPOSE_DIR && docker compose exec -T etcd etcdctl endpoint health" 2>/dev/null); then
-        echo "$etcd_health"
-
-        if echo "$etcd_health" | grep -q "is healthy"; then
-            success "etcd cluster is healthy"
+    # Check system etcd (used by K3s and Patroni)
+    if etcd_health=$(curl -s http://"$HETZNER_HOST":2379/health 2>/dev/null); then
+        if echo "$etcd_health" | grep -q '"health":"true"'; then
+            success "System etcd is healthy"
         else
-            warning "etcd health check returned warnings"
+            warning "etcd health check returned: $etcd_health"
         fi
     else
-        error "Failed to check etcd health"
+        # Fallback: try Docker etcd if system etcd fails
+        if etcd_health=$(ssh root@"$HETZNER_HOST" "cd $COMPOSE_DIR && docker compose exec -T etcd etcdctl endpoint health" 2>/dev/null); then
+            echo "$etcd_health"
+            if echo "$etcd_health" | grep -q "is healthy"; then
+                success "Docker etcd cluster is healthy"
+            else
+                warning "Docker etcd health check returned warnings"
+            fi
+        else
+            error "Failed to check both system and Docker etcd health"
+        fi
     fi
 }
 

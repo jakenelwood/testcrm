@@ -92,9 +92,20 @@ Complete index of the GardenOS CRM codebase with production-grade K3s infrastruc
 - `deployment/haproxy/` - HAProxy configurations for development
 - `deployment/patroni/` - Patroni configurations for development
 
-## 🔧 Monitoring and Operations
+## 🔧 Reporting & Monitoring Operations
 
-### Status and Health Checks
+### Health Check System (100% Health Score)
+- `scripts/comprehensive-health-check.sh` - **PRIMARY MONITORING TOOL** (28 checks across 7 categories)
+- `scripts/cluster-status.sh` - Quick PostgreSQL cluster status
+- `scripts/monitor-cluster-health.sh` - Continuous monitoring
+- `docs/reporting/health_reports/` - Generated health reports archive
+
+### Session Management
+- `scripts/start-session.sh` - Start development session with environment management
+- `scripts/end-session.sh` - End session with server backup
+- `.env-backup/` - Organized environment file backups
+
+### Infrastructure Status
 - `scripts/k8s/gardenos-status.sh` - **Comprehensive cluster monitoring**
 - K9s terminal UI for real-time cluster monitoring
 

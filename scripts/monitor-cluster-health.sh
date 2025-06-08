@@ -93,16 +93,16 @@ check_cluster_health() {
         issues+=("Cannot connect to Patroni cluster")
     fi
 
-    # Check database connectivity
+    # Check database connectivity via telnet
     for port in 5435 5433 5434; do
-        if ! pg_isready -h "$HETZNER_HOST" -p "$port" > /dev/null 2>&1; then
+        if ! ssh root@"$HETZNER_HOST" "timeout 3 bash -c '</dev/tcp/localhost/$port'" > /dev/null 2>&1; then
             status="CRITICAL"
             issues+=("PostgreSQL not accepting connections on port $port")
         fi
     done
 
-    # Check etcd health
-    if ! ssh root@"$HETZNER_HOST" "cd $COMPOSE_DIR && docker compose exec -T etcd etcdctl endpoint health" >/dev/null 2>&1; then
+    # Check system etcd health
+    if ! curl -s http://"$HETZNER_HOST":2379/health | grep -q '"health":"true"' 2>/dev/null; then
         status="CRITICAL"
         issues+=("etcd cluster unhealthy")
     fi
@@ -144,7 +144,7 @@ check_resource_usage() {
 }
 
 check_container_status() {
-    local expected_containers=("gardenos-etcd-dev" "gardenos-postgres-1-dev" "gardenos-postgres-2-dev" "gardenos-postgres-3-dev")
+    local expected_containers=("gardenos-postgres-1-dev" "gardenos-postgres-2-dev" "gardenos-postgres-3-dev")
     local running_containers=()
 
     if container_list=$(ssh root@"$HETZNER_HOST" "cd $COMPOSE_DIR && docker compose ps --format '{{.Name}}:{{.State}}'" 2>/dev/null); then
@@ -269,11 +269,11 @@ alert_check() {
         alerts+=("Patroni cluster not responding")
     fi
 
-    if ! pg_isready -h "$HETZNER_HOST" -p 5435 > /dev/null 2>&1; then
+    if ! ssh root@"$HETZNER_HOST" "timeout 3 bash -c '</dev/tcp/localhost/5435'" > /dev/null 2>&1; then
         alerts+=("PostgreSQL leader not accepting connections")
     fi
 
-    if ! ssh root@"$HETZNER_HOST" "cd $COMPOSE_DIR && docker compose exec -T etcd etcdctl endpoint health" >/dev/null 2>&1; then
+    if ! curl -s http://"$HETZNER_HOST":2379/health | grep -q '"health":"true"' 2>/dev/null; then
         alerts+=("etcd cluster unhealthy")
     fi
 

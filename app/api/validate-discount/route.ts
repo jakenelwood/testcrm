@@ -1,22 +1,32 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { supabase as supabaseConfig } from '@/lib/config/environment';
+
+// Input validation schema
+const discountCodeSchema = z.object({
+  code: z.string().min(1, 'Discount code is required').max(50, 'Discount code too long'),
+});
 
 export async function POST(request: Request) {
   try {
-    const { code } = await request.json();
+    // Parse and validate request body
+    const body = await request.json();
+    const validationResult = discountCodeSchema.safeParse(body);
 
-    if (!code) {
+    if (!validationResult.success) {
       return NextResponse.json({
         valid: false,
-        message: 'No discount code provided'
+        message: 'Invalid discount code format'
       }, { status: 400 });
     }
 
-    // Create a direct Supabase client without cookies
-    // This is fine for discount code validation as we don't need authentication
+    const { code } = validationResult.data;
+
+    // Create Supabase client with secure configuration
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vpwvdfrxvvuxojejnegm.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3ZkZnJ4dnZ1eG9qZWpuZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTcxOTIsImV4cCI6MjA2MTQ3MzE5Mn0.hyIFaAyppndjilhPXaaWf7GJoOsJfRRDp7LubigyB3Q'
+      supabaseConfig.url,
+      supabaseConfig.anonKey
     );
 
     // Query the database for the code - use case-insensitive comparison

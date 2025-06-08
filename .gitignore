@@ -77,3 +77,24 @@ wheels/
 MANIFEST
 venv/
 env/
+
+# 🔒 Security: Environment files with secrets
+.env.local
+.env.production
+.env.development
+.env.staging
+.env.k3s
+.env.*.local
+.env.*.backup.*
+.env-backup/
+config/hetzner_db_connection.env
+**/secrets.env
+**/*.secret
+**/*.key
+**/private.env
+
+# 🔒 Security: Downloaded environment files from server
+.env-files/
+
+# 🔒 Security: Backup files with potential secrets
+_archive/insecure-env-files/

@@ -1,0 +1,77 @@
+Comprehensive Server Health Check Report
+Generated: Sat Jun  7 11:37:08 PM CDT 2025
+Primary Host: 5.78.103.224
+=========================================
+
+🌐 Host Connectivity Tests
+==================================================
+✅ Primary host 5.78.103.224 is reachable
+ℹ️  Testing SSH connection to 5.78.103.224...
+✅ SSH connection to 5.78.103.224 successful
+✅ Backup host 5.161.110.205 is reachable
+✅ Backup host 178.156.186.10 is reachable
+
+🔧 etcd Cluster Health
+==================================================
+✅ etcd on 5.78.103.224 is healthy
+✅ etcd on 5.161.110.205 is healthy
+✅ etcd on 178.156.186.10 is healthy
+✅ etcd cluster is fully healthy (3/3 nodes)
+
+☸️  K3s Cluster Health
+==================================================
+ℹ️  Checking K3s service status...
+✅ K3s service is running
+✅ All K3s nodes are Ready (3/3)
+✅ K3s core system pods are running (2/3)
+
+🐳 Docker Services Health
+==================================================
+ℹ️  Checking Docker service status...
+✅ Docker service is running
+✅ Docker containers are running (3/3)
+✅ PostgreSQL containers are running
+
+🗄️  Patroni PostgreSQL Cluster
+==================================================
+✅ Patroni API on port 8008 is responding
+✅ Patroni cluster is healthy (1 leader, 2 replicas, 3 total)
+✅ PostgreSQL is accepting connections on port 5435
+✅ PostgreSQL is accepting connections on port 5433
+✅ PostgreSQL is accepting connections on port 5434
+
+🚀 Application Services
+==================================================
+✅ HAProxy Web Frontend is listening on port 8080
+✅ HAProxy Stats is listening on port 8404
+✅ HAProxy PostgreSQL LB is listening on port 5432
+✅ HAProxy K3s API LB is listening on port 6443
+ℹ️  Checking K3s-based Supabase services...
+✅ Supabase Auth is running in K3s (2 pods)
+✅ Supabase REST is running in K3s (2 pods)
+✅ Supabase Storage is running in K3s (1 pods)
+
+🔒 Security Compliance
+==================================================
+ℹ️  Running security validation...
+❌ Security compliance: 31
+0
+0 critical issues found
+✅ Local .env.local file contains safe template values
+ℹ️  Optional: Consider server-centralized management for team workflows
+
+📊 Health Check Summary
+==================================================
+
+Overall Health Score: 96%
+✅ Passed: 27
+⚠️  Warnings: 0
+❌ Failed: 1
+📋 Total Checks: 28
+
+🎉 EXCELLENT HEALTH - Production Ready!
+
+🚨 Critical Issues:
+  • Security compliance: 31
+0
+0 critical issues found

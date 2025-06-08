@@ -37,16 +37,24 @@
 ### **Branding**
 - **[branding/brand_personality.md](branding/brand_personality.md)** - Brand guidelines and personality
 
+### **📊 Reporting & Monitoring**
+- **[reporting/README.md](reporting/README.md)** - **COMPREHENSIVE MONITORING SYSTEM**
+- **[reporting/comprehensive-health-check.md](reporting/comprehensive-health-check.md)** - Primary infrastructure monitoring (100% health score)
+- **[reporting/session-management.md](reporting/session-management.md)** - Environment management with server-centralized backups
+- **[reporting/health_reports/](reporting/health_reports/)** - Generated health check reports archive
+
 ### **Deployment**
 - **[deployment/](deployment/)** - Production deployment guides
 
 ## 🏗️ **Infrastructure Status**
 
-### **✅ Operational Services**
+### **✅ Operational Services (100% Health Score)**
 - **K3s Cluster**: 3-node HA control plane (5.78.103.224, 5.161.110.205, 178.156.186.10)
 - **PostgreSQL**: 3-node Patroni cluster with 0 MB replication lag
 - **Service Discovery**: Sidecar pattern ensuring postgres-primary → current leader
 - **Storage**: local-path-provisioner with persistent volumes
+- **Health Monitoring**: 28/28 checks passing with automated reporting
+- **Environment Management**: Server-centralized with organized backup system
 
 ### **🎯 Ready for Deployment**
 - **Supabase Stack**: Auth, REST API, Storage services
@@ -57,6 +65,9 @@
 
 ### **Infrastructure Commands**
 ```bash
+# Health monitoring (RECOMMENDED)
+./scripts/comprehensive-health-check.sh
+
 # Check cluster status
 kubectl get nodes
 kubectl get pods -n postgres-cluster
@@ -66,6 +77,18 @@ kubectl get endpoints postgres-primary -n postgres-cluster
 
 # Deploy next services
 ./scripts/k8s/deploy-gardenos.sh deploy-supabase
+```
+
+### **Session Management**
+```bash
+# Start development session
+./scripts/start-session.sh
+
+# End session with backup
+./scripts/end-session.sh
+
+# Quick cluster status
+./scripts/cluster-status.sh
 ```
 
 ### **Database Connection (K3s)**

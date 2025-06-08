@@ -4,10 +4,11 @@
 
 ## 📋 **Quick Start Checklist**
 
-- [ ] **Environment Setup** - Get your development environment running
+- [ ] **Environment Management Setup** - Configure server-centralized environment system
+- [ ] **Security Validation** - Ensure 100% security compliance
 - [ ] **Architecture Understanding** - Learn how the system works
 - [ ] **Development Workflow** - Understand our processes and tools
-- [ ] **Deployment Knowledge** - Know how to deploy and manage the system
+- [ ] **Multi-Machine Development** - Set up seamless laptop/desktop sync
 
 ---
 
@@ -55,38 +56,77 @@ ubuntu-8gb-ash-2: 178.156.186.10 # Worker 2 (Ashburn)
 - Docker (for local testing)
 - kubectl (for cluster management)
 - Git (version control)
+- SSH access to Hetzner servers (for environment management)
 
-### **Quick Setup Commands**
+### **🔒 Environment Management Setup (CRITICAL)**
 ```bash
-# 1. Clone and setup frontend
+# 1. Clone the repository
 git clone https://github.com/jakenelwood/crm.git
-cd crm/frontend-next-files
+cd crm
+
+# 2. Set up server-centralized environment management
+./scripts/setup-env-management.sh
+
+# 3. Start your first development session
+env-start
+# This will:
+# - Download latest environment files from HA server cluster
+# - Show available environments (development, staging, production)
+# - Let you select which environment to use
+# - Set up .env.local with secure configuration
+
+# 4. Install dependencies
 npm install
-cp .env.local.template .env.local
 
-# 2. Setup backend (if developing locally)
-cd ../backend-fastapi
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-pip install -r requirements.txt
-
-# 3. Configure environment variables
-# Edit .env.local with your database credentials
+# 5. Validate security compliance
+node scripts/validate-security.js
+# Should show: Security Score: 17/17 (100%)
 ```
 
-### **Environment Variables**
-```env
-# Database (Production Hetzner PostgreSQL)
-DATABASE_URL=postgresql://crm_user:password@ubuntu-8gb-hil-1:5432/crm
+### **🚀 Quick Development Commands**
+```bash
+# Start development server
+env-start && npm run dev
+# Or use the convenient alias
+crm-dev
 
-# AI Integration (DeepInfra)
-DEEPINFRA_API_KEY=your_deepinfra_key
-OPENAI_API_KEY=your_deepinfra_key  # OpenAI-compatible API
+# Switch environments during development
+env-switch
 
-# Authentication (Supabase)
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+# Check current environment status
+env-status
+
+# End session (backs up changes to server)
+env-end
 ```
+
+### **🔐 Security-First Environment Management**
+**AICRM uses a revolutionary server-centralized environment system:**
+
+```
+HA Server Cluster                    Development Machines
+┌─────────────────────────┐         ┌─────────────────────────┐
+│ Primary (5.78.103.224)  │         │ Laptop/Desktop          │
+│ /root/crm-env-files/    │◄───────►│ .env-files/ (cache)     │
+│ ├── .env.development    │         │ ├── .env.development    │
+│ ├── .env.staging        │         │ ├── .env.staging        │
+│ ├── .env.production     │         │ └── .env.production     │
+└─────────────────────────┘         │ .env.local (active)     │
+            │                       └─────────────────────────┘
+            ▼ (auto-sync)
+┌─────────────────────────┐
+│ Backup (5.161.110.205) │
+│ /root/crm-env-files/    │
+│ (replicated files)      │
+└─────────────────────────┘
+```
+
+**Benefits:**
+- ✅ **Zero hardcoded secrets** in codebase
+- ✅ **Multi-machine sync** - seamless laptop/desktop development
+- ✅ **HA backup** - environment files replicated across servers
+- ✅ **Automatic validation** - security compliance checking
+- ✅ **Git protection** - all .env files in .gitignore
 
 ---
 
@@ -133,39 +173,99 @@ scripts/                # Automation scripts
 ## 🔄 **Development Workflow**
 
 ### **Our Development Principles**
-1. **DRY (Don't Repeat Yourself)** - Centralize configurations and reuse code
-2. **SRP (Single Responsibility)** - Each component does one thing well
-3. **Configuration-Driven** - Use `config/servers.yaml` for infrastructure changes
-4. **Documentation-First** - Update docs with every significant change
+1. **Security First** - 100% compliance with security guidelines
+2. **DRY (Don't Repeat Yourself)** - Centralize configurations and reuse code
+3. **SRP (Single Responsibility)** - Each component does one thing well
+4. **Environment Automation** - Server-centralized environment management
+5. **Documentation-First** - Update docs with every significant change
 
-### **Making Changes**
+### **🌅 Daily Development Workflow**
 
-#### **Frontend Changes**
+#### **Starting a Development Session**
 ```bash
-cd frontend-next-files
+# Morning setup (any machine)
+env-start
+# ✅ Downloads latest environment files from server
+# ✅ Shows available environments with update dates
+# ✅ Backs up current environment before switching
+# ✅ Sets up selected environment as .env.local
+
+# Start development
+npm run dev
+# Or use convenient alias
+crm-dev
+```
+
+#### **During Development**
+```bash
+# Quick environment switch
+env-switch
+
+# Check current environment
+env-status
+
+# Sync latest from server
+env-sync
+
+# Validate security compliance
+node scripts/validate-security.js
+```
+
+#### **Ending a Development Session**
+```bash
+# End session (backs up changes to server)
+env-end
+# ✅ Auto-detects environment type
+# ✅ Creates local backup with timestamp
+# ✅ Uploads to primary server
+# ✅ Syncs to backup servers (HA)
+# ✅ Shows what changed
+```
+
+### **🔒 Security-First Development**
+
+#### **Before Making Changes**
+```bash
+# Validate current security state
+node scripts/validate-security.js
+# Must show: Security Score: 17/17 (100%)
+
+# Check for hardcoded secrets
+grep -r "password\|secret\|key" --exclude-dir=node_modules .
+# Should only find template files and documentation
+```
+
+#### **Making Secure Changes**
+```bash
+# Frontend changes
 npm run dev              # Start development server
 npm run build            # Test production build
 npm run lint             # Check code quality
+
+# Backend changes (if needed)
+cd deployment/backend
+python -m pytest        # Run tests
+uvicorn main:app --reload  # Start development server
+
+# Always validate security after changes
+node scripts/validate-security.js
 ```
 
-#### **Backend Changes**
+### **🌐 Multi-Machine Development**
+
+#### **Perfect for Laptop/Desktop Development**
 ```bash
-cd backend-fastapi
-source venv/bin/activate
-uvicorn app.main:app --reload  # Start development server
-pytest                   # Run tests
-```
+# On Laptop
+env-start          # Get latest, work on features
+env-end            # Backup changes to server
 
-#### **Infrastructure Changes**
-```bash
-# Update server configuration
-vim config/servers.yaml
+# On Desktop
+env-start          # Get latest (including laptop changes)
+env-end            # Backup changes to server
 
-# Apply changes across all files
-./scripts/update-server-names.sh
-
-# Deploy to cluster
-./scripts/k8s/deploy-gardenos.sh deploy-all
+# Back on Laptop
+env-start          # Get latest (including desktop changes)
+# ✅ Seamless continuation with all changes synchronized
 ```
 
 ### **Adding New Servers**
@@ -211,8 +311,15 @@ kubectl logs -n default -l app=fastapi-ai-agents
 
 ## 📚 **Key Documentation References**
 
+### **🔒 Security & Environment Management**
+- **Environment Management**: `docs/ENVIRONMENT_FILE_MANAGEMENT.md` - Complete guide
+- **Security Compliance**: `docs/SECURITY_COMPLIANCE_REPORT.md` - 100% compliance report
+- **Security Remediation**: `docs/SECURITY_REMEDIATION_PLAN.md` - Fixes implemented
+- **Security Checklist**: `SECURITY_CHECKLIST.md` - Pre-deployment validation
+
 ### **For New Developers**
 - **This Guide**: Complete developer onboarding
+- **Project Structure**: `PROJECT_STRUCTURE.md` - Codebase organization
 - **Setup Guide**: `docs/setup-guide.md` - Basic development setup
 - **Architecture**: `docs/GARDENOS_COMPLETE_SETUP_GUIDE.md` - Infrastructure overview
 
@@ -230,11 +337,23 @@ kubectl logs -n default -l app=fastapi-ai-agents
 
 ## 🎯 **Getting Help**
 
-### **Common Questions**
+### **🔒 Security Questions**
+- **"How do I validate security?"** → `node scripts/validate-security.js`
+- **"Where are environment files stored?"** → Server-side at `/root/crm-env-files/`
+- **"How do I switch environments?"** → `env-switch`
+- **"What if I have hardcoded secrets?"** → Run security validation, fix immediately
+
+### **🛠️ Development Questions**
+- **"How do I start development?"** → `env-start && npm run dev`
 - **"How do I add a new server?"** → Update `config/servers.yaml`, run update script
 - **"How do I deploy changes?"** → Use `./scripts/k8s/deploy-gardenos.sh`
-- **"Where are the AI agents?"** → `backend-fastapi/app/ai_agents/`
+- **"Where are the AI agents?"** → `deployment/ai-agents/`
 - **"How do I check system status?"** → `./scripts/k8s/gardenos-status.sh`
+
+### **🌐 Multi-Machine Questions**
+- **"How do I sync between laptop/desktop?"** → `env-start` downloads latest, `env-end` uploads changes
+- **"What if I'm offline?"** → Environment files are cached locally in `.env-files/`
+- **"How do I backup my changes?"** → `env-end` automatically backs up to HA server cluster
 
 ### **Debugging Approach**
 We use a systematic 7-step debugging methodology:
@@ -248,9 +367,14 @@ We use a systematic 7-step debugging methodology:
 
 ### **Support Resources**
 - **Dev Journal**: Track of all recent changes and solutions
+- **Security Documentation**: Complete security compliance guides
+- **Environment Management**: Server-centralized system documentation
 - **GitHub Issues**: Project-specific problems and features
-- **Documentation**: Comprehensive guides for all components
 
 ---
 
-**🎉 You're ready to contribute!** Start with small changes, follow our DRY principles, and don't hesitate to ask questions.
+**🎉 You're ready to contribute!**
+
+**Start with:** `env-start` → `npm run dev` → `node scripts/validate-security.js` → `env-end`
+
+Follow our security-first, DRY principles, and enjoy seamless multi-machine development! 🚀

@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/database/client';
+import { z } from 'zod';
+import { validateRequestBody, addSecurityHeaders } from '@/lib/middleware/validation';
+
+// Pipeline validation schema
+const pipelineSchema = z.object({
+  name: z.string().min(1, 'Pipeline name is required').max(100, 'Pipeline name too long'),
+  description: z.string().max(500, 'Description too long').optional(),
+  lead_type: z.enum(['Personal', 'Business']).default('Personal'),
+  is_default: z.boolean().default(false),
+  display_order: z.number().int().min(0).max(9999).default(999),
+});
 
 export async function GET() {
   try {
     // Fetch pipelines with their statuses using a JOIN query
     const result = await query(`
-      SELECT 
+      SELECT
         p.*,
         COALESCE(
           json_agg(
@@ -31,38 +42,60 @@ export async function GET() {
       ORDER BY p.display_order ASC
     `);
 
-    return NextResponse.json(result.rows);
+    const response = NextResponse.json(result.rows);
+    return addSecurityHeaders(response);
   } catch (error) {
-    console.error('Error fetching pipelines:', error);
-    return NextResponse.json(
+    console.error('Error fetching pipelines:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+
+    const response = NextResponse.json(
       { error: 'Failed to fetch pipelines' },
       { status: 500 }
     );
+    return addSecurityHeaders(response);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const pipeline = await request.json();
-    
+    // Validate and sanitize request body
+    const body = await request.json();
+    const validation = validateRequestBody(pipelineSchema, body);
+
+    if (!validation.success) {
+      const response = NextResponse.json(
+        {
+          error: 'Invalid pipeline data',
+          details: validation.errors
+        },
+        { status: 400 }
+      );
+      return addSecurityHeaders(response);
+    }
+
+    const { name, description, lead_type, is_default, display_order } = validation.data;
+
+    // Use parameterized query to prevent SQL injection
     const result = await query(`
       INSERT INTO pipelines (name, description, lead_type, is_default, display_order)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
-    `, [
-      pipeline.name,
-      pipeline.description || null,
-      pipeline.lead_type || 'Personal',
-      pipeline.is_default || false,
-      pipeline.display_order || 999
-    ]);
+    `, [name, description, lead_type, is_default, display_order]);
 
-    return NextResponse.json(result.rows[0]);
+    const response = NextResponse.json(result.rows[0]);
+    return addSecurityHeaders(response);
   } catch (error) {
-    console.error('Error creating pipeline:', error);
-    return NextResponse.json(
+    console.error('Error creating pipeline:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+
+    const response = NextResponse.json(
       { error: 'Failed to create pipeline' },
       { status: 500 }
     );
+    return addSecurityHeaders(response);
   }
 }
