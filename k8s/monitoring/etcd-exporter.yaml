@@ -1,0 +1,200 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etcd-exporter-config
+  namespace: monitoring
+data:
+  etcd-endpoints.yaml: |
+    # etcd endpoints configuration for monitoring
+    endpoints:
+      - name: "etcd-node-1"
+        url: "http://5.78.103.224:2379"
+        labels:
+          node: "ubuntu-8gb-hil-1"
+          role: "primary"
+      - name: "etcd-node-2" 
+        url: "http://5.78.103.225:2379"
+        labels:
+          node: "ubuntu-8gb-ash-1"
+          role: "backup"
+      - name: "etcd-node-3"
+        url: "http://5.78.103.226:2379"
+        labels:
+          node: "ubuntu-8gb-ash-2"
+          role: "backup"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etcd-exporter
+  namespace: monitoring
+  labels:
+    app: etcd-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd-exporter
+  template:
+    metadata:
+      labels:
+        app: etcd-exporter
+    spec:
+      serviceAccountName: prometheus
+      nodeSelector:
+        node.gardenos.io/tier: hybrid
+      containers:
+      - name: etcd-exporter
+        image: quay.io/coreos/etcd:v3.5.9
+        command:
+          - /bin/sh
+          - -c
+          - |
+            # Custom etcd metrics exporter script
+            cat > /tmp/etcd_exporter.py << 'EOF'
+            #!/usr/bin/env python3
+            import json
+            import requests
+            import time
+            from prometheus_client import start_http_server, Gauge, Counter, Info
+            import logging
+            import yaml
+            import os
+            
+            # Configure logging
+            logging.basicConfig(level=logging.INFO)
+            logger = logging.getLogger(__name__)
+            
+            # Prometheus metrics
+            etcd_up = Gauge('etcd_up', 'etcd node is up', ['endpoint', 'node'])
+            etcd_leader = Gauge('etcd_server_is_leader', 'etcd node is leader', ['endpoint', 'node'])
+            etcd_cluster_size = Gauge('etcd_cluster_size', 'etcd cluster size')
+            etcd_db_size = Gauge('etcd_mvcc_db_total_size_in_bytes', 'etcd database size', ['endpoint', 'node'])
+            etcd_keys_total = Gauge('etcd_debugging_mvcc_keys_total', 'Total number of keys', ['endpoint', 'node'])
+            
+            # Load endpoints configuration
+            with open('/config/etcd-endpoints.yaml', 'r') as f:
+                config = yaml.safe_load(f)
+            
+            def collect_metrics():
+                """Collect metrics from all etcd endpoints"""
+                healthy_nodes = 0
+                leader_found = False
+                
+                for endpoint_config in config['endpoints']:
+                    endpoint = endpoint_config['url']
+                    node = endpoint_config['labels']['node']
+                    
+                    try:
+                        # Health check
+                        health_resp = requests.get(f"{endpoint}/health", timeout=5)
+                        if health_resp.status_code == 200:
+                            health_data = health_resp.json()
+                            is_healthy = health_data.get('health') == 'true'
+                            etcd_up.labels(endpoint=endpoint, node=node).set(1 if is_healthy else 0)
+                            
+                            if is_healthy:
+                                healthy_nodes += 1
+                                
+                                # Get detailed metrics
+                                try:
+                                    # Leader status
+                                    status_resp = requests.get(f"{endpoint}/v2/stats/self", timeout=5)
+                                    if status_resp.status_code == 200:
+                                        status_data = status_resp.json()
+                                        is_leader = status_data.get('state') == 'StateLeader'
+                                        etcd_leader.labels(endpoint=endpoint, node=node).set(1 if is_leader else 0)
+                                        if is_leader:
+                                            leader_found = True
+                                
+                                    # Database size and keys
+                                    metrics_resp = requests.get(f"{endpoint}/v2/stats/store", timeout=5)
+                                    if metrics_resp.status_code == 200:
+                                        store_data = metrics_resp.json()
+                                        # Note: These are approximate metrics for etcd v2 API
+                                        # In production, use etcd v3 API for accurate metrics
+                                        etcd_keys_total.labels(endpoint=endpoint, node=node).set(
+                                            store_data.get('getsSuccess', 0) + store_data.get('setsSuccess', 0)
+                                        )
+                                
+                                except Exception as e:
+                                    logger.warning(f"Failed to get detailed metrics from {endpoint}: {e}")
+                        else:
+                            etcd_up.labels(endpoint=endpoint, node=node).set(0)
+                            etcd_leader.labels(endpoint=endpoint, node=node).set(0)
+                            
+                    except Exception as e:
+                        logger.error(f"Failed to connect to {endpoint}: {e}")
+                        etcd_up.labels(endpoint=endpoint, node=node).set(0)
+                        etcd_leader.labels(endpoint=endpoint, node=node).set(0)
+                
+                # Set cluster size
+                etcd_cluster_size.set(len(config['endpoints']))
+                
+                logger.info(f"Metrics collected: {healthy_nodes}/{len(config['endpoints'])} nodes healthy, leader: {leader_found}")
+            
+            if __name__ == '__main__':
+                # Start Prometheus metrics server
+                start_http_server(8080)
+                logger.info("etcd exporter started on port 8080")
+                
+                # Collect metrics every 15 seconds
+                while True:
+                    try:
+                        collect_metrics()
+                    except Exception as e:
+                        logger.error(f"Error collecting metrics: {e}")
+                    time.sleep(15)
+            EOF
+            
+            # Install Python and dependencies
+            apk add --no-cache python3 py3-pip
+            pip3 install prometheus_client requests pyyaml
+            
+            # Run the exporter
+            python3 /tmp/etcd_exporter.py
+        ports:
+        - containerPort: 8080
+          name: metrics
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: config
+        configMap:
+          name: etcd-exporter-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-exporter
+  namespace: monitoring
+  labels:
+    app: etcd-exporter
+spec:
+  selector:
+    app: etcd-exporter
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: metrics
+  type: ClusterIP

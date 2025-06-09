@@ -1,0 +1,282 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-etcd-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  etcd-cluster-monitoring.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "etcd Cluster Monitoring",
+        "tags": ["etcd", "cluster", "infrastructure"],
+        "style": "dark",
+        "timezone": "browser",
+        "refresh": "30s",
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "panels": [
+          {
+            "id": 1,
+            "title": "etcd Cluster Health",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(etcd_up)",
+                "legendFormat": "Healthy Nodes"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "yellow", "value": 2},
+                    {"color": "green", "value": 3}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "etcd Leader Status",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(etcd_server_is_leader)",
+                "legendFormat": "Leader Count"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "green", "value": 1},
+                    {"color": "red", "value": 2}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "etcd Node Status",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "etcd_up",
+                "legendFormat": "{{node}} - {{endpoint}}",
+                "format": "table",
+                "instant": true
+              }
+            ],
+            "transformations": [
+              {
+                "id": "organize",
+                "options": {
+                  "excludeByName": {
+                    "Time": true,
+                    "__name__": true,
+                    "job": true,
+                    "instance": true
+                  },
+                  "renameByName": {
+                    "node": "Node",
+                    "endpoint": "Endpoint",
+                    "Value": "Status"
+                  }
+                }
+              }
+            ],
+            "fieldConfig": {
+              "overrides": [
+                {
+                  "matcher": {"id": "byName", "options": "Status"},
+                  "properties": [
+                    {
+                      "id": "custom.displayMode",
+                      "value": "color-background"
+                    },
+                    {
+                      "id": "thresholds",
+                      "value": {
+                        "steps": [
+                          {"color": "red", "value": 0},
+                          {"color": "green", "value": 1}
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 4,
+            "title": "etcd Cluster Size Over Time",
+            "type": "timeseries",
+            "targets": [
+              {
+                "expr": "etcd_cluster_size",
+                "legendFormat": "Configured Cluster Size"
+              },
+              {
+                "expr": "sum(etcd_up)",
+                "legendFormat": "Healthy Nodes"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "drawStyle": "line",
+                  "lineInterpolation": "linear",
+                  "barAlignment": 0,
+                  "lineWidth": 2,
+                  "fillOpacity": 10,
+                  "gradientMode": "none",
+                  "spanNulls": false,
+                  "insertNulls": false,
+                  "showPoints": "never",
+                  "pointSize": 5,
+                  "stacking": {
+                    "mode": "none",
+                    "group": "A"
+                  },
+                  "axisPlacement": "auto",
+                  "axisLabel": "",
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "vis": false
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "min": 0,
+                "max": 5
+              }
+            },
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+          },
+          {
+            "id": 5,
+            "title": "etcd Leadership Changes",
+            "type": "timeseries",
+            "targets": [
+              {
+                "expr": "changes(etcd_server_is_leader[5m])",
+                "legendFormat": "Leadership Changes (5m)"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "drawStyle": "bars",
+                  "barAlignment": 0,
+                  "lineWidth": 1,
+                  "fillOpacity": 80,
+                  "gradientMode": "none"
+                },
+                "min": 0
+              }
+            },
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+          },
+          {
+            "id": 6,
+            "title": "etcd Database Size",
+            "type": "timeseries",
+            "targets": [
+              {
+                "expr": "etcd_mvcc_db_total_size_in_bytes",
+                "legendFormat": "{{node}} DB Size"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "drawStyle": "line",
+                  "lineInterpolation": "linear",
+                  "lineWidth": 2,
+                  "fillOpacity": 10
+                },
+                "unit": "bytes"
+              }
+            },
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+          },
+          {
+            "id": 7,
+            "title": "etcd Key Count",
+            "type": "timeseries",
+            "targets": [
+              {
+                "expr": "etcd_debugging_mvcc_keys_total",
+                "legendFormat": "{{node}} Keys"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "drawStyle": "line",
+                  "lineInterpolation": "linear",
+                  "lineWidth": 2,
+                  "fillOpacity": 10
+                },
+                "unit": "short"
+              }
+            },
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+          }
+        ],
+        "templating": {
+          "list": []
+        },
+        "annotations": {
+          "list": [
+            {
+              "name": "etcd Events",
+              "datasource": "Prometheus",
+              "enable": true,
+              "expr": "changes(etcd_server_is_leader[1m]) > 0",
+              "iconColor": "red",
+              "titleFormat": "Leadership Change",
+              "textFormat": "etcd leadership changed"
+            }
+          ]
+        },
+        "links": [],
+        "version": 1
+      }
+    }

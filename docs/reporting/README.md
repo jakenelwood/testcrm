@@ -1,26 +1,15 @@
-# 📊 CRM Reporting & Monitoring Documentation
+# 📊 CRM Monitoring & Health Reports
 
-This directory contains comprehensive documentation for reporting, monitoring, health checks, and operational tools for the CRM system.
+**Centralized monitoring documentation and health report storage**
 
-## 📋 **Quick Reference**
+> **📋 Quick Commands**: See [docs/README.md](../README.md#-command-reference) for all essential commands
 
-### **🚀 Essential Commands**
-```bash
-# Comprehensive health check (recommended)
-./scripts/comprehensive-health-check.sh
+## 🎯 **Purpose**
 
-# Start development session with server-centralized env management
-./scripts/start-session.sh
-
-# End session and backup changes
-./scripts/end-session.sh
-
-# Cluster status check
-./scripts/cluster-status.sh
-
-# Security validation
-node scripts/validate-security.js
-```
+This directory contains:
+- **Health report storage** - Automated reports from comprehensive health checks
+- **Monitoring tool documentation** - Detailed guides for each monitoring script
+- **Analysis tools** - Scripts and guides for report analysis
 
 ### **📊 Health Check Results**
 - **90%+ Health Score**: Production Ready ✅

@@ -1,0 +1,145 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-init
+  namespace: storage
+  labels:
+    app: minio
+    component: init
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: minio-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: minio-init
+        image: minio/mc:latest
+        command:
+        - /bin/bash
+        - -c
+        args:
+        - |
+          set -e
+          echo "Waiting for MinIO distributed cluster to be ready..."
+
+          # Wait for MinIO API to be available (may take longer for distributed setup)
+          until mc alias set minio http://minio-api.storage.svc.cluster.local:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD; do
+            echo "Waiting for MinIO API... (distributed cluster startup)"
+            sleep 10
+          done
+          
+          echo "MinIO is ready! Initializing..."
+          
+          # Create buckets
+          echo "Creating buckets..."
+          mc mb minio/crm-documents --ignore-existing
+          mc mb minio/crm-quotes --ignore-existing
+          mc mb minio/crm-attachments --ignore-existing
+          mc mb minio/crm-backups --ignore-existing
+          mc mb minio/crm-temp --ignore-existing
+          
+          # Set bucket policies
+          echo "Setting bucket policies..."
+          
+          # Public read policy for documents (if needed)
+          cat > /tmp/public-read-policy.json << 'EOF'
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"},
+                "Action": ["s3:GetObject"],
+                "Resource": ["arn:aws:s3:::crm-documents/*"]
+              }
+            ]
+          }
+          EOF
+          
+          # Private policy for quotes and attachments
+          cat > /tmp/private-policy.json << 'EOF'
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Deny",
+                "Principal": {"AWS": "*"},
+                "Action": ["s3:*"],
+                "Resource": [
+                  "arn:aws:s3:::crm-quotes/*",
+                  "arn:aws:s3:::crm-attachments/*",
+                  "arn:aws:s3:::crm-backups/*"
+                ]
+              }
+            ]
+          }
+          EOF
+          
+          # Apply policies
+          mc anonymous set-json /tmp/public-read-policy.json minio/crm-documents || true
+          mc anonymous set none minio/crm-quotes
+          mc anonymous set none minio/crm-attachments
+          mc anonymous set none minio/crm-backups
+          mc anonymous set none minio/crm-temp
+          
+          # Create application user
+          echo "Creating application user..."
+          mc admin user add minio $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
+          
+          # Create policy for application user
+          cat > /tmp/crm-app-policy.json << 'EOF'
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "s3:GetObject",
+                  "s3:PutObject",
+                  "s3:DeleteObject",
+                  "s3:ListBucket"
+                ],
+                "Resource": [
+                  "arn:aws:s3:::crm-*",
+                  "arn:aws:s3:::crm-*/*"
+                ]
+              }
+            ]
+          }
+          EOF
+          
+          mc admin policy create minio crm-app-policy /tmp/crm-app-policy.json
+          mc admin policy attach minio crm-app-policy --user $MINIO_ACCESS_KEY
+          
+          echo "MinIO initialization complete!"
+          echo "Buckets created:"
+          mc ls minio/
+          
+          echo "Application credentials:"
+          echo "Access Key: $MINIO_ACCESS_KEY"
+          echo "Secret Key: [HIDDEN]"
+          echo "Endpoint: http://minio-api.storage.svc.cluster.local:9000"
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_ROOT_USER
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_ROOT_PASSWORD
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_ACCESS_KEY
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_SECRET_KEY

@@ -1,0 +1,159 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: storage
+  labels:
+    app: minio
+    component: storage
+spec:
+  clusterIP: None  # Headless service for StatefulSet
+  selector:
+    app: minio
+  ports:
+  - port: 9000
+    targetPort: 9000
+    name: api
+  - port: 9001
+    targetPort: 9001
+    name: console
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-api
+  namespace: storage
+  labels:
+    app: minio
+    component: api
+spec:
+  selector:
+    app: minio
+  ports:
+  - port: 9000
+    targetPort: 9000
+    name: api
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-console
+  namespace: storage
+  labels:
+    app: minio
+    component: console
+spec:
+  selector:
+    app: minio
+  ports:
+  - port: 9001
+    targetPort: 9001
+    name: console
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio
+  namespace: storage
+  labels:
+    app: minio
+    component: storage
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/part-of: gardenos
+spec:
+  serviceName: minio
+  replicas: 4
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+        component: storage
+    spec:
+      # Ensure pods are distributed across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - minio
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: minio
+        image: minio/minio:RELEASE.2024-06-04T19-20-08Z
+        command:
+        - /bin/bash
+        - -c
+        args:
+        - |
+          set -e
+          echo "Starting MinIO distributed server..."
+          exec minio server \
+            http://minio-{0...3}.minio.storage.svc.cluster.local/data \
+            --console-address ":9001" \
+            --address ":9000"
+        ports:
+        - containerPort: 9000
+          name: api
+        - containerPort: 9001
+          name: console
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_ROOT_USER
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_ROOT_PASSWORD
+        - name: MINIO_CONSOLE_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_CONSOLE_JWT_SECRET
+        envFrom:
+        - configMapRef:
+            name: minio-config
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /minio/health/live
+            port: 9000
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /minio/health/ready
+            port: 9000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 20Gi

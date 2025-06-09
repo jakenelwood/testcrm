@@ -1,0 +1,14 @@
+Comprehensive Server Health Check Report
+Generated: Sun Jun  8 08:13:18 PM CDT 2025
+Primary Host: 5.78.103.224
+=========================================
+
+🌐 Host Connectivity Tests
+==================================================
+✅ Primary host 5.78.103.224 is reachable
+ℹ️  Testing SSH connection to 5.78.103.224...
+✅ SSH connection to 5.78.103.224 successful
+✅ Backup host 5.161.110.205 is reachable
+✅ Backup host 178.156.186.10 is reachable
+
+🔧 etcd Cluster Health

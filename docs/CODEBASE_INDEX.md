@@ -1,14 +1,8 @@
-# 🌱 GardenOS Codebase Index
+# 🌱 CRM Codebase Index
 
-Complete index of the GardenOS CRM codebase with production-grade K3s infrastructure.
+> **📚 Main Documentation**: See **[docs/README.md](README.md)** for the unified documentation hub.
 
-## 🎯 Quick Navigation
-
-### 🚀 Getting Started
-- `README.md` - Project overview and quick start
-- `docs/GARDENOS_COMPLETE_SETUP_GUIDE.md` - **Complete setup guide for new developers**
-- `docs/CODEBASE_INDEX.md` - This file - complete codebase navigation
-- `docs/deployment/K3S_HA_SETUP_GUIDE.md` - K3s high-availability setup
+**Quick codebase navigation for developers who need to understand the file structure.**
 
 ### 🏗️ Core Infrastructure Scripts
 

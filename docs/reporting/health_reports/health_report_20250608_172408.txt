@@ -1,0 +1,88 @@
+Comprehensive Server Health Check Report
+Generated: Sun Jun  8 05:24:08 PM CDT 2025
+Primary Host: 5.78.103.224
+=========================================
+
+🌐 Host Connectivity Tests
+==================================================
+✅ Primary host 5.78.103.224 is reachable
+ℹ️  Testing SSH connection to 5.78.103.224...
+✅ SSH connection to 5.78.103.224 successful
+✅ Backup host 5.161.110.205 is reachable
+✅ Backup host 178.156.186.10 is reachable
+
+🔧 etcd Cluster Health
+==================================================
+✅ etcd on 5.78.103.224 is healthy
+✅ etcd on 5.161.110.205 is healthy
+✅ etcd on 178.156.186.10 is healthy
+✅ etcd cluster is fully healthy (3/3 nodes)
+
+☸️  K3s Cluster Health
+==================================================
+ℹ️  Checking K3s service status...
+✅ K3s service is running
+✅ All K3s nodes are Ready (3/3)
+✅ K3s core system pods are running (2/3)
+
+🐳 Docker Services Health
+==================================================
+ℹ️  Checking Docker service status...
+✅ Docker service is running
+✅ Docker containers are running (3/3)
+✅ PostgreSQL containers are running
+
+🗄️  Patroni PostgreSQL Cluster
+==================================================
+✅ Patroni API on port 8008 is responding
+✅ Patroni cluster is healthy (1 leader, 2 replicas, 3 total)
+✅ PostgreSQL is accepting connections on port 5435
+✅ PostgreSQL is accepting connections on port 5433
+✅ PostgreSQL is accepting connections on port 5434
+
+🚀 Application Services
+==================================================
+✅ HAProxy Web Frontend is listening on port 8080
+✅ HAProxy Stats is listening on port 8404
+✅ HAProxy PostgreSQL LB is listening on port 5432
+✅ HAProxy K3s API LB is listening on port 6443
+ℹ️  Checking K3s-based Supabase services...
+✅ Supabase Auth is running in K3s (2 pods)
+✅ Supabase REST is running in K3s (2 pods)
+✅ Supabase Storage is running in K3s (1 pods)
+
+🗄️  MinIO Distributed Storage
+==================================================
+ℹ️  Checking MinIO cluster status...
+✅ MinIO cluster is healthy (4/4 pods running)
+✅ MinIO S3 API service is available
+✅ MinIO Console service is available
+ℹ️  Testing MinIO API health...
+✅ MinIO API health endpoint is responding
+ℹ️  Checking MinIO buckets...
+✅ MinIO buckets are configured (5 CRM buckets found)
+ℹ️  Checking MinIO storage usage...
+✅ MinIO storage is accessible and healthy (6 storage indicators)
+ℹ️  Checking MinIO ingress configuration...
+✅ MinIO ingress is configured (2 ingress rules)
+
+🔒 Security Compliance
+==================================================
+ℹ️  Running security validation...
+⚠️  Security validation script failed to run
+✅ Using server-centralized environment management (local .env.local for development)
+ℹ️  Server-centralized management is active - local file is for development convenience
+
+📊 Health Check Summary
+==================================================
+
+Overall Health Score: 97%
+✅ Passed: 34
+⚠️  Warnings: 1
+❌ Failed: 0
+📋 Total Checks: 35
+
+🎉 EXCELLENT HEALTH - Production Ready!
+
+⚠️  Warnings:
+  • Security validation script failed to run

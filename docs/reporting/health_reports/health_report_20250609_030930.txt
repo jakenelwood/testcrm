@@ -1,0 +1,53 @@
+[1m🏥 Comprehensive Server Health Check[0m
+==================================================
+Timestamp: Mon Jun  9 03:09:30 AM UTC 2025
+Primary Host: 5.78.103.224
+Report File: /opt/crm/docs/reporting/health_reports/health_report_20250609_030930.txt
+
+Running comprehensive health checks...
+
+
+🌐 Host Connectivity Tests
+==================================================
+✅ Primary host 5.78.103.224 is reachable
+✅ Backup host 5.161.110.205 is reachable
+✅ Backup host 178.156.186.10 is reachable
+
+🔧 etcd Cluster Health
+==================================================
+✅ etcd on 5.78.103.224 is healthy
+✅ etcd on 5.161.110.205 is healthy
+✅ etcd on 178.156.186.10 is healthy
+✅ etcd cluster is fully healthy (3/3 nodes)
+
+☸️  K3s Cluster Health
+==================================================
+✅ K3s service is running
+✅ All K3s nodes are Ready (3/3)
+
+🗄️  K3s PostgreSQL Cluster
+==================================================
+✅ K3s postgres-cluster namespace is healthy (4/4 pods running)
+✅ PostgreSQL database pods are healthy (3/3 running)
+
+🗄️  MinIO Distributed Storage
+==================================================
+✅ MinIO cluster is healthy (4/4 pods running)
+
+🚀 Application Services
+==================================================
+✅ HAProxy Web Frontend is listening on port 8080
+✅ HAProxy Stats is listening on port 8404
+✅ HAProxy PostgreSQL LB is listening on port 5432
+✅ HAProxy K3s API LB is listening on port 6443
+
+📊 Health Check Summary
+==================================================
+
+Overall Health Score: 100%
+✅ Passed: 16
+⚠️  Warnings: 0
+❌ Failed: 0
+📋 Total Checks: 16
+
+🎉 EXCELLENT HEALTH - Production Ready!

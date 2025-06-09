@@ -54,8 +54,7 @@ crm/
 │   ├── etcd/              # etcd cluster scripts
 │   ├── k3s/               # K3s cluster scripts
 │   ├── k8s/               # Kubernetes scripts
-│   ├── start-session.sh   # Start development session
-│   ├── end-session.sh     # End session with backup
+│   ├── sync-environment.sh # Bidirectional environment sync (replaces start/end session)
 │   ├── env-quick.sh       # Quick environment commands
 │   └── validate-security.js # Security validation
 ├── styles/                 # CSS styles
@@ -71,8 +70,7 @@ crm/
 - `.env-management-config` - Server configuration for environment management
 - `.env.local` - Active environment file (not in git)
 - `.env-files/` - Downloaded environment cache
-- `scripts/start-session.sh` - Start development session
-- `scripts/end-session.sh` - End session with backup
+- `scripts/sync-environment.sh` - Bidirectional environment synchronization (pull/push/switch)
 
 ### **Security & Configuration**
 - `lib/config/environment.ts` - Environment configuration with validation

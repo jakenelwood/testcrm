@@ -38,9 +38,13 @@ data:
   ENABLE_PHONE_CONFIRMATIONS: "false"
   ENABLE_PHONE_AUTOCONFIRM: "true"
   
-  # Storage Configuration
-  STORAGE_BACKEND: "file"
+  # Storage Configuration (MinIO S3)
+  STORAGE_BACKEND: "s3"
   FILE_SIZE_LIMIT: "52428800"
+  GLOBAL_S3_BUCKET: "crm-documents"
+  GLOBAL_S3_ENDPOINT: "http://minio-api.storage.svc.cluster.local:9000"
+  GLOBAL_S3_FORCE_PATH_STYLE: "true"
+  AWS_REGION: "us-east-1"
   
   # Realtime Configuration
   REALTIME_ENABLE_MULTIPLAYER: "true"

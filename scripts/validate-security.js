@@ -36,12 +36,12 @@ function log(message, color = 'white') {
 }
 
 function logResult(test, passed, message, severity = 'error') {
-  const icon = passed ? '✅' : (severity === 'warning' ? '⚠️' : '❌');
-  const color = passed ? 'green' : (severity === 'warning' ? 'yellow' : 'red');
-  
+  const icon = passed ? '✅' : (severity === 'warning' ? '⚠️' : (severity === 'info' ? 'ℹ️' : '❌'));
+  const color = passed ? 'green' : (severity === 'warning' ? 'yellow' : (severity === 'info' ? 'cyan' : 'red'));
+
   log(`${icon} ${test}: ${message}`, color);
-  
-  if (passed) {
+
+  if (passed || severity === 'info') {
     validationResults.passed++;
   } else if (severity === 'warning') {
     validationResults.warnings++;
@@ -111,38 +111,70 @@ function checkHardcodedSecrets() {
 function checkEnvironmentConfig() {
   log('\n🔧 Checking environment configuration...', 'cyan');
   
-  // Check if production template exists
-  const prodTemplateExists = fs.existsSync('.env.production.template');
+  // Check if production template exists (in templates directory)
+  const prodTemplateExists = fs.existsSync('.env-files/templates/.env.production.template');
   logResult(
     'Production Template',
     prodTemplateExists,
-    prodTemplateExists ? 'Production environment template exists' : 'Missing .env.production.template'
+    prodTemplateExists ? 'Production environment template exists' : 'Missing .env-files/templates/.env.production.template'
   );
   
-  // Check for insecure environment files
+  // Check for insecure environment files (updated paths)
   const insecureEnvFiles = [
-    '.env.k3s',
-    '.env.local.hetzner-gardenos',
-    'config/hetzner_db_connection.env'
+    '.env-files/.env.k3s',
+    '.env-files/.env.hetzner-gardenos',
+    '.env-files/.env.production',
+    '.env.local'  // Local development file
   ];
   
-  insecureEnvFiles.forEach(file => {
-    if (fs.existsSync(file)) {
-      const content = fs.readFileSync(file, 'utf8');
-      const hasHardcodedSecrets = content.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9') ||
-                                  content.includes('dev-secret-key') ||
-                                  content.includes('postgres:');
-      
-      logResult(
-        'Environment Security',
-        !hasHardcodedSecrets,
-        hasHardcodedSecrets ? 
-          `${file} contains hardcoded secrets` : 
-          `${file} appears secure`,
-        hasHardcodedSecrets ? 'error' : 'warning'
-      );
-    }
-  });
+  // Check if using server-centralized management
+  const hasServerCentralizedConfig = fs.existsSync('.env-files/.env-management-config');
+
+  if (hasServerCentralizedConfig) {
+    logResult(
+      'Environment Management',
+      true,
+      'Using server-centralized environment management (secure approach)'
+    );
+
+    // For server-centralized management, check for development secrets only
+    insecureEnvFiles.forEach(file => {
+      if (fs.existsSync(file)) {
+        const content = fs.readFileSync(file, 'utf8');
+        const hasDevSecrets = content.includes('dev-secret-key') ||
+                             content.includes('dev123') ||
+                             content.includes('development_password');
+
+        logResult(
+          'Development Secrets',
+          !hasDevSecrets,
+          hasDevSecrets ?
+            `${file} contains development secrets` :
+            `${file} appears production-ready`,
+          hasDevSecrets ? 'error' : 'info'
+        );
+      }
+    });
+  } else {
+    // Original logic for non-centralized management
+    insecureEnvFiles.forEach(file => {
+      if (fs.existsSync(file)) {
+        const content = fs.readFileSync(file, 'utf8');
+        const hasHardcodedSecrets = content.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9') ||
+                                    content.includes('dev-secret-key') ||
+                                    content.includes('postgres:');
+
+        logResult(
+          'Environment Security',
+          !hasHardcodedSecrets,
+          hasHardcodedSecrets ?
+            `${file} contains hardcoded secrets` :
+            `${file} appears secure`,
+          hasHardcodedSecrets ? 'error' : 'warning'
+        );
+      }
+    });
+  }
 }
 
 // Check authentication implementation

@@ -1,0 +1,313 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault
+  labels:
+    name: vault
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/part-of: gardenos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-config
+  namespace: vault
+data:
+  vault.hcl: |
+    # Vault configuration for K3s deployment
+    
+    # Storage backend - using integrated raft storage
+    storage "raft" {
+      path = "/vault/data"
+      node_id = "vault-0"
+      
+      retry_join {
+        leader_api_addr = "http://vault-0.vault-internal:8200"
+      }
+      retry_join {
+        leader_api_addr = "http://vault-1.vault-internal:8200"
+      }
+      retry_join {
+        leader_api_addr = "http://vault-2.vault-internal:8200"
+      }
+    }
+    
+    # Listener configuration
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      cluster_address = "0.0.0.0:8201"
+      tls_disable = true  # Enable TLS in production
+    }
+    
+    # API configuration
+    api_addr = "http://POD_IP:8200"
+    cluster_addr = "http://POD_IP:8201"
+    
+    # UI configuration
+    ui = true
+    
+    # Disable mlock for containerized environments
+    disable_mlock = true
+    
+    # Log level
+    log_level = "INFO"
+    
+    # Telemetry
+    telemetry {
+      prometheus_retention_time = "30s"
+      disable_hostname = true
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-init-script
+  namespace: vault
+data:
+  init-vault.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "🔐 Initializing Vault cluster..."
+    
+    # Wait for Vault to be ready
+    until vault status >/dev/null 2>&1; do
+      echo "Waiting for Vault to be ready..."
+      sleep 5
+    done
+    
+    # Check if Vault is already initialized
+    if vault status | grep -q "Initialized.*true"; then
+      echo "✅ Vault is already initialized"
+      exit 0
+    fi
+    
+    echo "🚀 Initializing Vault..."
+    
+    # Initialize Vault with 5 key shares and threshold of 3
+    vault operator init \
+      -key-shares=5 \
+      -key-threshold=3 \
+      -format=json > /vault/init-keys.json
+    
+    echo "✅ Vault initialized successfully"
+    echo "🔑 Unseal keys and root token saved to /vault/init-keys.json"
+    
+    # Extract unseal keys
+    UNSEAL_KEY_1=$(cat /vault/init-keys.json | jq -r '.unseal_keys_b64[0]')
+    UNSEAL_KEY_2=$(cat /vault/init-keys.json | jq -r '.unseal_keys_b64[1]')
+    UNSEAL_KEY_3=$(cat /vault/init-keys.json | jq -r '.unseal_keys_b64[2]')
+    
+    # Unseal Vault
+    echo "🔓 Unsealing Vault..."
+    vault operator unseal "$UNSEAL_KEY_1"
+    vault operator unseal "$UNSEAL_KEY_2"
+    vault operator unseal "$UNSEAL_KEY_3"
+    
+    echo "✅ Vault unsealed successfully"
+    
+    # Login with root token
+    ROOT_TOKEN=$(cat /vault/init-keys.json | jq -r '.root_token')
+    vault auth "$ROOT_TOKEN"
+    
+    # Enable audit logging
+    echo "📝 Enabling audit logging..."
+    vault audit enable file file_path=/vault/logs/audit.log
+    
+    # Enable KV secrets engine
+    echo "🗄️  Enabling KV secrets engine..."
+    vault secrets enable -path=secret kv-v2
+    
+    # Enable database secrets engine
+    echo "🗄️  Enabling database secrets engine..."
+    vault secrets enable database
+    
+    # Create policies
+    echo "📋 Creating policies..."
+    
+    # CRM application policy
+    vault policy write crm-app - <<EOF
+    # Allow reading CRM application secrets
+    path "secret/data/crm/*" {
+      capabilities = ["read"]
+    }
+    
+    # Allow reading database credentials
+    path "database/creds/crm-role" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+    EOF
+    
+    # Admin policy
+    vault policy write crm-admin - <<EOF
+    # Full access to CRM secrets
+    path "secret/*" {
+      capabilities = ["create", "read", "update", "delete", "list"]
+    }
+    
+    # Database configuration
+    path "database/*" {
+      capabilities = ["create", "read", "update", "delete", "list"]
+    }
+    
+    # Policy management
+    path "sys/policies/acl/*" {
+      capabilities = ["create", "read", "update", "delete", "list"]
+    }
+    
+    # Auth method management
+    path "auth/*" {
+      capabilities = ["create", "read", "update", "delete", "list"]
+    }
+    EOF
+    
+    echo "✅ Vault setup completed successfully"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-internal
+  namespace: vault
+  labels:
+    app: vault
+spec:
+  clusterIP: None
+  selector:
+    app: vault
+  ports:
+  - name: http
+    port: 8200
+    targetPort: 8200
+  - name: cluster
+    port: 8201
+    targetPort: 8201
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: vault
+  labels:
+    app: vault
+spec:
+  selector:
+    app: vault
+  ports:
+  - name: http
+    port: 8200
+    targetPort: 8200
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault
+  namespace: vault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: vault
+  namespace: vault
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  namespace: vault
+  labels:
+    app: vault
+spec:
+  serviceName: vault-internal
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      serviceAccountName: vault
+      nodeSelector:
+        node.gardenos.io/tier: hybrid
+      containers:
+      - name: vault
+        image: hashicorp/vault:1.15.2
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Replace POD_IP in config
+          sed "s/POD_IP/$POD_IP/g" /vault/config/vault.hcl > /tmp/vault.hcl
+
+          # Start Vault
+          vault server -config=/tmp/vault.hcl
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: VAULT_ADDR
+          value: "http://127.0.0.1:8200"
+        - name: VAULT_API_ADDR
+          value: "http://$(POD_IP):8200"
+        - name: VAULT_CLUSTER_ADDR
+          value: "http://$(POD_IP):8201"
+        ports:
+        - containerPort: 8200
+          name: http
+        - containerPort: 8201
+          name: cluster
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: vault-config
+          mountPath: /vault/config
+        - name: vault-data
+          mountPath: /vault/data
+        - name: vault-logs
+          mountPath: /vault/logs
+        livenessProbe:
+          httpGet:
+            path: /v1/sys/health?standbyok=true
+            port: 8200
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204
+            port: 8200
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: vault-config
+        configMap:
+          name: vault-config
+      - name: vault-logs
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: vault-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi

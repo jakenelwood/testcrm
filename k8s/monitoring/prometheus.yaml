@@ -71,6 +71,20 @@ data:
         metrics_path: /metrics
         scrape_interval: 30s
 
+      # etcd cluster monitoring
+      - job_name: 'etcd-exporter'
+        static_configs:
+        - targets: ['etcd-exporter.monitoring.svc.cluster.local:8080']
+        metrics_path: /metrics
+        scrape_interval: 15s
+
+      # FastAPI backend
+      - job_name: 'fastapi-backend'
+        static_configs:
+        - targets: ['fastapi-service.fastapi.svc.cluster.local:8000']
+        metrics_path: /metrics
+        scrape_interval: 30s
+
       # Supabase services
       - job_name: 'supabase-gotrue'
         static_configs:
@@ -123,6 +137,44 @@ data:
         annotations:
           summary: "PostgreSQL is down"
           description: "PostgreSQL database is not responding"
+
+      # etcd cluster alerts
+      - alert: EtcdClusterUnhealthy
+        expr: sum(etcd_up) < 2
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "etcd cluster is unhealthy"
+          description: "Less than 2 etcd nodes are healthy. Cluster may lose quorum."
+
+      - alert: EtcdNoLeader
+        expr: sum(etcd_server_is_leader) == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "etcd cluster has no leader"
+          description: "etcd cluster has no leader elected"
+
+      - alert: EtcdNodeDown
+        expr: etcd_up == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "etcd node is down"
+          description: "etcd node {{ $labels.node }} at {{ $labels.endpoint }} is down"
+
+      # FastAPI backend alerts
+      - alert: FastAPIDown
+        expr: up{job="fastapi-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FastAPI backend is down"
+          description: "FastAPI backend service is not responding"
 ---
 apiVersion: apps/v1
 kind: Deployment

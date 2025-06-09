@@ -98,3 +98,5 @@ config/hetzner_db_connection.env
 
 # 🔒 Security: Backup files with potential secrets
 _archive/insecure-env-files/
+.env-local-backup/
+.env-server-backup/

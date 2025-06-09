@@ -1,14 +1,8 @@
-# 🚀 CRM Developer Guide
+# 🚀 CRM Developer Guide (Detailed)
 
-**Welcome to the CRM project!** This guide will get you from zero to productive contributor in the shortest time possible.
+> **⚡ Quick Start**: See **[README.md](README.md)** for the 5-minute setup guide. This document provides comprehensive details for advanced setup and understanding.
 
-## 📋 **Quick Start Checklist**
-
-- [ ] **Environment Management Setup** - Configure server-centralized environment system
-- [ ] **Security Validation** - Ensure 100% security compliance
-- [ ] **Architecture Understanding** - Learn how the system works
-- [ ] **Development Workflow** - Understand our processes and tools
-- [ ] **Multi-Machine Development** - Set up seamless laptop/desktop sync
+**Welcome to the CRM project!** This guide provides detailed information for developers who need comprehensive understanding of the system architecture and advanced setup options.
 
 ---
 

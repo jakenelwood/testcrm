@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storage
+  labels:
+    name: storage
+    app.kubernetes.io/name: storage
+    app.kubernetes.io/part-of: gardenos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-config
+  namespace: storage
+data:
+  # MinIO Configuration
+  MINIO_BROWSER: "on"
+  MINIO_DOMAIN: "minio.storage.svc.cluster.local"
+  MINIO_SERVER_URL: "http://minio.storage.svc.cluster.local:9000"
+  MINIO_BROWSER_REDIRECT_URL: "http://minio-console.gardenos.local"
+  
+  # Storage Configuration (4 nodes = 2 parity drives)
+  MINIO_STORAGE_CLASS_STANDARD: "EC:2"  # Erasure coding with 2 parity drives
+  MINIO_STORAGE_CLASS_RRS: "EC:1"       # Reduced redundancy with 1 parity
+  
+  # API Configuration
+  MINIO_API_CORS_ALLOW_ORIGIN: "*"
+  MINIO_API_REQUESTS_MAX: "1000"
+  MINIO_API_REQUESTS_DEADLINE: "10s"
+  
+  # Console Configuration
+  MINIO_CONSOLE_PBKDF_PASSPHRASE: "crm-minio-console"
+  MINIO_CONSOLE_PBKDF_SALT: "crm-salt-2024"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secrets
+  namespace: storage
+type: Opaque
+stringData:
+  # MinIO Admin Credentials
+  MINIO_ROOT_USER: "minioadmin"
+  MINIO_ROOT_PASSWORD: "minio123456789"
+  
+  # Application Access Keys
+  MINIO_ACCESS_KEY: "crm-access-key"
+  MINIO_SECRET_KEY: "crm-secret-key-2024-secure"
+  
+  # Console JWT Secret
+  MINIO_CONSOLE_JWT_SECRET: "crm-console-jwt-secret-2024"

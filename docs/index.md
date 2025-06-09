@@ -1,50 +1,34 @@
 # 📚 CRM Documentation Index
 
+> **🚀 NEW**: See **[README.md](README.md)** for the unified documentation hub with quick navigation and essential commands.
+
 ## 🎉 **Current Status: Production-Grade Infrastructure Ready**
 
 **MAJOR MILESTONE**: Complete CRM system operational with AI agents, PostgreSQL HA cluster, and scalable K3s infrastructure. Ready for development and production use.
 
-## Essential Documentation
+## 📋 **Documentation Organization**
 
-### **🚀 Infrastructure & Deployment**
+### **👋 Start Here**
+- **[README.md](README.md)** - **MAIN DOCUMENTATION HUB** - Everything you need in one place
+- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Comprehensive developer onboarding (detailed version)
+
+### **🏗️ Infrastructure Deep Dives**
 - **[GARDENOS_COMPLETE_SETUP_GUIDE.md](GARDENOS_COMPLETE_SETUP_GUIDE.md)** - Complete K3s infrastructure setup
-- **[deployment/GARDENOS_NEXT_STEPS.md](deployment/GARDENOS_NEXT_STEPS.md)** - Next steps for Supabase deployment
-- **[database/patroni_service_discovery_guide.md](database/patroni_service_discovery_guide.md)** - Service discovery solution
-
-### **📊 Architecture & Database**
-- **[database/gardenos_architecture_overview.md](database/gardenos_architecture_overview.md)** - Complete system architecture
-- **[database/POSTGRESQL_K3S_INTEGRATION_PLAN.md](database/POSTGRESQL_K3S_INTEGRATION_PLAN.md)** - PostgreSQL K3s integration
-
-### **📝 Development Journal**
-- **[dev_journal/06042025.md](dev_journal/06042025.md)** - Latest breakthrough documentation
-
-### **🎯 Application Development**
-- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - **START HERE** - Complete developer onboarding guide
-- **[setup-guide.md](setup-guide.md)** - Basic development environment setup
-- **[next_steps.md](next_steps.md)** - CRM development roadmap
-
-### **Database**
-- **[database/database-guide.md](database/database-guide.md)** - Database overview and connection
-- **[database/comprehensive_schema_summary.md](database/comprehensive_schema_summary.md)** - Complete schema overview
-- **[../database/database-reference.md](../database/database-reference.md)** - Technical database reference
-
-### **Integrations**
-- **[integrations/RINGCENTRAL_SETUP.md](integrations/RINGCENTRAL_SETUP.md)** - RingCentral telephony setup
-
-### **Features**
-- **[features/followup_management_guide.md](features/followup_management_guide.md)** - Follow-up system guide
-
-### **Branding**
-- **[branding/brand_personality.md](branding/brand_personality.md)** - Brand guidelines and personality
-
-### **📊 Reporting & Monitoring**
-- **[reporting/README.md](reporting/README.md)** - **COMPREHENSIVE MONITORING SYSTEM**
-- **[reporting/comprehensive-health-check.md](reporting/comprehensive-health-check.md)** - Primary infrastructure monitoring (100% health score)
-- **[reporting/session-management.md](reporting/session-management.md)** - Environment management with server-centralized backups
-- **[reporting/health_reports/](reporting/health_reports/)** - Generated health check reports archive
-
-### **Deployment**
 - **[deployment/](deployment/)** - Production deployment guides
+- **[database/](database/)** - Database architecture and setup
+
+### **🔧 Specialized Documentation**
+- **[database/](database/)** - Database architecture, schema, and setup guides
+- **[deployment/](deployment/)** - Production deployment and K3s infrastructure
+- **[integrations/](integrations/)** - Third-party service integrations (RingCentral, etc.)
+- **[reporting/](reporting/)** - Monitoring, health checks, and system reports
+- **[branding/](branding/)** - Brand guidelines and visual identity
+
+### **📊 Quality & Process**
+- **[TESTING_IMPLEMENTATION_PLAN.md](TESTING_IMPLEMENTATION_PLAN.md)** - Comprehensive testing strategy
+- **[TYPESCRIPT_STRICT_MODE_MIGRATION.md](TYPESCRIPT_STRICT_MODE_MIGRATION.md)** - Type safety improvements
+- **[PRAGMATIC_PROGRAMMING_GUIDELINES.md](PRAGMATIC_PROGRAMMING_GUIDELINES.md)** - Code quality standards
+- **[DOCUMENTATION_CONSOLIDATION_SUMMARY.md](DOCUMENTATION_CONSOLIDATION_SUMMARY.md)** - Documentation improvements
 
 ## 🏗️ **Infrastructure Status**
 

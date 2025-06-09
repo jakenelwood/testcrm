@@ -8,16 +8,26 @@ import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
 import json
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from fastapi.responses import Response
+
+# Import SQLAlchemy models and database setup
+from models.base import get_db, engine, Base
+from models import *
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Prometheus metrics
+REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint'])
+REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration')
+
 # Initialize FastAPI app
 app = FastAPI(
-    title="GardenOS CRM API",
-    description="FastAPI backend for GardenOS CRM system",
-    version="1.0.0",
+    title="RonRico CRM API",
+    description="FastAPI backend for RonRico CRM system with Alembic migrations",
+    version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -85,12 +95,19 @@ async def shutdown_event():
 @app.get("/")
 async def root():
     """Root endpoint"""
+    REQUEST_COUNT.labels(method="GET", endpoint="/").inc()
     return {
-        "message": "GardenOS CRM API",
+        "message": "RonRico CRM API",
         "status": "running",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "features": ["SQLAlchemy Models", "Alembic Migrations", "Prometheus Metrics"],
         "timestamp": datetime.utcnow().isoformat()
     }
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 @app.get("/health")
 async def health():
@@ -184,6 +201,55 @@ async def get_leads(limit: int = 10, offset: int = 0):
     except Exception as e:
         logger.error(f"Failed to fetch leads: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch leads: {str(e)}")
+
+@app.post("/api/v1/migrations/upgrade")
+async def upgrade_database():
+    """Run database migrations (upgrade to latest)"""
+    try:
+        from alembic.config import Config
+        from alembic import command
+
+        alembic_cfg = Config("alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+
+        return {
+            "status": "success",
+            "message": "Database upgraded to latest migration",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Migration upgrade failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Migration upgrade failed: {str(e)}")
+
+@app.get("/api/v1/migrations/current")
+async def get_current_migration():
+    """Get current migration version"""
+    try:
+        from alembic.config import Config
+        from alembic import command
+        from alembic.script import ScriptDirectory
+        from alembic.runtime.migration import MigrationContext
+
+        alembic_cfg = Config("alembic.ini")
+        script = ScriptDirectory.from_config(alembic_cfg)
+
+        # Get current revision from database
+        with engine.connect() as connection:
+            context = MigrationContext.configure(connection)
+            current_rev = context.get_current_revision()
+
+        # Get head revision from scripts
+        head_rev = script.get_current_head()
+
+        return {
+            "current_revision": current_rev,
+            "head_revision": head_rev,
+            "is_up_to_date": current_rev == head_rev,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Failed to get migration status: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get migration status: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

@@ -53,26 +53,35 @@ spec:
               name: supabase-config
               key: FILE_SIZE_LIMIT
         - name: STORAGE_BACKEND
+          value: "s3"
+        - name: GLOBAL_S3_BUCKET
+          value: "crm-documents"
+        - name: GLOBAL_S3_ENDPOINT
+          value: "http://minio-api.storage.svc.cluster.local:9000"
+        - name: GLOBAL_S3_FORCE_PATH_STYLE
+          value: "true"
+        - name: AWS_ACCESS_KEY_ID
           valueFrom:
-            configMapKeyRef:
-              name: supabase-config
-              key: STORAGE_BACKEND
-        - name: FILE_STORAGE_BACKEND_PATH
-          value: "/var/lib/storage"
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_ACCESS_KEY
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secrets
+              key: MINIO_SECRET_KEY
+        - name: AWS_REGION
+          value: "us-east-1"
         - name: TENANT_ID
           value: "stub"
         - name: REGION
-          value: "stub"
-        - name: GLOBAL_S3_BUCKET
-          value: "stub"
+          value: "us-east-1"
         envFrom:
         - configMapRef:
             name: supabase-config
         - secretRef:
             name: supabase-secrets
-        volumeMounts:
-        - name: storage-data
-          mountPath: /var/lib/storage
+        # No volume mounts needed for S3 backend
         resources:
           requests:
             memory: "128Mi"
@@ -92,10 +101,7 @@ spec:
             port: 5000
           initialDelaySeconds: 5
           periodSeconds: 5
-      volumes:
-      - name: storage-data
-        persistentVolumeClaim:
-          claimName: storage-data-pvc
+      # No volumes needed for S3 backend
 ---
 apiVersion: v1
 kind: Service
@@ -113,15 +119,4 @@ spec:
     targetPort: 5000
     name: http
   type: ClusterIP
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: storage-data-pvc
-  namespace: supabase
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
+# PVC no longer needed - using MinIO S3 storage

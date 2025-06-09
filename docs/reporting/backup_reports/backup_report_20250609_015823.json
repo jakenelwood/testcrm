@@ -1,0 +1,30 @@
+{
+  "backup_report": {
+    "timestamp": "2025-06-09T01:58:45+00:00",
+    "backup_name": "postgres_20250609_015824",
+    "status": "SUCCESS",
+    "duration_seconds": 21,
+    "backup_size_bytes": 34727,
+    "backup_size_human": "36K",
+    "error_message": "",
+    "cluster_info": {
+      "leader_pod": "postgres-2",
+      "cluster_members": 3,
+      "namespace": "postgres-cluster"
+    },
+    "storage_info": {
+      "minio_pod": "minio-0",
+      "bucket": "crm-backups",
+      "storage_namespace": "storage"
+    },
+    "retention": {
+      "retention_days": 30,
+      "cleanup_performed": true
+    },
+    "system_info": {
+      "hostname": "ubuntu-8gb-hil-1",
+      "kubernetes_version": "Unknown",
+      "script_version": "1.0"
+    }
+  }
+}

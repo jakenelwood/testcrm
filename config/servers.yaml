@@ -89,14 +89,119 @@ network:
   service_cidr: "10.43.0.0/16"
   pod_cidr: "10.244.0.0/16"
 
-# Future expansion slots (for planning)
-expansion_plan:
-  next_servers:
-    - name: "ubuntu-8gb-fra-1"
-      region: "frankfurt"
-      role: "worker"
-      planned_services: ["cdn", "edge-cache"]
-    - name: "ubuntu-8gb-hel-1"
-      region: "helsinki"
-      role: "worker"
-      planned_services: ["backup", "disaster-recovery"]
+  # High Availability Floating IP Configuration (Hetzner Cloud)
+  floating_ips:
+    # Floating IP for HAProxy load balancer (managed via Hetzner Cloud API)
+    haproxy_main: "5.78.31.2"     # Main load balancer floating IP
+    haproxy_backup: "5.78.28.85"  # Backup load balancer floating IP
+    interface: "eth0"             # Network interface (typically eth0 on Hetzner)
+
+  # VRRP Configuration for Keepalived
+  vrrp:
+    auth_type: "PASS"
+    auth_pass: "CRM_VRRP_2025"    # VRRP authentication password
+    router_id: 51                 # VRRP Router ID (unique in network)
+    priority:
+      primary: 110                # ubuntu-8gb-hil-1 (highest priority)
+      backup1: 100                # ubuntu-8gb-ash-1
+      backup2: 90                 # ubuntu-8gb-ash-2
+
+  # Hetzner Cloud API Configuration
+  hetzner:
+    project_name: "CRM"           # Hetzner Cloud project name
+    location: "hil"               # Primary location (hillsboro)
+    floating_ip_names:
+      - "crm-haproxy-main"        # Main load balancer floating IP
+      - "crm-haproxy-backup"      # Backup floating IP (optional)
+
+# Production 9-Server CCX23 Cluster Layout
+production_cluster:
+  # Control Plane Nodes (3x CCX23)
+  control_plane:
+    - name: "crm-ctrl-hil-1"
+      ip: "TBD"
+      region: "hillsboro"
+      datacenter: "hil"
+      role: "control-plane"
+      services: ["k3s-master", "etcd", "haproxy-primary", "postgresql-primary"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+    - name: "crm-ctrl-ash-1"
+      ip: "TBD"
+      region: "ashburn"
+      datacenter: "ash"
+      role: "control-plane"
+      services: ["k3s-master", "etcd", "haproxy-backup", "postgresql-replica"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+    - name: "crm-ctrl-ash-2"
+      ip: "TBD"
+      region: "ashburn"
+      datacenter: "ash"
+      role: "control-plane"
+      services: ["k3s-master", "etcd", "haproxy-backup", "postgresql-replica"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+  # Application Nodes (3x CCX23)
+  application_nodes:
+    - name: "crm-app-hil-1"
+      ip: "TBD"
+      region: "hillsboro"
+      datacenter: "hil"
+      role: "application"
+      services: ["supabase", "fastapi", "ai-agents", "frontend"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+    - name: "crm-app-ash-1"
+      ip: "TBD"
+      region: "ashburn"
+      datacenter: "ash"
+      role: "application"
+      services: ["supabase", "fastapi", "ai-agents", "frontend"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+    - name: "crm-app-ash-2"
+      ip: "TBD"
+      region: "ashburn"
+      datacenter: "ash"
+      role: "application"
+      services: ["supabase", "fastapi", "ai-agents", "frontend"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+  # Dedicated Service Nodes (3x CCX23)
+  service_nodes:
+    - name: "crm-svc-hil-1"
+      ip: "TBD"
+      region: "hillsboro"
+      datacenter: "hil"
+      role: "services"
+      services: ["monitoring", "logging", "backup", "redis-cluster"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+    - name: "crm-svc-ash-1"
+      ip: "TBD"
+      region: "ashburn"
+      datacenter: "ash"
+      role: "services"
+      services: ["monitoring", "logging", "backup", "redis-cluster"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+    - name: "crm-svc-ash-2"
+      ip: "TBD"
+      region: "ashburn"
+      datacenter: "ash"
+      role: "services"
+      services: ["monitoring", "logging", "backup", "redis-cluster"]
+      specs: "CCX23: 8 vCPU, 32GB RAM, 240GB NVMe"
+
+# Geographic Distribution Strategy
+geographic_distribution:
+  hillsboro: 3  # 1 control, 1 app, 1 service
+  ashburn: 6    # 2 control, 2 app, 2 service
+
+# Resource Allocation
+resource_allocation:
+  total_vcpus: 72
+  total_memory: "288GB"
+  total_storage: "2.16TB"
+  estimated_cost: "$270/month"

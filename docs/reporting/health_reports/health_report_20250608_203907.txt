@@ -1,0 +1,102 @@
+Comprehensive Server Health Check Report
+Generated: Sun Jun  8 08:39:07 PM CDT 2025
+Primary Host: 5.78.103.224
+=========================================
+
+🌐 Host Connectivity Tests
+==================================================
+✅ Primary host 5.78.103.224 is reachable
+ℹ️  Testing SSH connection to 5.78.103.224...
+✅ SSH connection to 5.78.103.224 successful
+✅ Backup host 5.161.110.205 is reachable
+✅ Backup host 178.156.186.10 is reachable
+
+🔧 etcd Cluster Health
+==================================================
+✅ etcd on 5.78.103.224 is healthy
+✅ etcd on 5.161.110.205 is healthy
+✅ etcd on 178.156.186.10 is healthy
+✅ etcd cluster is fully healthy (3/3 nodes)
+
+☸️  K3s Cluster Health
+==================================================
+ℹ️  Checking K3s service status...
+✅ K3s service is running
+✅ All K3s nodes are Ready (3/3)
+✅ K3s core system pods are running (2/3)
+
+🐳 Docker Services Health
+==================================================
+ℹ️  Checking Docker service status...
+✅ Docker service is running
+✅ Docker containers are running (3/3)
+✅ PostgreSQL containers are running
+
+🗄️  Patroni PostgreSQL Cluster (Docker Compose)
+==================================================
+✅ Patroni API on port 8008 is responding
+✅ Patroni cluster is healthy (1 leader, 2 replicas, 3 total)
+✅ PostgreSQL is accepting connections on port 5435
+✅ PostgreSQL is accepting connections on port 5433
+✅ PostgreSQL is accepting connections on port 5434
+
+🗄️  K3s PostgreSQL Cluster (Production)
+==================================================
+✅ K3s PostgreSQL cluster is healthy (3/3 pods running)
+✅ Pod postgres-0 is healthy (2/2 ready)
+✅ Pod postgres-1 is healthy (2/2 ready)
+✅ Pod postgres-2 is healthy (2/2 ready)
+ℹ️  Checking K3s Patroni cluster leadership...
+✅ K3s Patroni leader found: postgres-2
+✅ PostgreSQL Cluster Service is configured
+✅ PostgreSQL Primary Service is configured
+✅ PostgreSQL Replica Service is configured
+ℹ️  Checking K3s PostgreSQL backup system...
+✅ PostgreSQL backup CronJob is configured
+ℹ️  No recent backup jobs found (may not have run yet)
+ℹ️  Checking K3s PostgreSQL persistent volumes...
+✅ All PostgreSQL persistent volumes are bound (3/3)
+
+🚀 Application Services
+==================================================
+✅ HAProxy Web Frontend is listening on port 8080
+✅ HAProxy Stats is listening on port 8404
+✅ HAProxy PostgreSQL LB is listening on port 5432
+✅ HAProxy K3s API LB is listening on port 6443
+ℹ️  Checking K3s-based Supabase services...
+✅ Supabase Auth is running in K3s (2 pods)
+✅ Supabase REST is running in K3s (2 pods)
+✅ Supabase Storage is running in K3s (1 pods)
+
+🗄️  MinIO Distributed Storage
+==================================================
+ℹ️  Checking MinIO cluster status...
+✅ MinIO cluster is healthy (4/4 pods running)
+✅ MinIO S3 API service is available
+✅ MinIO Console service is available
+ℹ️  Testing MinIO API health...
+✅ MinIO API health endpoint is responding
+ℹ️  Checking MinIO buckets...
+✅ MinIO buckets are configured (5 CRM buckets found)
+ℹ️  Checking MinIO storage usage...
+✅ MinIO storage is accessible and healthy (6 storage indicators)
+ℹ️  Checking MinIO ingress configuration...
+✅ MinIO ingress is configured (2 ingress rules)
+
+🔒 Security Compliance
+==================================================
+ℹ️  Running security validation...
+✅ Security compliance: 22/22 checks passed (100%)
+✅ Using server-centralized environment management (local .env.local for development)
+ℹ️  Server-centralized management is active - local file is for development convenience
+
+📊 Health Check Summary
+==================================================
+
+Overall Health Score: 100%
+✅ Passed: 42
+⚠️  Warnings: 0
+❌ Failed: 0
+📋 Total Checks: 42
+
+🎉 EXCELLENT HEALTH - Production Ready!

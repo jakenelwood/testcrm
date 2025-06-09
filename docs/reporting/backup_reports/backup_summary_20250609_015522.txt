@@ -1,0 +1,12 @@
+PostgreSQL Backup Report
+========================
+Date: Mon Jun  9 01:55:47 AM UTC 2025
+Backup Name: postgres_20250609_015524
+Status: SUCCESS
+Duration: 23s
+Size: 
+Leader Pod: postgres-2
+MinIO Pod: minio-0
+Bucket: crm-backups
+
+✅ Backup completed successfully

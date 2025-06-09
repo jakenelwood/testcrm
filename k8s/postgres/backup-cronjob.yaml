@@ -1,0 +1,333 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: postgres-cluster
+  labels:
+    app: postgres-backup
+    component: backup
+    app.kubernetes.io/name: postgres-backup
+    app.kubernetes.io/part-of: postgres-cluster
+spec:
+  # Daily backup at 2 AM
+  schedule: "0 2 * * *"
+  
+  # Keep last 3 successful jobs and 1 failed job for debugging
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  
+  # Don't start new job if previous one is still running
+  concurrencyPolicy: Forbid
+  
+  # Job template
+  jobTemplate:
+    metadata:
+      labels:
+        app: postgres-backup
+        component: backup-job
+    spec:
+      # Clean up completed jobs after 1 hour
+      ttlSecondsAfterFinished: 3600
+      
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+            component: backup-pod
+        spec:
+          # Use hybrid nodes (can run on any node)
+          nodeSelector:
+            node.gardenos.io/tier: hybrid
+          
+          # Restart policy for jobs
+          restartPolicy: OnFailure
+          
+          # Service account with necessary permissions
+          serviceAccountName: postgres-backup
+          
+          containers:
+          - name: backup
+            image: postgres:13-alpine
+            
+            # Resource limits
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            
+            # Environment variables
+            env:
+            - name: PGUSER
+              value: "postgres"
+            - name: PGDATABASE
+              value: "postgres"
+            - name: BACKUP_BUCKET
+              value: "crm-backups"
+            - name: RETENTION_DAYS
+              value: "30"
+            - name: NAMESPACE
+              value: "postgres-cluster"
+            - name: STORAGE_NAMESPACE
+              value: "storage"
+            
+            # Main backup command
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              
+              # Colors for output
+              RED='\033[0;31m'
+              GREEN='\033[0;32m'
+              YELLOW='\033[1;33m'
+              BLUE='\033[0;34m'
+              CYAN='\033[0;36m'
+              NC='\033[0m'
+              
+              # Logging functions
+              log() {
+                  echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}"
+              }
+              
+              success() {
+                  echo -e "${GREEN}✅ $1${NC}"
+              }
+              
+              error() {
+                  echo -e "${RED}❌ $1${NC}"
+              }
+              
+              info() {
+                  echo -e "${CYAN}ℹ️  $1${NC}"
+              }
+              
+              log "🚀 Starting automated PostgreSQL backup..."
+              
+              # Install kubectl in the container (using wget for Alpine)
+              log "Installing kubectl..."
+              apk add --no-cache wget
+              KUBECTL_VERSION=$(wget -qO- https://dl.k8s.io/release/stable.txt)
+              wget -O kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+              chmod +x kubectl
+              mv kubectl /usr/local/bin/
+
+              # Install MinIO client
+              log "Installing MinIO client..."
+              wget -O mc https://dl.min.io/client/mc/release/linux-amd64/mc
+              chmod +x mc
+              mv mc /usr/local/bin/
+              
+              # Generate backup name
+              BACKUP_NAME="postgres_$(date +%Y%m%d_%H%M%S)"
+              TEMP_FILE="/tmp/${BACKUP_NAME}.sql"
+              COMPRESSED_FILE="/tmp/${BACKUP_NAME}.sql.gz"
+              
+              log "Backup name: $BACKUP_NAME"
+              
+              # Find PostgreSQL leader pod using patronictl
+              log "Finding PostgreSQL leader pod..."
+              LEADER_POD=""
+              for i in 0 1 2; do
+                  pod_name="postgres-$i"
+
+                  # Check if pod is running
+                  if kubectl get pod -n $NAMESPACE "$pod_name" --no-headers 2>/dev/null | grep -q "Running"; then
+                      # Check if this pod is the leader using patronictl
+                      if kubectl exec -n $NAMESPACE "$pod_name" -- patronictl list 2>/dev/null | grep -q "$pod_name.*Leader"; then
+                          LEADER_POD="$pod_name"
+                          success "Found leader pod: $LEADER_POD"
+                          break
+                      fi
+                  fi
+              done
+
+              # Fallback to first running pod if leader detection fails
+              if [[ -z "$LEADER_POD" ]]; then
+                  for i in 0 1 2; do
+                      pod_name="postgres-$i"
+                      if kubectl get pod -n $NAMESPACE "$pod_name" --no-headers 2>/dev/null | grep -q "Running"; then
+                          LEADER_POD="$pod_name"
+                          log "Using fallback running pod: $LEADER_POD"
+                          break
+                      fi
+                  done
+              fi
+
+              if [[ -z "$LEADER_POD" ]]; then
+                  error "No running PostgreSQL pods found!"
+                  exit 1
+              fi
+              
+              # Create database backup
+              log "Creating database backup from $LEADER_POD..."
+              kubectl exec -n $NAMESPACE $LEADER_POD -- \
+                  pg_dump -U postgres -h localhost -p 5432 postgres > $TEMP_FILE
+              
+              if [[ ! -f "$TEMP_FILE" ]] || [[ ! -s "$TEMP_FILE" ]]; then
+                  error "Backup file is empty or not created"
+                  exit 1
+              fi
+              
+              # Compress backup
+              log "Compressing backup..."
+              gzip $TEMP_FILE
+              
+              if [[ ! -f "$COMPRESSED_FILE" ]]; then
+                  error "Failed to compress backup"
+                  exit 1
+              fi
+              
+              BACKUP_SIZE=$(du -h $COMPRESSED_FILE | cut -f1)
+              success "Backup created: ${BACKUP_NAME}.sql.gz ($BACKUP_SIZE)"
+              
+              # Get MinIO pod and configure mc
+              log "Configuring MinIO client..."
+              MINIO_POD=$(kubectl get pods -n $STORAGE_NAMESPACE -l app=minio -o name | head -1 | cut -d'/' -f2)
+              
+              if [[ -z "$MINIO_POD" ]]; then
+                  error "No MinIO pods found"
+                  exit 1
+              fi
+              
+              # Get MinIO credentials from secrets
+              MINIO_ROOT_USER=$(kubectl get secret -n $STORAGE_NAMESPACE minio-secrets -o jsonpath='{.data.MINIO_ROOT_USER}' | base64 -d)
+              MINIO_ROOT_PASSWORD=$(kubectl get secret -n $STORAGE_NAMESPACE minio-secrets -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 -d)
+              
+              # Configure mc alias
+              mc alias set minio http://minio-api.storage.svc.cluster.local:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
+              
+              # Upload backup to MinIO
+              log "Uploading backup to MinIO..."
+              mc cp $COMPRESSED_FILE minio/$BACKUP_BUCKET/
+              
+              # Verify upload
+              if mc ls minio/$BACKUP_BUCKET/${BACKUP_NAME}.sql.gz >/dev/null 2>&1; then
+                  success "Backup uploaded successfully"
+              else
+                  error "Failed to verify backup upload"
+                  exit 1
+              fi
+              
+              # Verify backup integrity
+              log "Verifying backup integrity..."
+              mc cp minio/$BACKUP_BUCKET/${BACKUP_NAME}.sql.gz /tmp/verify.sql.gz
+              if gunzip -t /tmp/verify.sql.gz 2>/dev/null; then
+                  success "Backup integrity verified"
+              else
+                  error "Backup integrity check failed"
+                  exit 1
+              fi
+              
+              # Clean up old backups
+              log "Cleaning up old backups (retention: $RETENTION_DAYS days)..."
+              # Simple date-based cleanup (keep last 30 backups instead of date-based)
+              BACKUP_COUNT=$(mc ls minio/$BACKUP_BUCKET/ | grep "postgres_" | wc -l)
+              if [ "$BACKUP_COUNT" -gt "$RETENTION_DAYS" ]; then
+                  info "Found $BACKUP_COUNT backups, keeping latest $RETENTION_DAYS"
+                  mc ls minio/$BACKUP_BUCKET/ | grep "postgres_" | head -n $((BACKUP_COUNT - RETENTION_DAYS)) | while read -r line; do
+                      old_backup=$(echo "$line" | awk '{print $NF}')
+                      info "Removing old backup: $old_backup"
+                      mc rm minio/$BACKUP_BUCKET/$old_backup || true
+                  done
+              else
+                  info "Only $BACKUP_COUNT backups found, no cleanup needed"
+              fi
+
+              
+              # Clean up temp files
+              rm -f $COMPRESSED_FILE /tmp/verify.sql.gz
+              
+              success "🎉 Automated backup completed successfully!"
+              log "Backup details:"
+              log "  Name: ${BACKUP_NAME}.sql.gz"
+              log "  Size: $BACKUP_SIZE"
+              log "  Bucket: $BACKUP_BUCKET"
+              log "  Retention: $RETENTION_DAYS days"
+              
+              # List current backups
+              log "Current backups in bucket:"
+              mc ls minio/$BACKUP_BUCKET/ | grep "postgres_" | tail -5
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres-backup
+  namespace: postgres-cluster
+  labels:
+    app: postgres-backup
+    component: service-account
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: postgres-backup
+  namespace: postgres-cluster
+  labels:
+    app: postgres-backup
+    component: rbac
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: postgres-backup-storage
+  namespace: storage
+  labels:
+    app: postgres-backup
+    component: rbac
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-backup
+  namespace: postgres-cluster
+  labels:
+    app: postgres-backup
+    component: rbac
+subjects:
+- kind: ServiceAccount
+  name: postgres-backup
+  namespace: postgres-cluster
+roleRef:
+  kind: Role
+  name: postgres-backup
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-backup-storage
+  namespace: storage
+  labels:
+    app: postgres-backup
+    component: rbac
+subjects:
+- kind: ServiceAccount
+  name: postgres-backup
+  namespace: postgres-cluster
+roleRef:
+  kind: Role
+  name: postgres-backup-storage
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,116 @@
+Comprehensive Server Health Check Report
+Generated: Sun Jun  8 09:23:18 PM CDT 2025
+Primary Host: 5.78.103.224
+=========================================
+
+🌐 Host Connectivity Tests
+==================================================
+✅ Primary host 5.78.103.224 is reachable
+ℹ️  Testing SSH connection to 5.78.103.224...
+✅ SSH connection to 5.78.103.224 successful
+✅ Backup host 5.161.110.205 is reachable
+✅ Backup host 178.156.186.10 is reachable
+
+🔧 etcd Cluster Health
+==================================================
+✅ etcd on 5.78.103.224 is healthy
+✅ etcd on 5.161.110.205 is healthy
+✅ etcd on 178.156.186.10 is healthy
+✅ etcd cluster is fully healthy (3/3 nodes)
+
+☸️  K3s Cluster Health
+==================================================
+ℹ️  Checking K3s service status...
+✅ K3s service is running
+✅ All K3s nodes are Ready (3/3)
+✅ K3s core system pods are running (2/3)
+
+🐳 Docker Services Health
+==================================================
+ℹ️  Checking Docker service status...
+✅ Docker service is running
+✅ Docker containers are running (3/3)
+✅ PostgreSQL containers are running
+
+🗄️  Patroni PostgreSQL Cluster (Docker Compose)
+==================================================
+✅ Patroni API on port 8008 is responding
+✅ Patroni cluster is healthy (1 leader, 2 replicas, 3 total)
+✅ PostgreSQL is accepting connections on port 5435
+✅ PostgreSQL is accepting connections on port 5433
+✅ PostgreSQL is accepting connections on port 5434
+
+🗄️  K3s PostgreSQL Cluster (Production)
+==================================================
+✅ K3s postgres-cluster namespace is healthy (4/4 pods running)
+✅ PostgreSQL database pods are healthy (3/3 running)
+✅ Backup System pod backup-exporter-748c498fb6-h8sb6 is healthy (1/1 ready)
+✅ PostgreSQL Database pod postgres-0 is healthy (2/2 ready)
+✅ PostgreSQL Database pod postgres-1 is healthy (2/2 ready)
+✅ PostgreSQL Database pod postgres-2 is healthy (2/2 ready)
+ℹ️  Checking K3s Patroni cluster leadership...
+✅ K3s Patroni leader found: postgres-2
+✅ PostgreSQL Cluster Service is configured
+✅ PostgreSQL Primary Service is configured
+✅ PostgreSQL Replica Service is configured
+ℹ️  Checking K3s PostgreSQL backup system...
+✅ PostgreSQL backup CronJob is configured
+ℹ️  No backup jobs found (CronJob may not have run yet)
+ℹ️  Checking backup reports...
+✅ Recent backup reports show success (2/2 successful)
+ℹ️  Latest backup: 2025-06-09T01:58:45+00:00, Status: SUCCESS, Size: 36K
+ℹ️  Checking K3s PostgreSQL persistent volumes...
+✅ All PostgreSQL persistent volumes are bound (3/3)
+
+💾 Backup System Status
+==================================================
+✅ Backup reports directory exists
+ℹ️  Analyzing 2 recent backup reports...
+✅ Backup success rate: 100% (2/2 successful)
+✅ Latest backup: 2025-06-09T01:58:45+00:00 (36K, 21s)
+ℹ️  Average backup size: 0MB (from 2 successful backups)
+✅ Found 2 recent backup summaries
+
+🚀 Application Services
+==================================================
+✅ HAProxy Web Frontend is listening on port 8080
+✅ HAProxy Stats is listening on port 8404
+✅ HAProxy PostgreSQL LB is listening on port 5432
+✅ HAProxy K3s API LB is listening on port 6443
+ℹ️  Checking K3s-based Supabase services...
+✅ Supabase Auth is running in K3s (2 pods)
+✅ Supabase REST is running in K3s (2 pods)
+✅ Supabase Storage is running in K3s (1 pods)
+
+🗄️  MinIO Distributed Storage
+==================================================
+ℹ️  Checking MinIO cluster status...
+✅ MinIO cluster is healthy (4/4 pods running)
+✅ MinIO S3 API service is available
+✅ MinIO Console service is available
+ℹ️  Testing MinIO API health...
+✅ MinIO API health endpoint is responding
+ℹ️  Checking MinIO buckets...
+✅ MinIO buckets are configured (5 CRM buckets found)
+ℹ️  Checking MinIO storage usage...
+✅ MinIO storage is accessible and healthy (6 storage indicators)
+ℹ️  Checking MinIO ingress configuration...
+✅ MinIO ingress is configured (2 ingress rules)
+
+🔒 Security Compliance
+==================================================
+ℹ️  Running security validation...
+✅ Security compliance: 22/22 checks passed (100%)
+✅ Using server-centralized environment management (local .env.local for development)
+ℹ️  Server-centralized management is active - local file is for development convenience
+
+📊 Health Check Summary
+==================================================
+
+Overall Health Score: 100%
+✅ Passed: 48
+⚠️  Warnings: 0
+❌ Failed: 0
+📋 Total Checks: 48
+
+🎉 EXCELLENT HEALTH - Production Ready!

@@ -1,5 +1,9 @@
-// Define vehicle type to match the new dynamic structure
-type Vehicle = {
+// ===================================================================
+// TYPE DEFINITIONS
+// ===================================================================
+
+// Vehicle type for auto insurance forms
+export interface Vehicle {
   year: string;
   make: string;
   model: string;
@@ -15,10 +19,29 @@ type Vehicle = {
   rental: boolean;
   financed: boolean;
   gap: boolean;
-};
+}
 
-// Define the form values type to match the new dynamic structure in auto-insurance-form.tsx
-type AutoInsuranceFormValues = {
+// Driver type for auto insurance forms
+export interface Driver {
+  firstName: string;
+  lastName: string;
+  gender?: string;
+  maritalStatus?: string;
+  licenseNumber: string;
+  licenseState: string;
+  dateOfBirth: Date | string;
+  primaryDriver: boolean;
+  sr22Required?: boolean;
+  education?: string;
+  occupation?: string;
+  relationToPrimary?: string;
+  accidentDescription?: string;
+  accidentDate?: string;
+  militaryStatus?: boolean;
+}
+
+// Auto insurance form values type
+export interface AutoInsuranceFormValues {
   "a-current-carrier": string;
   "a-mos-current-carrier": string;
   "a-climits": string;
@@ -29,24 +52,68 @@ type AutoInsuranceFormValues = {
   "auto-additional-notes": string;
   "auto-garaging-address": string;
   vehicles: Vehicle[];
-  drivers: {
-    firstName: string;
-    lastName: string;
-    gender?: string;
-    maritalStatus?: string;
-    licenseNumber: string;
-    licenseState: string;
-    dateOfBirth: Date | string;
-    primaryDriver: boolean;
-    sr22Required?: boolean;
-    education?: string;
-    occupation?: string;
-    relationToPrimary?: string;
-    accidentDescription?: string;
-    accidentDate?: string;
-    militaryStatus?: boolean;
-  }[];
-};
+  drivers: Driver[];
+}
+
+// API data structure for auto insurance
+export interface AutoInsuranceApiData {
+  'a-current-carrier': string;
+  'a-mos-current-carrier': string;
+  'a-climits': string;
+  'a-qlimits': string;
+  'a-exp-dt': string;
+  'aprem': string;
+  'effective-date': string;
+  'auto-additional-notes': string;
+  'auto-garaging-address': string;
+  drivers: Driver[];
+  vehicles: Vehicle[];
+}
+
+// Specialty vehicle type
+export interface SpecialtyVehicle {
+  type: string;
+  year: string;
+  make: string;
+  model: string;
+  vin: string;
+  comprehensiveDeductible: string;
+  collisionDeductible: string;
+  totalHp: string;
+  maxSpeed: string;
+  ccSize: string;
+  marketValue: string;
+  storedLocation: string;
+}
+
+// Specialty insurance form values
+export interface SpecialtyInsuranceFormValues {
+  additionalInformation: string;
+  specialtyVehicles: SpecialtyVehicle[];
+}
+
+// Home insurance form values (basic structure)
+export interface HomeInsuranceFormValues {
+  [key: string]: unknown;
+}
+
+// Client form values
+export interface ClientFormValues {
+  date_of_birth: Date | string;
+  pipeline_id: string | number;
+  [key: string]: unknown;
+}
+
+// Quote submission data structure
+export interface QuoteSubmissionData {
+  client: ClientFormValues;
+  auto?: Partial<AutoInsuranceFormValues>;
+  home?: HomeInsuranceFormValues;
+  specialty?: SpecialtyInsuranceFormValues;
+  has_auto: boolean;
+  has_home: boolean;
+  has_specialty: boolean;
+}
 
 /**
  * Formats a date object or string to YYYY-MM-DD format
@@ -97,15 +164,15 @@ export function parseDate(dateString: string): Date {
  * @param formData The form data from the auto insurance form
  * @returns Data in API-friendly format
  */
-export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceFormValues> | any) {
+export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceFormValues>): AutoInsuranceApiData {
   // Initialize API data with defaults - use the same field names as the form for tests to pass
-  const apiData: Record<string, any> = {
+  const apiData: AutoInsuranceApiData = {
     'a-current-carrier': formData["a-current-carrier"] || "",
     'a-mos-current-carrier': formData["a-mos-current-carrier"] || "",
     'a-climits': formData["a-climits"] || "",
     'a-qlimits': formData["a-qlimits"] || "",
-    'a-exp-dt': formData["a-exp-dt"] || "",
-    'aprem': formData["aprem"] || "",
+    'a-exp-dt': formData["a-exp-dt"]?.toString() || "",
+    'aprem': formData["aprem"]?.toString() || "",
     'effective-date': formData["effective-date"] ? formatDate(formData["effective-date"]) : "",
     'auto-additional-notes': formData["auto-additional-notes"] || "",
     'auto-garaging-address': formData["auto-garaging-address"] || "",
@@ -115,23 +182,7 @@ export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceForm
 
   // Extract driver data if available
   if (formData.drivers && formData.drivers.length > 0) {
-    apiData.drivers = formData.drivers.map((driver: {
-      firstName?: string;
-      lastName?: string;
-      gender?: string;
-      maritalStatus?: string;
-      licenseNumber?: string;
-      licenseState?: string;
-      dateOfBirth?: Date | string;
-      primaryDriver?: boolean;
-      sr22Required?: boolean;
-      education?: string;
-      occupation?: string;
-      relationToPrimary?: string;
-      accidentDescription?: string;
-      accidentDate?: string;
-      militaryStatus?: boolean;
-    }) => ({
+    apiData.drivers = formData.drivers.map((driver: Driver): Driver => ({
       firstName: driver.firstName || "",
       lastName: driver.lastName || "",
       gender: driver.gender || "",
@@ -180,7 +231,7 @@ export function transformAutoFormToApiFormat(formData: Partial<AutoInsuranceForm
  * @param apiData Structured API data
  * @returns Form-compatible data structure
  */
-export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranceFormValues> {
+export function transformApiToAutoFormFormat(apiData: Partial<AutoInsuranceApiData>): Partial<AutoInsuranceFormValues> {
   // Start with basic fields
   const formData: Partial<AutoInsuranceFormValues> = {
     'a-current-carrier': apiData['a-current-carrier'] || '',
@@ -198,30 +249,14 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
 
   // Map drivers if present
   if (apiData.drivers && Array.isArray(apiData.drivers)) {
-    formData.drivers = apiData.drivers.map((driver: {
-      firstName?: string;
-      lastName?: string;
-      gender?: string;
-      maritalStatus?: string;
-      licenseNumber?: string;
-      licenseState?: string;
-      dateOfBirth?: string;
-      primaryDriver?: boolean;
-      sr22Required?: boolean;
-      education?: string;
-      occupation?: string;
-      relationToPrimary?: string;
-      accidentDescription?: string;
-      accidentDate?: string;
-      militaryStatus?: boolean;
-    }) => ({
+    formData.drivers = apiData.drivers.map((driver: Driver): Driver => ({
       firstName: driver.firstName || '',
       lastName: driver.lastName || '',
       gender: driver.gender || '',
       maritalStatus: driver.maritalStatus || '',
       licenseNumber: driver.licenseNumber || '',
       licenseState: driver.licenseState || '',
-      dateOfBirth: driver.dateOfBirth ? parseDate(driver.dateOfBirth) : new Date(),
+      dateOfBirth: driver.dateOfBirth ? parseDate(driver.dateOfBirth.toString()) : new Date(),
       primaryDriver: !!driver.primaryDriver,
       sr22Required: !!driver.sr22Required,
       education: driver.education || '',
@@ -237,21 +272,21 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
 
   // Map vehicles if present - convert to new dynamic structure
   if (apiData.vehicles && Array.isArray(apiData.vehicles)) {
-    formData.vehicles = apiData.vehicles.map((vehicle: any) => ({
+    formData.vehicles = apiData.vehicles.map((vehicle: Vehicle): Vehicle => ({
       year: vehicle.year || '',
       make: vehicle.make || '',
       model: vehicle.model || '',
       vin: vehicle.vin || '',
       usage: vehicle.usage || '',
-      annualMiles: vehicle.annualMiles || vehicle.mileage || '', // Support both field names
+      annualMiles: vehicle.annualMiles || '', // Support both field names
       dailyMiles: vehicle.dailyMiles || '',
-      primaryDriver: vehicle.primaryDriver || vehicle.driver || '',
-      comprehensive: vehicle.comprehensive || vehicle.comp || '',
-      collision: vehicle.collision || vehicle.coll || '',
+      primaryDriver: vehicle.primaryDriver || '',
+      comprehensive: vehicle.comprehensive || '',
+      collision: vehicle.collision || '',
       glass: !!vehicle.glass,
-      towing: !!vehicle.towing || !!vehicle.tow,
-      rental: !!vehicle.rental || !!vehicle.rentalReimbursement,
-      financed: !!vehicle.financed || !!vehicle.financing,
+      towing: !!vehicle.towing,
+      rental: !!vehicle.rental,
+      financed: !!vehicle.financed,
       gap: !!vehicle.gap
     }));
   } else {
@@ -267,7 +302,7 @@ export function transformApiToAutoFormFormat(apiData: any): Partial<AutoInsuranc
  * @param formData Form data to transform
  * @returns Object with keys matching document placeholders
  */
-export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string, string> {
+export function mapAutoFormToDocumentPlaceholders(formData: Partial<AutoInsuranceFormValues> | null): Record<string, string> {
   if (!formData) {
     // Return an object with empty strings for required fields when formData is null/undefined
     return {
@@ -295,7 +330,7 @@ export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string,
 
   // Driver data
   if (formData.drivers && Array.isArray(formData.drivers)) {
-    formData.drivers.forEach((driver: any, index: number) => {
+    formData.drivers.forEach((driver: Driver, index: number) => {
       const i = index + 1;
       placeholders[`d${i}first`] = driver.firstName || '';
       placeholders[`d${i}last`] = driver.lastName || '';
@@ -333,7 +368,7 @@ export function mapAutoFormToDocumentPlaceholders(formData: any): Record<string,
 }
 
 // Data transformation for Home Insurance Form
-export function transformHomeFormToApiFormat(formData: any) {
+export function transformHomeFormToApiFormat(formData: HomeInsuranceFormValues): HomeInsuranceFormValues {
   const transformedData = {
     ...formData,
     // Add any specific transformations needed
@@ -343,30 +378,30 @@ export function transformHomeFormToApiFormat(formData: any) {
 }
 
 // Data transformation for Specialty Insurance Form
-export function transformSpecialtyFormToApiFormat(formData: any) {
+export function transformSpecialtyFormToApiFormat(formData: SpecialtyInsuranceFormValues): Record<string, string> {
   // Create a new object for transformed data
-  const transformedData: Record<string, any> = {
+  const transformedData: Record<string, string> = {
     // Extract the base values
-    additionalInformation: formData.additionalInformation,
-    "sp-additional-info": formData.additionalInformation,
+    additionalInformation: formData.additionalInformation || '',
+    "sp-additional-info": formData.additionalInformation || '',
   };
 
   // Map each specialty vehicle to its corresponding placeholder fields
-  formData.specialtyVehicles?.forEach((vehicle: any, index: number) => {
+  formData.specialtyVehicles?.forEach((vehicle: SpecialtyVehicle, index: number) => {
     const vehicleNumber = index + 1;
     if (vehicleNumber <= 8) { // We have placeholders for up to 8 vehicles
-      transformedData[`sp${vehicleNumber}-type-toy`] = vehicle.type;
-      transformedData[`sp${vehicleNumber}yr`] = vehicle.year;
-      transformedData[`sp${vehicleNumber}make`] = vehicle.make;
-      transformedData[`sp${vehicleNumber}model`] = vehicle.model;
-      transformedData[`sp${vehicleNumber}vin`] = vehicle.vin;
-      transformedData[`sp${vehicleNumber}comp`] = vehicle.comprehensiveDeductible;
-      transformedData[`sp${vehicleNumber}coll`] = vehicle.collisionDeductible;
-      transformedData[`sp${vehicleNumber}hp`] = vehicle.totalHp;
-      transformedData[`sp${vehicleNumber}maxspd`] = vehicle.maxSpeed;
-      transformedData[`sp${vehicleNumber}ccs`] = vehicle.ccSize;
-      transformedData[`sp${vehicleNumber}val`] = vehicle.marketValue;
-      transformedData[`sp${vehicleNumber}-stored`] = vehicle.storedLocation;
+      transformedData[`sp${vehicleNumber}-type-toy`] = vehicle.type || '';
+      transformedData[`sp${vehicleNumber}yr`] = vehicle.year || '';
+      transformedData[`sp${vehicleNumber}make`] = vehicle.make || '';
+      transformedData[`sp${vehicleNumber}model`] = vehicle.model || '';
+      transformedData[`sp${vehicleNumber}vin`] = vehicle.vin || '';
+      transformedData[`sp${vehicleNumber}comp`] = vehicle.comprehensiveDeductible || '';
+      transformedData[`sp${vehicleNumber}coll`] = vehicle.collisionDeductible || '';
+      transformedData[`sp${vehicleNumber}hp`] = vehicle.totalHp || '';
+      transformedData[`sp${vehicleNumber}maxspd`] = vehicle.maxSpeed || '';
+      transformedData[`sp${vehicleNumber}ccs`] = vehicle.ccSize || '';
+      transformedData[`sp${vehicleNumber}val`] = vehicle.marketValue || '';
+      transformedData[`sp${vehicleNumber}-stored`] = vehicle.storedLocation || '';
     }
   });
 
@@ -374,38 +409,30 @@ export function transformSpecialtyFormToApiFormat(formData: any) {
 }
 
 // Data transformation for Client Info Form
-export function transformClientFormToApiFormat(formData: any) {
-  const transformedData = {
+export function transformClientFormToApiFormat(formData: ClientFormValues): ClientFormValues {
+  const transformedData: ClientFormValues = {
     ...formData,
     // Convert date objects to strings if needed
     date_of_birth: formData.date_of_birth instanceof Date
       ? formData.date_of_birth.toISOString().split('T')[0]
       : formData.date_of_birth,
     // Ensure pipeline_id is included
-    pipeline_id: formData.pipeline_id ? parseInt(formData.pipeline_id) : null,
+    pipeline_id: formData.pipeline_id ? parseInt(formData.pipeline_id.toString()) : 0,
   };
 
   return transformedData;
 }
 
 // Combined data transformation for quote submission
-export function prepareQuoteDataForSubmission(data: {
-  client: any;
-  auto?: any;
-  home?: any;
-  specialty?: any;
-  has_auto: boolean;
-  has_home: boolean;
-  has_specialty: boolean;
-}) {
+export function prepareQuoteDataForSubmission(data: QuoteSubmissionData) {
   return {
     client: transformClientFormToApiFormat(data.client),
     has_auto: data.has_auto,
     has_home: data.has_home,
     has_specialty: data.has_specialty,
-    auto_data: data.has_auto ? transformAutoFormToApiFormat(data.auto) : null,
-    home_data: data.has_home ? transformHomeFormToApiFormat(data.home) : null,
-    specialty_data: data.has_specialty ? transformSpecialtyFormToApiFormat(data.specialty) : null,
+    auto_data: data.has_auto && data.auto ? transformAutoFormToApiFormat(data.auto) : null,
+    home_data: data.has_home && data.home ? transformHomeFormToApiFormat(data.home) : null,
+    specialty_data: data.has_specialty && data.specialty ? transformSpecialtyFormToApiFormat(data.specialty) : null,
     effective_date: new Date().toISOString().split('T')[0], // Default to today
   };
 }
