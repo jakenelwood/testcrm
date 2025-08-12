@@ -100,7 +100,7 @@ export function StatusFilter({ statuses, selectedStatuses, onStatusFilterChange 
             >
               <div className="flex items-center">
                 <div 
-                  className={`w-3 h-3 rounded-full mr-2 ${getStatusStyles(status.name, 'default')}`}
+                  className={`w-3 h-3 rounded-full mr-2 ${getStatusStyles(status.name)}`}
                 />
                 <span>{status.name}</span>
               </div>

@@ -38,7 +38,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   const { mutate: downloadDocument, isPending: isDownloading } = useDownloadDocument();
 
   const handleDownload = (document: Document) => {
-    downloadDocument({ documentId: document.id, filename: document.filename });
+    downloadDocument({ id: document.id, filename: document.filename });
   };
 
   if (isLoading) {
@@ -79,7 +79,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   if (documents.length === 0) {
     return (
       <EmptyState
-        icon={<Icons.fileText className="h-10 w-10 text-muted-foreground" />}
+        icon="fileText"
         title="No documents yet"
         description="Generated documents will appear here."
       />

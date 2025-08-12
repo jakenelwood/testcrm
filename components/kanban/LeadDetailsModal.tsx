@@ -87,6 +87,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     state: lead?.address_state || '',
     zip_code: lead?.address_zip_code || '',
 
+    // Mailing Address fields (directly from lead)
+    mailing_street_address: lead?.mailing_address_street || '',
+    mailing_city: lead?.mailing_address_city || '',
+    mailing_state: lead?.mailing_address_state || '',
+    mailing_zip_code: lead?.mailing_address_zip_code || '',
+
     // Individual-specific fields
     date_of_birth: lead?.client?.date_of_birth || '',
     gender: lead?.client?.gender || '',
@@ -621,8 +627,8 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       // First, update the client record with the new name and contact information
       const clientName = `${formData.first_name} ${formData.last_name}`.trim();
 
-      // Get the client ID from either client_id or leads_contact_info_id
-      let clientId = lead.client_id || lead.leads_contact_info_id;
+      // Get the client ID from either client_id or legacy contact info field
+      let clientId = lead.client_id || (lead as any).leads_contact_info_id;
 
       // If we still don't have it, try to get it from the client object
       if (!clientId && lead.client?.id) {

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     try {
       const tokenParts = currentAccessToken.split('.');
-      if (tokenParts.length >= 2) {
+      if (tokenParts.length >= 2 && tokenParts[1]) {
         // Ensure atob is available or use Buffer for Node.js environments if running outside edge/browser-like
         const payloadDecoded = Buffer.from(tokenParts[1], 'base64url').toString('utf8');
         const payload = JSON.parse(payloadDecoded);

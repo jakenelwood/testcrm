@@ -39,11 +39,11 @@ export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, stat
     // If we have pipeline statuses with color_hex, use those
     const pipelineStatus = statuses.find(s => s.name === status);
     if (pipelineStatus?.color_hex) {
-      return getCustomStatusStyles(pipelineStatus.color_hex, useColoredBadge ? 'default' : 'kanban');
+      return getCustomStatusStyles(pipelineStatus.color_hex);
     }
 
     // Otherwise, fall back to default colors
-    return getStatusStyles(status, useColoredBadge ? 'default' : 'kanban');
+    return getStatusStyles(status);
   };
 
   // Handle status change
@@ -126,7 +126,7 @@ export function LeadStatusDropdown({ leadId, currentStatus, onStatusChange, stat
             onClick={() => handleStatusChange(status)}
             disabled={isUpdating}
           >
-            <div className={`w-2 h-2 rounded-full mr-2 ${getStatusStyles(status, 'default')}`} />
+            <div className={`w-2 h-2 rounded-full mr-2 ${getStatusStyles(status)}`} />
             {status}
           </DropdownMenuItem>
         ))}

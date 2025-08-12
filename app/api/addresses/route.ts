@@ -1,29 +1,10 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@/utils/supabase/server';
+import { createClient } from '@/utils/supabase/server';
 
 // POST - Create a new address
 export async function POST(request: Request) {
   try {
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vpwvdfrxvvuxojejnegm.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3ZkZnJ4dnZ1eG9qZWpuZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTcxOTIsImV4cCI6MjA2MTQ3MzE5Mn0.hyIFaAyppndjilhPXaaWf7GJoOsJfRRDp7LubigyB3Q',
-      {
-        cookies: {
-          get: (name: string) => {
-            const cookie = cookieStore.get(name);
-            return cookie?.value;
-          },
-          set: (name: string, value: string, options: any) => {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove: (name: string, options: any) => {
-            cookieStore.set({ name, value: '', ...options });
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
 
     const body = await request.json();
 
@@ -74,25 +55,7 @@ export async function POST(request: Request) {
 // PATCH - Update an existing address
 export async function PATCH(request: Request) {
   try {
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vpwvdfrxvvuxojejnegm.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3ZkZnJ4dnZ1eG9qZWpuZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTcxOTIsImV4cCI6MjA2MTQ3MzE5Mn0.hyIFaAyppndjilhPXaaWf7GJoOsJfRRDp7LubigyB3Q',
-      {
-        cookies: {
-          get: (name: string) => {
-            const cookie = cookieStore.get(name);
-            return cookie?.value;
-          },
-          set: (name: string, value: string, options: any) => {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove: (name: string, options: any) => {
-            cookieStore.set({ name, value: '', ...options });
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
 
     const body = await request.json();
 

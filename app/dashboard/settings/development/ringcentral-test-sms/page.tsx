@@ -23,7 +23,7 @@ export default function RingCentralTestSMSPage() {
 
   // Add a log entry
   const addLog = (message: string) => {
-    const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+    const timestamp = new Date().toISOString().split('T')[1]?.split('.')[0] || new Date().toLocaleTimeString();
     setLogs(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 99)]);
   };
 

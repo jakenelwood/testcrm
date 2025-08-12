@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { brand } from '@/lib/brand';
 
 interface RTextLogoProps {
   className?: string;
@@ -31,21 +32,19 @@ export default function RTextLogo({
     lg: 'text-5xl scale-110'  // additional 10% scale
   };
 
+  const textClasses = cn(
+    "font-bold tracking-tight transition-all duration-300",
+    sizeClasses[size],
+    shouldAnimate && "hover:scale-105",
+    className
+  );
+
   return (
-    <div className={cn(
-      "flex items-center justify-center",
-      className
-    )}>
-      <span
-        className={cn(
-          "font-inter font-bold tracking-tight",
-          sizeClasses[size],
-          shouldAnimate && "animate-text-pulse"
-        )}
-        style={{ color }}
-      >
-        r
-      </span>
-    </div>
+    <span 
+      className={textClasses}
+      style={{ color }}
+    >
+      {brand.name}
+    </span>
   );
 }

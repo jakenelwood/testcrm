@@ -7,7 +7,6 @@ import {
   formatScopesForOAuth
 } from '@/lib/ringcentral/config';
 import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR, UNKNOWN_ERROR_OCCURRED } from '@/lib/constants';
-import { cookies } from 'next/headers';
 
 /**
  * Debug endpoint to check RingCentral configuration

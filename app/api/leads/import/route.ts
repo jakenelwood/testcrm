@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 
 interface ColumnMapping {
   csvColumn: string;
@@ -24,27 +23,80 @@ interface DriverData {
   military?: boolean;
 }
 
+// Improved CSV parsing function that handles quoted fields
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  result.push(current.trim());
+  return result;
+}
+
+// Helper function to process driver data from row
+function processDriverData(row: string[], fieldMapping: { [index: number]: string }): {
+  primaryDriver: any;
+  additionalDrivers: DriverData[];
+} {
+  const primaryDriver: any = {};
+  const driversByNumber: { [driverNumber: number]: DriverData } = {};
+
+  // Process all mapped fields
+  Object.entries(fieldMapping).forEach(([columnIndex, crmField]) => {
+    const value = row[parseInt(columnIndex)]?.trim();
+    if (!value) return;
+
+    // Check if this is a driver field
+    const driverMatch = crmField.match(/^driver_(\d+)_(.+)$/);
+    if (driverMatch && driverMatch[1] && driverMatch[2]) {
+      const driverNumber = parseInt(driverMatch[1]);
+      const fieldName = driverMatch[2];
+
+      if (!driversByNumber[driverNumber]) {
+        driversByNumber[driverNumber] = {};
+      }
+
+      // Convert boolean fields
+      if (fieldName === 'sr22' || fieldName === 'military') {
+        (driversByNumber[driverNumber] as any)[fieldName] =
+          value.toLowerCase() === 'yes' || value.toLowerCase() === 'true' || value === '1';
+      } else {
+        (driversByNumber[driverNumber] as any)[fieldName] = value;
+      }
+    } else {
+      // Primary driver or general field
+      if (crmField === 'sr22' || crmField === 'military') {
+        primaryDriver[crmField] = value.toLowerCase() === 'yes' || value.toLowerCase() === 'true' || value === '1';
+      } else {
+        primaryDriver[crmField] = value;
+      }
+    }
+  });
+
+  // Convert drivers object to array, filtering out incomplete drivers
+  const additionalDrivers = Object.entries(driversByNumber)
+    .map(([driverNum, driverData]) => driverData)
+    .filter(driver => driver.first_name || driver.last_name); // Only include drivers with at least a name
+
+  return { primaryDriver, additionalDrivers };
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vpwvdfrxvvuxojejnegm.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3ZkZnJ4dnZ1eG9qZWpuZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTcxOTIsImV4cCI6MjA2MTQ3MzE5Mn0.hyIFaAyppndjilhPXaaWf7GJoOsJfRRDp7LubigyB3Q',
-      {
-        cookies: {
-          get: (name: string) => {
-            const cookie = cookieStore.get(name);
-            return cookie?.value;
-          },
-          set: (name: string, value: string, options: any) => {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove: (name: string, options: any) => {
-            cookieStore.set({ name, value: '', ...options });
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -80,30 +132,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Empty CSV file' }, { status: 400 });
     }
 
-    // Improved CSV parsing function that handles quoted fields
-    function parseCSVLine(line: string): string[] {
-      const result = [];
-      let current = '';
-      let inQuotes = false;
-
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
-          result.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-
-      result.push(current.trim());
-      return result;
-    }
-
-    const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, ''));
+    const headers = parseCSVLine(lines[0]!).map(h => h.replace(/"/g, ''));
     const dataRows = lines.slice(1);
 
     // Create mapping from CSV column index to CRM field
@@ -134,66 +163,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Could not find pipeline statuses' }, { status: 400 });
     }
 
-    const defaultStatusId = pipelineStatusResult.data[0].id;
+    const defaultStatusId = pipelineStatusResult.data[0]!.id;
     const defaultInsuranceTypeId = insuranceTypeResult.data?.[0]?.id || 1;
 
-    // Helper function to process driver data from row
-    function processDriverData(row: string[], fieldMapping: { [index: number]: string }): {
-      primaryDriver: any;
-      additionalDrivers: DriverData[];
-    } {
-      const primaryDriver: any = {};
-      const driversByNumber: { [driverNumber: number]: DriverData } = {};
 
-      // Process all mapped fields
-      Object.entries(fieldMapping).forEach(([columnIndex, crmField]) => {
-        const value = row[parseInt(columnIndex)]?.trim();
-        if (!value) return;
-
-        // Check if this is a driver field
-        const driverMatch = crmField.match(/^driver_(\d+)_(.+)$/);
-        if (driverMatch) {
-          const driverNumber = parseInt(driverMatch[1]);
-          const fieldName = driverMatch[2];
-
-          if (!driversByNumber[driverNumber]) {
-            driversByNumber[driverNumber] = {};
-          }
-
-          // Convert boolean fields
-          if (fieldName === 'sr22' || fieldName === 'military') {
-            driversByNumber[driverNumber][fieldName as keyof DriverData] =
-              value.toLowerCase() === 'yes' || value.toLowerCase() === 'true' || value === '1';
-          } else {
-            (driversByNumber[driverNumber] as any)[fieldName] = value;
-          }
-        } else {
-          // Primary driver or general field
-          if (crmField === 'sr22' || crmField === 'military') {
-            primaryDriver[crmField] = value.toLowerCase() === 'yes' || value.toLowerCase() === 'true' || value === '1';
-          } else {
-            primaryDriver[crmField] = value;
-          }
-        }
-      });
-
-      // Convert drivers object to array, filtering out incomplete drivers
-      const additionalDrivers = Object.entries(driversByNumber)
-        .map(([driverNum, driverData]) => driverData)
-        .filter(driver => driver.first_name || driver.last_name); // Only include drivers with at least a name
-
-      return { primaryDriver, additionalDrivers };
-    }
 
     // Process each row and create leads
-    const leads = [];
-    const errors = [];
+    const leads: any[] = [];
+    const errors: string[] = [];
 
     // Pre-compile regex for better performance
     const numericRegex = /[^0-9.-]/g;
 
     for (let i = 0; i < dataRows.length; i++) {
-      const row = parseCSVLine(dataRows[i]).map(cell => cell.replace(/"/g, ''));
+      const row = parseCSVLine(dataRows[i]!).map(cell => cell.replace(/"/g, ''));
 
       // Process driver data from the row
       const { primaryDriver, additionalDrivers } = processDriverData(row, fieldMapping);

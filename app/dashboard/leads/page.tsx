@@ -57,7 +57,8 @@ import {
   Active,
   CollisionDetection,
   DroppableContainer,
-  UniqueIdentifier
+  UniqueIdentifier,
+  MeasuringStrategy
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -165,6 +166,7 @@ function LeadsPageContent() {
       // First check if we're directly over any column with a more forgiving threshold
       // This uses pointerWithin which is already forgiving
       const pointerCollisions = pointerWithin({
+        active,
         droppableContainers: statusContainers,
         droppableRects,
         collisionRect,
@@ -178,6 +180,7 @@ function LeadsPageContent() {
       // If not directly over, check for any intersection with a column
       // This is even more forgiving than pointerWithin
       const rectCollisions = rectIntersection({
+        active,
         droppableContainers: statusContainers,
         droppableRects,
         collisionRect,
@@ -192,6 +195,7 @@ function LeadsPageContent() {
       // This makes it so the card will always find a home in the nearest column
       // even if it's not directly over any column
       return closestCenter({
+        active,
         droppableContainers: statusContainers,
         droppableRects,
         collisionRect,
@@ -202,6 +206,7 @@ function LeadsPageContent() {
     // If no status containers are available, fall back to standard detection
     // First try pointerWithin which is more forgiving
     const pointerCollisions = pointerWithin({
+      active,
       droppableContainers,
       droppableRects,
       collisionRect,
@@ -214,6 +219,7 @@ function LeadsPageContent() {
 
     // Otherwise, try rectIntersection which is also forgiving
     const rectCollisions = rectIntersection({
+      active,
       droppableContainers,
       droppableRects,
       collisionRect,
@@ -226,6 +232,7 @@ function LeadsPageContent() {
 
     // Finally, fall back to closestCenter which is the most precise
     return closestCenter({
+      active,
       droppableContainers,
       droppableRects,
       collisionRect,
@@ -598,7 +605,7 @@ function LeadsPageContent() {
           onDragEnd={handleDragEnd}
           measuring={{
             droppable: {
-              strategy: 'always'
+              strategy: MeasuringStrategy.Always
             }
           }}
         >
@@ -617,8 +624,7 @@ function LeadsPageContent() {
 
           <DragOverlay dropAnimation={{
             duration: 300,
-            easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
-            scale: 0.98,
+            easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)'
           }}>
             {activeLead ? (
               <div className="bg-card rounded-md shadow-xl p-4 w-[calc(100%-2rem)] max-w-[300px] border-2 border-blue-500 rotate-1 scale-105 select-none">

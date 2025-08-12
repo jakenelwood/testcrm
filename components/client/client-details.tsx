@@ -35,7 +35,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
         const mockClient = {
           id: clientId,
           name: 'Brian Berge',
-          client_type: 'Individual',
+          client_type: 'Individual' as const,
           email: 'brian@example.com',
           phone_number: '555-123-4567',
           address: {
@@ -44,7 +44,8 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             city: 'Minneapolis',
             state: 'MN',
             zip_code: '55401',
-            type: 'Physical'
+            type: 'Physical' as const,
+            created_at: new Date().toISOString()
           },
           mailing_address: {
             id: 'mock-address-2',
@@ -52,11 +53,14 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             city: 'St. Paul',
             state: 'MN',
             zip_code: '55102',
-            type: 'Mailing'
+            type: 'Mailing' as const,
+            created_at: new Date().toISOString()
           },
           date_of_birth: '1985-06-15',
           gender: 'Male',
-          marital_status: 'Married'
+          marital_status: 'Married',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         };
 
         setClient(mockClient);
@@ -91,7 +95,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
         const mockClient = {
           id: clientId,
           name: 'Brian Berge',
-          client_type: 'Individual',
+          client_type: 'Individual' as const,
           email: 'brian@example.com',
           phone_number: '555-123-4567',
           address: {
@@ -100,12 +104,15 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             city: 'Minneapolis',
             state: 'MN',
             zip_code: '55401',
-            type: 'Physical'
+            type: 'Physical' as const,
+            created_at: new Date().toISOString()
           },
-          mailing_address: null,
+          mailing_address: undefined,
           date_of_birth: '1985-06-15',
           gender: 'Male',
-          marital_status: 'Married'
+          marital_status: 'Married',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         };
 
         setClient(mockClient);

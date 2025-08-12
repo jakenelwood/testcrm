@@ -164,6 +164,16 @@ export interface Lead {
   phone_number?: string;         // Client's phone number (for backward compatibility)
   status_legacy?: LeadStatus;    // Status (for backward compatibility)
   insurance_type_legacy?: InsuranceType; // Insurance type (for backward compatibility)
+
+  // Address fields for backward compatibility
+  address_street?: string;       // Physical address street (for backward compatibility)
+  address_city?: string;         // Physical address city (for backward compatibility)
+  address_state?: string;        // Physical address state (for backward compatibility)
+  address_zip_code?: string;     // Physical address zip code (for backward compatibility)
+  mailing_address_street?: string; // Mailing address street (for backward compatibility)
+  mailing_address_city?: string; // Mailing address city (for backward compatibility)
+  mailing_address_state?: string; // Mailing address state (for backward compatibility)
+  mailing_address_zip_code?: string; // Mailing address zip code (for backward compatibility)
 }
 
 /**

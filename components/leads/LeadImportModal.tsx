@@ -70,62 +70,62 @@ const DRIVER_PATTERNS: DriverColumnPattern[] = [
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:first|fname|first_name)/i,
     fieldType: 'first_name',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:last|lname|last_name)/i,
     fieldType: 'last_name',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:dob|date_of_birth|birth_date)/i,
     fieldType: 'date_of_birth',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:license|dl|drivers_license|license_number)/i,
     fieldType: 'drivers_license',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:license_state|dl_state|state)/i,
     fieldType: 'license_state',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:gender|sex)/i,
     fieldType: 'gender',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:marital|marital_status)/i,
     fieldType: 'marital_status',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:sr22|sr_22)/i,
     fieldType: 'sr22',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:education)/i,
     fieldType: 'education',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:occupation|job)/i,
     fieldType: 'occupation',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:relation|relationship)/i,
     fieldType: 'relation_to_primary',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:driver|additional_driver|add_driver)[\s_-]*([1-4])[\s_-]*(?:military)/i,
     fieldType: 'military',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   }
 ];
 
@@ -134,77 +134,77 @@ const VEHICLE_PATTERNS: DriverColumnPattern[] = [
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:make)/i,
     fieldType: 'auto_vehicle_make',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:model)/i,
     fieldType: 'auto_vehicle_model',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:year)/i,
     fieldType: 'auto_vehicle_year',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:vin)/i,
     fieldType: 'auto_vehicle_vin',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:driver|primary_driver)/i,
     fieldType: 'auto_vehicle_driver',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:usage)/i,
     fieldType: 'auto_vehicle_usage',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:annual_miles|yearly_miles)/i,
     fieldType: 'auto_vehicle_annual_miles',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:daily_miles)/i,
     fieldType: 'auto_vehicle_daily_miles',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:financed|financing)/i,
     fieldType: 'auto_vehicle_financed',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:collision)/i,
     fieldType: 'auto_vehicle_collision',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:comp|comprehensive)/i,
     fieldType: 'auto_vehicle_comp',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:gap)/i,
     fieldType: 'auto_vehicle_gap',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:glass)/i,
     fieldType: 'auto_vehicle_glass',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:tow|towing)/i,
     fieldType: 'auto_vehicle_tow',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   },
   {
     pattern: /(?:vehicle|auto_vehicle|car)[\s_-]*([1-4])[\s_-]*(?:rental|rental_car)/i,
     fieldType: 'auto_vehicle_rental_car_reimbursement',
-    extractDriverNumber: (match) => parseInt(match[1])
+    extractDriverNumber: (match) => parseInt(match[1] || '1')
   }
 ];
 
@@ -357,7 +357,7 @@ function detectDriverColumns(headers: string[]): { detectedDrivers: DetectedDriv
           csvColumn: header,
           crmField: `auto_vehicle_${vehicleNumber}_${fieldType.replace('auto_vehicle_', '')}`,
           driverNumber: vehicleNumber,
-          fieldType: 'vehicle'
+          fieldType: 'general'
         });
         return; // Found a match, move to next header
       }
@@ -454,7 +454,7 @@ export function LeadImportModal({ isOpen, onClose, onImportComplete, pipelineId 
     const lines = text.split('\n').filter(line => line.trim());
     if (lines.length === 0) throw new Error('Empty CSV file');
 
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const headers = lines[0]?.split(',').map(h => h.trim().replace(/"/g, '')) || [];
     const rows = lines.slice(1, 6).map(line => // Show first 5 rows for preview
       line.split(',').map(cell => cell.trim().replace(/"/g, ''))
     );
@@ -553,8 +553,30 @@ export function LeadImportModal({ isOpen, onClose, onImportComplete, pipelineId 
     event.preventDefault();
     const droppedFile = event.dataTransfer.files[0];
     if (droppedFile) {
+      // Create a mock input element with files
+      const mockInput = document.createElement('input');
+      mockInput.type = 'file';
+      Object.defineProperty(mockInput, 'files', {
+        value: [droppedFile],
+        writable: false,
+      });
+
       const syntheticEvent = {
-        target: { files: [droppedFile] }
+        target: mockInput,
+        currentTarget: mockInput,
+        nativeEvent: new Event('change'),
+        bubbles: false,
+        cancelable: false,
+        defaultPrevented: false,
+        eventPhase: 0,
+        isTrusted: false,
+        preventDefault: () => {},
+        isDefaultPrevented: () => false,
+        stopPropagation: () => {},
+        isPropagationStopped: () => false,
+        persist: () => {},
+        timeStamp: Date.now(),
+        type: 'change'
       } as React.ChangeEvent<HTMLInputElement>;
       handleFileSelect(syntheticEvent);
     }
@@ -1000,7 +1022,7 @@ export function LeadImportModal({ isOpen, onClose, onImportComplete, pipelineId 
                             <div className="w-1/3">
                               <Label className={`text-sm font-medium ${
                                 mapping.fieldType === 'driver' ? 'text-blue-600' :
-                                mapping.fieldType === 'vehicle' ? 'text-purple-600' :
+                                mapping.fieldType === 'general' ? 'text-purple-600' :
                                 mapping.fieldType === 'primary' ? 'text-green-600' :
                                 'text-gray-600'
                               }`}>
@@ -1010,7 +1032,7 @@ export function LeadImportModal({ isOpen, onClose, onImportComplete, pipelineId 
                                     Driver {mapping.driverNumber}
                                   </span>
                                 )}
-                                {mapping.driverNumber && mapping.fieldType === 'vehicle' && (
+                                {mapping.driverNumber && mapping.fieldType === 'general' && (
                                   <span className="ml-1 text-xs bg-purple-100 text-purple-800 px-1 rounded">
                                     Vehicle {mapping.driverNumber}
                                   </span>

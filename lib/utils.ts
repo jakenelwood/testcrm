@@ -42,7 +42,7 @@ export function formatDateYMD(date: Date | string): string {
     return '';
   }
   
-  return dateObj.toISOString().split('T')[0];
+  return dateObj.toISOString().split('T')[0] || '';
 }
 
 /**

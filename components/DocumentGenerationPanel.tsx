@@ -26,7 +26,7 @@ export default function DocumentGenerationPanel({ quoteId }: DocumentGenerationP
   };
 
   const handleDownloadDocument = (documentId: string) => {
-    downloadDocument(documentId);
+    downloadDocument({ id: documentId });
   };
 
   const isDisabled = isGenerating || isDownloading || !quoteId;

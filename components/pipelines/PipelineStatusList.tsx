@@ -70,8 +70,10 @@ export function PipelineStatusList({
     if (draggedIndex !== -1 && targetIndex !== -1) {
       // Remove the dragged status
       const [removed] = reorderedStatuses.splice(draggedIndex, 1);
-      // Insert it at the target position
-      reorderedStatuses.splice(targetIndex, 0, removed);
+      // Insert it at the target position (only if removed is defined)
+      if (removed) {
+        reorderedStatuses.splice(targetIndex, 0, removed);
+      }
 
       // Get the IDs in the new order
       const statusIds = reorderedStatuses.map(s => s.id);

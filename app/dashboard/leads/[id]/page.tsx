@@ -80,9 +80,19 @@ export default function LeadDetailsPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isDevelopmentMode, setIsDevelopmentMode] = useState<boolean>(false);
 
+  // Dialog states
+  const [otherInsuredDialogOpen, setOtherInsuredDialogOpen] = useState(false);
+  const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
+  const [homeDialogOpen, setHomeDialogOpen] = useState(false);
+  const [specialtyItemDialogOpen, setSpecialtyItemDialogOpen] = useState(false);
+
   // Mock data for development mode
   const mockLead: Lead = {
     id: params.id as string,
+    client_id: 'demo-client-123',
+    pipeline_id: 1,
+    status_id: 1,
+    insurance_type_id: 1,
     first_name: 'Demo',
     last_name: 'User',
     email: 'demo@example.com',
@@ -97,18 +107,24 @@ export default function LeadDetailsPage() {
     updated_at: new Date().toISOString(),
     client: {
       id: '123',
+      client_type: 'Individual' as const,
       name: 'Demo User',
       email: 'demo@example.com',
       phone_number: '555-123-4567',
       address: {
+        id: 'demo-address-1',
         street: '123 Main St',
         city: 'Anytown',
         state: 'CA',
-        zip_code: '12345'
+        zip_code: '12345',
+        type: 'Physical' as const,
+        created_at: new Date().toISOString()
       },
       date_of_birth: '1990-01-01',
       gender: 'Male',
       marital_status: 'Single',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       drivers_license: 'DL12345',
       license_state: 'CA',
       referred_by: 'Website'
@@ -192,7 +208,7 @@ export default function LeadDetailsPage() {
             console.warn('Join query failed, trying simple query:', error);
 
             // Check if this is a 400 error (likely schema mismatch)
-            if (error.code === '400' || error.code === 400) {
+            if (error.code === '400' || error.code === 'PGRST116') {
               if (isDev) {
                 console.log('Using mock data in development mode due to schema mismatch');
                 setLead(mockLead);
@@ -2097,7 +2113,7 @@ export default function LeadDetailsPage() {
             city: formData.city,
             state: formData.state,
             zip_code: formData.zip_code,
-            addressId: data.address_id
+            leadId: lead.id
           });
         }
 
@@ -2645,8 +2661,7 @@ export default function LeadDetailsPage() {
                     <Label className="text-xs font-medium text-gray-500 mb-1 block">Status</Label>
                     <div className="text-gray-700">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium inline-flex items-center ${getStatusStyles(
-                        typeof lead.status === 'string' ? lead.status : (lead.status as any)?.value || 'New',
-                        'badge'
+                        typeof lead.status === 'string' ? lead.status : (lead.status as any)?.value || 'New'
                       )}`}>
                         {typeof lead.status === 'string'
                           ? lead.status

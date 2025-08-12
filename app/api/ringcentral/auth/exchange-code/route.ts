@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import {
   RINGCENTRAL_CLIENT_ID,
   RINGCENTRAL_CLIENT_SECRET,
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
 
     // Store tokens in Supabase
     console.log('Step 3: Storing tokens in Supabase');
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();

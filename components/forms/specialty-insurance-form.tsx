@@ -33,22 +33,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { transformSpecialtyFormToApiFormat } from "@/lib/form-transformers";
+import { transformSpecialtyFormToApiFormat, SpecialtyVehicle } from "@/lib/form-transformers";
 
-type SpecialtyVehicleType = {
-  type: string;
-  year: string;
-  make: string;
-  model: string;
-  vin: string;
-  comprehensiveDeductible: string;
-  collisionDeductible: string;
-  totalHp: string;
-  maxSpeed: string;
-  ccSize: string;
-  marketValue: string;
-  storedLocation: string;
-};
+// Use the imported SpecialtyVehicle type instead of local definition
 
 // Define form schema
 const formSchema = z.object({
@@ -80,7 +67,7 @@ interface SpecialtyInsuranceFormProps {
 }
 
 export function SpecialtyInsuranceForm({ onSubmit, onPrevious, showPreviousButton = false }: SpecialtyInsuranceFormProps) {
-  const [specialtyVehicles, setSpecialtyVehicles] = useState<SpecialtyVehicleType[]>([
+  const [specialtyVehicles, setSpecialtyVehicles] = useState<SpecialtyVehicle[]>([
     {
       type: "",
       year: "",
@@ -116,7 +103,7 @@ export function SpecialtyInsuranceForm({ onSubmit, onPrevious, showPreviousButto
   // Add a new specialty vehicle
   const addSpecialtyVehicle = () => {
     if (specialtyVehicles.length < 8) {
-      const newVehicle: SpecialtyVehicleType = {
+      const newVehicle: SpecialtyVehicle = {
         type: "",
         year: "",
         make: "",
@@ -445,25 +432,7 @@ export function SpecialtyInsuranceForm({ onSubmit, onPrevious, showPreviousButto
                   <div></div>
                 )}
 
-                {showDeleteButton && onDelete ? (
-                  <button
-                    type="button"
-                    className="p-2 hover:bg-red-50 rounded-md transition-colors"
-                    onClick={() => {
-                      const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
-                      if (userInput && userInput.toLowerCase() === 'delete') {
-                        onDelete();
-                      } else if (userInput !== null) {
-                        alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
-                      }
-                    }}
-                    title="Delete Lead"
-                  >
-                    <Trash2 className="h-8 w-8 text-red-600 font-bold stroke-2" />
-                  </button>
-                ) : (
-                  <div></div>
-                )}
+                {/* Delete functionality not applicable for specialty insurance form */}
 
                 <Button type="submit" className="flex items-center">
                   Continue

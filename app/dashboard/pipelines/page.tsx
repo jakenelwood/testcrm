@@ -20,7 +20,7 @@ export default function PipelinesPage() {
 
   // Select the first pipeline by default if none is selected and pipelines are loaded
   useEffect(() => {
-    if (pipelines.length > 0 && !selectedPipelineId && !isLoading) {
+    if (pipelines.length > 0 && !selectedPipelineId && !isLoading && pipelines[0]?.id) {
       setSelectedPipelineId(pipelines[0].id);
     }
   }, [pipelines, selectedPipelineId, isLoading]);

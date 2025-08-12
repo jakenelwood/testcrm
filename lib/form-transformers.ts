@@ -88,7 +88,7 @@ export interface SpecialtyVehicle {
 
 // Specialty insurance form values
 export interface SpecialtyInsuranceFormValues {
-  additionalInformation: string;
+  additionalInformation?: string;
   specialtyVehicles: SpecialtyVehicle[];
 }
 
@@ -131,7 +131,7 @@ export function formatDate(date: Date | string): string {
     return '';
   }
 
-  return dateObj.toISOString().split('T')[0];
+  return dateObj.toISOString().split('T')[0] || '';
 }
 
 /**
@@ -414,8 +414,8 @@ export function transformClientFormToApiFormat(formData: ClientFormValues): Clie
     ...formData,
     // Convert date objects to strings if needed
     date_of_birth: formData.date_of_birth instanceof Date
-      ? formData.date_of_birth.toISOString().split('T')[0]
-      : formData.date_of_birth,
+      ? formData.date_of_birth.toISOString().split('T')[0] || ''
+      : formData.date_of_birth || '',
     // Ensure pipeline_id is included
     pipeline_id: formData.pipeline_id ? parseInt(formData.pipeline_id.toString()) : 0,
   };

@@ -29,7 +29,7 @@ export default function GLogoButton({
 
   return (
     <div className={cn(containerClasses, sizeClasses[size])}>
-      <TextLogo size={size} color={color} />
+      <TextLogo size={size} />
     </div>
   );
 }

@@ -1,5 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 // Helper function to check if user is an admin
@@ -39,25 +38,7 @@ function generateRandomCode(length = 8, prefix = '') {
 // POST - Generate discount codes
 export async function POST(request: Request) {
   try {
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vpwvdfrxvvuxojejnegm.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd3ZkZnJ4dnZ1eG9qZWpuZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTcxOTIsImV4cCI6MjA2MTQ3MzE5Mn0.hyIFaAyppndjilhPXaaWf7GJoOsJfRRDp7LubigyB3Q',
-      {
-        cookies: {
-          get: (name: string) => {
-            const cookie = cookieStore.get(name);
-            return cookie?.value;
-          },
-          set: (name: string, value: string, options: any) => {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove: (name: string, options: any) => {
-            cookieStore.set({ name, value: '', ...options });
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
 
     // Check if user is admin
     const admin = await isAdmin(supabase);
@@ -99,8 +80,8 @@ export async function POST(request: Request) {
     }
 
     // Generate codes
-    const codes = [];
-    const codesToInsert = [];
+    const codes: string[] = [];
+    const codesToInsert: any[] = [];
 
     for (let i = 0; i < count; i++) {
       let code;

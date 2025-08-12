@@ -132,7 +132,7 @@ export function LeadListView({
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <LeadStatusDropdown
                     leadId={lead.id}
-                    currentStatus={lead.status}
+                    currentStatus={lead.status || 'New'}
                     onStatusChange={onStatusChange}
                     statuses={statuses}
                     useColoredBadge={true}

@@ -64,18 +64,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validation = validateRequestBody(pipelineSchema, body);
 
-    if (!validation.success) {
-      const response = NextResponse.json(
-        {
-          error: 'Invalid pipeline data',
-          details: validation.errors
-        },
-        { status: 400 }
-      );
-      return addSecurityHeaders(response);
+    // If validation returns a NextResponse, it means validation failed
+    if (validation instanceof NextResponse) {
+      return addSecurityHeaders(validation);
     }
 
-    const { name, description, lead_type, is_default, display_order } = validation.data;
+    const { name, description, lead_type, is_default, display_order } = validation;
 
     // Use parameterized query to prevent SQL injection
     const result = await query(`

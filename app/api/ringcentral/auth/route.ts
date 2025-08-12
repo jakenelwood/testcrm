@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import crypto from 'crypto';
 import {
   RINGCENTRAL_CLIENT_ID,
@@ -280,7 +280,7 @@ async function handleCheckAuth(request: NextRequest, cookieStore: ReadonlyReques
   const checkAuthId = crypto.randomBytes(4).toString('hex');
   console.log(`[AUTH_CHECK_AUTH][${checkAuthId}] Start. Timestamp: ${new Date().toISOString()}`);
   let isAuthenticated = false; // Declare isAuthenticated
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const now = Date.now();
   const nowISO = new Date(now).toISOString();
@@ -406,7 +406,7 @@ async function handleLogout(request: NextRequest, cookieStore: ReadonlyRequestCo
   const response = NextResponse.json({ success: true, message: 'Logout successful' });
   clearTokenCookies(response.cookies); // Clear cookies on the response object
 
-  const supabase = createClient(cookieStore); // Create client with existing cookies to get user
+  const supabase = await createClient(); // Create client with existing cookies to get user
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user) {
@@ -456,7 +456,7 @@ async function handleGetToken(request: NextRequest, cookieStore: ReadonlyRequest
       // If no valid cookie token, let's try to see if there's one in the DB (like handleCheckAuth)
       // This makes `getToken` more robust, but `handleCheckAuth` is the primary source for auth status.
       console.log(`[AUTH_GET_TOKEN][${getTokenId}] No valid token in cookies. Attempting DB check.`);
-      const supabase = createClient(cookieStore);
+      const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: dbTokensData, error: dbTokenError } = await supabase
@@ -514,7 +514,7 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
   const refreshId = crypto.randomBytes(4).toString('hex');
   console.log(`[AUTH_TOKEN_REFRESH][${refreshId}] Start. Timestamp: ${new Date().toISOString()}`);
   const response = NextResponse.json({}); // Base response, cookies will be set here
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const currentRefreshTokenFromCookie = cookieStore.get('ringcentral_refresh_token')?.value;
 
@@ -603,7 +603,10 @@ async function handleTokenRefresh(request: NextRequest, cookieStore: ReadonlyReq
             count: MAX_REQUESTS_PER_WINDOW + 1,
             windowStart: Date.now(),
             isLimited: true,
-            cooldownUntil: Date.now() + RATE_LIMIT_COOLDOWN_MS
+            cooldownUntil: Date.now() + RATE_LIMIT_COOLDOWN_MS,
+            backoffLevel: 0,
+            consecutiveFailures: 0,
+            lastFailureTime: Date.now()
           };
 
           entry.isLimited = true;
@@ -862,7 +865,7 @@ async function handleTokenReset(request: NextRequest, cookieStore: ReadonlyReque
   console.log(`[AUTH_TOKEN_RESET][${resetId}] Start. Timestamp: ${new Date().toISOString()}`);
 
   const response = NextResponse.json({ success: true, message: 'Tokens reset successfully', resetId });
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   try {
@@ -909,7 +912,7 @@ async function handleTokenCleanup(request: NextRequest, cookieStore: ReadonlyReq
   const cleanupId = crypto.randomBytes(4).toString('hex');
   console.log(`[AUTH_TOKEN_CLEANUP][${cleanupId}] Start. Timestamp: ${new Date().toISOString()}`);
 
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   try {

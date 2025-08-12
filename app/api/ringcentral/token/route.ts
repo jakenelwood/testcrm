@@ -1,5 +1,5 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 
 export async function GET() {
@@ -21,7 +21,7 @@ export async function GET() {
     // If not in cookies or expired, check the database
     if (!tokensValid) {
       console.log('Tokens not valid in cookies, checking database');
-      const supabase = createClient(cookieStore);
+      const supabase = await createClient();
 
       // Get the current user
       const { data, error: userError } = await supabase.auth.getUser();

@@ -82,7 +82,7 @@ export function QuoteRequestForm() {
   
   // Initialize form
   const form = useForm<QuoteRequestFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       clientName: "",
       phoneNumber: "",

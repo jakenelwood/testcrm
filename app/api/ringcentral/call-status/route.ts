@@ -269,7 +269,7 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
           verbose: {
               fromNumber: RINGCENTRAL_FROM_NUMBER,
               server: RINGCENTRAL_SERVER,
-              originalError: error.originalErrorData
+              errorMessage: error.message
           }
         })
       }, { status: 200 });
@@ -288,7 +288,7 @@ async function handleCallStatus(params: CallStatusParams, clientRequest: NextReq
           verbose: {
               fromNumber: RINGCENTRAL_FROM_NUMBER,
               server: RINGCENTRAL_SERVER,
-              originalError: error.originalErrorData
+              errorMessage: error.message
           }
         })
       }, { status: 401 });

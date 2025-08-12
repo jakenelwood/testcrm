@@ -162,7 +162,9 @@ export function QuoteFormContainer() {
     }
 
     // Navigate to first selected insurance type tab
-    setActiveTab(newActiveTypes[0]);
+    if (newActiveTypes.length > 0 && newActiveTypes[0]) {
+      setActiveTab(newActiveTypes[0]);
+    }
   };
 
   // Handle auto form submission
@@ -171,8 +173,9 @@ export function QuoteFormContainer() {
 
     // Find next tab to navigate to
     const currentIndex = activeInsuranceTypes.indexOf('auto');
-    if (currentIndex < activeInsuranceTypes.length - 1) {
-      setActiveTab(activeInsuranceTypes[currentIndex + 1]);
+    const nextTab = activeInsuranceTypes[currentIndex + 1];
+    if (currentIndex < activeInsuranceTypes.length - 1 && nextTab) {
+      setActiveTab(nextTab);
     } else {
       handleFinalSubmit();
     }
@@ -184,8 +187,9 @@ export function QuoteFormContainer() {
 
     // Find next tab to navigate to
     const currentIndex = activeInsuranceTypes.indexOf('home');
-    if (currentIndex < activeInsuranceTypes.length - 1) {
-      setActiveTab(activeInsuranceTypes[currentIndex + 1]);
+    const nextTab = activeInsuranceTypes[currentIndex + 1];
+    if (currentIndex < activeInsuranceTypes.length - 1 && nextTab) {
+      setActiveTab(nextTab);
     } else {
       handleFinalSubmit();
     }
@@ -204,13 +208,17 @@ export function QuoteFormContainer() {
     try {
       // Prepare the final data with only selected insurance types
       const finalData = prepareQuoteDataForSubmission({
-        client: formData.client,
+        client: {
+          date_of_birth: '',
+          pipeline_id: 1,
+          ...formData.client
+        },
         has_auto: activeInsuranceTypes.includes('auto'),
         has_home: activeInsuranceTypes.includes('home'),
         has_specialty: activeInsuranceTypes.includes('specialty'),
         auto: activeInsuranceTypes.includes('auto') ? formData.auto : undefined,
         home: activeInsuranceTypes.includes('home') ? formData.home : undefined,
-        specialty: activeInsuranceTypes.includes('specialty') ? formData.specialty : undefined,
+        specialty: activeInsuranceTypes.includes('specialty') ? (formData.specialty as any || { specialtyVehicles: [], additionalInformation: '' }) : undefined,
       });
 
       // Submit to API
@@ -336,17 +344,6 @@ export function QuoteFormContainer() {
                   onSubmit={handleSpecialtyFormSubmit}
                   onPrevious={() => setActiveTab("client")}
                   showPreviousButton={true}
-                  showDeleteButton={true}
-                  onDelete={() => {
-                    const userInput = prompt('To delete this lead, please type "DELETE" to confirm:');
-                    if (userInput && userInput.toLowerCase() === 'delete') {
-                      // Clear draft data when deleting
-                      localStorage.removeItem('lead-form-draft');
-                      router.push('/dashboard/leads');
-                    } else if (userInput !== null) {
-                      alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
-                    }
-                  }}
                 />
               </TabsContent>
             )}

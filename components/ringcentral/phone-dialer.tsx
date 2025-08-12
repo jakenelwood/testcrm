@@ -278,7 +278,7 @@ export function PhoneDialer({
           <Button
             onClick={makeCall}
             variant={variant}
-            size={size}
+            size={size === 'md' ? 'default' : size}
             className="flex items-center"
             disabled={!phoneNumber || isCallInProgress}
           >
@@ -289,7 +289,7 @@ export function PhoneDialer({
           <Button
             onClick={cancelCall}
             variant="destructive"
-            size={size}
+            size={size === 'md' ? 'default' : size}
             className="flex items-center"
           >
             <PhoneOff className="mr-2 h-4 w-4" />

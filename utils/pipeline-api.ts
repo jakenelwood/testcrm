@@ -150,3 +150,96 @@ export async function updateLeadPipelineAndStatus(leadId: string, pipelineId: nu
     throw err;
   }
 }
+
+/**
+ * Creates a new pipeline status
+ */
+export async function createPipelineStatus(status: Omit<PipelineStatus, 'id' | 'created_at' | 'updated_at'>): Promise<PipelineStatus> {
+  try {
+    const response = await fetch('/api/pipeline-statuses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(status)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data as PipelineStatus;
+  } catch (err) {
+    console.error('Error in createPipelineStatus:', err);
+    throw err;
+  }
+}
+
+/**
+ * Updates an existing pipeline status
+ */
+export async function updatePipelineStatus(statusId: number, status: Partial<PipelineStatus>): Promise<PipelineStatus> {
+  try {
+    const response = await fetch(`/api/pipeline-statuses/${statusId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(status)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data as PipelineStatus;
+  } catch (err) {
+    console.error('Error in updatePipelineStatus:', err);
+    throw err;
+  }
+}
+
+/**
+ * Deletes a pipeline status
+ */
+export async function deletePipelineStatus(statusId: number): Promise<void> {
+  try {
+    const response = await fetch(`/api/pipeline-statuses/${statusId}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (err) {
+    console.error('Error in deletePipelineStatus:', err);
+    throw err;
+  }
+}
+
+/**
+ * Reorders pipeline statuses
+ */
+export async function reorderPipelineStatuses(pipelineId: number, statusIds: number[]): Promise<void> {
+  try {
+    const response = await fetch(`/api/pipeline-statuses/reorder`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        pipelineId,
+        statusIds
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (err) {
+    console.error('Error in reorderPipelineStatuses:', err);
+    throw err;
+  }
+}

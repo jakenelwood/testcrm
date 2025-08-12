@@ -126,6 +126,7 @@ const formSchema = z.object({
   includeAuto: z.boolean().default(false),
   includeHome: z.boolean().default(false),
   includeSpecialty: z.boolean().default(false),
+  client_type: z.string().optional(),
 }).refine((data) => {
   // Require either business name or first/last name
   const hasBusinessName = data.business_name && data.business_name.trim().length > 0;
@@ -169,7 +170,7 @@ export function LeadInfoForm({
 
   // Initialize form with default values
   const form = useForm<LeadInfoFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       first_name: "",
       last_name: "",
@@ -201,9 +202,8 @@ export function LeadInfoForm({
       includeAuto: false,
       includeHome: false,
       includeSpecialty: false,
-      ...defaultValues, // Merge any provided default values
-      accidents: defaultValues?.accidents || [], // Ensure accidents is always an array
-      additional_drivers: defaultValues?.additional_drivers || [], // Ensure additional_drivers is always an array
+      // Merge any provided default values (this will override the arrays above if provided)
+      ...(defaultValues || {}),
     },
   });
 
@@ -220,7 +220,7 @@ export function LeadInfoForm({
         if (defaultPipeline) {
           form.setValue('pipeline_id', defaultPipeline.id);
           // Set the first status as default if available
-          if (defaultPipeline.statuses && defaultPipeline.statuses.length > 0) {
+          if (defaultPipeline.statuses && defaultPipeline.statuses.length > 0 && defaultPipeline.statuses[0]) {
             form.setValue('status_id', defaultPipeline.statuses[0].id);
             setSelectedPipelineStatuses(defaultPipeline.statuses);
           }
@@ -316,7 +316,7 @@ export function LeadInfoForm({
       if (selectedPipeline && selectedPipeline.statuses) {
         setSelectedPipelineStatuses(selectedPipeline.statuses);
         // Set the first status as default if no status is currently selected
-        if (!form.getValues('status_id') && selectedPipeline.statuses.length > 0) {
+        if (!form.getValues('status_id') && selectedPipeline.statuses.length > 0 && selectedPipeline.statuses[0]) {
           form.setValue('status_id', selectedPipeline.statuses[0].id);
         }
       } else {

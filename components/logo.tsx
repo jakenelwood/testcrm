@@ -17,7 +17,7 @@ export default function Logo({
 }: LogoProps) {
   return (
     <div className={cn("flex items-center", className)}>
-      <TextLogo size={size} color={color} />
+      <TextLogo size={size} />
     </div>
   );
 }

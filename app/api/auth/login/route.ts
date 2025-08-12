@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { jwt as jwtConfig } from '@/lib/config/environment';
+import type { StringValue } from 'ms';
 
 // Input validation schema
 const loginSchema = z.object({
@@ -57,20 +58,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Create JWT token with secure configuration
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        organizationId: user.organization_id
-      },
-      jwtConfig.secret,
-      {
-        expiresIn: jwtConfig.expiresIn,
-        issuer: 'aicrm',
-        audience: 'aicrm-users'
-      }
-    );
+    if (!jwtConfig.secret) {
+      console.error('JWT_SECRET is not configured');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      organizationId: user.organization_id
+    };
+
+    const options = {
+      expiresIn: jwtConfig.expiresIn as StringValue,
+      issuer: 'aicrm',
+      audience: 'aicrm-users'
+    };
+
+    const token = jwt.sign(payload, jwtConfig.secret, options);
 
     // Log successful authentication (without sensitive data)
     console.log(`User authenticated: ${user.email} (ID: ${user.id})`);

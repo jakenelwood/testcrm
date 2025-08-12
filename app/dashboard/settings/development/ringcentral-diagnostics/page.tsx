@@ -195,7 +195,7 @@ export default function RingCentralDiagnosticsPage() {
                       <h3 className="text-lg font-medium mb-4 text-yellow-500">Configuration Issues</h3>
                       <div className="space-y-4">
                         {envConfig.inconsistencies.map((issue: any, index: number) => (
-                          <Alert key={index} variant="warning">
+                          <Alert key={index} variant="error">
                             <AlertTitle>{issue.type}</AlertTitle>
                             <AlertDescription>{issue.message}</AlertDescription>
                             {issue.values && (
@@ -222,7 +222,7 @@ export default function RingCentralDiagnosticsPage() {
                           <Alert key={index} variant={
                             rec.severity === 'CRITICAL' ? 'destructive' :
                             rec.severity === 'HIGH' ? 'destructive' :
-                            rec.severity === 'MEDIUM' ? 'warning' : 'default'
+                            rec.severity === 'MEDIUM' ? 'error' : 'default'
                           }>
                             <AlertTitle>{rec.issue}</AlertTitle>
                             <AlertDescription>

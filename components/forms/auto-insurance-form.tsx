@@ -34,15 +34,15 @@ type Vehicle = {
   vin: string;
   usage: string;
   annualMiles: string;
-  dailyMiles: string;
-  primaryDriver: string;
-  comprehensive: string;
-  collision: string;
-  glass: boolean;
-  towing: boolean;
-  rental: boolean;
-  financed: boolean;
-  gap: boolean;
+  dailyMiles?: string;
+  primaryDriver?: string;
+  comprehensive?: string;
+  collision?: string;
+  glass?: boolean;
+  towing?: boolean;
+  rental?: boolean;
+  financed?: boolean;
+  gap?: boolean;
 };
 
 // Define driver type
@@ -53,9 +53,9 @@ type Driver = {
   maritalStatus?: string;
   licenseNumber: string;
   licenseState: string;
-  dateOfBirth: Date | string;
-  primaryDriver: boolean;
-  sr22Required: boolean;
+  dateOfBirth: Date;
+  primaryDriver?: boolean;
+  sr22Required?: boolean;
   education?: string;
   occupation?: string;
   relationToPrimary?: string;
@@ -64,20 +64,7 @@ type Driver = {
   militaryStatus?: boolean;
 };
 
-// Define the form values type
-type AutoInsuranceFormValues = {
-  "a-current-carrier": string;
-  "a-mos-current-carrier": string;
-  "a-climits": string;
-  "a-qlimits": string;
-  "a-exp-dt": Date | string;
-  "aprem": number | string;
-  "effective-date": Date | string;
-  "auto-additional-notes": string;
-  "auto-garaging-address": string;
-  vehicles: Vehicle[];
-  drivers: Driver[];
-};
+
 
 // Helper function to validate VIN
 const validateVIN = (vin: string) => {
@@ -185,6 +172,9 @@ const autoInsuranceFormSchema = z.object({
   // Driver information
   drivers: z.array(driverSchema).min(1, "At least one driver is required"),
 });
+
+// Infer the form values type from the schema
+type AutoInsuranceFormValues = z.infer<typeof autoInsuranceFormSchema>;
 
 interface AutoInsuranceFormProps {
   onSubmit: (data: AutoInsuranceFormValues) => void;
@@ -468,6 +458,7 @@ export function AutoInsuranceForm({ onSubmit, onPrevious, showPreviousButton = f
                         type="date"
                         placeholder="MM/DD/YYYY"
                         {...field}
+                        value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
                       />
                     </FormControl>
                     <FormMessage />
