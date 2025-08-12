@@ -1,0 +1,2 @@
+-- Seed data for the insurance CRM
+-- This file will be populated with initial data in a later migration

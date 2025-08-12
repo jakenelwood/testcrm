@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/database/client';
+import { createClient } from '@/utils/supabase/server';
 import { z } from 'zod';
 import { validateRequestBody, addSecurityHeaders } from '@/lib/middleware/validation';
 
@@ -14,44 +14,54 @@ const pipelineSchema = z.object({
 
 export async function GET() {
   try {
-    // Fetch pipelines with their statuses using a JOIN query
-    const result = await query(`
-      SELECT
-        p.*,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', ps.id,
-              'pipeline_id', ps.pipeline_id,
-              'name', ps.name,
-              'description', ps.description,
-              'is_final', ps.is_final,
-              'display_order', ps.display_order,
-              'color_hex', ps.color_hex,
-              'icon_name', ps.icon_name,
-              'ai_action_template', ps.ai_action_template,
-              'created_at', ps.created_at,
-              'updated_at', ps.updated_at
-            ) ORDER BY ps.display_order
-          ) FILTER (WHERE ps.id IS NOT NULL),
-          '[]'::json
-        ) as statuses
-      FROM pipelines p
-      LEFT JOIN pipeline_statuses ps ON p.id = ps.pipeline_id
-      GROUP BY p.id
-      ORDER BY p.display_order ASC
-    `);
+    const supabase = await createClient();
 
-    const response = NextResponse.json(result.rows);
+    // Fetch pipelines with their statuses
+    const { data: pipelines, error: pipelinesError } = await supabase
+      .from('pipelines')
+      .select(`
+        *,
+        pipeline_statuses (
+          id,
+          pipeline_id,
+          name,
+          description,
+          is_final,
+          display_order,
+          color_hex,
+          icon_name,
+          ai_action_template,
+          created_at,
+          updated_at
+        )
+      `)
+      .order('display_order', { ascending: true });
+
+    if (pipelinesError) {
+      throw pipelinesError;
+    }
+
+    // Transform the data to match the expected format
+    const transformedPipelines = pipelines?.map(pipeline => ({
+      ...pipeline,
+      statuses: pipeline.pipeline_statuses?.sort((a, b) => a.display_order - b.display_order) || []
+    })) || [];
+
+    const response = NextResponse.json(transformedPipelines);
     return addSecurityHeaders(response);
   } catch (error) {
     console.error('Error fetching pipelines:', {
       message: error instanceof Error ? error.message : 'Unknown error',
+      error: error,
+      stack: error instanceof Error ? error.stack : undefined,
       timestamp: new Date().toISOString()
     });
 
     const response = NextResponse.json(
-      { error: 'Failed to fetch pipelines' },
+      {
+        error: 'Failed to fetch pipelines',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
     return addSecurityHeaders(response);
@@ -71,14 +81,26 @@ export async function POST(request: NextRequest) {
 
     const { name, description, lead_type, is_default, display_order } = validation;
 
-    // Use parameterized query to prevent SQL injection
-    const result = await query(`
-      INSERT INTO pipelines (name, description, lead_type, is_default, display_order)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `, [name, description, lead_type, is_default, display_order]);
+    const supabase = await createClient();
 
-    const response = NextResponse.json(result.rows[0]);
+    // Insert new pipeline using Supabase
+    const { data: pipeline, error: insertError } = await supabase
+      .from('pipelines')
+      .insert({
+        name,
+        description,
+        lead_type,
+        is_default,
+        display_order
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      throw insertError;
+    }
+
+    const response = NextResponse.json(pipeline);
     return addSecurityHeaders(response);
   } catch (error) {
     console.error('Error creating pipeline:', {

@@ -72,3 +72,5 @@ Infrastructure Security
  Backup and disaster recovery procedures (comprehensive backup system)
  Monitoring and alerting systems (comprehensive health checks)
  Rate limiting and DDoS protection (implemented in middleware)
+
+When querying the database, use pg_dump, it's easier.

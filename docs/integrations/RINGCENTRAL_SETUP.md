@@ -9,7 +9,9 @@
    - **Platform Type**: Server/Web
    - **OAuth Redirect URI**:
      - Development: `http://localhost:3000/oauth-callback`
-     - Production: `https://crm-jakenelwoods-projects.vercel.app/oauth-callback`
+     - Production: `https://agentictinkering.com/oauth-callback`
+     - Alternative: `https://crm-jakenelwoods-projects.vercel.app/oauth-callback`
+     - Alternative: `https://crm-sepia-alpha.vercel.app/oauth-callback`
 
 ### 2. Required Scopes
 ```
@@ -20,21 +22,25 @@ SMS ReadCallLog ReadMessages ReadPresence RingOut
 ### 3. Environment Variables
 Add to `.env.local`:
 ```env
-# Required: Get from RingCentral Developer Portal
-RINGCENTRAL_CLIENT_ID=your_client_id
-RINGCENTRAL_CLIENT_SECRET=your_client_secret
+# ✅ CONFIGURED: RingCentral Developer Portal credentials
+RINGCENTRAL_CLIENT_ID=9NGTe08cOAJakQ7ZSuJh01
+RINGCENTRAL_CLIENT_SECRET=06cWdA6QEdTdHOavJAKerW2JuXkF4fxnJemMnTsB1U5D
 
-# Server URL (usually production)
-RINGCENTRAL_SERVER=https://platform.ringcentral.com
+# ✅ CONFIGURED: Server URL (production)
+RINGCENTRAL_SERVER_URL=https://platform.ringcentral.com
 
 # OAuth Scopes (space-separated, no commas)
 RINGCENTRAL_OAUTH_SCOPES=SMS ReadCallLog ReadMessages ReadPresence RingOut
 
-# Required: Default phone number for outbound calls (E.164 format)
+# ⚠️ REQUIRED: Default phone number for outbound calls (E.164 format)
+# Get this from your RingCentral account
 RINGCENTRAL_FROM_NUMBER=+1234567890
 
-# Application URL (auto-detects if not set)
+# ✅ CONFIGURED: Application URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# ✅ CONFIGURED: OAuth redirect URI
+RINGCENTRAL_REDIRECT_URI=http://localhost:3000/oauth-callback
 ```
 
 ### 4. Test Integration

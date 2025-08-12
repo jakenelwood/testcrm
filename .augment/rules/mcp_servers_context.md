@@ -2,6 +2,8 @@
 type: "always_apply"
 ---
 
+This CRM is insurance focused. The front end is hosted on Vercel and the backend is hosted on the Supabase Cloud (not self hosted).
+
 Sequential Thinking Tools MCP
 Call when a task is non-trivial and you need a clear plan with checkpoints: auth/RLS, multi-tenant schema, background jobs, migrations, incident triage, rollback plans. It decomposes work and proposes the next best MCP(s) to consult.
 
@@ -45,4 +47,6 @@ Deep dive with DeepWiki if internals matter →
 Ship on Vercel (runtime choice, previews, cron) →
 Automate in n8n (webhooks, retries, observability).
 
-Context: This project has a lot of history, if you're feeling stuck or having questions, consult the development journal and review the history. For RingCentral, refer to the RINGCENTRAL_SETUP.md and multi-user-ringcentral-setup. The CRM we are creating is more of a tool for an AI centric marketing and sales solution that will evolve over time. The focus is more on creating an environment where the end user can work with an AI partner to make the best use of their data to drive sales and marketing outcomes. So, the data should be structured in a way that reflects that reality and provide a foundation where the UI and UX can evolve over time. The pages, charts, kanban board, etc. are all presentation layers for the user to interact with their data in a familiar way when working with their AI partner. And since the journey has to start somewhere, that is what we will focus on for this current MVP phase. This CRM is insurance focused.
+Context: This project has a lot of history, if you're feeling stuck or having questions, consult the development journal and review the history. For RingCentral, refer to the RINGCENTRAL_SETUP.md and multi-user-ringcentral-setup. The CRM we are creating is more of a tool for an AI centric marketing and sales solution that will evolve over time. The focus is more on creating an environment where the end user can work with an AI partner to make the best use of their data to drive sales and marketing outcomes. So, the data should be structured in a way that reflects that reality and provide a foundation where the UI and UX can evolve over time. The pages, charts, kanban board, etc. are all presentation layers for the user to interact with their data in a familiar way when working with their AI partner. And since the journey has to start somewhere, that is what we will focus on for this current MVP phase. 
+
+This CRM is insurance focused. The front end is hosted on Vercel and the backend is hosted on the Supabase Cloud (not self hosted).

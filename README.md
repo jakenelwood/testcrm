@@ -1,155 +1,183 @@
-# 🤖 AI-Centric Insurance CRM
+# Supabase CLI
 
-**Modern insurance CRM powered by AI, built with Next.js, Supabase, and n8n automation**
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat&logo=vercel&logoColor=white)](https://vercel.com/)
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-## 🎯 **Quick Start**
+This repository contains all the functionality for Supabase CLI.
+
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+
+## Getting started
+
+### Install the CLI
+
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
 ```bash
-# 1. Clone and setup
-git clone https://github.com/jakenelwood/crm.git
-cd crm
-
-# 2. Install dependencies
-npm install
-
-# 3. Setup environment variables
-cp .env.example .env.local
-# Add your Supabase and other API keys
-
-# 4. Start development
-npm run dev
+npm i supabase --save-dev
 ```
 
-**✅ Ready in 5 minutes!** Visit `http://localhost:3000`
+To install the beta release channel:
 
-## 🤖 **AI-First Insurance CRM**
-
-This CRM is designed from the ground up to be an AI partner for insurance professionals, not just a traditional data management system.
-
-### **🎯 Core Philosophy**
-- **AI as a Partner**: Every interaction is enhanced by AI insights and recommendations
-- **Insurance-Focused**: Purpose-built for auto, home, commercial, and specialty insurance
-- **Data-Driven**: Structured to support AI analysis and decision-making
-- **Workflow Automation**: Integrated with n8n for complex business process automation
-
-## 🏗️ **Architecture**
-
-```
-Frontend (Next.js) ←→ Supabase (Database + Auth) ←→ n8n (Automation)
-       ↓                        ↓                        ↓
-    Vercel                 PostgreSQL + RLS           Workflows
-```
-
-**Key Features:**
-- 🤖 **AI-Enhanced**: Every lead, client, and interaction includes AI insights
-- 🛡️ **Insurance-Specific**: Auto, home, commercial, and specialty insurance forms
-- 🔄 **Automation**: n8n integration for complex workflows
-- 📊 **Analytics**: Built-in marketing analytics and lead scoring
-- 🧪 **Type-Safe**: Full TypeScript with comprehensive testing
-
-## 🌟 **AI-Centric Features**
-
-### **🤖 AI-Enhanced Data Model**
-- **AI Summary Fields**: Every lead and client has AI-generated summaries
-- **AI Action Recommendations**: Next best actions suggested by AI
-- **AI Risk Scoring**: Automated risk assessment for underwriting
-- **AI Quote Optimization**: Smart quote recommendations based on data
-- **AI Follow-up Prioritization**: Intelligent lead prioritization
-
-### **🏢 Insurance-Specific**
-- **Multi-Line Support**: Auto, Home, Commercial, Specialty insurance
-- **Flexible Forms**: Dynamic forms based on insurance type
-- **Quote Management**: Comprehensive quote tracking and comparison
-- **Policy Data**: Structured storage for all policy information
-- **Claims Integration**: Ready for claims management integration
-
-### **🔗 Integration Ready**
-- **n8n Workflows**: Automated marketing and follow-up sequences
-- **RingCentral**: Built-in telephony and SMS integration
-- **Webhook Support**: Easy integration with external AI services
-- **API-First**: RESTful APIs for all data operations
-
-## 🛠️ **Tech Stack**
-
-### **Frontend**
-- **Framework**: Next.js 15 with App Router
-- **UI**: React 19, TypeScript, Tailwind CSS, shadcn/ui
-- **State**: React Context, React Hook Form, TanStack Query
-- **Testing**: Jest, React Testing Library
-
-### **Backend & Database**
-- **Database**: Supabase (PostgreSQL with Row Level Security)
-- **Authentication**: Supabase Auth with JWT
-- **API**: Next.js API routes (serverless on Vercel)
-- **Automation**: n8n workflows (self-hosted)
-
-### **Deployment**
-- **Frontend**: Vercel (with edge functions)
-- **Database**: Supabase (managed PostgreSQL)
-- **Automation**: n8n on Hetzner server (5.78.68.209)
-
-## 🚀 **Development Workflow**
-
-### **Local Development**
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
+npm i supabase@beta --save-dev
 ```
 
-### **Environment Setup**
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
+```
+
+> **Note**
+For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+
+<details>
+  <summary><b>macOS</b></summary>
+
+  Available via [Homebrew](https://brew.sh). To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To install the beta release channel:
+  
+  ```sh
+  brew install supabase/tap/supabase-beta
+  brew link --overwrite supabase-beta
+  ```
+  
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Windows</b></summary>
+
+  Available via [Scoop](https://scoop.sh). To install:
+
+  ```powershell
+  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+  scoop install supabase
+  ```
+
+  To upgrade:
+
+  ```powershell
+  scoop update supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Linux</b></summary>
+
+  Available via [Homebrew](https://brew.sh) and Linux packages.
+
+  #### via Homebrew
+
+  To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+
+  #### via Linux packages
+
+  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
+
+  ```sh
+  sudo apk add --allow-untrusted <...>.apk
+  ```
+
+  ```sh
+  sudo dpkg -i <...>.deb
+  ```
+
+  ```sh
+  sudo rpm -i <...>.rpm
+  ```
+
+  ```sh
+  sudo pacman -U <...>.pkg.tar.zst
+  ```
+</details>
+
+<details>
+  <summary><b>Other Platforms</b></summary>
+
+  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
+
+  ```sh
+  go install github.com/supabase/cli@latest
+  ```
+
+  Add a symlink to the binary in `$PATH` for easier access:
+
+  ```sh
+  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+  ```
+
+  This works on other non-standard Linux distros.
+</details>
+
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
+
+  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+  To install in your working directory:
+
+  ```bash
+  pkgx install supabase
+  ```
+
+  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+</details>
+
+### Run the CLI
+
 ```bash
-# Copy environment template
-cp .env.example .env.local
-
-# Add your keys:
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-RINGCENTRAL_CLIENT_ID=your_ringcentral_client_id
-RINGCENTRAL_CLIENT_SECRET=your_ringcentral_secret
+supabase bootstrap
 ```
 
-## 📊 **Database Schema Overview**
+Or using npx:
 
-### **Core Insurance Tables**
-- **`leads_ins_info`** - Insurance-specific lead data with AI fields
-- **`leads_contact_info`** - Client demographics and contact information
-- **`insurance_types`** - Auto, Home, Commercial, Specialty configurations
-- **`pipelines`** - Customizable sales workflows with AI action templates
+```bash
+npx supabase bootstrap
+```
 
-### **AI Integration Tables**
-- **`ai_interactions`** - Log of all AI conversations and decisions
-- **`campaigns`** - Marketing campaigns with AI optimization notes
-- **`lead_statuses`** - Status definitions with AI action templates
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
-### **Key AI Fields**
-- `ai_summary` - AI-generated interaction summaries
-- `ai_next_action` - AI-recommended next steps
-- `ai_quote_recommendation` - AI-powered quote suggestions
-- `ai_follow_up_priority` - AI-calculated priority scores
-- `ai_risk_score` - AI-assessed risk levels for underwriting
+## Docs
 
-## 🤝 **Contributing**
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
 
-1. **Follow the AI-centric approach**: Every feature should enhance the AI partnership
-2. **Insurance focus**: Keep the insurance industry needs at the center
-3. **Run tests**: `npm test` (all tests must pass)
-4. **Type safety**: Full TypeScript with strict mode
+## Breaking changes
 
----
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
 
-**Built with ❤️ for insurance professionals working with AI partners**
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
+
+## Developing
+
+To run from source:
+
+```sh
+# Go >= 1.22
+go run . help
+```
