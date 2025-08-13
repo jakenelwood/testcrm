@@ -39,8 +39,6 @@
 
 import { Lead, LeadStatus, PipelineStatus } from "@/types/lead";
 import { KanbanColumn } from "./KanbanColumn";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 /**
  * Props interface for the KanbanBoard component
@@ -71,54 +69,35 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   // This provides a better user experience than an empty state or loading spinner
   if (isLoading) {
     return (
-      <ScrollArea className="w-full">
-        <div className="flex gap-4 p-1">
-          {statuses.map((status, index) => {
-          // Get status color based on status name
-          const getStatusColor = (status: string) => {
-            switch(status.toLowerCase()) {
-              case 'new': return 'from-blue-500 to-blue-600';
-              case 'contacted': return 'from-indigo-500 to-indigo-600';
-              case 'quoted': return 'from-purple-500 to-purple-600';
-              case 'sold': return 'from-green-500 to-green-600';
-              case 'lost': return 'from-gray-500 to-gray-600';
-              default: return 'from-blue-500 to-blue-600';
-            }
-          };
-
-          const statusColor = getStatusColor(status);
-
-          return (
-            <div key={status} className="flex flex-col min-w-[280px] flex-shrink-0">
-              <div className="mb-3">
-                <div className={`px-4 py-2 rounded-md text-sm font-medium inline-flex items-center gap-2 bg-gradient-to-r ${statusColor} text-white shadow-sm`}>
-                  <span>{status}</span>
-                  <div className="h-5 w-5 bg-white/20 rounded-full"></div>
+      <div className="h-full overflow-y-auto">
+        <div className="overflow-x-auto">
+          <div className="flex gap-4 p-4 min-w-max">
+            {statuses.map((status) => (
+              <div key={status} className="flex flex-col min-w-[280px] w-[280px] flex-shrink-0">
+                <div className="mb-3 px-2">
+                  <div className="h-5 w-28 bg-muted rounded" />
                 </div>
-              </div>
-              <div className="bg-card border border-border rounded-lg p-4 min-h-[500px] shadow-sm">
-                {/* Render 3 skeleton cards per column to indicate loading */}
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="bg-muted h-24 mb-3 rounded-lg border border-border">
-                      <div className="p-4">
-                        <div className="h-4 bg-muted-foreground/20 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-muted-foreground/20 rounded w-1/2 mb-3"></div>
-                        <div className="flex justify-between mt-4">
-                          <div className="h-5 bg-muted-foreground/20 rounded w-1/3"></div>
-                          <div className="h-5 bg-muted-foreground/20 rounded w-1/4"></div>
+                <div className="bg-card border border-border rounded-lg p-4 min-h-[500px] shadow-sm">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="bg-muted h-24 mb-3 rounded-lg border border-border">
+                        <div className="p-4">
+                          <div className="h-4 bg-muted-foreground/20 rounded w-3/4 mb-2"></div>
+                          <div className="h-3 bg-muted-foreground/20 rounded w-1/2 mb-3"></div>
+                          <div className="flex justify-between mt-4">
+                            <div className="h-5 bg-muted-foreground/20 rounded w-1/3"></div>
+                            <div className="h-5 bg-muted-foreground/20 rounded w-1/4"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
     );
   }
 
@@ -145,22 +124,23 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   }
 
   // Render the actual kanban board with data
-  // Uses horizontal scrolling to accommodate all columns without wrapping
+  // Uses proper contained scroll architecture for reliable horizontal scrolling
   return (
-    <ScrollArea className="w-full">
-      <div className="flex gap-4 p-1">
-        {/* Map through each status and create a column */}
-        {statuses.map((status) => (
-          <div key={status} className="min-w-[280px] flex-shrink-0">
-            <KanbanColumn
-              status={status}
-              leads={leadsByStatus[status] || []} // Pass the filtered leads for this status
-              onLeadSelect={onLeadSelect}         // Pass the lead selection handler
-            />
-          </div>
-        ))}
+    <div className="h-full overflow-y-auto">
+      <div className="overflow-x-auto">
+        <div className="flex gap-4 p-4 min-w-max">
+          {/* Map through each status and create a column */}
+          {statuses.map((status) => (
+            <div key={status} className="min-w-[280px] flex-shrink-0">
+              <KanbanColumn
+                status={status}
+                leads={leadsByStatus[status] || []}
+                onLeadSelect={onLeadSelect}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+    </div>
   );
 }
