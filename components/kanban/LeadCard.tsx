@@ -110,20 +110,29 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
     >
       {/* Top section with name and date */}
       <div className="flex-1">
-        <div className="flex justify-between items-start mb-3">
-          <div className="font-medium text-foreground text-base">
-            {/* Display client name if available, otherwise fallback to lead first/last name */}
-            {lead.client?.name || (lead.first_name ? `${lead.first_name}${lead.last_name ? ` ${lead.last_name}` : ''}` : 'Unknown')}
+        <div className="flex justify-between items-start mb-3 gap-2">
+          {/* This wrapper is the key to constraining the text in a flex context */}
+          <div className="flex-1 min-w-0">
+            <div
+              className="font-medium text-foreground text-base truncate"
+              title={lead.client?.name || `${lead.first_name || ''} ${lead.last_name || ''}`.trim()}
+            >
+              {/* Display client name if available, otherwise fallback to lead first/last name */}
+              {lead.client?.name || (lead.first_name ? `${lead.first_name}${lead.last_name ? ` ${lead.last_name}` : ''}` : 'Unknown')}
+            </div>
             {lead.client?.client_type === 'Business' &&
-              <span className="ml-2 text-xs font-normal text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">Business</span>
+              <span className="mt-1 text-xs font-normal text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full inline-block">Business</span>
             }
           </div>
 
-          {lead.assigned_to && (
-            <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm" title={`Assigned to: ${lead.assigned_to}`}>
-              {lead.assigned_to.charAt(0).toUpperCase()}
-            </div>
-          )}
+          {/* Make sure the avatar does not shrink */}
+          <div className="flex-shrink-0">
+            {lead.assigned_to && (
+              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm" title={`Assigned to: ${lead.assigned_to}`}>
+                {lead.assigned_to.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Date section */}

@@ -74,10 +74,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMobileMenuToggle={toggleMobileMenu} />
 
-        <main className="flex-1 overflow-auto bg-background p-2 sm:p-4 transition-all duration-300">
+        <main className="flex-1 overflow-hidden bg-background transition-all duration-300">
           {children}
         </main>
       </div>

@@ -533,69 +533,75 @@ function LeadsPageContent() {
   };
 
   return (
-    <div className="mx-auto py-6 px-2 sm:px-4 max-w-none">
-      {/* Development Mode Banner */}
-      <DevelopmentModeBanner
-        message="Connected to Supabase database. Some tables may be missing or have permission issues."
-        onRefresh={() => window.location.reload()}
-      />
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Fixed Header Section */}
+      <div className="flex-shrink-0 p-2 sm:p-4 space-y-4">
+        {/* Development Mode Banner */}
+        <DevelopmentModeBanner
+          message="Connected to Supabase database. Some tables may be missing or have permission issues."
+          onRefresh={() => window.location.reload()}
+        />
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <h1 className="text-3xl font-bold">
-            {selectedPipeline ? selectedPipeline.name : 'Pipeline'}
-          </h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <h1 className="text-3xl font-bold">
+              {selectedPipeline ? selectedPipeline.name : 'Pipeline'}
+            </h1>
 
-          {/* Pipeline Selector */}
-          {!isPipelinesLoading && pipelines.length > 0 && selectedPipeline && (
-            <PipelineSelector
-              pipelines={pipelines}
-              selectedPipelineId={selectedPipeline.id}
-              onPipelineChange={handlePipelineChange}
-              isLoading={isPipelinesLoading}
-              onImportLeads={handleImportLeads}
-            />
-          )}
-        </div>
-
-        <Button
-          asChild
-          className="bg-[#0047AB] hover:bg-[#003d91] text-white"
-        >
-          <Link href="/dashboard/new">
-            New Lead
-          </Link>
-        </Button>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
-        <Card className="w-full">
-          <CardContent className="pt-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search leads..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+            {/* Pipeline Selector */}
+            {!isPipelinesLoading && pipelines.length > 0 && selectedPipeline && (
+              <PipelineSelector
+                pipelines={pipelines}
+                selectedPipelineId={selectedPipeline.id}
+                onPipelineChange={handlePipelineChange}
+                isLoading={isPipelinesLoading}
+                onImportLeads={handleImportLeads}
               />
-            </div>
-          </CardContent>
-        </Card>
+            )}
+          </div>
 
-        <div className="flex-shrink-0">
-          <ToggleGroup type="single" value={currentView} onValueChange={(value) => value && setCurrentView(value as 'kanban' | 'list')}>
-            <ToggleGroupItem value="kanban" aria-label="Toggle Kanban view">
-              <LayoutGrid className="h-4 w-4 mr-2" />
-              Kanban
-            </ToggleGroupItem>
-            <ToggleGroupItem value="list" aria-label="Toggle List view">
-              <List className="h-4 w-4 mr-2" />
-              List
-            </ToggleGroupItem>
-          </ToggleGroup>
+          <Button
+            asChild
+            className="bg-[#0047AB] hover:bg-[#003d91] text-white"
+          >
+            <Link href="/dashboard/new">
+              New Lead
+            </Link>
+          </Button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <Card className="w-full">
+            <CardContent className="pt-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search leads..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex-shrink-0">
+            <ToggleGroup type="single" value={currentView} onValueChange={(value) => value && setCurrentView(value as 'kanban' | 'list')}>
+              <ToggleGroupItem value="kanban" aria-label="Toggle Kanban view">
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Kanban
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="Toggle List view">
+                <List className="h-4 w-4 mr-2" />
+                List
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
         </div>
       </div>
+
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-hidden p-2 sm:p-4 pt-0">
 
       {currentView === 'kanban' ? (
         <DndContext
@@ -712,7 +718,9 @@ function LeadsPageContent() {
           onStatusFilterChange={handleStatusFilterChange}
         />
       )}
+      </div>
 
+      {/* Modals - Outside the scroll container */}
       {selectedLead && (
         <LeadDetailsModal
           isOpen={isLeadDetailsModalOpen}

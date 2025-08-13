@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from "react";
+import { motion, LayoutGroup } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -39,6 +40,7 @@ function SidebarContent() {
   const [isHovered, setIsHovered] = useState(false);
   const [tempExpanded, setTempExpanded] = useState(false);
   const logout = useLogout();
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
   // Get the current pipeline ID from search params
   const currentPipelineId = searchParams?.get('pipeline');
@@ -174,6 +176,7 @@ function SidebarContent() {
   // Handle mouse leave - collapse the sidebar if it was temporarily expanded
   const handleMouseLeave = () => {
     setIsHovered(false);
+    setHoveredKey(null);
     if (tempExpanded) {
       setTempExpanded(false);
     }
@@ -235,36 +238,60 @@ function SidebarContent() {
           !showExpanded && "px-1"
         )}>
           {routes.map((route, i) => (
-            <Button
+            <div
               key={i}
-              asChild
-              variant={route.active ? "secondary" : "ghost"}
-              className={cn(
-                "justify-start transition-all duration-200 w-full",
-                route.active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                !showExpanded && "justify-center px-0"
-              )}
-              size="sm"
-              title={!showExpanded ? route.label : undefined}
+              className="relative"
+              onMouseEnter={() => setHoveredKey(route.href)}
             >
-              <Link href={route.href}>
-                <route.icon className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  route.active ? "text-sidebar-primary-foreground" : "text-sidebar-foreground",
-                  showText ? "mr-2" : "mr-0"
-                )} />
-                {showText && (
-                  <span className={cn(
-                    "text-base",
-                    route.active ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
-                  )}>
-                    {route.label}
-                  </span>
+              {(hoveredKey ? hoveredKey === route.href : route.active) && (
+                <>
+                  <motion.span
+                    layoutId="sidebar-hover-bg"
+                    className="pointer-events-none absolute inset-0 rounded-md bg-sidebar-accent opacity-70"
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                  <motion.span
+                    layoutId="sidebar-hover-bar"
+                    className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-sidebar-ring"
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                </>
+              )}
+              <Button
+                asChild
+                variant={route.active ? "secondary" : "ghost"}
+                className={cn(
+                  "relative z-10 justify-start transition-all duration-200 w-full h-auto min-h-9 py-2",
+                  route.active
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+                    : "hover:bg-transparent",
+                  !showExpanded && "justify-center px-0"
                 )}
-              </Link>
-            </Button>
+                size="sm"
+                title={!showExpanded ? route.label : undefined}
+                onFocus={() => setHoveredKey(route.href)}
+
+              >
+                <Link href={route.href}>
+                  <route.icon className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    route.active ? "text-sidebar-primary-foreground" : "text-sidebar-foreground",
+                    showText ? "mr-2" : "mr-0"
+                  )} />
+                  {showText && (
+                    <span
+                      className={cn(
+                        "text-base truncate leading-tight",
+                        route.active ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
+                      )}
+                      title={route.label}
+                    >
+                      {route.label}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            </div>
           ))}
         </nav>
 
@@ -306,37 +333,61 @@ function SidebarContent() {
             {isPipelinesOpen && showExpanded && (
               <div className="ml-4 space-y-1">
                 {/* Manage Pipelines Link */}
-                <Button
-                  asChild
-                  variant={pathname === "/dashboard/pipelines" ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start",
-                    pathname === "/dashboard/pipelines"
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                      : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                  size="sm"
+                <div
+                  className="relative"
+                  onMouseEnter={() => setHoveredKey("/dashboard/pipelines")}
                 >
-                  <Link href="/dashboard/pipelines">
-                    <Settings className={cn(
-                      "h-4 w-4",
+                  {(hoveredKey ? hoveredKey === "/dashboard/pipelines" : pathname === "/dashboard/pipelines") && (
+                    <>
+                      <motion.span
+                        layoutId="sidebar-hover-bg"
+                        className="absolute inset-0 rounded-md bg-sidebar-accent opacity-70"
+                        transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                      />
+                      <motion.span
+                        layoutId="sidebar-hover-bar"
+                        className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-sidebar-ring"
+                        transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                      />
+                    </>
+                  )}
+                  <Button
+                    asChild
+                    variant={pathname === "/dashboard/pipelines" ? "secondary" : "ghost"}
+                    className={cn(
+                      "relative z-10 w-full justify-start",
                       pathname === "/dashboard/pipelines"
-                        ? "text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground",
-                      showText ? "mr-2" : "mr-0"
-                    )} />
-                    {showText && (
-                      <span className={cn(
-                        "text-sm",
-                        pathname === "/dashboard/pipelines"
-                          ? "text-sidebar-primary-foreground font-semibold"
-                          : "text-sidebar-foreground font-normal"
-                      )}>
-                        Manage Pipelines
-                      </span>
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+                        : "hover:bg-transparent"
                     )}
-                  </Link>
-                </Button>
+                    size="sm"
+                    onFocus={() => setHoveredKey("/dashboard/pipelines")}
+                    onBlur={() => setHoveredKey(null)}
+                  >
+                    <Link href="/dashboard/pipelines">
+                      <Settings className={cn(
+                        "h-4 w-4",
+                        pathname === "/dashboard/pipelines"
+                          ? "text-sidebar-primary-foreground"
+                          : "text-sidebar-foreground",
+                        showText ? "mr-2" : "mr-0"
+                      )} />
+                      {showText && (
+                        <span
+                          className={cn(
+                            "text-sm truncate leading-tight",
+                            pathname === "/dashboard/pipelines"
+                              ? "text-sidebar-primary-foreground font-semibold"
+                              : "text-sidebar-foreground font-normal"
+                          )}
+                          title="Manage Pipelines"
+                        >
+                          Manage Pipelines
+                        </span>
+                      )}
+                    </Link>
+                  </Button>
+                </div>
 
                 {/* Pipeline List */}
                 {isLoading ? (
@@ -356,46 +407,68 @@ function SidebarContent() {
                 ) : (
                   pipelines.map((pipeline) => {
                     const isPipelineActive = pathname.startsWith("/dashboard/leads") && currentPipelineId === pipeline.id.toString();
+                    const linkHref = `/dashboard/leads?pipeline=${pipeline.id}`;
                     return (
-                      <Button
+                      <div
                         key={pipeline.id}
-                        asChild
-                        variant={isPipelineActive ? "secondary" : "ghost"}
-                        className={cn(
-                          "w-full justify-start",
-                          isPipelineActive
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                          !showExpanded && "justify-center px-0"
-                        )}
-                        size="sm"
-                        title={!showExpanded ? pipeline.name : undefined}
+                        className="relative"
+                        onMouseEnter={() => setHoveredKey(linkHref)}
                       >
-                        <Link href={`/dashboard/leads?pipeline=${pipeline.id}`}>
-                          <FileText className={cn(
-                            "h-4 w-4",
+                        {(hoveredKey ? hoveredKey === linkHref : isPipelineActive) && (
+                          <>
+                            <motion.span
+                              layoutId="sidebar-hover-bg"
+                              className="absolute inset-0 rounded-md bg-sidebar-accent opacity-70"
+                              transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                            />
+                            <motion.span
+                              layoutId="sidebar-hover-bar"
+                              className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-sidebar-ring"
+                              transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                            />
+                          </>
+                        )}
+                        <Button
+                          asChild
+                          variant={isPipelineActive ? "secondary" : "ghost"}
+                          className={cn(
+                            "relative z-10 w-full justify-start",
                             isPipelineActive
-                              ? "text-sidebar-primary-foreground"
-                              : "text-sidebar-foreground",
-                            showText ? "mr-2" : "mr-0"
-                          )} />
-                          {showText && (
-                            <>
-                              <span className={cn(
-                                "text-sm",
-                                isPipelineActive
-                                  ? "text-sidebar-primary-foreground font-semibold"
-                                  : "text-sidebar-foreground font-normal"
-                              )}>
-                                {pipeline.name}
-                              </span>
-                              {pipeline.is_default && (
-                                <span className="ml-2 text-sm opacity-70 font-normal">(Default)</span>
-                              )}
-                            </>
+                              ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+                              : "hover:bg-transparent",
+                            !showExpanded && "justify-center px-0"
                           )}
-                        </Link>
-                      </Button>
+                          size="sm"
+                          title={!showExpanded ? pipeline.name : undefined}
+                          onFocus={() => setHoveredKey(linkHref)}
+                          onBlur={() => setHoveredKey(null)}
+                        >
+                          <Link href={linkHref}>
+                            <FileText className={cn(
+                              "h-4 w-4",
+                              isPipelineActive
+                                ? "text-sidebar-primary-foreground"
+                                : "text-sidebar-foreground",
+                              showText ? "mr-2" : "mr-0"
+                            )} />
+                            {showText && (
+                              <>
+                                <span
+                                  className={cn(
+                                    "block max-w-[12rem] text-sm truncate leading-tight",
+                                    isPipelineActive
+                                      ? "text-sidebar-primary-foreground font-semibold"
+                                      : "text-sidebar-foreground font-normal"
+                                  )}
+                                  title={pipeline.name}
+                                >
+                                  {pipeline.name}
+                                </span>
+                              </>
+                            )}
+                          </Link>
+                        </Button>
+                      </div>
                     );
                   })
                 )}
@@ -409,35 +482,58 @@ function SidebarContent() {
           "mt-6 pt-6 border-t border-sidebar-border",
           !showExpanded ? "px-1" : "px-2"
         )}>
-          <Button
-            asChild
-            variant={pathname === "/dashboard/settings" ? "secondary" : "ghost"}
-            className={cn(
-              "w-full justify-start transition-all duration-200",
-              pathname === "/dashboard/settings"
-                ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              !showExpanded && "justify-center px-0"
-            )}
-            size="sm"
-            title={!showExpanded ? "Settings" : undefined}
+          <div
+            className="relative"
+            onMouseEnter={() => setHoveredKey("/dashboard/settings")}
           >
-            <Link href="/dashboard/settings">
-              <Settings className={cn(
-                "h-4 w-4 transition-transform duration-200",
-                pathname === "/dashboard/settings" ? "text-sidebar-primary-foreground" : "text-sidebar-foreground",
-                showText ? "mr-2" : "mr-0"
-              )} />
-              {showText && (
-                <span className={cn(
-                  "text-base",
-                  pathname === "/dashboard/settings" ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
-                )}>
-                  Settings
-                </span>
+            {(hoveredKey ? hoveredKey === "/dashboard/settings" : pathname === "/dashboard/settings") && (
+              <>
+                <motion.span
+                  layoutId="sidebar-hover-bg"
+                  className="absolute inset-0 rounded-md bg-sidebar-accent opacity-70"
+                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                />
+                <motion.span
+                  layoutId="sidebar-hover-bar"
+                  className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-sidebar-ring"
+                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                />
+              </>
+            )}
+            <Button
+              asChild
+              variant={pathname === "/dashboard/settings" ? "secondary" : "ghost"}
+              className={cn(
+                "relative z-10 w-full justify-start transition-all duration-200",
+                pathname === "/dashboard/settings"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+                  : "hover:bg-transparent",
+                !showExpanded && "justify-center px-0"
               )}
-            </Link>
-          </Button>
+              size="sm"
+              title={!showExpanded ? "Settings" : undefined}
+              onFocus={() => setHoveredKey("/dashboard/settings")}
+            >
+              <Link href="/dashboard/settings">
+                <Settings className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  pathname === "/dashboard/settings" ? "text-sidebar-primary-foreground" : "text-sidebar-foreground",
+                  showText ? "mr-2" : "mr-0"
+                )} />
+                {showText && (
+                  <span
+                    className={cn(
+                      "text-base truncate leading-tight",
+                      pathname === "/dashboard/settings" ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
+                    )}
+                    title="Settings"
+                  >
+                    Settings
+                  </span>
+                )}
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Development Section */}
@@ -446,35 +542,56 @@ function SidebarContent() {
           !showExpanded ? "px-1" : "px-2"
         )}>
           <div className="space-y-2">
-            <Button
-              asChild
-              variant={pathname.startsWith("/dashboard/settings/development") ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start transition-all duration-200",
-                pathname.startsWith("/dashboard/settings/development")
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                !showExpanded && "justify-center px-0"
-              )}
-              size="sm"
-              title={!showExpanded ? "Development" : undefined}
+            <div
+              className="relative"
+              onMouseEnter={() => setHoveredKey("/dashboard/settings/development")}
             >
-              <Link href="/dashboard/settings/development">
-                <Settings2 className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  pathname.startsWith("/dashboard/settings/development") ? "text-sidebar-primary-foreground" : "text-sidebar-foreground",
-                  showText ? "mr-2" : "mr-0"
-                )} />
-                {showText && (
-                  <span className={cn(
-                    "text-base",
-                    pathname.startsWith("/dashboard/settings/development") ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
-                  )}>
-                    Development
-                  </span>
+              {(hoveredKey ? hoveredKey === "/dashboard/settings/development" : pathname.startsWith("/dashboard/settings/development")) && (
+                <>
+                  <motion.span
+                    layoutId="sidebar-hover-bg"
+                    className="absolute inset-0 rounded-md bg-sidebar-accent opacity-70"
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                  <motion.span
+                    layoutId="sidebar-hover-bar"
+                    className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-sidebar-ring"
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                </>
+              )}
+              <Button
+                asChild
+                variant={pathname.startsWith("/dashboard/settings/development") ? "secondary" : "ghost"}
+                className={cn(
+                  "relative z-10 w-full justify-start transition-all duration-200",
+                  pathname.startsWith("/dashboard/settings/development")
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+                    : "hover:bg-transparent",
+                  !showExpanded && "justify-center px-0"
                 )}
-              </Link>
-            </Button>
+                size="sm"
+                title={!showExpanded ? "Development" : undefined}
+                onFocus={() => setHoveredKey("/dashboard/settings/development")}
+                onBlur={() => setHoveredKey(null)}
+              >
+                <Link href="/dashboard/settings/development">
+                  <Settings2 className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    pathname.startsWith("/dashboard/settings/development") ? "text-sidebar-primary-foreground" : "text-sidebar-foreground",
+                    showText ? "mr-2" : "mr-0"
+                  )} />
+                  {showText && (
+                    <span className={cn(
+                      "text-base",
+                      pathname.startsWith("/dashboard/settings/development") ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
+                    )}>
+                      Development
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            </div>
 
             {/* Development Subsections */}
             {showExpanded && pathname.startsWith("/dashboard/settings/development") && (
@@ -497,10 +614,13 @@ function SidebarContent() {
                         "h-3 w-3 mr-2",
                         pathname.startsWith("/dashboard/settings/development/telephony") ? "text-sidebar-primary-foreground" : "text-sidebar-foreground"
                       )} />
-                      <span className={cn(
-                        "text-sm",
-                        pathname.startsWith("/dashboard/settings/development/telephony") ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
-                      )}>
+                      <span
+                        className={cn(
+                          "text-sm truncate leading-tight",
+                          pathname.startsWith("/dashboard/settings/development/telephony") ? "text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground font-normal"
+                        )}
+                        title="Telephony/SMS"
+                      >
                         Telephony/SMS
                       </span>
                     </Link>
@@ -517,7 +637,7 @@ function SidebarContent() {
                       >
                         <Link href="/dashboard/settings/development/ringcentral-test-call">
                           <Phone className="h-3 w-3 mr-2 text-sidebar-foreground" />
-                          <span className="text-base text-sidebar-foreground font-normal">Test Call</span>
+                          <span className="text-base text-sidebar-foreground font-normal truncate leading-tight" title="Test Call">Test Call</span>
                         </Link>
                       </Button>
                       <Button
@@ -528,7 +648,7 @@ function SidebarContent() {
                       >
                         <Link href="/dashboard/settings/development/ringcentral-test-sms">
                           <MessageSquare className="h-3 w-3 mr-2 text-sidebar-foreground" />
-                          <span className="text-base text-sidebar-foreground font-normal">Test SMS</span>
+                          <span className="text-base text-sidebar-foreground font-normal truncate leading-tight" title="Test SMS">Test SMS</span>
                         </Link>
                       </Button>
                       <Button

@@ -4,7 +4,6 @@ import { Lead, LeadStatus } from "@/types/lead";
 import { LeadCard } from "./LeadCard";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { getStatusStyles } from "@/utils/status-styles";
 
 interface KanbanColumnProps {
   status: LeadStatus;
@@ -38,14 +37,11 @@ export function KanbanColumn({ status, leads, onLeadSelect }: KanbanColumnProps)
   const statusColor = getStatusColor(status);
 
   return (
-    <div className="flex flex-col">
-      <div className="mb-3">
-        <div className={`px-4 py-2 rounded-md text-sm font-medium inline-flex items-center gap-2 bg-gradient-to-r ${statusColor} text-white shadow-sm`}>
-          <span>{status}</span>
-          <span className="flex items-center justify-center bg-white/20 text-white text-xs font-bold rounded-full h-5 w-5 ml-1">
-            {leads.length}
-          </span>
-        </div>
+    <div className="w-[280px] flex flex-col">
+      <div className="mb-3 px-2">
+        <h3 className="text-sm font-semibold text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+          {status} <span className="text-muted-foreground/80">({leads.length})</span>
+        </h3>
       </div>
       <div
         ref={setNodeRef}
