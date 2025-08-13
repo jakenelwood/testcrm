@@ -94,7 +94,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-card text-card-foreground rounded-lg p-4 mb-3 cursor-pointer transition-all duration-200 select-none border ${
+      className={`bg-card text-card-foreground rounded-lg p-4 mb-3 cursor-pointer transition-all duration-200 select-none border min-h-[128px] flex flex-col justify-between ${
         isDragging
           ? 'opacity-90 shadow-xl border-2 border-blue-500 scale-105'
           : 'opacity-100 hover:shadow-md shadow-sm border-border hover:border-blue-300'
@@ -109,45 +109,46 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       }}
     >
       {/* Top section with name and date */}
-      <div className="flex justify-between items-start mb-3">
-        <div className="font-medium text-foreground text-base">
-          {/* Display client name if available, otherwise fallback to lead first/last name */}
-          {lead.client?.name || (lead.first_name ? `${lead.first_name}${lead.last_name ? ` ${lead.last_name}` : ''}` : 'Unknown')}
-          {lead.client?.client_type === 'Business' &&
-            <span className="ml-2 text-xs font-normal text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">Business</span>
-          }
+      <div className="flex-1">
+        <div className="flex justify-between items-start mb-3">
+          <div className="font-medium text-foreground text-base">
+            {/* Display client name if available, otherwise fallback to lead first/last name */}
+            {lead.client?.name || (lead.first_name ? `${lead.first_name}${lead.last_name ? ` ${lead.last_name}` : ''}` : 'Unknown')}
+            {lead.client?.client_type === 'Business' &&
+              <span className="ml-2 text-xs font-normal text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">Business</span>
+            }
+          </div>
+
+          {lead.assigned_to && (
+            <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm" title={`Assigned to: ${lead.assigned_to}`}>
+              {lead.assigned_to.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
 
-        {lead.assigned_to && (
-          <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm" title={`Assigned to: ${lead.assigned_to}`}>
-            {lead.assigned_to.charAt(0).toUpperCase()}
-          </div>
-        )}
+        {/* Date section */}
+        <div className="text-xs text-muted-foreground flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          {formattedDate}
+        </div>
       </div>
-
-      {/* Date section */}
-      <div className="text-xs text-muted-foreground mb-3 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        {formattedDate}
-      </div>
-
-      {/* Divider */}
-      <div className="border-t border-border my-2"></div>
 
       {/* Bottom section with carrier and premium */}
-      <div className="flex justify-between items-center mt-2">
-        <span className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${getCarrierColor(lead.current_carrier)}`}>
-          {lead.current_carrier || "No Prior"}
-        </span>
+      <div className="mt-auto pt-3 border-t border-border">
+        <div className="flex justify-between items-center">
+          <span className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${getCarrierColor(lead.current_carrier)}`}>
+            {lead.current_carrier || "No Prior"}
+          </span>
 
-        <span className="font-medium text-sm bg-muted text-muted-foreground px-2 py-1 rounded-md border border-border">
-          ${lead.premium
-            ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-            : "0.00"}
-        </span>
+          <span className="font-medium text-sm bg-muted text-muted-foreground px-2 py-1 rounded-md border border-border">
+            ${lead.premium
+              ? lead.premium.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              : "0.00"}
+          </span>
+        </div>
       </div>
-          </div>
+    </div>
   );
 }

@@ -146,14 +146,15 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     }
   }, [lead]);
 
-  // Fetch lead notes
+  // Fetch lead notes and communications
   useEffect(() => {
     if (isOpen && lead) {
       const fetchNotes = async () => {
         const { data, error } = await supabase
-          .from('lead_notes')
+          .from('communications')
           .select('*')
           .eq('lead_id', lead.id)
+          .eq('type', 'note')
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -165,7 +166,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
       const fetchCommunications = async () => {
         const { data, error } = await supabase
-          .from('lead_communications')
+          .from('communications')
           .select('*')
           .eq('lead_id', lead.id)
           .order('created_at', { ascending: false });
@@ -203,10 +204,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
     setIsSubmittingNote(true);
     try {
       const { data, error } = await supabase
-        .from('lead_notes')
+        .from('communications')
         .insert({
           lead_id: lead.id,
-          note_content: newNote,
+          type: 'note',
+          direction: 'Outbound',
+          content: newNote,
           created_by: 'Brian B',
           created_at: new Date().toISOString(),
         })
@@ -219,21 +222,13 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         setNotes([data[0], ...notes]);
         setNewNote('');
 
-        // Also add to communications
-        const { error: commError } = await supabase
-          .from('lead_communications')
-          .insert({
-            lead_id: lead.id,
-            type_id: 4, // 4 is the ID for 'Note' in communication_types
-            direction: 'Outbound',
-            content: newNote,
-            created_by: 'Brian B',
-            created_at: new Date().toISOString(),
-          });
-
-        if (commError) {
-          console.error('Error adding communication:', commError);
-        }
+        // Refresh communications to include the new note
+        const { data: newComms } = await supabase
+          .from('communications')
+          .select('*')
+          .eq('lead_id', lead.id)
+          .order('created_at', { ascending: false });
+        if (newComms) setCommunications(newComms);
       }
     } catch (error) {
       console.error('Error adding note:', error);
@@ -337,10 +332,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         });
 
         await supabase
-          .from('lead_communications')
+          .from('communications')
           .insert({
             lead_id: lead.id,
-            type_id: 3, // 3 is the ID for 'Call' in communication_types
+            type: 'call',
             direction: 'Outbound',
             content: `RingCentral call initiated to ${targetPhoneNumber}. Call ID: ${newCallId}`,
             created_by: 'User',
@@ -348,7 +343,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           });
 
         const { data: newComms } = await supabase
-          .from('lead_communications')
+          .from('communications')
           .select('*')
           .eq('lead_id', lead.id)
           .order('created_at', { ascending: false });
@@ -411,10 +406,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       });
 
       await supabase
-        .from('lead_communications')
+        .from('communications')
         .insert({
           lead_id: lead.id,
-          type_id: 3,
+          type: 'call',
           direction: 'Outbound',
           content: `RingCentral call to ${activePhoneNumber || "unknown number"} ended. Call ID: ${callId}`,
           created_by: 'User',
@@ -429,7 +424,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       setShowCallConfirm(false); // Close the dialog after hanging up
 
       const { data: newComms } = await supabase
-          .from('lead_communications')
+          .from('communications')
           .select('*')
           .eq('lead_id', lead.id)
           .order('created_at', { ascending: false });
@@ -530,10 +525,10 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         description: "Your message has been sent via RingCentral.",
       });
       await supabase
-        .from('lead_communications')
+        .from('communications')
         .insert({
           lead_id: lead.id,
-          type_id: 2, // 2 is the ID for 'SMS' in communication_types
+          type: 'sms',
           direction: 'Outbound',
           content: `SMS sent to ${targetPhoneNumber}: ${smsMessage}`,
           created_by: 'User',
@@ -541,7 +536,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         });
 
       const { data: newComms } = await supabase
-        .from('lead_communications')
+        .from('communications')
         .select('*')
         .eq('lead_id', lead.id)
         .order('created_at', { ascending: false });

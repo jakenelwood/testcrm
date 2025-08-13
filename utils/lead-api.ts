@@ -14,9 +14,9 @@ import supabase from '@/utils/supabase/client';
  */
 export async function fetchLeadsWithRelations(): Promise<Lead[]> {
   try {
-    // First, check if the leads_ins_info table has the expected structure
+    // First, check if the leads table has the expected structure
     const { data: leadsColumns, error: columnsError } = await supabase
-      .from('leads_ins_info')
+      .from('leads')
       .select('*')
       .limit(1);
 
@@ -25,31 +25,16 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
       return []; // Return empty array instead of throwing
     }
 
-    // Build the select query based on available columns
-    let selectQuery = '*';
-    
-    // Include client data using leads_contact_info_id
-    selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
-    
-    // Include status information (status_id references lead_statuses)
-    selectQuery += ', status:lead_statuses(value)';
-    
-    // Include insurance type information (insurance_type_id references insurance_types)
-    selectQuery += ', insurance_type:insurance_types(name)';
-    
-    // Include address information if available
-    if (leadsColumns && leadsColumns.length > 0) {
-      if ('address_id' in leadsColumns[0]) {
-        selectQuery += ', address:address_id(id, street, city, state, zip_code, type)';
-      }
-      if ('mailing_address_id' in leadsColumns[0]) {
-        selectQuery += ', mailing_address:mailing_address_id(id, street, city, state, zip_code, type)';
-      }
-    }
+    // Build the select query for the current schema
+    let selectQuery = `
+      *,
+      pipeline_status:pipeline_statuses!pipeline_status_id(name),
+      insurance_type:insurance_types!insurance_type_id(name)
+    `;
 
     // Fetch leads with appropriate joins
     const { data, error } = await supabase
-      .from('leads_ins_info')
+      .from('leads')
       .select(selectQuery)
       .order('created_at', { ascending: false });
 
@@ -58,27 +43,35 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
       return []; // Return empty array instead of throwing
     }
 
-    // Process the leads to ensure they have the expected structure for legacy components
+    // Process the leads to ensure they have the expected structure for UI components
     const processedLeads = data?.map((lead: any) => {
+      // Extract contact information from metadata or custom_fields if available
+      const contactInfo = lead.metadata?.contact || lead.custom_fields?.contact || {};
+
       const processedLead: Lead = {
         ...lead,
+        // Map contact information
+        name: contactInfo.name || lead.metadata?.name || 'Unknown',
+        email: contactInfo.email || lead.metadata?.email || '',
+        phone_number: contactInfo.phone_number || lead.metadata?.phone_number || '',
+
         // Map joined fields to their expected properties
-        status: typeof lead.status === 'object' && lead.status?.value ? lead.status.value : 'New',
+        status: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name : lead.status || 'New',
         insurance_type: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name : 'Auto',
-        
-        // Map address fields for backward compatibility
-        address_street: lead.address?.street || null,
-        address_city: lead.address?.city || null,
-        address_state: lead.address?.state || null,
-        address_zip_code: lead.address?.zip_code || null,
-        
-        mailing_address_street: lead.mailing_address?.street || null,
-        mailing_address_city: lead.mailing_address?.city || null,
-        mailing_address_state: lead.mailing_address?.state || null,
-        mailing_address_zip_code: lead.mailing_address?.zip_code || null,
+
+        // Address fields (not currently used in this schema)
+        address_street: null,
+        address_city: null,
+        address_state: null,
+        address_zip_code: null,
+
+        mailing_address_street: null,
+        mailing_address_city: null,
+        mailing_address_state: null,
+        mailing_address_zip_code: null,
 
         // Ensure we have status_legacy and insurance_type_legacy for compatibility
-        status_legacy: typeof lead.status === 'object' && lead.status?.value ? lead.status.value as LeadStatus : 'New',
+        status_legacy: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name as LeadStatus : (lead.status as LeadStatus) || 'New',
         insurance_type_legacy: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name as InsuranceType : 'Auto'
       };
 
@@ -98,21 +91,16 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
  */
 export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeline: boolean = false): Promise<Lead[]> {
   try {
-    // Build the select query based on known schema
-    let selectQuery = '*';
-    // Include client data using leads_contact_info_id
-    selectQuery += ', client:leads_contact_info_id(id, name, email, phone_number, lead_type)';
-    // Include status information (status_id references lead_statuses)
-    selectQuery += ', status:lead_statuses(value)';
-    // Include insurance type information (insurance_type_id references insurance_types)
-    selectQuery += ', insurance_type:insurance_types(name)';
-    // Include address information
-    selectQuery += ', address:addresses!address_id(id, street, city, state, zip_code, type)';
-    selectQuery += ', mailing_address:addresses!mailing_address_id(id, street, city, state, zip_code, type)';
+    // Build the select query for the current schema
+    let selectQuery = `
+      *,
+      pipeline_status:pipeline_statuses!pipeline_status_id(name),
+      insurance_type:insurance_types!insurance_type_id(name)
+    `;
 
     // Start building the query
     let query = supabase
-      .from('leads_ins_info')
+      .from('leads')
       .select(selectQuery);
 
     // Apply pipeline filtering at the database level
@@ -132,27 +120,35 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
       return []; // Return empty array instead of throwing
     }
 
-    // Process the leads to ensure they have the expected structure for legacy components
+    // Process the leads to ensure they have the expected structure for UI components
     const processedLeads = data?.map((lead: any) => {
+      // Extract contact information from metadata or custom_fields if available
+      const contactInfo = lead.metadata?.contact || lead.custom_fields?.contact || {};
+
       const processedLead: Lead = {
         ...lead,
+        // Map contact information
+        name: contactInfo.name || lead.metadata?.name || 'Unknown',
+        email: contactInfo.email || lead.metadata?.email || '',
+        phone_number: contactInfo.phone_number || lead.metadata?.phone_number || '',
+
         // Map joined fields to their expected properties
-        status: typeof lead.status === 'object' && lead.status?.value ? lead.status.value : 'New',
+        status: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name : lead.status || 'New',
         insurance_type: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name : 'Auto',
-        
-        // Map address fields for backward compatibility
-        address_street: lead.address?.street || null,
-        address_city: lead.address?.city || null,
-        address_state: lead.address?.state || null,
-        address_zip_code: lead.address?.zip_code || null,
-        
-        mailing_address_street: lead.mailing_address?.street || null,
-        mailing_address_city: lead.mailing_address?.city || null,
-        mailing_address_state: lead.mailing_address?.state || null,
-        mailing_address_zip_code: lead.mailing_address?.zip_code || null,
+
+        // Address fields (not currently used in this schema)
+        address_street: null,
+        address_city: null,
+        address_state: null,
+        address_zip_code: null,
+
+        mailing_address_street: null,
+        mailing_address_city: null,
+        mailing_address_state: null,
+        mailing_address_zip_code: null,
 
         // Ensure we have status_legacy and insurance_type_legacy for compatibility
-        status_legacy: typeof lead.status === 'object' && lead.status?.value ? lead.status.value as LeadStatus : 'New',
+        status_legacy: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name as LeadStatus : (lead.status as LeadStatus) || 'New',
         insurance_type_legacy: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name as InsuranceType : 'Auto'
       };
 
@@ -179,7 +175,7 @@ export async function updateLeadStatus(leadId: string, statusId: number): Promis
     };
 
     const { error } = await supabase
-      .from('leads_ins_info')
+      .from('leads')
       .update(updateData)
       .eq('id', leadId);
 
@@ -252,7 +248,7 @@ export async function createLead(inputLeadData: any): Promise<Lead> {
 
     // Create the lead record
     const { data: newLeadData, error: leadError } = await supabase
-      .from('leads_ins_info')
+      .from('leads')
       .insert(leadInsert)
       .select(selectQuery)
       .single();

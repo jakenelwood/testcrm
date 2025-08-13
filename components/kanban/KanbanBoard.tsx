@@ -40,6 +40,7 @@
 import { Lead, LeadStatus, PipelineStatus } from "@/types/lead";
 import { KanbanColumn } from "./KanbanColumn";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 /**
  * Props interface for the KanbanBoard component
@@ -70,8 +71,9 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   // This provides a better user experience than an empty state or loading spinner
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
-        {statuses.map((status, index) => {
+      <ScrollArea className="w-full">
+        <div className="flex gap-4 p-1">
+          {statuses.map((status, index) => {
           // Get status color based on status name
           const getStatusColor = (status: string) => {
             switch(status.toLowerCase()) {
@@ -87,7 +89,7 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
           const statusColor = getStatusColor(status);
 
           return (
-            <div key={status} className="flex flex-col">
+            <div key={status} className="flex flex-col min-w-[280px] flex-shrink-0">
               <div className="mb-3">
                 <div className={`px-4 py-2 rounded-md text-sm font-medium inline-flex items-center gap-2 bg-gradient-to-r ${statusColor} text-white shadow-sm`}>
                   <span>{status}</span>
@@ -114,7 +116,9 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
             </div>
           );
         })}
-      </div>
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
     );
   }
 
@@ -141,21 +145,22 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   }
 
   // Render the actual kanban board with data
-  // The grid layout adjusts responsively based on screen size:
-  // - Single column on mobile
-  // - 3 columns on medium screens
-  // - 5 columns (full board) on large screens
+  // Uses horizontal scrolling to accommodate all columns without wrapping
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
-      {/* Map through each status and create a column */}
-      {statuses.map((status) => (
-        <KanbanColumn
-          key={status}
-          status={status}
-          leads={leadsByStatus[status] || []} // Pass the filtered leads for this status
-          onLeadSelect={onLeadSelect}         // Pass the lead selection handler
-        />
-      ))}
-    </div>
+    <ScrollArea className="w-full">
+      <div className="flex gap-4 p-1">
+        {/* Map through each status and create a column */}
+        {statuses.map((status) => (
+          <div key={status} className="min-w-[280px] flex-shrink-0">
+            <KanbanColumn
+              status={status}
+              leads={leadsByStatus[status] || []} // Pass the filtered leads for this status
+              onLeadSelect={onLeadSelect}         // Pass the lead selection handler
+            />
+          </div>
+        ))}
+      </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }
