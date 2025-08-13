@@ -81,10 +81,15 @@ export default function SupabaseTestPage() {
         addLog('Trying alternative method to check for required tables...');
         const requiredTables = [
           'ringcentral_tokens',
-          'specialty_items',
-          'other_insureds',
-          'vehicles',
-          'homes'
+          'clients',
+          'leads',
+          'communications',
+          'quotes',
+          'ai_interactions',
+          'pipelines',
+          'pipeline_statuses',
+          'users',
+          'addresses'
         ];
 
         let detectedTables: string[] = [];
@@ -107,21 +112,25 @@ export default function SupabaseTestPage() {
         setTables(detectedTables);
         setMissingTables(requiredTables.filter(t => !detectedTables.includes(t)));
       } else {
-        const tableNames = tableData;
+        // Handle both string array and object array formats
+        const tableNames = Array.isArray(tableData)
+          ? tableData.map(item => typeof item === 'string' ? item : item.table_name).filter(Boolean)
+          : [];
         setTables(tableNames);
         addLog(`Found ${tableNames.length} tables: ${tableNames.join(', ')}`);
 
-        // Check for required tables
+        // Check for required tables (updated to match current schema)
         const requiredTables = [
           'ringcentral_tokens',
-          'leads_contact_info',
-          'contacts',
-          'lead_notes',
-          'lead_communications',
-          'lead_marketing_settings',
-          'opportunities',
+          'clients',           // Contains contact information
+          'leads',             // Contains lead information
+          'communications',    // Contains lead communications
+          'quotes',            // Contains opportunities/quotes
           'ai_interactions',
-          'support_tickets'
+          'pipelines',         // Pipeline management
+          'pipeline_statuses', // Pipeline status tracking
+          'users',             // User management
+          'addresses'          // Address information
         ];
 
         const missingTablesList = requiredTables.filter(table => !tableNames.includes(table));
@@ -547,7 +556,7 @@ export default function SupabaseTestPage() {
                     </div>
                     {tables.length > 0 ? (
                       <div className="space-y-2">
-                        {['ringcentral_tokens', 'leads_contact_info', 'contacts', 'lead_notes', 'lead_communications', 'lead_marketing_settings', 'opportunities', 'ai_interactions', 'support_tickets'].map(requiredTable => {
+                        {['ringcentral_tokens', 'clients', 'leads', 'communications', 'quotes', 'ai_interactions', 'pipelines', 'pipeline_statuses', 'users', 'addresses'].map(requiredTable => {
                           const exists = tables.includes(requiredTable);
                           return (
                             <div key={requiredTable} className="flex items-center justify-between p-2 bg-gray-50 rounded">
@@ -578,12 +587,15 @@ export default function SupabaseTestPage() {
                     <h3 className="text-lg font-medium mb-3">All Database Tables</h3>
                     {tables.length > 0 ? (
                       <div className="grid grid-cols-2 gap-2">
-                        {tables.map(table => (
-                          <div key={table} className="p-2 bg-gray-50 rounded flex items-center">
-                            <Database className="h-4 w-4 mr-2 text-blue-500" />
-                            <span className="text-sm font-mono">{table}</span>
-                          </div>
-                        ))}
+                        {tables.map((table, index) => {
+                          const tableName = typeof table === 'string' ? table : table.table_name || `table_${index}`;
+                          return (
+                            <div key={`table-${index}-${tableName}`} className="p-2 bg-gray-50 rounded flex items-center">
+                              <Database className="h-4 w-4 mr-2 text-blue-500" />
+                              <span className="text-sm font-mono">{tableName}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
                       <p className="text-gray-500">No tables found</p>

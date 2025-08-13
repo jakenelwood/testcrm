@@ -9,15 +9,23 @@
    - **Platform Type**: Server/Web
    - **OAuth Redirect URI**:
      - Development: `http://localhost:3000/oauth-callback`
-     - Production: `https://agentictinkering.com/oauth-callback`
+     - Production: `https://crm.twincitiescoverage.com/oauth-callback`
      - Alternative: `https://crm-jakenelwoods-projects.vercel.app/oauth-callback`
      - Alternative: `https://crm-sepia-alpha.vercel.app/oauth-callback`
 
 ### 2. Required Scopes
 ```
-SMS ReadCallLog ReadMessages ReadPresence RingOut
+SMS ReadCallLog ReadMessages ReadPresence RingOut ReadAccounts
 ```
 **Important**: Space-separated, no commas. Copy exactly as shown.
+
+**Scope Descriptions** (from [official RingCentral documentation](https://developers.ringcentral.com/guide/basics/permissions)):
+- `SMS`: Sending and receiving (SMS) text messages
+- `ReadCallLog`: Viewing user call logs
+- `ReadMessages`: Viewing user messages
+- `ReadPresence`: Getting user presence information
+- `RingOut`: Performing two-legged ring-out phone calls
+- `ReadAccounts`: Viewing user account info (name, business name, address, phone number)
 
 ### 3. Environment Variables
 Add to `.env.local`:
@@ -52,6 +60,11 @@ RINGCENTRAL_REDIRECT_URI=http://localhost:3000/oauth-callback
 ## Troubleshooting
 
 ### Common Issues & Solutions
+
+#### **Caller ID Issues**
+- **Symptom**: "Invalid Caller ID" error when making calls
+- **Solution**: Setting the caller ID for RingOut calls
+RingCentral allows users to select which number to use for their caller ID name (CNAM) value when making calls. However, this can only be done through the RingCentral administrative console, and cannot be set at runtime or programmatically. To set the CallerId for the RingOut API, set the "RingOut from Web" value as available in the Online Account Portal. 
 
 #### **Token Revocation Errors**
 - **Symptoms**: "Token is revoked" errors, authentication loops

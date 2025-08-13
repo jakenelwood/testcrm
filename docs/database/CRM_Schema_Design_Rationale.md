@@ -46,14 +46,16 @@ This document provides an overview of the data architecture strategy behind the 
 ## 🧱 Major Tables Explained
 
 ### `clients`
-- Represents individuals and businesses
+- Represents individuals and businesses that were once leads. As a lead passes through each stage of the sales funnel, some convert to clients once a sale is made. The sale is an inflection point where the lead becomes a client. A client never becomes a lead again unless they leave to work with a competitor and return as a new prospect.
 - Uses an `address_id` and `mailing_address_id` to avoid repeating address fields
 - Includes fields for both personal and business identifiers, but only one will be populated depending on `client_type`
 - Contains AI annotation fields for client summaries, risk scores, and lifetime value predictions
 - Tracks temporal data with timestamps for creation, updates, last contact, and next scheduled contact
 
 ### `leads`
-- Tracks quoting and sales activity linked to a client
+- Tracks quoting and sales activity for prospects who have not yet converted to clients
+- Follows a one-way conversion flow: Lead → (sale) → Client
+- Contains `converted_to_client_id`, `conversion_date`, and `is_converted` fields to track the conversion process
 - `status_id` and `insurance_type_id` use foreign keys to avoid repeated `CHECK` constraints
 - Umbrella and premium-related values stored directly
 - Flexible coverage-specific details stored in JSONB fields: `auto_data`, `home_data`, `specialty_data`, etc.
@@ -64,11 +66,12 @@ This document provides an overview of the data architecture strategy behind the 
 - Comprehensive timestamp tracking for the full lead lifecycle
 
 ### `contacts`
-- Stores individual contact people tied to a `client` (used heavily for B2B)
+- Stores individual contact people tied to either a `lead` (for prospects) or a `client` (for converted customers) in commercial business scenarios (used heavily for B2B)
 - Supports multiple roles and a `is_primary_contact` flag
 - Includes professional networking information and preferred contact methods
 - Contains AI annotation fields for relationship strength and contact summaries
 - Tracks temporal data for contact scheduling and follow-up
+- Enforces business rule that a contact can be linked to either a lead OR a client, but not both simultaneously
 
 ### `ai_interactions`
 - Stores inference conversations between the AI assistant and users or leads
@@ -97,6 +100,30 @@ This document provides an overview of the data architecture strategy behind the 
 
 ---
 
+## 🔄 Lead-to-Client Conversion Flow
+
+### **Business Logic**
+The schema implements a clear, one-way conversion process:
+1. **Lead Creation**: New prospects enter as leads with comprehensive tracking
+2. **Lead Nurturing**: AI-powered insights guide the sales process through various stages
+3. **Conversion Event**: When a sale is made, the lead is marked as converted (`is_converted = true`)
+4. **Client Creation**: A new client record is created, linked back to the original lead via `converted_to_client_id`
+5. **Ongoing Relationship**: The client relationship continues with separate tracking for renewals, cross-selling, and expansion
+
+### **Resolved Circular Dependency**
+Previous versions of this schema had a circular foreign key constraint between `clients.converted_from_lead_id` and `leads.client_id`. This has been resolved by:
+- Removing the circular references
+- Adding conversion tracking fields to the `leads` table (`converted_to_client_id`, `conversion_date`, `is_converted`)
+- Implementing a clean one-way relationship: Lead → Client
+- Creating helpful views (`lead_conversion_summary`, `client_lead_history`) for common queries
+
+### **Handling Complex Scenarios**
+- **Existing Client Needs New Product**: Create a new lead record without linking to existing client initially. Upon conversion, it becomes a separate client record or can be merged through application logic.
+- **Referrals**: New leads can include referral information in metadata, but maintain clean lead → client flow
+- **Renewals**: Handled as new opportunities or through separate renewal tracking systems
+
+---
+
 ## 🔍 Indexing Strategy
 - Indexed on common filters: client name, email, lead status, insurance type
 - JSONB GIN indexes for fast lookups inside unstructured coverage data
@@ -104,6 +131,10 @@ This document provides an overview of the data architecture strategy behind the 
 - Indexes on AI annotation fields for AI-driven filtering and sorting
 - Temporal indexes for efficient date-based queries and scheduling
 - Tag indexes for flexible categorization and filtering
+- **New conversion tracking indexes**:
+  - `idx_leads_converted_to_client_id` for lead-to-client relationship queries
+  - `idx_leads_is_converted` for filtering converted vs. active leads
+  - `idx_leads_conversion_date` for conversion timeline analysis
 
 ---
 
@@ -133,4 +164,25 @@ This document provides an overview of the data architecture strategy behind the 
 
 ---
 
+## 📝 Recent Updates
+
+### **January 13, 2025 - Circular Dependency Resolution**
+- **Resolved**: Circular foreign key constraint between `clients` and `leads` tables
+- **Implemented**: Clean lead-to-client conversion tracking with new fields
+- **Added**: Helper views for conversion analysis (`lead_conversion_summary`, `client_lead_history`)
+- **Updated**: RLS policies to use proper relationship structure
+- **Result**: No more pg_dump warnings, improved performance, cleaner business logic
+
+### **Migration Status**
+- ✅ **Migration 001**: Circular dependency resolution - **COMPLETED**
+- 🔄 **Next Phase**: Vector embeddings and AI scoring enhancements
+
+---
+
 This enhanced schema is designed to act as the backbone for a modern, AI-powered CRM platform where performance, clarity, AI utility, and intelligent workflow automation are all first-class priorities. By incorporating AI annotations, temporal tracking, schema versioning, custom field flexibility, and conversational inference history directly into the database structure, it provides a solid foundation for both current needs and future evolution.
+
+---
+
+**Last Updated**: January 13, 2025
+**Schema Version**: Post-circular dependency resolution
+**Maintained By**: AI-Centric CRM Development Team

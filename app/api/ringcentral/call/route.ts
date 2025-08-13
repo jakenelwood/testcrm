@@ -52,6 +52,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Making RingOut API call with payload:', JSON.stringify(basePayload, null, 2));
+    console.log('API endpoint:', API_ENDPOINTS.RING_OUT);
+    console.log('Client authenticated:', await client.isAuthenticated());
+
     const response = await client.post(API_ENDPOINTS.RING_OUT, basePayload);
 
     console.log('Step 6: Processing API response from RingCentralClient');

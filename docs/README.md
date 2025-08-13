@@ -1,4 +1,4 @@
-# 🚀 CRM Documentation Hub
+# 🚀 AI-Centric Insurance CRM Documentation Hub
 **The single source of truth for all CRM documentation**
 
 ## 🎯 **Quick Navigation**
@@ -6,18 +6,18 @@
 ### **👋 New to the Project?**
 - **[Getting Started](#-getting-started)** - 5-minute setup for new developers
 - **[Architecture Overview](#-architecture-overview)** - How everything fits together
-- **[Development Workflow](#-development-workflow)** - Daily development process
+- **[Database Schema](database/README.md)** - AI-centric database design and recent updates
 
 ### **🔧 Working on the Project?**
 - **[Development Planning](dev_plan/README.md)** - Strategic development roadmap and priorities
-- **[Command Reference](#-command-reference)** - All essential commands in one place
-- **[Troubleshooting](#-troubleshooting)** - Common issues and solutions
+- **[Database Migrations](../migrations/README.md)** - Schema changes and migration procedures
+- **[Development Journal](dev_journal/README.md)** - Project history and decision log
 - **[Testing Guide](#-testing-guide)** - Running and writing tests
 
-### **🚀 Deploying to Production?**
-- **[Deployment Guide](#-deployment-guide)** - Production deployment process
-- **[Monitoring & Health](#-monitoring--health)** - System monitoring and health checks
-- **[Security Checklist](#-security-checklist)** - Pre-deployment security validation
+### **🚀 Production & Operations?**
+- **[Database Management](database/README.md)** - Schema, migrations, and operations
+- **[Security Configuration](SECURITY_CONFIGURATION.md)** - Security implementation details
+- **[Backup System](database/BACKUP_SYSTEM.md)** - Database backup and recovery
 
 ---
 
@@ -25,21 +25,22 @@
 
 ### **Prerequisites**
 - Node.js 18+ and npm
-- SSH access to Hetzner servers (for environment management)
+- PostgreSQL client tools (psql, pg_dump) for database operations
 - Git for version control
+- Access to Supabase Cloud database
 
 ### **5-Minute Setup**
 ```bash
 # 1. Clone and setup
-git clone https://github.com/jakenelwood/crm.git
-cd crm
+git clone https://github.com/jakenelwood/testcrm.git
+cd TestCRM
 
-# 2. Install dependencies and setup testing
+# 2. Install dependencies
 npm install
-npm test
 
-# 3. Setup environment management (server-centralized)
-./scripts/sync-environment.sh
+# 3. Setup environment variables
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
 
 # 4. Start development
 npm run dev
@@ -53,23 +54,24 @@ npm run dev
 
 ### **System Components**
 ```
-Frontend (Next.js) ←→ Backend (FastAPI) ←→ Database (PostgreSQL)
+Frontend (Next.js) ←→ AI Processing ←→ Database (PostgreSQL)
        ↓                    ↓                    ↓
-   Vercel/CF            Hetzner K3s         Supabase HA
+     Vercel              n8n Workflows      Supabase Cloud
 ```
 
 ### **Key Technologies**
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend**: FastAPI, Python 3.11, Pydantic validation
-- **Database**: PostgreSQL with Supabase, JSONB for flexibility
-- **Infrastructure**: K3s on Hetzner, Docker containers, HAProxy load balancing
-- **Security**: Server-centralized environment management, JWT authentication
+- **AI Integration**: OpenAI, vector embeddings, semantic search
+- **Database**: PostgreSQL with Supabase Cloud, JSONB for AI-optimized data
+- **Workflow Automation**: n8n for background processes and integrations
+- **Security**: Supabase Auth, Row Level Security (RLS), JWT authentication
 
-### **Data Flow**
-1. **Leads** → Form submission and validation
-2. **Processing** → AI-powered data extraction and enrichment
-3. **Storage** → Secure database with audit trails
-4. **Integration** → RingCentral telephony, document generation
+### **AI-Centric Data Flow**
+1. **Lead Capture** → Form submission with AI validation
+2. **AI Analysis** → Automated data extraction, enrichment, and insights
+3. **Intelligent Storage** → JSONB structures optimized for AI processing
+4. **Workflow Automation** → n8n triggers for follow-ups and integrations
+5. **Human-AI Collaboration** → AI recommendations with human oversight
 
 ---
 

@@ -1,48 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/database/client';
+import { createClient } from '@/utils/supabase/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const pipelineId = parseInt(params.id);
-    
-    const result = await query(`
-      SELECT 
-        p.*,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', ps.id,
-              'pipeline_id', ps.pipeline_id,
-              'name', ps.name,
-              'description', ps.description,
-              'is_final', ps.is_final,
-              'display_order', ps.display_order,
-              'color_hex', ps.color_hex,
-              'icon_name', ps.icon_name,
-              'ai_action_template', ps.ai_action_template,
-              'created_at', ps.created_at,
-              'updated_at', ps.updated_at
-            ) ORDER BY ps.display_order
-          ) FILTER (WHERE ps.id IS NOT NULL),
-          '[]'::json
-        ) as statuses
-      FROM pipelines p
-      LEFT JOIN pipeline_statuses ps ON p.id = ps.pipeline_id
-      WHERE p.id = $1
-      GROUP BY p.id
-    `, [pipelineId]);
+    const { id } = await params;
+    const pipelineId = parseInt(id);
 
-    if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: `Pipeline with ID ${pipelineId} not found` },
-        { status: 404 }
-      );
+    const supabase = await createClient();
+
+    // Fetch pipeline with its statuses using Supabase
+    const { data: pipeline, error: pipelineError } = await supabase
+      .from('pipelines')
+      .select(`
+        *,
+        pipeline_statuses (
+          id,
+          pipeline_id,
+          name,
+          description,
+          is_final,
+          display_order,
+          color_hex,
+          icon_name,
+          ai_action_template,
+          created_at,
+          updated_at
+        )
+      `)
+      .eq('id', pipelineId)
+      .single();
+
+    if (pipelineError) {
+      if (pipelineError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: `Pipeline with ID ${pipelineId} not found` },
+          { status: 404 }
+        );
+      }
+      throw pipelineError;
     }
 
-    return NextResponse.json(result.rows[0]);
+    // Transform the data to match the expected format
+    const transformedPipeline = {
+      ...pipeline,
+      statuses: pipeline.pipeline_statuses?.sort((a, b) => a.display_order - b.display_order) || []
+    };
+
+    return NextResponse.json(transformedPipeline);
   } catch (error) {
     console.error('Error fetching pipeline:', error);
     return NextResponse.json(
@@ -54,45 +61,49 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const pipelineId = parseInt(params.id);
+    const { id } = await params;
+    const pipelineId = parseInt(id);
     const pipeline = await request.json();
-    
+
+    const supabase = await createClient();
+
     // If setting this pipeline as default, unset any existing default
     if (pipeline.is_default) {
-      await query(`UPDATE pipelines SET is_default = false WHERE is_default = true`);
+      await supabase
+        .from('pipelines')
+        .update({ is_default: false })
+        .eq('is_default', true);
     }
 
-    const result = await query(`
-      UPDATE pipelines 
-      SET 
-        name = COALESCE($2, name),
-        description = COALESCE($3, description),
-        lead_type = COALESCE($4, lead_type),
-        is_default = COALESCE($5, is_default),
-        display_order = COALESCE($6, display_order),
-        updated_at = NOW()
-      WHERE id = $1
-      RETURNING *
-    `, [
-      pipelineId,
-      pipeline.name,
-      pipeline.description,
-      pipeline.lead_type,
-      pipeline.is_default,
-      pipeline.display_order
-    ]);
+    // Update the pipeline
+    const { data: updatedPipeline, error: updateError } = await supabase
+      .from('pipelines')
+      .update({
+        name: pipeline.name,
+        description: pipeline.description,
+        lead_type: pipeline.lead_type,
+        is_default: pipeline.is_default,
+        display_order: pipeline.display_order,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', pipelineId)
+      .select()
+      .single();
 
-    if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: `Pipeline with ID ${pipelineId} not found` },
-        { status: 404 }
-      );
+    if (updateError) {
+      if (updateError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: `Pipeline with ID ${pipelineId} not found` },
+          { status: 404 }
+        );
+      }
+      throw updateError;
     }
 
-    return NextResponse.json(result.rows[0]);
+    return NextResponse.json(updatedPipeline);
   } catch (error) {
     console.error('Error updating pipeline:', error);
     return NextResponse.json(
@@ -104,24 +115,32 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const pipelineId = parseInt(params.id);
-    
-    // Check if this is the default pipeline
-    const pipelineResult = await query(`
-      SELECT is_default FROM pipelines WHERE id = $1
-    `, [pipelineId]);
+    const { id } = await params;
+    const pipelineId = parseInt(id);
 
-    if (pipelineResult.rows.length === 0) {
-      return NextResponse.json(
-        { error: `Pipeline with ID ${pipelineId} not found` },
-        { status: 404 }
-      );
+    const supabase = await createClient();
+
+    // Check if this is the default pipeline
+    const { data: pipeline, error: pipelineError } = await supabase
+      .from('pipelines')
+      .select('is_default')
+      .eq('id', pipelineId)
+      .single();
+
+    if (pipelineError) {
+      if (pipelineError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: `Pipeline with ID ${pipelineId} not found` },
+          { status: 404 }
+        );
+      }
+      throw pipelineError;
     }
 
-    if (pipelineResult.rows[0].is_default) {
+    if (pipeline.is_default) {
       return NextResponse.json(
         { error: 'Cannot delete the default pipeline' },
         { status: 400 }
@@ -129,12 +148,16 @@ export async function DELETE(
     }
 
     // Check if there are leads using this pipeline
-    const leadsResult = await query(`
-      SELECT COUNT(*) as count FROM leads WHERE pipeline_id = $1
-    `, [pipelineId]);
+    const { count: leadCount, error: countError } = await supabase
+      .from('leads_contact_info')
+      .select('*', { count: 'exact', head: true })
+      .eq('pipeline_id', pipelineId);
 
-    const leadCount = parseInt(leadsResult.rows[0].count);
-    if (leadCount > 0) {
+    if (countError) {
+      throw countError;
+    }
+
+    if (leadCount && leadCount > 0) {
       return NextResponse.json(
         { error: `Cannot delete pipeline with ${leadCount} leads. Reassign leads first.` },
         { status: 400 }
@@ -142,8 +165,15 @@ export async function DELETE(
     }
 
     // Delete the pipeline (cascade will delete statuses)
-    await query(`DELETE FROM pipelines WHERE id = $1`, [pipelineId]);
-    
+    const { error: deleteError } = await supabase
+      .from('pipelines')
+      .delete()
+      .eq('id', pipelineId);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting pipeline:', error);

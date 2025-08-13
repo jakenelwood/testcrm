@@ -412,12 +412,12 @@ export async function initializeWebRTCPhone(): Promise<any> {
 
     // Dynamically import the RingCentral SDK
     console.log('Step 3: Loading RingCentral SDK');
-    const RingCentral = (await import('ringcentral')).default;
+    const { SDK } = await import('@ringcentral/sdk');
     const WebPhone = (await import('ringcentral-web-phone')).default;
 
     // Create RingCentral SDK instance
     console.log('Step 4: Creating RingCentral SDK instance');
-    const sdk = new RingCentral({
+    const sdk = new SDK({
       server: process.env.NEXT_PUBLIC_RINGCENTRAL_SERVER || 'https://platform.ringcentral.com',
       clientId: process.env.NEXT_PUBLIC_RINGCENTRAL_CLIENT_ID,
       clientSecret: process.env.NEXT_PUBLIC_RINGCENTRAL_CLIENT_SECRET

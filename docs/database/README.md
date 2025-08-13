@@ -1,160 +1,189 @@
-# 🗄️ TwinCiGo CRM Database Documentation
+# 🗄️ AI-Centric Insurance CRM Database
 
 ## 📋 Overview
 
-TwinCiGo CRM uses a high-availability PostgreSQL cluster with Patroni for automatic failover, etcd for coordination, and HAProxy for load balancing. This setup provides production-ready reliability with zero-downtime maintenance capabilities.
+This database powers an AI-first insurance CRM system designed for human-AI collaboration. The schema is optimized for AI processing, semantic search, and intelligent workflow automation while maintaining traditional CRM functionality.
 
-## 🏗️ Architecture
+**Platform**: Supabase Cloud (PostgreSQL 15+)
+**Frontend**: Vercel (Next.js)
+**Architecture**: AI-centric with traditional UI as supplementary layers
 
-### 3-Node Cluster Configuration
-- **ubuntu-8gb-hil-1** (5.78.103.224): Primary Patroni leader + Supabase services
-- **ubuntu-8gb-ash-1** (5.161.110.205): Patroni replica + FastAPI backend
-- **ubuntu-8gb-ash-2** (178.156.186.10): Patroni replica + monitoring
+## 🏗️ Core Architecture Principles
 
-### Technology Stack
-- **Database**: PostgreSQL 15 with Patroni HA
-- **Coordination**: etcd cluster for leader election
-- **Load Balancing**: HAProxy for connection routing
-- **Platform**: Supabase (Auth, REST API, Realtime, Storage)
-- **Backend**: FastAPI with AI agents
+### **AI-First Design**
+- **JSONB fields** for flexible, AI-processable data structures
+- **AI annotation fields** throughout for summaries, insights, and next actions
+- **Temporal tracking** for AI timeline analysis and pattern recognition
+- **Vector embeddings** ready for semantic search and similarity matching
+- **Schema versioning** for JSONB evolution and AI model compatibility
+
+### **Business Logic Flow**
+```
+Lead → (AI Analysis) → (Nurturing) → (Conversion) → Client
+  ↓                                                    ↓
+Contacts (B2B)                                   Ongoing Relationship
+```
+
+**Key Principle**: One-way conversion flow - leads become clients, never the reverse (unless they leave and return as new prospects).
 
 ## 📊 Schema Overview
 
-### Core Tables
-- **leads_contact_info**: Lead contact and demographic data
-- **leads_ins_info**: Insurance-specific lead information
-- **addresses**: Normalized address data
-- **communications**: All communication tracking
-- **vehicles**: Vehicle information for auto insurance
-- **homes**: Property information for home insurance
-- **specialty_items**: High-value items coverage
+### **Core Entity Tables**
 
-### Marketing Analytics
-- **campaigns**: Marketing campaign management
-- **ab_tests**: A/B testing framework
-- **communication_metrics**: Channel-specific engagement
-- **customer_touchpoints**: Attribution and journey tracking
+#### **`leads`** - Prospect Management
+- Tracks prospects through the sales funnel
+- **Conversion tracking**: `converted_to_client_id`, `conversion_date`, `is_converted`
+- **AI fields**: `ai_summary`, `ai_insights`, `ai_next_action`
+- **Insurance data**: JSONB fields for auto, home, commercial, specialty coverage
+- **Schema versioning**: `auto_data_version`, `home_data_version`, etc.
 
-### System Tables
-- **ai_interactions**: AI agent conversation logs
-- **support_tickets**: Customer support tracking
-- **contacts**: Additional contact methods
+#### **`clients`** - Customer Management
+- Converted leads who have made purchases
+- **Relationship tracking**: Links back to original lead via `leads.converted_to_client_id`
+- **AI fields**: Risk scores, lifetime value predictions, client summaries
+- **Address normalization**: `address_id` and `mailing_address_id`
 
-## 🚀 Deployment
+#### **`contacts`** - B2B Contact Management
+- Individual contacts for commercial clients and prospects
+- **Flexible linking**: Can connect to either leads OR clients (not both)
+- **Role management**: Multiple contacts per entity with primary contact designation
+- **AI insights**: Relationship strength analysis and contact summaries
 
-### Prerequisites
+### **Supporting Tables**
+
+#### **Insurance Coverage**
+- **`vehicles`** - Auto insurance assets
+- **`homes`** - Property insurance assets
+- **`specialty_items`** - High-value items coverage
+- **`commercial_locations`** - Business property coverage
+
+#### **Communication & Workflow**
+- **`communications`** - All interaction tracking with AI analysis
+- **`tasks`** - AI-driven follow-up and workflow management
+- **`documents`** - File storage with AI content analysis
+- **`notes`** - User and AI-generated annotations
+
+#### **System & Analytics**
+- **`addresses`** - Normalized address data
+- **`users`** - System users and permissions
+- **`lookup tables`** - Lead statuses, insurance types, etc.
+
+## 🔄 Recent Schema Changes
+
+### **✅ Resolved: Circular Foreign Key Dependency (Jan 2025)**
+
+**Problem**: Circular dependency between `clients.converted_from_lead_id` ↔ `leads.client_id`
+- Caused pg_dump warnings
+- Prevented clean database restoration
+- Violated business logic (one-way conversion flow)
+
+**Solution**: Implemented clean lead-to-client conversion tracking
+- **Removed**: Circular foreign key constraints
+- **Added**: `leads.converted_to_client_id`, `leads.conversion_date`, `leads.is_converted`
+- **Created**: Helper views for conversion analysis
+- **Updated**: RLS policies to use proper relationships
+
+**Benefits**:
+- ✅ No more pg_dump circular dependency warnings
+- ✅ Clean database restoration process
+- ✅ Improved bulk operation performance
+- ✅ Clear business logic implementation
+- ✅ Better foundation for AI analysis
+
+## 🚀 AI-Centric Features
+
+### **Current AI Capabilities**
+- **JSONB data structures** optimized for AI processing
+- **AI annotation fields** for summaries, insights, and recommendations
+- **Temporal tracking** for AI timeline analysis
+- **Flexible metadata** for AI model evolution
+- **GIN indexes** for fast JSONB queries
+
+### **Planned AI Enhancements**
+- **Vector embeddings** for semantic search across communications
+- **AI scoring tables** for conversion probability tracking
+- **Relationship analysis** for AI-driven insights
+- **Advanced temporal analytics** for lead lifecycle optimization
+
+## 🔧 Database Management
+
+### **Connection Information**
+- **Host**: `db.xyfpnlxwimjbgjloujxw.supabase.co`
+- **Port**: `6543`
+- **Database**: `postgres`
+- **Platform**: Supabase Cloud
+
+### **Common Operations**
 ```bash
-# Ensure SSH access to all nodes
-ssh root@5.78.103.224   # ubuntu-8gb-hil-1
-ssh root@5.161.110.205  # ubuntu-8gb-ash-1
-ssh root@178.156.186.10 # ubuntu-8gb-ash-2
+# Connect to database
+psql -h db.xyfpnlxwimjbgjloujxw.supabase.co -p 6543 -U postgres -d postgres
+
+# Check for circular dependencies
+pg_dump -U postgres -h db.xyfpnlxwimjbgjloujxw.supabase.co -p 6543 -d postgres --data-only > /dev/null
+
+# View lead conversion summary
+psql -c "SELECT * FROM lead_conversion_summary LIMIT 10;"
+
+# Check schema version
+psql -c "SELECT version();"
 ```
 
-### Automated Deployment
-```bash
-# Deploy complete 3-node cluster
-./scripts/deploy-3-node-cluster.sh
-
-# Monitor deployment status
-./scripts/monitor-cluster-health.sh
-```
-
-### Manual Deployment
-```bash
-# On each node:
-cd /opt/twincigo-crm
-docker-compose up -d
-```
-
-## 🔧 Management
-
-### Health Checks
-```bash
-# Check Patroni cluster status
-curl http://5.78.103.224:8008/cluster
-
-# Check HAProxy stats
-curl http://5.78.103.224:7000/stats
-
-# Test database connectivity
-psql -h 5.78.103.224 -p 5000 -U postgres -d crm
-```
-
-### Common Operations
-```bash
-# View cluster status
-./scripts/cluster-status.sh
-
-# Perform failover test
-./scripts/test-failover.sh
-
-# Backup database
-./scripts/backup-database.sh
-
-# Apply schema updates
-./scripts/apply-schema-update.sh
-```
+### **Migration Management**
+- **Location**: `/migrations/` directory
+- **Current**: Migration 001 - Circular dependency resolution completed
+- **Process**: Use provided migration scripts with backup and verification
 
 ## 📁 File Organization
 
-### Schema Files (Latest)
-- `database/schema/hetzner_optimized_schema.sql` - Base schema (Jun 2, 14:43)
-- `database/schema/marketing_data_enhancement.sql` - Marketing tables (Jun 2, 20:32)
-- `database/schema/schema_comprehensive_enhancement.sql` - Complete schema (Jun 2, 18:53)
+### **Schema Documentation**
+- **`CRM_Schema_Design_Rationale.md`** - Comprehensive design decisions and rationale
+- **`data_points_list_personal.md`** - Personal insurance data requirements
+- **`data_points_list_commercial.md`** - Commercial insurance data requirements
+- **`BACKUP_SYSTEM.md`** - Database backup and recovery procedures
 
-### Migration Files
-- `database/migrations/` - Incremental schema changes
-- `database/seeds/` - Initial data for development
+### **Migration Files**
+- **`/migrations/001_resolve_circular_dependency.sql`** - Circular dependency fix
+- **`/migrations/002_cleanup_migration.sql`** - RLS policy updates
+- **`/migrations/run_migration.sh`** - Safe migration execution script
+- **`/migrations/README.md`** - Migration documentation
 
-### Documentation
-- `docs/database/gardenOS_dev_vs_production.md` - Architecture reference
-- `docs/database/marketing-data-coverage.md` - Marketing analytics spec
+## 🔒 Security & Compliance
 
-## 🔒 Security
+### **Row Level Security (RLS)**
+- **Enabled** on all user-facing tables
+- **User-based access control** through Supabase Auth
+- **Proper relationship-based permissions** (no circular dependencies)
+- **AI-safe policies** that don't expose sensitive data
 
-### Authentication
-- Supabase Auth (gotrue) for user authentication
-- JWT tokens for API access
-- Row Level Security (RLS) policies
+### **Data Privacy**
+- **Audit trails** with created_by/updated_by tracking
+- **Temporal data** for compliance reporting
+- **Secure JSONB** for flexible PII handling
+- **Environment-based access control**
 
-### Database Access
-- HAProxy provides connection pooling and SSL termination
-- Patroni manages replication and failover
-- Environment-specific credentials in `.env` files
+## 📈 Performance Optimization
 
-## 📈 Monitoring
+### **Indexing Strategy**
+- **Primary indexes** on all foreign keys and common filters
+- **GIN indexes** on JSONB fields for AI queries
+- **Composite indexes** for complex joins
+- **Temporal indexes** for date-based queries
+- **Conversion tracking indexes** for lead analysis
 
-### Key Metrics
-- Database connection count
-- Replication lag
-- Query performance
-- Failover events
-
-### Alerting
-- Patroni leader changes
-- Database connectivity issues
-- High resource utilization
-- Backup failures
-
-## 🔄 Backup & Recovery
-
-### Automated Backups
-- Daily full backups to external storage
-- Continuous WAL archiving
-- Point-in-time recovery capability
-
-### Disaster Recovery
-- Cross-region backup replication
-- Automated failover procedures
-- Recovery time objective: < 5 minutes
+### **Query Optimization**
+- **Helper views** for common conversion queries
+- **Materialized views** for complex analytics (planned)
+- **Proper normalization** with lookup tables
+- **Efficient relationship queries** without circular dependencies
 
 ## 📚 References
 
-- [Architecture Overview](gardenOS_dev_vs_production.md)
-- [Marketing Data Coverage](marketing-data-coverage.md)
-- [Schema Design Rationale](CRM_Schema_Design_Rationale.md)
+- **[Schema Design Rationale](CRM_Schema_Design_Rationale.md)** - Detailed design decisions
+- **[Migration Documentation](../migrations/README.md)** - Database migration procedures
+- **[Backup System](BACKUP_SYSTEM.md)** - Backup and recovery procedures
 
 ---
 
-**Last Updated**: June 4, 2025  
-**Maintained By**: TwinCiGo CRM Team
+**Last Updated**: January 13, 2025
+**Schema Version**: Post-circular dependency resolution
+**Maintained By**: AI-Centric CRM Development Team

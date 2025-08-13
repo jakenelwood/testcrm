@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/utils/supabase/client';
 import { updateClientAddress } from '@/utils/address-helpers';
 
 // Define form schema with Zod
@@ -41,7 +41,7 @@ export default function AddressForm({
 }: AddressFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const {
     register,

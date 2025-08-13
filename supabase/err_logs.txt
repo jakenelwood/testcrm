@@ -1,0 +1,825 @@
+Authorization URL: https://platform.ringcentral.com/restapi/oauth/authorize?response_type=code&client_id=9NGTe08cOAJakQ7ZSuJh01&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth-callback&state=efrcrqsozpj&code_challenge=YhXODGtI1jaFkk2TkRVx4gEuPMQ2GgedQ-LlE7AU5uE&code_challenge_method=S256&scope=SMS+ReadCallLog+ReadMessages+ReadPresence+RingOut+ReadAccounts
+========== RINGCENTRAL AUTH API - END (REDIRECT) ==========
+ GET /api/ringcentral/auth?action=authorize&redirect=%2Fdashboard%2Fsettings%2Fdevelopment%2Fauth-test 307 in 10ms
+[AUTH_ROUTE] Action: check, Timestamp: 2025-08-12T19:27:22.419Z
+[AUTH_CHECK_AUTH][7f44fb59] Start. Timestamp: 2025-08-12T19:27:22.419Z
+[AUTH_CHECK_AUTH][7f44fb59] Supabase user found: {
+  id: 'af889e9b-6ae9-4315-b634-12b08e05f874',
+  email: 'brian.h.berge@gmail.com'
+}
+[AUTH_CHECK_AUTH][7f44fb59] Tokens found in DB: {
+  hasAccessToken: true,
+  accessTokenFirst10: 'U0pDMDFQMD',
+  dbExpiresAtISO: '2025-08-12T19:23:27.651+00:00',
+  parsedDbAccessTokenExpiryEpoch: 1755026607651,
+  isDbAccessTokenValid: false,
+  hasRefreshTokenExpiry: true,
+  refreshTokenExpiryISO: '2025-08-19T18:23:27.807+00:00',
+  nowISO: '2025-08-12T19:27:22.574Z'
+}
+[AUTH_CHECK_AUTH][7f44fb59] Token in DB invalid/expired.
+[AUTH_CHECK_AUTH][7f44fb59] Cookie check values: {
+  cookieAccessTokenFirst10: undefined,
+  cookieTokenExpiryString: undefined
+}
+[AUTH_CHECK_AUTH][7f44fb59] No valid access token or expiry in cookies.
+[AUTH_CHECK_AUTH][7f44fb59] End (Not Authenticated).
+[AUTH_CHECK_AUTH][7f44fb59] PRE_RETURN (Not Authenticated - Fallthrough). JSON String: {"isAuthenticated":false,"source":"none","checkAuthId":"7f44fb59","timestamp":"2025-08-12T19:27:22.784Z"}
+ GET /api/ringcentral/auth?action=check 200 in 374ms
+ ✓ Compiled /oauth-callback in 417ms (2850 modules)
+ GET /oauth-callback?code=U0pDMDFQMDFQQVMwMHxBQUN2am9ERkpFTEhHOEgxUjA1TnM1NTFkXzNLdTZ6RjVUUVRDaEwzeTRLWGxEUnJGQXVLbnA3UE1IT1Q5VnFnbFhkREl4N1pZUkNLbEZGUFdUcVhZSkZaODhFaHBtYmFRd2EySGNibnFsU2NVWDhQb3Z1R0RudGpNRUVIVUVJYktFUl9wUktGNTVVcTdVZXRTSUdhMjFqWGs5eWdTZTZ1WkhLeHB0SjcwYlJLUjZQbUtINVZ3VXJZdWJNLXJjeTR8QnZEWHJRfDFVanEtLXRCQVBOUmJGLXhQUDJUQ0F8QVF8QUF8QUFBQUFMR3JQMTA&state=efrcrqsozpj 200 in 556ms
+ GET /api/pipelines 200 in 161ms
+ ○ Compiling /api/ringcentral/auth/exchange-code ...
+ ✓ Compiled /api/ringcentral/auth/exchange-code in 516ms (2852 modules)
+========== RINGCENTRAL EXCHANGE CODE API - START ==========
+Timestamp: 2025-08-12T19:27:30.911Z
+Request URL: http://localhost:3000/api/ringcentral/auth/exchange-code?code=U0pDMDFQMDFQQVMwMHxBQUN2am9ERkpFTEhHOEgxUjA1TnM1NTFkXzNLdTZ6RjVUUVRDaEwzeTRLWGxEUnJGQXVLbnA3UE1IT1Q5VnFnbFhkREl4N1pZUkNLbEZGUFdUcVhZSkZaODhFaHBtYmFRd2EySGNibnFsU2NVWDhQb3Z1R0RudGpNRUVIVUVJYktFUl9wUktGNTVVcTdVZXRTSUdhMjFqWGs5eWdTZTZ1WkhLeHB0SjcwYlJLUjZQbUtINVZ3VXJZdWJNLXJjeTR8QnZEWHJRfDFVanEtLXRCQVBOUmJGLXhQUDJUQ0F8QVF8QUF8QUFBQUFMR3JQMTA&state=efrcrqsozpj
+Request headers: {
+  accept: '*/*',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'en-US,en;q=0.9',
+  'access-control-allow-credentials': 'true',
+  'access-control-allow-headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control, X-File-Name',
+  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+  'access-control-max-age': '86400',
+  connection: 'keep-alive',
+  cookie: 'ajs_anonymous_id=0d631a5c-0901-4f52-84f8-c8302dcc8d0b; sb-vpwvdfrxvvuxojejnegm-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWtsdk0wMDVhMWRhZGxkUFQySXpSbUlpTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDNad2QzWmtabko0ZG5aMWVHOXFaV3B1WldkdExuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXdNRFkyTWpJNVppMWlOVEk0TFRRek9UQXRZalUwTmkxalpqVXlNVEV6TURKaE9UZ2lMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNE9EUTFORFU0TENKcFlYUWlPakUzTkRnNE5ERTROVGdzSW1WdFlXbHNJam9pWW5KcFlXNHVhQzVpWlhKblpVQm5iV0ZwYkM1amIyMGlMQ0p3YUc5dVpTSTZJaUlzSW1Gd2NGOXRaWFJoWkdGMFlTSTZleUp3Y205MmFXUmxjaUk2SW1WdFlXbHNJaXdpY0hKdmRtbGtaWEp6SWpwYkltVnRZV2xzSWwxOUxDSjFjMlZ5WDIxbGRHRmtZWFJoSWpwN0ltVnRZV2xzSWpvaVluSnBZVzR1YUM1aVpYSm5aVUJuYldGcGJDNWpiMjBpTENKbGJXRnBiRjkyWlhKcFptbGxaQ0k2ZEhKMVpTd2lablZzYkY5dVlXMWxJam9pUW5KcFlXNGdRbVZ5WjJVaUxDSndhRzl1WlY5MlpYSnBabWxsWkNJNlptRnNjMlVzSW5OMVlpSTZJakF3TmpZeU1qbG1MV0kxTWpndE5ETTVNQzFpTlRRMkxXTm1OVEl4TVRNd01tRTVPQ0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW5CaGMzTjNiM0prSWl3aWRHbHRaWE4wWVcxd0lqb3hOelE0T0RReE9EVTRmVjBzSW5ObGMzTnBiMjVmYVdRaU9pSm1aRFl3TkRNM1lpMHpNalppTFRReU1HTXRPV1ZqWmkwMk9XVmtZV015WlRCa1pqQWlMQ0pwYzE5aGJtOXVlVzF2ZFhNaU9tWmhiSE5sZlEuRS04RTEyMzZwMW5TZW9fVjdmYVd3bXZnRXEtaGtCdGU5ODBMZjM2ak1vQSIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ4ODQ1NDU4LCJyZWZyZXNoX3Rva2VuIjoiYndsa25jcnFyc2tyIiwidXNlciI6eyJpZCI6IjAwNjYyMjlmLWI1MjgtNDM5MC1iNTQ2LWNmNTIxMTMwMmE5OCIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoiYnJpYW4uaC5iZXJnZUBnbWFpbC5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xOTM1NFoiLCJjb25maXJtZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEzOjU1LjgzNDc2OVoiLCJyZWNvdmVyeV9zZW50X2F0IjoiMjAyNS0wNS0wOFQwMjo0NzozMS4yMDg5MDlaIiwibGFzdF9zaWduX2luX2F0IjoiMjAyNS0wNi0wMlQwNToyNDoxNy45OTYxMTI3MTVaIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmdWxsX25hbWUiOiJCcmlhbiBCZXJnZSIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4In0sImlkZW50aXRpZXMiOlt7ImlkZW50aXR5X2lkIjoiZWI1YzZiYmQtZGU1My00NDBjLTk3YTAtZWIzMWVhZjFiOGJkIiwiaWQiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgiLCJ1c2VyX2lkIjoiMDA2NjIyOWYtYjUyOC00MzkwLWI1NDYtY2Y1MjExMzAyYTk4IiwiaWRlbnRpdHlfZGF0YSI6eyJlbWFpbCI6ImJyaWFuLmguYmVyZ2VAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IkJyaWFuIEJlcmdlIiwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIwMDY2MjI5Zi1iNTI4LTQzOTAtYjU0Ni1jZjUyMTEzMDJhOTgifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTcwNjk3WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTA4VDAyOjEyOjMzLjE3MDc1NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNS0wOFQwMjoxMjozMy4xNzA3NTZaIiwiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDUtMDhUMDI6MTI6MzMuMTQyNjUxWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTAyVDA1OjI0OjE4LjAwNjIwM1oiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; sb-xyfpnlxwimjbgjloujxw-auth-token-code-verifier=base64-ImJkMTAyNzU0OWFhN2ViYTIxZjc0M2VhYjMyMDFkNDM3MGJkZWE0Yjc5Y2UwYzgyMTJkODZmZTQ4NjI1OGI1YjE4NzlhMTJjY2M0YzBkZTgzNjcwN2E1OTczODg0NTFhMDFiYWE1NDcyMjQ0MzQzOTEi; __next_hmr_refresh_hash__=b950fb0684f0b756cf3ee18ddb469442ae3b929aab074d94; ringcentral_refresh_token=U0pDMDFQMDFQQVMwMHxBQURmeXVVTzhpN05fWUZyTFl1Q3RScmh3NEp6ekNoc2M1bHZMcWI3N1lGWlExS3p2NUlIZ3gxRkFlUjFkT1UyLVp4eEJsUDltZ2ZNaGxzMWExa3BmMGdGVmVYNjM1Z1hhODlNSDBYLTFyYS15TkdmTmVoSkUxRFljSjRyNGc0VmNXdFp4S09udUtlOFpKMnhwNDdBQW82WS1ib1djTExUZnhKUnRmbEZUVndzcnE0SEk1MjVJSmd2S09MajI3cEFuWW4yYmpRWUFxT3FEZEo4Rm1wQmxJSm5GZ2czS2d8QnZEWHJRfE1XSlZZaVM2UVFvekFvS2txb1FISkF8QVF8QUF8QUFBQUFJNXl6Z1k; ringcentral_refresh_token_expiry_time=1755627807807; ringcentral_token_type=bearer; ringcentral_scope=ReadMessages%20ReadPresence%20ReadAccounts%20RingOut%20SMS%20ReadCallLog; sb-xyfpnlxwimjbgjloujxw-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SW1kU1VGUk5SVVpRVERGTk9GTjVhamtpTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDNoNVpuQnViSGgzYVcxcVltZHFiRzkxYW5oM0xuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmhaamc0T1dVNVlpMDJZV1U1TFRRek1UVXRZall6TkMweE1tSXdPR1V3TldZNE56UWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpVMU1ETXdOREUzTENKcFlYUWlPakUzTlRVd01qWTRNVGNzSW1WdFlXbHNJam9pWW5KcFlXNHVhQzVpWlhKblpVQm5iV0ZwYkM1amIyMGlMQ0p3YUc5dVpTSTZJaUlzSW1Gd2NGOXRaWFJoWkdGMFlTSTZleUp3Y205MmFXUmxjaUk2SW1WdFlXbHNJaXdpY0hKdmRtbGtaWEp6SWpwYkltVnRZV2xzSWwxOUxDSjFjMlZ5WDIxbGRHRmtZWFJoSWpwN0ltUnBjM0JzWVhsZmJtRnRaU0k2SWtKeWFXRnVJRUpsY21kbElpd2laVzFoYVd3aU9pSmljbWxoYmk1b0xtSmxjbWRsUUdkdFlXbHNMbU52YlNJc0ltVnRZV2xzWDNabGNtbG1hV1ZrSWpwMGNuVmxMQ0p3YUc5dVpWOTJaWEpwWm1sbFpDSTZabUZzYzJVc0luTjFZaUk2SW1GbU9EZzVaVGxpTFRaaFpUa3RORE14TlMxaU5qTTBMVEV5WWpBNFpUQTFaamczTkNKOUxDSnliMnhsSWpvaVlYVjBhR1Z1ZEdsallYUmxaQ0lzSW1GaGJDSTZJbUZoYkRFaUxDSmhiWElpT2x0N0ltMWxkR2h2WkNJNkluQmhjM04zYjNKa0lpd2lkR2x0WlhOMFlXMXdJam94TnpVMU1ESTJPREUzZlYwc0luTmxjM05wYjI1ZmFXUWlPaUkwWVdVNFptRmhZUzAzTVRVNExUUXlNekV0WVRGaE15MHlOall6TVROaU1XTmhZVGdpTENKcGMxOWhibTl1ZVcxdmRYTWlPbVpoYkhObGZRLjVLNFNvTkdwREpoQ3FjeVNlcEF5LXd4Yk5wNG9fVC1UVlA4ZFpFZWo3V1kiLCJ0b2tlbl90eXBlIjoiYmVhcmVyIiwiZXhwaXJlc19pbiI6MzYwMCwiZXhwaXJlc19hdCI6MTc1NTAzMDQxNywicmVmcmVzaF90b2tlbiI6IjVocmNoeW80ZjRneiIsInVzZXIiOnsiaWQiOiJhZjg4OWU5Yi02YWU5LTQzMTUtYjYzNC0xMmIwOGUwNWY4NzQiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJlbWFpbCI6ImJyaWFuLmguYmVyZ2VAZ21haWwuY29tIiwiZW1haWxfY29uZmlybWVkX2F0IjoiMjAyNS0wOC0xMlQwNjozMToyNC43NTkzMjRaIiwicGhvbmUiOiIiLCJjb25maXJtYXRpb25fc2VudF9hdCI6IjIwMjUtMDgtMTJUMDY6MzE6MDAuOTYyMDg3WiIsImNvbmZpcm1lZF9hdCI6IjIwMjUtMDgtMTJUMDY6MzE6MjQuNzU5MzI0WiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDgtMTJUMTk6MjY6NTcuMDkwMDYwNzhaIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZGlzcGxheV9uYW1lIjoiQnJpYW4gQmVyZ2UiLCJlbWFpbCI6ImJyaWFuLmguYmVyZ2VAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiYWY4ODllOWItNmFlOS00MzE1LWI2MzQtMTJiMDhlMDVmODc0In0sImlkZW50aXRpZXMiOlt7ImlkZW50aXR5X2lkIjoiYzYxMTk5N2QtYmUyNS00ZDMzLTg3ODEtNjk5NDljZmU3MzVkIiwiaWQiOiJhZjg4OWU5Yi02YWU5LTQzMTUtYjYzNC0xMmIwOGUwNWY4NzQiLCJ1c2VyX2lkIjoiYWY4ODllOWItNmFlOS00MzE1LWI2MzQtMTJiMDhlMDVmODc0IiwiaWRlbnRpdHlfZGF0YSI6eyJkaXNwbGF5X25hbWUiOiJCcmlhbiBCZXJnZSIsImVtYWlsIjoiYnJpYW4uaC5iZXJnZUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJhZjg4OWU5Yi02YWU5LTQzMTUtYjYzNC0xMmIwOGUwNWY4NzQifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDgtMTJUMDY6MzE6MDAuOTUyMjQzWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA4LTEyVDA2OjMxOjAwLjk1MjI5OFoiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wOC0xMlQwNjozMTowMC45NTIyOThaIiwiZW1haWwiOiJicmlhbi5oLmJlcmdlQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDgtMTJUMDY6MzE6MDAuOTM3NzUyWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA4LTEyVDE5OjI2OjU3LjA5MjU4WiIsImlzX2Fub255bW91cyI6ZmFsc2V9fQ; rc_oauth_state=efrcrqsozpj; rc_code_verifier=QSAsjAUAETzEDplwW_N08PlIi0SF0rp75022GtZuJE8',
+  host: 'localhost:3000',
+  referer: 'http://localhost:3000/oauth-callback?code=U0pDMDFQMDFQQVMwMHxBQUN2am9ERkpFTEhHOEgxUjA1TnM1NTFkXzNLdTZ6RjVUUVRDaEwzeTRLWGxEUnJGQXVLbnA3UE1IT1Q5VnFnbFhkREl4N1pZUkNLbEZGUFdUcVhZSkZaODhFaHBtYmFRd2EySGNibnFsU2NVWDhQb3Z1R0RudGpNRUVIVUVJYktFUl9wUktGNTVVcTdVZXRTSUdhMjFqWGs5eWdTZTZ1WkhLeHB0SjcwYlJLUjZQbUtINVZ3VXJZdWJNLXJjeTR8QnZEWHJRfDFVanEtLXRCQVBOUmJGLXhQUDJUQ0F8QVF8QUF8QUFBQUFMR3JQMTA&state=efrcrqsozpj',
+  'sec-ch-ua': '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"Linux"',
+  'sec-fetch-dest': 'empty',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-site': 'same-origin',
+  'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+  'x-forwarded-for': '::1',
+  'x-forwarded-host': 'localhost:3000',
+  'x-forwarded-port': '3000',
+  'x-forwarded-proto': 'http',
+  'x-ratelimit-limit': '100',
+  'x-ratelimit-remaining': '96',
+  'x-ratelimit-reset': '2025-08-12T20:00:00.000Z'
+}
+ALL COOKIES RECEIVED BY /exchange-code (Name: Value):
+  ajs_anonymous_id: 0d631a5c-0901-4f52-84f8-c8302dcc8d0b
+  sb-vpwvdfrxvvuxojejnegm-auth-token: base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWt...
+  sb-xyfpnlxwimjbgjloujxw-auth-token-code-verifier: base64-ImJkMTAyNzU0OWFhN2ViYTIxZjc0M2VhYjMyMDFkNDM3MGJkZWE0Yjc5Y2UwYzg...
+  __next_hmr_refresh_hash__: b950fb0684f0b756cf3ee18ddb469442ae3b929aab074d94
+  ringcentral_refresh_token: U0pDMDFQMDFQQVMwMHxBQURmeXVVTzhpN05fWUZyTFl1Q3RScmh3NEp6ekNoc2M1bHZMcW...
+  ringcentral_refresh_token_expiry_time: 1755627807807
+  ringcentral_token_type: bearer
+  ringcentral_scope: ReadMessages ReadPresence ReadAccounts RingOut SMS ReadCallLog
+  sb-xyfpnlxwimjbgjloujxw-auth-token: base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SW1...
+  rc_oauth_state: efrcrqsozpj
+  rc_code_verifier: QSAsjAUAETzEDplwW_N08PlIi0SF0rp75022GtZuJE8
+Query params: {
+  code: 'U0pDMDFQMDFQQVMwMHxBQUN2am9ERkpFTEhHOEgxUjA1TnM1NTFkXzNLdTZ6RjVUUVRDaEwzeTRLWGxEUnJGQXVLbnA3UE1IT1Q5VnFnbFhkREl4N1pZUkNLbEZGUFdUcVhZSkZaODhFaHBtYmFRd2EySGNibnFsU2NVWDhQb3Z1R0RudGpNRUVIVUVJYktFUl9wUktGNTVVcTdVZXRTSUdhMjFqWGs5eWdTZTZ1WkhLeHB0SjcwYlJLUjZQbUtINVZ3VXJZdWJNLXJjeTR8QnZEWHJRfDFVanEtLXRCQVBOUmJGLXhQUDJUQ0F8QVF8QUF8QUFBQUFMR3JQMTA',
+  state: 'efrcrqsozpj'
+}
+Step 1: Exchanging authorization code for tokens with PKCE
+Code verifier available (length): 43
+REDIRECT_URI from config: http://localhost:3000/oauth-callback
+REDIRECT_URI from env directly: http://localhost:3000/oauth-callback
+NODE_ENV: development
+VERCEL_URL: Not set
+redirect_uri in token request: http://localhost:3000/oauth-callback
+Token exchange successful
+Token data received: {
+  hasAccessToken: true,
+  hasRefreshToken: true,
+  expiresIn: 3600,
+  tokenType: 'bearer',
+  scope: 'ReadMessages ReadPresence ReadAccounts RingOut SMS ReadCallLog'
+}
+Step 2: Storing tokens in cookies
+Step 3: Storing tokens in Supabase
+User found, storing tokens in database for user_id: af889e9b-6ae9-4315-b634-12b08e05f874
+Token data to store: {
+  hasAccessToken: true,
+  accessTokenLength: 379,
+  hasRefreshToken: true,
+  refreshTokenLength: 379,
+  tokenType: 'bearer',
+  expiresIn: 3600,
+  expiresAt: '2025-08-12T20:27:31.292Z',
+  scope: 'ReadMessages ReadPresence ReadAccounts RingOut SMS ReadCallLog'
+}
+Attempting direct upsert to ringcentral_tokens table
+✅ Token record upserted successfully.
+✅ Verified token record (from upsert response): {
+  id: '32382f9b-51fa-4df4-ac46-338e7e4746b8',
+  user_id: 'af889e9b-6ae9-4315-b634-12b08e05f874',
+  hasAccessToken: true,
+  expires_at: '2025-08-12T20:27:31.292+00:00',
+  refresh_token_expires_at: '2025-08-19T19:27:31.423+00:00'
+}
+========== RINGCENTRAL EXCHANGE CODE API - END (SUCCESS) ==========
+ GET /api/ringcentral/auth/exchange-code?code=U0pDMDFQMDFQQVMwMHxBQUN2am9ERkpFTEhHOEgxUjA1TnM1NTFkXzNLdTZ6RjVUUVRDaEwzeTRLWGxEUnJGQXVLbnA3UE1IT1Q5VnFnbFhkREl4N1pZUkNLbEZGUFdUcVhZSkZaODhFaHBtYmFRd2EySGNibnFsU2NVWDhQb3Z1R0RudGpNRUVIVUVJYktFUl9wUktGNTVVcTdVZXRTSUdhMjFqWGs5eWdTZTZ1WkhLeHB0SjcwYlJLUjZQbUtINVZ3VXJZdWJNLXJjeTR8QnZEWHJRfDFVanEtLXRCQVBOUmJGLXhQUDJUQ0F8QVF8QUF8QUFBQUFMR3JQMTA&state=efrcrqsozpj 200 in 1220ms
+ ○ Compiling /dashboard/settings/development/ringcentral-test-call ...
+ ✓ Compiled /dashboard/settings/development/ringcentral-test-call in 739ms (2863 modules)
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 809ms
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 18ms
+ GET /dashboard/settings/development/ringcentral-test-sms 200 in 24ms
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 51ms
+ ○ Compiling /api/ringcentral/call ...
+ ✓ Compiled /api/ringcentral/call in 797ms (2866 modules)
+========== RINGCENTRAL CALL API - START ==========
+Timestamp: 2025-08-12T19:27:43.931Z
+Environment variables: {
+  RINGCENTRAL_SERVER: 'https://platform.ringcentral.com',
+  RINGCENTRAL_FROM_NUMBER: '+16124643934'
+}
+Making RingOut API call with payload: {
+  "from": {
+    "phoneNumber": "+16124643934"
+  },
+  "to": {
+    "phoneNumber": "+16127996380"
+  },
+  "playPrompt": false
+}
+API endpoint: /restapi/v1.0/account/~/extension/~/ring-out
+Client authenticated: false
+Step 6: Processing API response from RingCentralClient
+Step 7B: Processing successful response from RingCentralClient
+Response body (JSON) from client.post: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'InProgress',
+    callerStatus: 'InProgress',
+    calleeStatus: 'InProgress'
+  }
+}
+RingCentral call successful: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'InProgress',
+    callerStatus: 'InProgress',
+    calleeStatus: 'InProgress'
+  }
+}
+========== RINGCENTRAL CALL API - END ==========
+ POST /api/ringcentral/call 200 in 6246ms
+ ○ Compiling /api/ringcentral/call-status ...
+ ✓ Compiled /api/ringcentral/call-status in 625ms (2484 modules)
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'InProgress',
+    callerStatus: 'Success',
+    calleeStatus: 'InProgress'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 899ms
+ ✓ Compiled /api/ringcentral/end-call in 430ms (2486 modules)
+========== RINGCENTRAL END CALL API - START ==========
+Timestamp: 2025-08-12T19:28:00.176Z
+========== RETRY 0: ENDING CALL s-a0d15ab153bbcz1989fc0cbdfz46994270000 ==========
+Call ID to end: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Step 1: Initializing RingCentral client
+Step 2: Ending call
+RingCentral API error response body: {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+Error in end call request: Error: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+    at RingCentralClient.post (utils/ringcentral-client.ts:164:12)
+    at async RingCentralClient.endCall (utils/ringcentral-client.ts:175:11)
+    at async handleEndCall (app/api/ringcentral/end-call/route.ts:88:30)
+  162 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  163 |       }
+> 164 |       throw new Error(errorMessage);
+      |            ^
+  165 |     }
+  166 |
+  167 |     return await response.json();
+Error ending call: Error: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+    at RingCentralClient.post (utils/ringcentral-client.ts:164:12)
+    at async RingCentralClient.endCall (utils/ringcentral-client.ts:175:11)
+    at async handleEndCall (app/api/ringcentral/end-call/route.ts:88:30)
+  162 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  163 |       }
+> 164 |       throw new Error(errorMessage);
+      |            ^
+  165 |     }
+  166 |
+  167 |     return await response.json();
+========== RINGCENTRAL END CALL API - END (ERROR: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}) ==========
+ POST /api/ringcentral/end-call 500 in 888ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'InProgress',
+    callerStatus: 'Success',
+    calleeStatus: 'InProgress'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 422ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 897ms (2467 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1031ms
+========== RINGCENTRAL END CALL API - START ==========
+Timestamp: 2025-08-12T19:28:16.613Z
+========== RETRY 0: ENDING CALL s-a0d15ab153bbcz1989fc0cbdfz46994270000 ==========
+Call ID to end: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Step 1: Initializing RingCentral client
+Step 2: Ending call
+RingCentral API error response body: {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+Error in end call request: Error: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+    at RingCentralClient.post (utils/ringcentral-client.ts:164:12)
+    at async RingCentralClient.endCall (utils/ringcentral-client.ts:175:11)
+    at async handleEndCall (app/api/ringcentral/end-call/route.ts:88:30)
+  162 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  163 |       }
+> 164 |       throw new Error(errorMessage);
+      |            ^
+  165 |     }
+  166 |
+  167 |     return await response.json();
+Error ending call: Error: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+    at RingCentralClient.post (utils/ringcentral-client.ts:164:12)
+    at async RingCentralClient.endCall (utils/ringcentral-client.ts:175:11)
+    at async handleEndCall (app/api/ringcentral/end-call/route.ts:88:30)
+  162 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  163 |       }
+> 164 |       throw new Error(errorMessage);
+      |            ^
+  165 |     }
+  166 |
+  167 |     return await response.json();
+========== RINGCENTRAL END CALL API - END (ERROR: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}) ==========
+ POST /api/ringcentral/end-call 500 in 409ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'InProgress',
+    callerStatus: 'Success',
+    calleeStatus: 'InProgress'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 305ms
+========== RINGCENTRAL END CALL API - START ==========
+Timestamp: 2025-08-12T19:28:28.211Z
+========== RETRY 0: ENDING CALL s-a0d15ab153bbcz1989fc0cbdfz46994270000 ==========
+Call ID to end: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Step 1: Initializing RingCentral client
+Step 2: Ending call
+RingCentral API error response body: {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+Error in end call request: Error: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+    at RingCentralClient.post (utils/ringcentral-client.ts:164:12)
+    at async RingCentralClient.endCall (utils/ringcentral-client.ts:175:11)
+    at async handleEndCall (app/api/ringcentral/end-call/route.ts:88:30)
+  162 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  163 |       }
+> 164 |       throw new Error(errorMessage);
+      |            ^
+  165 |     }
+  166 |
+  167 |     return await response.json();
+Error ending call: Error: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}
+    at RingCentralClient.post (utils/ringcentral-client.ts:164:12)
+    at async RingCentralClient.endCall (utils/ringcentral-client.ts:175:11)
+    at async handleEndCall (app/api/ringcentral/end-call/route.ts:88:30)
+  162 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  163 |       }
+> 164 |       throw new Error(errorMessage);
+      |            ^
+  165 |     }
+  166 |
+  167 |     return await response.json();
+========== RINGCENTRAL END CALL API - END (ERROR: RingCentral API error: 404 Not Found - {
+  "errorCode" : "AGW-404",
+  "message" : "Resource not found",
+  "errors" : [ ]
+}) ==========
+ POST /api/ringcentral/end-call 500 in 433ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 365ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 437ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 353ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 362ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 426ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 418ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 414ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Success',
+    calleeStatus: 'Success'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 442ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 393ms
+ GET /dashboard/settings/development/ringcentral-test-sms 200 in 40ms
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 28ms
+ GET /dashboard/settings/development/ringcentral-test-sms 200 in 18ms
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 25ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 364ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 351ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 359ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 799ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 368ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 385ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 446ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 375ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 365ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 513ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 5513ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 379ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Call status data: {
+  uri: 'https://platform.ringcentral.com/restapi/v1.0/account/63361756004/extension/63361756004/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  id: 's-a0d15ab153bbcz1989fc0cbdfz46994270000',
+  status: {
+    callStatus: 'Success',
+    callerStatus: 'Finished',
+    calleeStatus: 'Finished'
+  }
+}
+========== RINGCENTRAL CALL STATUS API - END PROCESSING ==========
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 359ms
+ GET /dashboard/settings/development/ringcentral-test-call 200 in 23ms
+ GET /dashboard/settings/development/ringcentral-test-sms 200 in 19ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Error fetching call status: Error: RingCentral API error: 404 Not Found
+    at RingCentralClient.get (utils/ringcentral-client.ts:127:12)
+    at async handleCallStatus (app/api/ringcentral/call-status/route.ts:94:23)
+  125 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  126 |       }
+> 127 |       throw new Error(`RingCentral API error: ${response.status} ${response.statusText}`);
+      |            ^
+  128 |     }
+  129 |
+  130 |     return await response.json();
+Call status error: Resource not found (likely call ended)
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 500ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Error fetching call status: Error: RingCentral API error: 404 Not Found
+    at RingCentralClient.get (utils/ringcentral-client.ts:127:12)
+    at async handleCallStatus (app/api/ringcentral/call-status/route.ts:94:23)
+  125 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  126 |       }
+> 127 |       throw new Error(`RingCentral API error: ${response.status} ${response.statusText}`);
+      |            ^
+  128 |     }
+  129 |
+  130 |     return await response.json();
+Call status error: Resource not found (likely call ended)
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 486ms
+========== RINGCENTRAL CALL STATUS API - GET START ==========
+========== RINGCENTRAL CALL STATUS API - PROCESSING ==========
+Retry count: 0
+Getting cookies for RingCentral client initialization
+Initializing RingCentralClient
+Using RingOut status endpoint for callId: s-a0d15ab153bbcz1989fc0cbdfz46994270000
+Fetching call status from endpoint: /restapi/v1.0/account/~/extension/~/ring-out/s-a0d15ab153bbcz1989fc0cbdfz46994270000 with timeout protection
+Error fetching call status: Error: RingCentral API error: 404 Not Found
+    at RingCentralClient.get (utils/ringcentral-client.ts:127:12)
+    at async handleCallStatus (app/api/ringcentral/call-status/route.ts:94:23)
+  125 |         throw new RingCentralTokenRevokedError('Token revoked or expired');
+  126 |       }
+> 127 |       throw new Error(`RingCentral API error: ${response.status} ${response.statusText}`);
+      |            ^
+  128 |     }
+  129 |
+  130 |     return await response.json();
+Call status error: Resource not found (likely call ended)
+ GET /api/ringcentral/call-status?callId=s-a0d15ab153bbcz1989fc0cbdfz46994270000&verbose=true 200 in 429ms

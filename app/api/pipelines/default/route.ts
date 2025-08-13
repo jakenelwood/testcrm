@@ -1,43 +1,49 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/database/client';
+import { createClient } from '@/utils/supabase/server';
 
 export async function GET() {
   try {
-    const result = await query(`
-      SELECT 
-        p.*,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', ps.id,
-              'pipeline_id', ps.pipeline_id,
-              'name', ps.name,
-              'description', ps.description,
-              'is_final', ps.is_final,
-              'display_order', ps.display_order,
-              'color_hex', ps.color_hex,
-              'icon_name', ps.icon_name,
-              'ai_action_template', ps.ai_action_template,
-              'created_at', ps.created_at,
-              'updated_at', ps.updated_at
-            ) ORDER BY ps.display_order
-          ) FILTER (WHERE ps.id IS NOT NULL),
-          '[]'::json
-        ) as statuses
-      FROM pipelines p
-      LEFT JOIN pipeline_statuses ps ON p.id = ps.pipeline_id
-      WHERE p.is_default = true
-      GROUP BY p.id
-    `);
+    const supabase = await createClient();
 
-    if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'No default pipeline found' },
-        { status: 404 }
-      );
+    // Fetch default pipeline with its statuses using Supabase
+    const { data: pipeline, error: pipelineError } = await supabase
+      .from('pipelines')
+      .select(`
+        *,
+        pipeline_statuses (
+          id,
+          pipeline_id,
+          name,
+          description,
+          is_final,
+          display_order,
+          color_hex,
+          icon_name,
+          ai_action_template,
+          created_at,
+          updated_at
+        )
+      `)
+      .eq('is_default', true)
+      .single();
+
+    if (pipelineError) {
+      if (pipelineError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'No default pipeline found' },
+          { status: 404 }
+        );
+      }
+      throw pipelineError;
     }
 
-    return NextResponse.json(result.rows[0]);
+    // Transform the data to match the expected format
+    const transformedPipeline = {
+      ...pipeline,
+      statuses: pipeline.pipeline_statuses?.sort((a, b) => a.display_order - b.display_order) || []
+    };
+
+    return NextResponse.json(transformedPipeline);
   } catch (error) {
     console.error('Error fetching default pipeline:', error);
     return NextResponse.json(

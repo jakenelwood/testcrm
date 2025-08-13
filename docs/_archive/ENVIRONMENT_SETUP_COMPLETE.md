@@ -113,16 +113,16 @@ npm run dev
 - `RINGCENTRAL_CLIENT_ID` - ✅ Set to production credentials
 - `RINGCENTRAL_CLIENT_SECRET` - ✅ Set to production credentials
 - `RINGCENTRAL_SERVER_URL` - ✅ Set to production API
-- `RINGCENTRAL_REDIRECT_URI` - ✅ Set for agentictinkering.com
+- `RINGCENTRAL_REDIRECT_URI` - ✅ Set for crm.twincitiescoverage.com
 
 ### ⚠️ Still Needs Your Input
 - `RINGCENTRAL_FROM_NUMBER` - Your RingCentral phone number (E.164 format)
 - `N8N_API_KEY` - If using n8n automation (optional)
 
 ### ✅ Environment-Specific Updates Complete
-- ✅ `NEXTAUTH_URL` updated to `https://agentictinkering.com`
-- ✅ `RINGCENTRAL_REDIRECT_URI` updated to `https://agentictinkering.com/oauth-callback`
-- ✅ `NEXT_PUBLIC_APP_URL` updated to `https://agentictinkering.com`
+- ✅ `NEXTAUTH_URL` updated to `https://crm.twincitiescoverage.com`
+- ✅ `RINGCENTRAL_REDIRECT_URI` updated to `https://crm.twincitiescoverage.com/oauth-callback`
+- ✅ `NEXT_PUBLIC_APP_URL` updated to `https://crm.twincitiescoverage.com`
 
 ## 🛡️ Security Reminders
 

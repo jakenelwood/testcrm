@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 import { RINGCENTRAL_NOT_AUTHENTICATED_ERROR } from '@/lib/constants';
 
-const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER_URL || 'https://platform.devtest.ringcentral.com';
+const RINGCENTRAL_SERVER = process.env.RINGCENTRAL_SERVER || 'https://platform.ringcentral.com';
 const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 
 export class RingCentralClient {
@@ -149,21 +149,71 @@ export class RingCentralClient {
     });
 
     if (!response.ok) {
+      let errorMessage = `RingCentral API error: ${response.status} ${response.statusText}`;
+      try {
+        const errorBody = await response.text();
+        console.error('RingCentral API error response body:', errorBody);
+        errorMessage += ` - ${errorBody}`;
+      } catch (e) {
+        console.error('Failed to read error response body:', e);
+      }
+
       if (response.status === 401) {
         throw new RingCentralTokenRevokedError('Token revoked or expired');
       }
-      throw new Error(`RingCentral API error: ${response.status} ${response.statusText}`);
+      throw new Error(errorMessage);
     }
 
     return await response.json();
   }
 
   /**
-   * End a call
+   * Make a DELETE request to the RingCentral API
+   */
+  async delete(endpoint: string): Promise<any> {
+    await this._ensureTokenIsValid();
+    if (!this.authenticated || !this.accessToken) {
+      throw new Error(RINGCENTRAL_NOT_AUTHENTICATED_ERROR);
+    }
+
+    const response = await fetch(`${RINGCENTRAL_SERVER}${endpoint}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      let errorMessage = `RingCentral API error: ${response.status} ${response.statusText}`;
+      try {
+        const errorBody = await response.text();
+        console.error('RingCentral API error response body:', errorBody);
+        errorMessage += ` - ${errorBody}`;
+      } catch (e) {
+        console.error('Failed to read error response body:', e);
+      }
+
+      if (response.status === 401) {
+        throw new RingCentralTokenRevokedError('Token revoked or expired');
+      }
+      throw new Error(errorMessage);
+    }
+
+    // DELETE requests may return 204 No Content, so handle empty responses
+    if (response.status === 204) {
+      return { success: true };
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * End a call (RingOut)
    */
   async endCall(callId: string): Promise<any> {
-    const endpoint = `/restapi/v1.0/account/~/telephony/sessions/${callId}`;
-    return await this.post(endpoint, { status: 'Finished' });
+    const endpoint = `/restapi/v1.0/account/~/extension/~/ring-out/${callId}`;
+    return await this.delete(endpoint);
   }
 }
 
