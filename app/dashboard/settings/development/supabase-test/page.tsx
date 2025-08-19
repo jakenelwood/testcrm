@@ -81,15 +81,10 @@ export default function SupabaseTestPage() {
         addLog('Trying alternative method to check for required tables...');
         const requiredTables = [
           'ringcentral_tokens',
-          'clients',
-          'leads',
-          'communications',
-          'quotes',
-          'ai_interactions',
+          'contacts',
+          'interactions',
           'pipelines',
-          'pipeline_statuses',
           'users',
-          'addresses'
         ];
 
         let detectedTables: string[] = [];
@@ -121,16 +116,11 @@ export default function SupabaseTestPage() {
 
         // Check for required tables (updated to match current schema)
         const requiredTables = [
-          'ringcentral_tokens',
-          'clients',           // Contains contact information
-          'leads',             // Contains lead information
-          'communications',    // Contains lead communications
-          'quotes',            // Contains opportunities/quotes
-          'ai_interactions',
-          'pipelines',         // Pipeline management
-          'pipeline_statuses', // Pipeline status tracking
-          'users',             // User management
-          'addresses'          // Address information
+          'ringcentral_tokens', // RingCentral OAuth tokens
+          'contacts',           // Unified contact info (replaces clients/leads)
+          'interactions',       // Unified activity stream (replaces communications/ai_interactions)
+          'pipelines',          // Pipeline management
+          'users',              // User management
         ];
 
         const missingTablesList = requiredTables.filter(table => !tableNames.includes(table));
@@ -556,7 +546,7 @@ export default function SupabaseTestPage() {
                     </div>
                     {tables.length > 0 ? (
                       <div className="space-y-2">
-                        {['ringcentral_tokens', 'clients', 'leads', 'communications', 'quotes', 'ai_interactions', 'pipelines', 'pipeline_statuses', 'users', 'addresses'].map(requiredTable => {
+                        {['ringcentral_tokens', 'contacts', 'interactions', 'pipelines', 'users'].map(requiredTable => {
                           const exists = tables.includes(requiredTable);
                           return (
                             <div key={requiredTable} className="flex items-center justify-between p-2 bg-gray-50 rounded">

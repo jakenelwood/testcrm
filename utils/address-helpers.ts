@@ -137,7 +137,7 @@ export async function updateEntityAddress(
     // First, get the entity to check if they have an existing address
     console.log(`DEBUG: Fetching ${entityType} with ID:`, entityId);
     const { data: entity, error: entityError } = await supabase
-      .from(entityType === 'lead' ? 'leads_ins_info' : 'leads_contact_info')
+      .from(entityType === 'lead' ? 'leads' : 'clients')
       .select(`id, address_id, mailing_address_id`)
       .eq('id', entityId)
       .single();
@@ -178,7 +178,7 @@ export async function updateEntityAddress(
     // Update the entity with the new address ID
     const updateField = addressType === 'address' ? 'address_id' : 'mailing_address_id';
     const { error: updateError } = await supabase
-      .from(entityType === 'lead' ? 'leads_ins_info' : 'leads_contact_info')
+      .from(entityType === 'lead' ? 'leads' : 'clients')
       .update({
         [updateField]: addressId,
         updated_at: new Date().toISOString()

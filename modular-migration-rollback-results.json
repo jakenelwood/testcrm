@@ -1,0 +1,73 @@
+{
+  "generated_at": "2025-08-14T15:40:21.536Z",
+  "rollback_type": "modular_crm_rollback",
+  "summary": {
+    "total_steps": 3,
+    "successful_steps": 3,
+    "failed_steps": 0,
+    "total_execution_time_ms": 488,
+    "success_rate": "100.0"
+  },
+  "rollback_steps": [
+    {
+      "step": "data_migration_rollback",
+      "status": "SUCCESS",
+      "execution_time_ms": 67
+    },
+    {
+      "step": "insurance_extension_rollback",
+      "status": "SUCCESS",
+      "execution_time_ms": 201
+    },
+    {
+      "step": "core_crm_rollback",
+      "status": "SUCCESS",
+      "execution_time_ms": 220
+    }
+  ],
+  "remaining_tables": [
+    "_version_info",
+    "ab_tests",
+    "addresses",
+    "agent_memory",
+    "ai_agents",
+    "ai_interactions",
+    "api_rate_limits",
+    "audit_logs",
+    "call_logs",
+    "campaigns",
+    "clients",
+    "communications",
+    "content_templates",
+    "conversation_sessions",
+    "customer_touchpoints",
+    "file_deletions",
+    "file_uploads",
+    "homes",
+    "insurance_types",
+    "lead_status_history",
+    "lead_statuses",
+    "leads",
+    "password_history",
+    "permissions",
+    "pipeline_statuses",
+    "pipelines",
+    "quotes",
+    "ringcentral_tokens",
+    "schema_migrations",
+    "schema_versions",
+    "sms_logs",
+    "specialty_items",
+    "user_invitations",
+    "user_phone_preferences",
+    "user_sessions",
+    "users",
+    "vehicles"
+  ],
+  "recommendations": [
+    "Verify that original tables (leads, clients, communications, quotes) are intact",
+    "Check that application functionality works with original schema",
+    "Review any custom code that may have been updated for modular structure",
+    "Consider re-running migration with fixes if issues were identified"
+  ]
+}

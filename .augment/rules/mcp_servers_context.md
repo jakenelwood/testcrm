@@ -4,6 +4,9 @@ type: "always_apply"
 
 This CRM is insurance focused. The front end is hosted on Vercel and the backend is hosted on the Supabase Cloud (not self hosted).
 
+Database Tools
+Drizzle is installed and should be used to connect with Supabase PostgreSQL.
+
 Sequential Thinking Tools MCP
 Call when a task is non-trivial and you need a clear plan with checkpoints: auth/RLS, multi-tenant schema, background jobs, migrations, incident triage, rollback plans. It decomposes work and proposes the next best MCP(s) to consult.
 

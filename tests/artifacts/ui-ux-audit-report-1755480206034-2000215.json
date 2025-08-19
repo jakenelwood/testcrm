@@ -1,0 +1,29 @@
+{
+  "generatedAt": "2025-08-18T01:23:49.785Z",
+  "findings": [
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".right-3",
+      "browser": "webkit"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: color-contrast - Elements must meet minimum color contrast ratio thresholds",
+      "details": ".bg-muted > .mx-auto.text-muted-foreground.text-sm, .border-primary\\/20 > p:nth-child(2)",
+      "browser": "webkit"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".space-y-3:nth-child(3) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"], .space-y-3:nth-child(4) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"]",
+      "browser": "webkit"
+    }
+  ]
+}

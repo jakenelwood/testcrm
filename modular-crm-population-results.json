@@ -1,0 +1,53 @@
+{
+  "generated_at": "2025-08-14T16:38:13.081Z",
+  "migration_type": "modular_crm_data_population",
+  "summary": {
+    "total_tables": 4,
+    "total_records_migrated": 98,
+    "total_records_failed": 27,
+    "total_execution_time_ms": 13889,
+    "success_rate": 78.4
+  },
+  "migration_results": [
+    {
+      "table": "contacts_from_clients",
+      "records_migrated": 75,
+      "records_failed": 0,
+      "execution_time_ms": 5875,
+      "errors": []
+    },
+    {
+      "table": "opportunities_from_contacts",
+      "records_migrated": 0,
+      "records_failed": 0,
+      "execution_time_ms": 39,
+      "errors": []
+    },
+    {
+      "table": "activities_from_communications",
+      "records_migrated": 23,
+      "records_failed": 27,
+      "execution_time_ms": 7938,
+      "errors": [
+        "Communication c74b558c-a8d3-4a9e-aedd-6934e77b6009: PostgresError: insert or update on table \"activities\" violates foreign key constraint \"activities_contact_id_fkey\"",
+        "Communication e7ca7268-9064-4cff-8790-fe60fb486828: PostgresError: insert or update on table \"activities\" violates foreign key constraint \"activities_contact_id_fkey\"",
+        "Communication 142eea3c-3e7f-4d05-a7f8-3c6a8a40c7d1: PostgresError: insert or update on table \"activities\" violates foreign key constraint \"activities_contact_id_fkey\"",
+        "Communication 61299cc7-fe82-4216-93b7-14fbe3e3f636: PostgresError: insert or update on table \"activities\" violates foreign key constraint \"activities_contact_id_fkey\"",
+        "Communication 426f7c8e-cfbc-4c3b-9842-9e7291c0ea14: PostgresError: insert or update on table \"activities\" violates foreign key constraint \"activities_contact_id_fkey\""
+      ]
+    },
+    {
+      "table": "insurance_profiles_from_contacts",
+      "records_migrated": 0,
+      "records_failed": 0,
+      "execution_time_ms": 37,
+      "errors": []
+    }
+  ],
+  "final_counts": {
+    "contacts": 75,
+    "opportunities": 75,
+    "activities": 23,
+    "insurance_profiles": 75
+  }
+}

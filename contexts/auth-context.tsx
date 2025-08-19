@@ -36,10 +36,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Get the current user
         const { data, error } = await supabase.auth.getUser();
-        
+
         if (error) {
-          console.error('Error getting user:', error);
-          setError(error.message);
+          // Treat missing session as a normal unauthenticated state (no console error spam)
+          const msg = (error as any)?.message || '';
+          const isMissingSession = msg.includes('Auth session missing');
+          if (!isMissingSession) {
+            console.warn('Auth getUser non-session error:', error);
+            setError(error.message);
+          } else {
+            setError(null);
+          }
           setUser(null);
         } else if (data?.user) {
           setUser(data.user);

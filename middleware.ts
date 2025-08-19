@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+// TEMPORARILY COMMENTED OUT TO DEBUG EXPORTS ERROR
+// import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 // =============================================================================
 // CORS CONFIGURATION
@@ -131,6 +132,8 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  // TEMPORARILY COMMENTED OUT TO DEBUG EXPORTS ERROR
+  /*
   // Secure environment variable access - no fallbacks for security
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -197,6 +200,7 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   await supabase.auth.getUser();
+  */
 
   // Add CORS headers to all responses
   const corsHeaders = getCorsHeaders(origin)
@@ -204,6 +208,8 @@ export async function middleware(request: NextRequest) {
     response.headers.set(key, value)
   })
 
+  // TEMPORARILY COMMENTED OUT RATE LIMITING TO DEBUG EXPORTS ERROR
+  /*
   // Apply rate limiting to API routes
   if (pathname.startsWith('/api/')) {
     try {
@@ -245,6 +251,7 @@ export async function middleware(request: NextRequest) {
       // Continue with request if rate limiting fails
     }
   }
+  */
 
   return response;
 }

@@ -28,22 +28,21 @@ import {
   MessageSquare,
   DollarSign
 } from "lucide-react";
-import { usePipelines } from "@/contexts/pipeline-context";
+import { useOpportunities } from "@/contexts/opportunity-context";
 import { useSidebar } from "@/contexts/sidebar-context";
 
 function SidebarContent() {
   const pathname = usePathname() || '';
   const searchParams = useSearchParams();
-  const { pipelines, isLoading } = usePipelines();
-  const [isPipelinesOpen, setIsPipelinesOpen] = useState(true);
+  const { opportunities, isLoading } = useOpportunities();
+  const [isOpportunitiesOpen, setIsOpportunitiesOpen] = useState(true);
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const [isHovered, setIsHovered] = useState(false);
   const [tempExpanded, setTempExpanded] = useState(false);
   const logout = useLogout();
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
-  // Get the current pipeline ID from search params
-  const currentPipelineId = searchParams?.get('pipeline');
+
 
   // Initialize Development section to be expanded by default
   useEffect(() => {
@@ -67,6 +66,14 @@ function SidebarContent() {
       href: "/dashboard/clients",
       active: pathname.startsWith("/dashboard/clients"),
       iconColor: "text-[#B91135]",
+      variant: undefined
+    },
+    {
+      label: "Campaigns",
+      icon: FileText,
+      href: "/dashboard/campaigns",
+      active: pathname.startsWith("/dashboard/campaigns"),
+      iconColor: "text-[#0E7490]",
       variant: undefined
     }
   ];
@@ -308,8 +315,8 @@ function SidebarContent() {
                 !showExpanded && "justify-center px-0"
               )}
               size="sm"
-              onClick={() => setIsPipelinesOpen(!isPipelinesOpen)}
-              title={!showExpanded ? "Pipelines" : undefined}
+              onClick={() => setIsOpportunitiesOpen(!isOpportunitiesOpen)}
+              title={!showExpanded ? "Opportunities" : undefined}
             >
               <DollarSign className={cn(
                 "h-4 w-4 text-sidebar-foreground",
@@ -320,8 +327,8 @@ function SidebarContent() {
                   <span className={cn(
                     "text-base text-sidebar-foreground",
                     (pathname === "/dashboard/pipelines" || pathname.startsWith("/dashboard/leads")) ? "font-semibold" : "font-normal"
-                  )}>Pipelines</span>
-                  {isPipelinesOpen ? (
+                  )}>Opportunities</span>
+                  {isOpportunitiesOpen ? (
                     <ChevronDown className="ml-auto h-4 w-4 text-sidebar-foreground" />
                   ) : (
                     <ChevronRight className="ml-auto h-4 w-4 text-sidebar-foreground" />
@@ -330,9 +337,9 @@ function SidebarContent() {
               )}
             </Button>
 
-            {isPipelinesOpen && showExpanded && (
+            {isOpportunitiesOpen && showExpanded && (
               <div className="ml-4 space-y-1">
-                {/* Manage Pipelines Link */}
+                {/* Manage Opportunities Link */}
                 <div
                   className="relative"
                   onMouseEnter={() => setHoveredKey("/dashboard/pipelines")}
@@ -380,16 +387,16 @@ function SidebarContent() {
                               ? "text-sidebar-primary-foreground font-semibold"
                               : "text-sidebar-foreground font-normal"
                           )}
-                          title="Manage Pipelines"
+                          title="Manage Opportunities"
                         >
-                          Manage Pipelines
+                          Manage Opportunities
                         </span>
                       )}
                     </Link>
                   </Button>
                 </div>
 
-                {/* Pipeline List */}
+                {/* Opportunities Summary */}
                 {isLoading ? (
                   <div className={cn(
                     "py-2 text-sm text-sidebar-foreground/70",
@@ -397,81 +404,22 @@ function SidebarContent() {
                   )}>
                     {showText ? "Loading..." : "..."}
                   </div>
-                ) : pipelines.length === 0 ? (
+                ) : opportunities.length === 0 ? (
                   <div className={cn(
                     "py-2 text-sm text-sidebar-foreground/70",
                     showText ? "px-4" : "px-2 text-center"
                   )}>
-                    {showText ? "No pipelines found" : "None"}
+                    {showText ? "No opportunities found" : "None"}
                   </div>
                 ) : (
-                  pipelines.map((pipeline) => {
-                    const isPipelineActive = pathname.startsWith("/dashboard/leads") && currentPipelineId === pipeline.id.toString();
-                    const linkHref = `/dashboard/leads?pipeline=${pipeline.id}`;
-                    return (
-                      <div
-                        key={pipeline.id}
-                        className="relative"
-                        onMouseEnter={() => setHoveredKey(linkHref)}
-                      >
-                        {(hoveredKey ? hoveredKey === linkHref : isPipelineActive) && (
-                          <>
-                            <motion.span
-                              layoutId="sidebar-hover-bg"
-                              className="absolute inset-0 rounded-md bg-sidebar-accent opacity-70"
-                              transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                            />
-                            <motion.span
-                              layoutId="sidebar-hover-bar"
-                              className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-sidebar-ring"
-                              transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                            />
-                          </>
-                        )}
-                        <Button
-                          asChild
-                          variant={isPipelineActive ? "secondary" : "ghost"}
-                          className={cn(
-                            "relative z-10 w-full justify-start",
-                            isPipelineActive
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                              : "hover:bg-transparent",
-                            !showExpanded && "justify-center px-0"
-                          )}
-                          size="sm"
-                          title={!showExpanded ? pipeline.name : undefined}
-                          onFocus={() => setHoveredKey(linkHref)}
-                          onBlur={() => setHoveredKey(null)}
-                        >
-                          <Link href={linkHref}>
-                            <FileText className={cn(
-                              "h-4 w-4",
-                              isPipelineActive
-                                ? "text-sidebar-primary-foreground"
-                                : "text-sidebar-foreground",
-                              showText ? "mr-2" : "mr-0"
-                            )} />
-                            {showText && (
-                              <>
-                                <span
-                                  className={cn(
-                                    "block max-w-[12rem] text-sm truncate leading-tight",
-                                    isPipelineActive
-                                      ? "text-sidebar-primary-foreground font-semibold"
-                                      : "text-sidebar-foreground font-normal"
-                                  )}
-                                  title={pipeline.name}
-                                >
-                                  {pipeline.name}
-                                </span>
-                              </>
-                            )}
-                          </Link>
-                        </Button>
-                      </div>
-                    );
-                  })
+                  <div className={cn(
+                    "py-2 text-sm text-sidebar-foreground/70",
+                    showText ? "px-4" : "px-2 text-center"
+                  )}>
+                    {showText ? `${opportunities.length} opportunities` : opportunities.length}
+                  </div>
                 )}
+
               </div>
             )}
           </div>

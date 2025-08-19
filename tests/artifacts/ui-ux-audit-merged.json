@@ -1,0 +1,1041 @@
+{
+  "generatedAt": "2025-08-18T00:37:51.882Z",
+  "summary": {
+    "total": 141,
+    "byCategory": {
+      "Performance": 18,
+      "Accessibility": 44,
+      "Stability": 61,
+      "UX": 5,
+      "API": 13
+    },
+    "bySeverity": {
+      "medium": 70,
+      "low": 20,
+      "high": 51
+    }
+  },
+  "findings": [
+    {
+      "generatedAt": "2025-08-18T00:06:31.741Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/pipelines",
+      "issue": "Slow DOM load (8911ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:32.011Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/pipelines",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:32.012Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/pipelines",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:32.012Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/pipelines",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:32.085Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:40.223Z",
+      "category": "UX",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "field": "Create account",
+      "issue": "Submit not enabled after valid inputs"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:25.033Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:27.819Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error refreshing opportunities: TypeError: Failed to fetch\n    at refreshOpportunities (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:64:36)\n    at OpportunityProvider.useEffect (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:193:13)\n    at Object.react_stack_bottom_frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:23638:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:873:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12296:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12417:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14338:13)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.560Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:36.345Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error refreshing opportunities: TypeError: Failed to fetch\n    at refreshOpportunities (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:64:36)\n    at OpportunityProvider.useEffect (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:193:13)\n    at Object.react_stack_bottom_frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:23638:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:873:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12296:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12417:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14338:13)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.378Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:41.925Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:41.931Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.476Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard",
+      "issue": "Slow DOM load (8598ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.709Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.710Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.710Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.824Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.258Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/leads",
+      "issue": "Slow DOM load (6878ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.460Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/leads",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.460Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/leads",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.460Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/leads",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.595Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:41.927Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:41.931Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:43.591Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/opportunities",
+      "issue": "Slow DOM load (3594ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:43.771Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:43.772Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:43.772Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.541Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/",
+      "issue": "Slow DOM load (8658ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:32.328Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:38.968Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Slow DOM load (6345ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.207Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.208Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/auth/login",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:43.662Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Slow DOM load (3786ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:43.866Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:43.866Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/auth/signup",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:31.923Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:39.762Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:44.660Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:46.676Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:46.677Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/auth/login",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:48.970Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:48.971Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/auth/signup",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:49.281Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:49.288Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:49.288Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:49.423Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.292Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/leads",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.293Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/leads",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.293Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/leads",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.438Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:54.219Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:55.759Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:55.760Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:55.761Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.391Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/pipelines",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.393Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/pipelines",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.402Z",
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/pipelines",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.518Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:57.019Z",
+      "category": "UX",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "field": "Create account",
+      "issue": "Submit not enabled after valid inputs"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:50.408Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:53.720Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:55.262Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:56.915Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:06:56.940Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:41.441Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".right-3",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:41.443Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: color-contrast - Elements must meet minimum color contrast ratio thresholds",
+      "details": ".bg-muted > .mx-auto.text-muted-foreground.text-sm, .border-primary\\/20 > p:nth-child(2)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:46.905Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".space-y-3:nth-child(3) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"], .space-y-3:nth-child(4) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"]",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:53.069Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:59.795Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:40.107Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/",
+      "issue": "Slow DOM load (7352ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:40.770Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:45.428Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Slow DOM load (4211ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:52.181Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Slow DOM load (6018ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:58.779Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard",
+      "issue": "Slow DOM load (5561ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:59.169Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:40.758Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:45.963Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:40.497Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/leads",
+      "issue": "Slow DOM load (7688ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:40.814Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:43.066Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:43.068Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:45.313Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/opportunities",
+      "issue": "Slow DOM load (4182ms)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:48.702Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:53.334Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:53.684Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/",
+      "issue": "axe: link-name - Links must have discernible text",
+      "details": ".w-10.bg-muted.hover\\:bg-primary:nth-child(1), .w-10.bg-muted.hover\\:bg-primary:nth-child(2), .w-10.bg-muted.hover\\:bg-primary:nth-child(3)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:37.567Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:37.589Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:46.303Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:53.228Z",
+      "category": "UX",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "field": "Create account",
+      "issue": "Submit not enabled after valid inputs"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:47.196Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:49.619Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error refreshing opportunities: TypeError: Failed to fetch\n    at refreshOpportunities (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:64:36)\n    at OpportunityProvider.useEffect (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:193:13)\n    at Object.react_stack_bottom_frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:23638:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:873:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12296:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12417:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14338:13)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:52.446Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:56.100Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error refreshing opportunities: TypeError: Failed to fetch\n    at refreshOpportunities (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:64:36)\n    at OpportunityProvider.useEffect (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:193:13)\n    at Object.react_stack_bottom_frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:23638:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:873:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12296:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12417:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14338:13)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:59.030Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:01.375Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:01.377Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error refreshing opportunities: TypeError: Failed to fetch\n    at refreshOpportunities (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:64:36)\n    at OpportunityProvider.useEffect (webpack-internal:///(app-pages-browser)/./contexts/opportunity-context.tsx:193:13)\n    at Object.react_stack_bottom_frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:23638:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:873:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12296:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12417:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14338:13)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14341:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14331:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14465:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:14311:11)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:01.382Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "chromium"
+    },
+    {
+      "generatedAt": "2025-08-18T00:35:59.967Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/",
+      "issue": "Slow DOM load (3546ms)",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:00.477Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:09.091Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:04.676Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:05.715Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:11.301Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/pipelines",
+      "issue": "Slow DOM load (3003ms)",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:11.513Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:15.501Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:16.154Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/",
+      "issue": "axe: link-name - Links must have discernible text",
+      "details": ".w-10.bg-muted.hover\\:bg-primary:nth-child(1), .w-10.bg-muted.hover\\:bg-primary:nth-child(2), .w-10.bg-muted.hover\\:bg-primary:nth-child(3)",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:07.259Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".right-3",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:07.268Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: color-contrast - Elements must meet minimum color contrast ratio thresholds",
+      "details": ".bg-muted > .mx-auto.text-muted-foreground.text-sm, .border-primary\\/20 > p:nth-child(2)",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:12.531Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".space-y-3:nth-child(3) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"], .space-y-3:nth-child(4) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"]",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:16.387Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:19.783Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:05.063Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:11.799Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:16.872Z",
+      "category": "UX",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "field": "Create account",
+      "issue": "Submit not enabled after valid inputs"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:08.442Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:11.660Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:12.036Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:14.004Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:16.156Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:16.206Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:20.389Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/",
+      "issue": "Slow DOM load (6611ms)",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:25.812Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Slow DOM load (4072ms)",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:30.339Z",
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Slow DOM load (3309ms)",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:20.386Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:20.391Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:33.079Z",
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:34.061Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/",
+      "issue": "axe: link-name - Links must have discernible text",
+      "details": ".w-10.bg-muted.hover\\:bg-primary:nth-child(1), .w-10.bg-muted.hover\\:bg-primary:nth-child(2), .w-10.bg-muted.hover\\:bg-primary:nth-child(3)",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:28.064Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".right-3",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:28.074Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "axe: color-contrast - Elements must meet minimum color contrast ratio thresholds",
+      "details": ".bg-muted > .mx-auto.text-muted-foreground.text-sm, .border-primary\\/20 > p:nth-child(2)",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:34.853Z",
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "axe: button-name - Buttons must have discernible text",
+      "details": ".space-y-3:nth-child(3) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"], .space-y-3:nth-child(4) > .group.relative > .right-3.hover\\:text-card-foreground[type=\"button\"]",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:38.787Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:41.603Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:21.502Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:21.513Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:29.465Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:36.673Z",
+      "category": "UX",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "field": "Create account",
+      "issue": "Submit not enabled after valid inputs"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:35.302Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error refreshing opportunities: TypeError: Load failed",
+      "browser": "webkit"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:36.946Z",
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "generatedAt": "2025-08-18T00:36:36.947Z",
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "webkit"
+    }
+  ]
+}

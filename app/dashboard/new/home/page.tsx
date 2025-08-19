@@ -80,34 +80,42 @@ function HomeQuoteContent() {
   };
 
   return (
-    <>
-      <div className="flex items-center mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="mr-2"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back
-        </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Home Insurance Quote</h1>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 p-2 sm:p-4">
+        <div className="max-w-screen-2xl mx-auto w-full">
+          <div className="flex items-center mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="mr-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back
+            </Button>
+            <h1 className="text-3xl font-bold tracking-tight">Home Insurance Quote</h1>
+          </div>
+
+          {isMultiSelection && (
+            <Alert className="mb-6">
+              <AlertTitle className="flex items-center">
+                <Check className="h-4 w-4 mr-2" /> Multi-Selection Mode
+              </AlertTitle>
+              <AlertDescription>
+                You selected multiple insurance types. You are on step {currentTypeIndex + 1} of {selectedTypes.length}.
+                After completing this form, you'll be directed to the next insurance type.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
       </div>
 
-      {isMultiSelection && (
-        <Alert className="mb-6">
-          <AlertTitle className="flex items-center">
-            <Check className="h-4 w-4 mr-2" /> Multi-Selection Mode
-          </AlertTitle>
-          <AlertDescription>
-            You selected multiple insurance types. You are on step {currentTypeIndex + 1} of {selectedTypes.length}.
-            After completing this form, you'll be directed to the next insurance type.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <HomeInsuranceForm onSubmitForm={handleHomeFormSubmit} />
-    </>
+      <div className="flex-1 overflow-auto p-2 sm:p-4 pt-0">
+        <div className="max-w-screen-2xl mx-auto w-full">
+          <HomeInsuranceForm onSubmitForm={handleHomeFormSubmit} />
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -2,7 +2,8 @@ import "./globals.css";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeProvider as ColorThemeProvider } from "@/lib/theme-context";
-import { PipelineProvider } from "@/contexts/pipeline-context";
+import { OpportunityProvider } from "@/contexts/opportunity-context";
+import { QueryProvider } from "@/components/providers/query-provider";
 import React from "react";
 import { inter } from "./fonts";
 import { brand } from "@/lib/brand";
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head suppressHydrationWarning />
       {/* Add suppressHydrationWarning to the body tag */}
       <body
-        className="min-h-screen bg-background font-sans antialiased"
+        className="min-h-screen bg-background font-sans antialiased overflow-x-hidden"
         suppressHydrationWarning
       >
         <ThemeProvider
@@ -39,10 +40,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <ColorThemeProvider>
-            <PipelineProvider>
-              {children}
-              <ToastProvider />
-            </PipelineProvider>
+            <OpportunityProvider>
+              <QueryProvider>
+                <header role="banner" className="sr-only" aria-label="App Header landmark placeholder" />
+                <main role="main">
+                  {children}
+                </main>
+                <footer role="contentinfo" className="sr-only" aria-label="App Footer landmark placeholder" />
+                <ToastProvider />
+              </QueryProvider>
+            </OpportunityProvider>
           </ColorThemeProvider>
         </ThemeProvider>
       </body>

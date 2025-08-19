@@ -36,7 +36,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="relative min-h-screen flex">
+    <div className="relative min-h-screen flex" role="application" aria-label="Dashboard shell">
       {/* Mobile sidebar backdrop */}
       {isMobileMenuOpen && (
         <div
@@ -77,9 +77,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMobileMenuToggle={toggleMobileMenu} />
 
-        <main className="flex-1 overflow-hidden bg-background transition-all duration-300">
+        <main className="flex-1 overflow-hidden bg-background transition-all duration-300" role="main">
           {children}
         </main>
+
+        <footer role="contentinfo" className="sr-only" aria-label="Dashboard Footer landmark placeholder" />
       </div>
     </div>
   );

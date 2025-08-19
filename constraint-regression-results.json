@@ -1,0 +1,133 @@
+{
+  "generated_at": "2025-08-14T04:34:57.547Z",
+  "summary": {
+    "total_tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "success_rate": "100.0",
+    "critical_failures": 0,
+    "categories": {
+      "constraint_integrity": 2,
+      "trigger_behavior": 2,
+      "data_consistency": 2,
+      "api_compliance": 2
+    }
+  },
+  "tests": [
+    {
+      "id": "constraint_communications_status_integrity",
+      "category": "CONSTRAINT_INTEGRITY",
+      "test_name": "Communications Status Constraint Integrity",
+      "description": "Verify communications status constraint allows only valid values",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "constraint_leads_priority_range",
+      "category": "CONSTRAINT_INTEGRITY",
+      "test_name": "Leads Priority Range Constraint",
+      "description": "Verify leads ai_follow_up_priority constraint enforces 1-10 range",
+      "severity": "HIGH"
+    },
+    {
+      "id": "trigger_communication_creation_behavior",
+      "category": "TRIGGER_BEHAVIOR",
+      "test_name": "Communication Creation Trigger Behavior",
+      "description": "Verify call log trigger creates communication with correct status",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "trigger_audit_fields_behavior",
+      "category": "TRIGGER_BEHAVIOR",
+      "test_name": "Audit Fields Trigger Behavior",
+      "description": "Verify audit field triggers exist for critical tables",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "data_foreign_key_consistency",
+      "category": "DATA_CONSISTENCY",
+      "test_name": "Foreign Key Consistency",
+      "description": "Verify no orphaned records exist in critical relationships",
+      "severity": "HIGH"
+    },
+    {
+      "id": "data_enum_value_consistency",
+      "category": "DATA_CONSISTENCY",
+      "test_name": "Enum Value Consistency",
+      "description": "Verify all enum values in data match constraint definitions",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "api_critical_endpoints_available",
+      "category": "API_COMPLIANCE",
+      "test_name": "Critical API Endpoints Available",
+      "description": "Verify all critical API endpoints exist and are accessible",
+      "severity": "HIGH"
+    },
+    {
+      "id": "api_schema_export_integrity",
+      "category": "API_COMPLIANCE",
+      "test_name": "Schema Export Integrity",
+      "description": "Verify Drizzle schema exports are complete and accessible",
+      "severity": "MEDIUM"
+    }
+  ],
+  "results": [
+    {
+      "test_id": "constraint_communications_status_integrity",
+      "category": "CONSTRAINT_INTEGRITY",
+      "status": "PASS",
+      "message": "Communications status constraint is valid",
+      "execution_time_ms": 720
+    },
+    {
+      "test_id": "constraint_leads_priority_range",
+      "category": "CONSTRAINT_INTEGRITY",
+      "status": "PASS",
+      "message": "Leads priority constraint is valid",
+      "execution_time_ms": 55
+    },
+    {
+      "test_id": "trigger_communication_creation_behavior",
+      "category": "TRIGGER_BEHAVIOR",
+      "status": "PASS",
+      "message": "Communication creation trigger is correctly configured",
+      "execution_time_ms": 55
+    },
+    {
+      "test_id": "trigger_audit_fields_behavior",
+      "category": "TRIGGER_BEHAVIOR",
+      "status": "PASS",
+      "message": "All critical tables have audit field triggers",
+      "execution_time_ms": 447
+    },
+    {
+      "test_id": "data_foreign_key_consistency",
+      "category": "DATA_CONSISTENCY",
+      "status": "PASS",
+      "message": "No orphaned records found",
+      "execution_time_ms": 113
+    },
+    {
+      "test_id": "data_enum_value_consistency",
+      "category": "DATA_CONSISTENCY",
+      "status": "PASS",
+      "message": "All enum values are consistent with constraints",
+      "execution_time_ms": 115
+    },
+    {
+      "test_id": "api_critical_endpoints_available",
+      "category": "API_COMPLIANCE",
+      "status": "PASS",
+      "message": "All critical API endpoints are available",
+      "execution_time_ms": 2
+    },
+    {
+      "test_id": "api_schema_export_integrity",
+      "category": "API_COMPLIANCE",
+      "status": "PASS",
+      "message": "Schema exports are complete",
+      "execution_time_ms": 0
+    }
+  ]
+}

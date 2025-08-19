@@ -123,14 +123,13 @@ function LeadsPageContent() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Configure the sensor with a delay to differentiate between clicks and drags
+      // More responsive configuration - let the component handle click vs drag detection
+      // This allows for immediate response while the LeadCard component manages the timing
       activationConstraint: {
-        // Add a small delay to allow for clicks
-        delay: 250,
-        // Add some tolerance for small movements during clicks
-        tolerance: 5,
-        // Add a small distance constraint to prevent accidental drags
-        distance: 8,
+        // Minimal delay for better responsiveness
+        delay: 0,
+        // Small tolerance to prevent accidental micro-movements
+        tolerance: 3
       }
     }),
     useSensor(KeyboardSensor, {
@@ -344,7 +343,7 @@ function LeadsPageContent() {
     // Set up real-time subscription
     const subscription = supabase
       .channel('leads-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_ins_info' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
         // Refresh leads when changes occur
         fetchLeads();
       })
@@ -535,7 +534,7 @@ function LeadsPageContent() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Fixed Header Section */}
-      <div className="flex-shrink-0 p-2 sm:p-4 space-y-4">
+      <div className="flex-shrink-0 p-2 sm:p-4"><div className="max-w-screen-2xl mx-auto w-full space-y-4">
         {/* Development Mode Banner */}
         <DevelopmentModeBanner
           message="Connected to Supabase database. Some tables may be missing or have permission issues."
@@ -599,9 +598,11 @@ function LeadsPageContent() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-hidden p-2 sm:p-4 pt-0">
+        <div className="max-w-screen-2xl mx-auto w-full">
 
       {currentView === 'kanban' ? (
         <DndContext
@@ -718,6 +719,7 @@ function LeadsPageContent() {
           onStatusFilterChange={handleStatusFilterChange}
         />
       )}
+        </div>
       </div>
 
       {/* Modals - Outside the scroll container */}
@@ -742,16 +744,7 @@ function LeadsPageContent() {
   );
 }
 
-// Wrap the component that uses searchParams in a Suspense boundary
+// Default export for page component
 export default function LeadsPage() {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center h-screen">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold mb-2">Loading...</h2>
-        <p className="text-muted-foreground">Please wait while we prepare your leads.</p>
-      </div>
-    </div>}>
-      <LeadsPageContent />
-    </Suspense>
-  );
+  return <LeadsPageContent />;
 }

@@ -1,0 +1,62 @@
+graph TD
+    A[Lead Form Submission] --> B[Create Contact]
+    B --> C{Contact Created}
+    C --> D[lifecycle_stage: 'lead']
+    
+    D --> E[Initial Outreach]
+    E --> F[Update last_contact_at]
+    
+    F --> G{Lead Qualified?}
+    G -->|No| H[Remain as Lead]
+    G -->|Yes| I[Create Opportunity]
+    
+    I --> J[Update Contact]
+    J --> K[lifecycle_stage: 'opportunity_contact']
+    
+    K --> L[Opportunity Created]
+    L --> M[stage: 'start']
+
+    M --> N[Initial Contact]
+    N --> O[stage: 'contacted?']
+
+    O --> P[Prepare Quote]
+    P --> Q[stage: 'quoted?']
+
+    Q --> R{Customer Decision}
+    R -->|Accept| S[stage: 'closed_won']
+    R -->|Reject| T[stage: 'closed_lost']
+    R -->|Negotiate| U[stage: 'proposed']
+    R -->|Follow-up Later| W1[stage: 'future_follow_up_date']
+    
+    U --> V{Final Decision}
+    V -->|Accept| S
+    V -->|Reject| T
+
+    W1 --> W2[Schedule Follow-up]
+    W2 --> O
+    
+    S --> W[Update Contact]
+    W --> X[lifecycle_stage: 'customer']
+    
+    T --> Y[Update Contact]
+    Y --> Z[lifecycle_stage: 'churned']
+    
+    %% Kanban Stage Mapping
+    D -.->|Kanban: New| D1[New Column]
+    F -.->|Kanban: Contacted| F1[Contacted Column]
+    M -.->|Kanban: Qualified| M1[Qualified Column]
+    Q -.->|Kanban: Quoted| Q1[Quoted Column]
+    U -.->|Kanban: Negotiation| U1[Negotiation Column]
+    S -.->|Kanban: Sold| S1[Sold Column]
+    T -.->|Kanban: Lost| T1[Lost Column]
+    
+    %% Styling
+    classDef contactStage fill:#e1f5fe
+    classDef opportunityStage fill:#f3e5f5
+    classDef kanbanStage fill:#fff3e0
+    classDef finalStage fill:#e8f5e8
+    
+    class B,C,D,F,J,K,W,X,Y,Z contactStage
+    class I,L,M,O,P,Q,S,T,U opportunityStage
+    class D1,F1,M1,Q1,U1,S1,T1 kanbanStage
+    class S,T,X,Z finalStage

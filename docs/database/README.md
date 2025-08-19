@@ -6,7 +6,18 @@ This database powers an AI-first insurance CRM system designed for human-AI coll
 
 **Platform**: Supabase Cloud (PostgreSQL 15+)
 **Frontend**: Vercel (Next.js)
+**ORM**: Drizzle ORM (Type-safe queries)
 **Architecture**: AI-centric with traditional UI as supplementary layers
+**Status**: ✅ **Unified Schema v2.0.0 Successfully Deployed**
+
+## 📚 Documentation Index
+
+### Migration & Architecture
+- **[migration_data_mapping.md](./migration_data_mapping.md)** - Prior to current schema mapping ✅ **COMPLETED**
+- **[Lead_Journey_Mapping.md](./Lead_Journey_Mapping.md)** - Lead lifecycle through unified schema
+- **[Kanban_Board_Migration_Guide.md](./Kanban_Board_Migration_Guide.md)** - Frontend migration guide
+- **[lead_journey_diagram.mmd](./lead_journey_diagram.mmd)** - Visual flow diagram
+- **[CRM_Data_Structure_Optimization.txt](./CRM_Data_Structure_Optimization.txt)** - Original optimization analysis
 
 ## 🏗️ Core Architecture Principles
 
@@ -179,11 +190,35 @@ psql -c "SELECT version();"
 ## 📚 References
 
 - **[Schema Design Rationale](CRM_Schema_Design_Rationale.md)** - Detailed design decisions
+- **[Drizzle ORM Setup](DRIZZLE_ORM_SETUP.md)** - Type-safe database queries with Drizzle
+- **[Drizzle Quick Reference](DRIZZLE_QUICK_REFERENCE.md)** - Common query patterns and examples
 - **[Migration Documentation](../migrations/README.md)** - Database migration procedures
 - **[Backup System](BACKUP_SYSTEM.md)** - Backup and recovery procedures
 
 ---
 
-**Last Updated**: January 13, 2025
-**Schema Version**: Post-circular dependency resolution
+## 🚀 Current Status: Unified Schema v2.0.0
+
+### ✅ Phase 1: Backend Infrastructure (COMPLETED)
+- **Unified Schema**: Successfully deployed and validated
+- **API Layer**: Contacts and opportunities APIs refactored
+- **Multi-tenancy**: Workspace isolation implemented
+- **Health Checks**: Database connectivity validated
+- **Documentation**: Complete lead journey mapping created
+
+### 🔄 Phase 2: Frontend Migration (IN PROGRESS)
+- **Kanban Board**: Update to use unified APIs
+- **Forms**: Modify lead creation for contacts
+- **Components**: Refactor React components
+
+### 📋 Phase 3: Advanced Features (PLANNED)
+- **AI Integration**: Vector embeddings and insights
+- **Performance**: Query optimization and caching
+- **Analytics**: Conversion tracking and reporting
+
+---
+
+**Last Updated**: August 15, 2025
+**Schema Version**: Unified v2.0.0 ✅ **DEPLOYED**
+**Migration Status**: Backend Complete, Frontend In Progress
 **Maintained By**: AI-Centric CRM Development Team

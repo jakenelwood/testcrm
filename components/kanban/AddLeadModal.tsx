@@ -60,13 +60,17 @@ export function AddLeadModal({ isOpen, onClose, onLeadCreated }: AddLeadModalPro
 
       // Create lead in Supabase
       const { data, error } = await supabase
-        .from('leads_ins_info')
+        .from('leads')
         .insert({
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          email: formData.email || null,
-          phone_number: formData.phone_number || null,
-          insurance_type: formData.insurance_type,
+          // Store contact info in metadata for now since we're using the leads table
+          metadata: {
+            contact: {
+              first_name: formData.first_name,
+              last_name: formData.last_name,
+              email: formData.email || null,
+              phone_number: formData.phone_number || null,
+            }
+          },
           status: 'New' as LeadStatus,
           current_carrier: formData.current_carrier || null,
           premium: premium,

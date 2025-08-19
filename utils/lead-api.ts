@@ -6,7 +6,21 @@
  */
 
 import { Lead, LeadStatus, InsuranceType } from "@/types/lead";
-import supabase from '@/utils/supabase/client';
+import { createClient } from '@supabase/supabase-js';
+
+// Use service role key for server-side operations, anon key for client-side
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+
+  // Check if we're on the server and have service role key
+  if (typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  }
+
+  // Fallback to anon key for client-side
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 /**
  * Fetches leads with joined client, status, and insurance type information
@@ -14,6 +28,8 @@ import supabase from '@/utils/supabase/client';
  */
 export async function fetchLeadsWithRelations(): Promise<Lead[]> {
   try {
+    const supabase = getSupabaseClient();
+
     // First, check if the leads table has the expected structure
     const { data: leadsColumns, error: columnsError } = await supabase
       .from('leads')
@@ -25,10 +41,12 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
       return []; // Return empty array instead of throwing
     }
 
+
+
     // Build the select query for the current schema
     let selectQuery = `
       *,
-      pipeline_status:pipeline_statuses!pipeline_status_id(name),
+      lead_status:lead_statuses!lead_status_id(value),
       insurance_type:insurance_types!insurance_type_id(name)
     `;
 
@@ -43,6 +61,8 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
       return []; // Return empty array instead of throwing
     }
 
+
+
     // Process the leads to ensure they have the expected structure for UI components
     const processedLeads = data?.map((lead: any) => {
       // Extract contact information from metadata or custom_fields if available
@@ -56,7 +76,7 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
         phone_number: contactInfo.phone_number || lead.metadata?.phone_number || '',
 
         // Map joined fields to their expected properties
-        status: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name : lead.status || 'New',
+        status: typeof lead.lead_status === 'object' && lead.lead_status?.value ? lead.lead_status.value : lead.status || 'New',
         insurance_type: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name : 'Auto',
 
         // Address fields (not currently used in this schema)
@@ -71,12 +91,13 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
         mailing_address_zip_code: null,
 
         // Ensure we have status_legacy and insurance_type_legacy for compatibility
-        status_legacy: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name as LeadStatus : (lead.status as LeadStatus) || 'New',
+        status_legacy: typeof lead.lead_status === 'object' && lead.lead_status?.value ? lead.lead_status.value as LeadStatus : (lead.status as LeadStatus) || 'New',
         insurance_type_legacy: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name as InsuranceType : 'Auto'
       };
 
       return processedLead;
     }) || [];
+
 
     return processedLeads;
   } catch (err) {
@@ -91,10 +112,12 @@ export async function fetchLeadsWithRelations(): Promise<Lead[]> {
  */
 export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeline: boolean = false): Promise<Lead[]> {
   try {
+    const supabase = getSupabaseClient();
+
     // Build the select query for the current schema
+    // Note: Using direct status field instead of lead_statuses join since our data uses the status field directly
     let selectQuery = `
       *,
-      pipeline_status:pipeline_statuses!pipeline_status_id(name),
       insurance_type:insurance_types!insurance_type_id(name)
     `;
 
@@ -133,7 +156,7 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
         phone_number: contactInfo.phone_number || lead.metadata?.phone_number || '',
 
         // Map joined fields to their expected properties
-        status: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name : lead.status || 'New',
+        status: typeof lead.lead_status === 'object' && lead.lead_status?.value ? lead.lead_status.value : lead.status || 'New',
         insurance_type: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name : 'Auto',
 
         // Address fields (not currently used in this schema)
@@ -148,7 +171,7 @@ export async function fetchLeadsByPipeline(pipelineId: number, includeNullPipeli
         mailing_address_zip_code: null,
 
         // Ensure we have status_legacy and insurance_type_legacy for compatibility
-        status_legacy: typeof lead.pipeline_status === 'object' && lead.pipeline_status?.name ? lead.pipeline_status.name as LeadStatus : (lead.status as LeadStatus) || 'New',
+        status_legacy: (lead.status as LeadStatus) || 'New',
         insurance_type_legacy: typeof lead.insurance_type === 'object' && lead.insurance_type?.name ? lead.insurance_type.name as InsuranceType : 'Auto'
       };
 

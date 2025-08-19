@@ -2,6 +2,9 @@
 type: "agent_requested"
 description: "Authentication and access"
 ---
+Database Tools
+Drizzle is installed and should be used to connect with Supabase PostgreSQL.
+
 Vercel
 https://vercel.com/jakenelwoods-projects/testcrm
 

@@ -1,0 +1,105 @@
+{
+  "generated_at": "2025-08-14T04:45:46.640Z",
+  "summary": {
+    "total_tables": 9,
+    "total_records_created": 15,
+    "total_records_failed": 16,
+    "total_execution_time_ms": 6655,
+    "rollbacks_performed": 3,
+    "success_rate": 48.38709677419355
+  },
+  "seeding_results": [
+    {
+      "table": "users",
+      "records_created": 0,
+      "records_failed": 5,
+      "execution_time_ms": 2326,
+      "errors": [
+        "User admin@example.com: PostgresError: insert or update on table \"users\" violates foreign key constraint \"users_id_fkey\"",
+        "User manager@example.com: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "User agent1@example.com: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "User agent2@example.com: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "User user@example.com: PostgresError: current transaction is aborted, commands ignored until end of transaction block"
+      ],
+      "rollback_performed": true
+    },
+    {
+      "table": "insurance_types",
+      "records_created": 0,
+      "records_failed": 8,
+      "execution_time_ms": 1567,
+      "errors": [
+        "Type Auto Insurance: PostgresError: duplicate key value violates unique constraint \"insurance_types_name_key\"",
+        "Type Home Insurance: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "Type Life Insurance: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "Type Health Insurance: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "Type Business Insurance: PostgresError: current transaction is aborted, commands ignored until end of transaction block"
+      ],
+      "rollback_performed": true
+    },
+    {
+      "table": "addresses",
+      "records_created": 15,
+      "records_failed": 0,
+      "execution_time_ms": 2762,
+      "errors": [],
+      "rollback_performed": false
+    },
+    {
+      "table": "pipelines",
+      "records_created": 0,
+      "records_failed": 3,
+      "execution_time_ms": 0,
+      "errors": [
+        "Transaction failed: Error: No users available for pipeline creation"
+      ],
+      "rollback_performed": true
+    },
+    {
+      "table": "pipeline_statuses",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "rollback_performed": false
+    },
+    {
+      "table": "leads",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "rollback_performed": false
+    },
+    {
+      "table": "clients",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "rollback_performed": false
+    },
+    {
+      "table": "communications",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "rollback_performed": false
+    },
+    {
+      "table": "quotes",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "rollback_performed": false
+    }
+  ],
+  "created_data_summary": [
+    {
+      "table": "addresses",
+      "count": 90
+    }
+  ]
+}

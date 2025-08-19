@@ -91,12 +91,22 @@ ON CONFLICT (id) DO UPDATE SET
 -- =============================================================================
 
 -- User avatars - users can upload their own avatars
-CREATE POLICY "Users can upload their own avatar" ON storage.objects
-  FOR INSERT WITH CHECK (
-    bucket_id = 'user-avatars' AND
-    auth.uid()::text = (storage.foldername(name))[1] AND
-    auth.role() = 'authenticated'
-  );
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage'
+    AND tablename = 'objects'
+    AND policyname = 'Users can upload their own avatar'
+  ) THEN
+    CREATE POLICY "Users can upload their own avatar" ON storage.objects
+      FOR INSERT WITH CHECK (
+        bucket_id = 'user-avatars' AND
+        auth.uid()::text = (storage.foldername(name))[1] AND
+        auth.role() = 'authenticated'
+      );
+  END IF;
+END $$;
 
 -- User avatars - users can update their own avatars
 CREATE POLICY "Users can update their own avatar" ON storage.objects

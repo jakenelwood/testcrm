@@ -1,0 +1,1382 @@
+{
+  "generated_at": "2025-08-14T04:26:32.376Z",
+  "summary": {
+    "total_validations": 4,
+    "matches": 4,
+    "mismatches": 0,
+    "missing_in_db": 0,
+    "missing_in_drizzle": 0,
+    "critical_issues": 0,
+    "high_issues": 0
+  },
+  "database_constraints": [
+    {
+      "table_name": "_version_info",
+      "constraint_name": "_version_info_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_campaign_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE",
+      "column_name": "campaign_id"
+    },
+    {
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Running'::text, 'Completed'::text, 'Cancelled'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_test_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((test_type = ANY (ARRAY['Subject Line'::text, 'Content'::text, 'Send Time'::text, 'Call Script'::text, 'Landing Page'::text, 'Offer'::text, 'CTA'::text])))",
+      "column_name": "test_type"
+    },
+    {
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "addresses",
+      "constraint_name": "addresses_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "addresses",
+      "constraint_name": "addresses_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "addresses",
+      "constraint_name": "addresses_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['Physical'::text, 'Mailing'::text, 'Business'::text, 'Location'::text, 'Billing'::text, 'Shipping'::text])))",
+      "column_name": "type"
+    },
+    {
+      "table_name": "addresses",
+      "constraint_name": "addresses_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_agent_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (agent_id) REFERENCES ai_agents(id) ON DELETE CASCADE",
+      "column_name": "agent_id"
+    },
+    {
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_confidence_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((confidence_score >= (0)::numeric) AND (confidence_score <= (100)::numeric)))",
+      "column_name": "confidence_score"
+    },
+    {
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_entity_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((entity_type = ANY (ARRAY['client'::text, 'lead'::text, 'user'::text, 'global'::text, 'conversation'::text, 'task'::text])))",
+      "column_name": "entity_type"
+    },
+    {
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_importance_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((importance_score >= 1) AND (importance_score <= 10)))",
+      "column_name": "importance_score"
+    },
+    {
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_memory_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((memory_type = ANY (ARRAY['conversation'::text, 'insight'::text, 'preference'::text, 'fact'::text, 'pattern'::text, 'feedback'::text])))",
+      "column_name": "memory_type"
+    },
+    {
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_agent_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((agent_type = ANY (ARRAY['assistant'::text, 'workflow'::text, 'analyzer'::text, 'generator'::text])))",
+      "column_name": "agent_type"
+    },
+    {
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_model_provider_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((model_provider = ANY (ARRAY['openai'::text, 'anthropic'::text, 'deepinfra'::text, 'local'::text])))",
+      "column_name": "model_provider"
+    },
+    {
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_role_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['follow_up'::text, 'insight'::text, 'design'::text, 'support'::text, 'marketing'::text, 'sales'::text, 'analysis'::text])))",
+      "column_name": "role"
+    },
+    {
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_temperature_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((temperature >= (0)::numeric) AND (temperature <= (2)::numeric)))",
+      "column_name": "temperature"
+    },
+    {
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_agent_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (agent_id) REFERENCES ai_agents(id)",
+      "column_name": "agent_id"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_quality_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((quality_score >= (0)::numeric) AND (quality_score <= (5)::numeric)))",
+      "column_name": "quality_score"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_source_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((source = ANY (ARRAY['Agent UI'::text, 'Marketing Automation'::text, 'AI Assistant'::text, 'Backend Middleware'::text, 'API'::text, 'Webhook'::text])))",
+      "column_name": "source"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['Chat'::text, 'Follow-Up'::text, 'Summary'::text, 'Prediction'::text, 'PromptResponse'::text, 'Analysis'::text, 'Recommendation'::text])))",
+      "column_name": "type"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_user_feedback_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((user_feedback = ANY (ARRAY['positive'::text, 'negative'::text, 'neutral'::text])))",
+      "column_name": "user_feedback"
+    },
+    {
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "api_rate_limits",
+      "constraint_name": "api_rate_limits_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "api_rate_limits",
+      "constraint_name": "api_rate_limits_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "audit_logs",
+      "constraint_name": "audit_logs_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "audit_logs",
+      "constraint_name": "audit_logs_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_ai_sentiment_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))",
+      "column_name": "ai_sentiment"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_communication_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (communication_id) REFERENCES communications(id)",
+      "column_name": "communication_id"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_direction_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))",
+      "column_name": "direction"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_quality_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((quality_score >= 1) AND (quality_score <= 5)))",
+      "column_name": "quality_score"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_result_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((result = ANY (ARRAY['Call connected'::text, 'Voicemail'::text, 'Busy'::text, 'No Answer'::text, 'Rejected'::text, 'Failed'::text])))",
+      "column_name": "result"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_ringcentral_call_id_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (ringcentral_call_id)",
+      "column_name": "ringcentral_call_id"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Ringing'::text, 'Connected'::text, 'Disconnected'::text, 'Busy'::text, 'NoAnswer'::text, 'Rejected'::text, 'VoiceMail'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_campaign_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((campaign_type = ANY (ARRAY['Email'::text, 'SMS'::text, 'Phone'::text, 'Social'::text, 'Direct Mail'::text, 'Digital Ads'::text, 'Webinar'::text, 'Event'::text])))",
+      "column_name": "campaign_type"
+    },
+    {
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Active'::text, 'Paused'::text, 'Completed'::text, 'Cancelled'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_address_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (address_id) REFERENCES addresses(id)",
+      "column_name": "address_id"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((ai_risk_score >= 0) AND (ai_risk_score <= 100)))",
+      "column_name": "ai_risk_score"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_client_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((client_type = ANY (ARRAY['Individual'::text, 'Business'::text])))",
+      "column_name": "client_type"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_mailing_address_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (mailing_address_id) REFERENCES addresses(id)",
+      "column_name": "mailing_address_id"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Active'::text, 'Inactive'::text, 'Prospect'::text, 'Lost'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_ab_test_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (ab_test_id) REFERENCES ab_tests(id)",
+      "column_name": "ab_test_id"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_ai_sentiment_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))",
+      "column_name": "ai_sentiment"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_call_quality_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((call_quality_score >= 1) AND (call_quality_score <= 5)))",
+      "column_name": "call_quality_score"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_campaign_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (campaign_id) REFERENCES campaigns(id)",
+      "column_name": "campaign_id"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_content_template_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (content_template_id) REFERENCES content_templates(id)",
+      "column_name": "content_template_id"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_direction_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))",
+      "column_name": "direction"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Pending'::text, 'Sent'::text, 'Delivered'::text, 'Opened'::text, 'Clicked'::text, 'Replied'::text, 'Failed'::text, 'Bounced'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['call'::text, 'email'::text, 'sms'::text, 'meeting'::text, 'note'::text, 'voicemail'::text, 'social'::text, 'letter'::text])))",
+      "column_name": "type"
+    },
+    {
+      "table_name": "communications",
+      "constraint_name": "communications_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_template_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((template_type = ANY (ARRAY['Email'::text, 'SMS'::text, 'Call Script'::text, 'Social Post'::text, 'Ad Copy'::text, 'Letter'::text, 'Proposal'::text])))",
+      "column_name": "template_type"
+    },
+    {
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_agent_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (agent_id) REFERENCES ai_agents(id)",
+      "column_name": "agent_id"
+    },
+    {
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['active'::text, 'completed'::text, 'paused'::text, 'error'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_ab_test_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (ab_test_id) REFERENCES ab_tests(id)",
+      "column_name": "ab_test_id"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_attribution_model_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((attribution_model = ANY (ARRAY['first_touch'::text, 'last_touch'::text, 'linear'::text, 'time_decay'::text, 'position_based'::text])))",
+      "column_name": "attribution_model"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_campaign_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (campaign_id) REFERENCES campaigns(id)",
+      "column_name": "campaign_id"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_communication_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (communication_id) REFERENCES communications(id)",
+      "column_name": "communication_id"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_touchpoint_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((touchpoint_type = ANY (ARRAY['Email Open'::text, 'Email Click'::text, 'SMS Click'::text, 'Phone Call'::text, 'Website Visit'::text, 'Form Submit'::text, 'Ad Click'::text, 'Social Engagement'::text, 'Download'::text, 'Purchase'::text])))",
+      "column_name": "touchpoint_type"
+    },
+    {
+      "table_name": "file_deletions",
+      "constraint_name": "file_deletions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "file_deletions",
+      "constraint_name": "file_deletions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE SET NULL",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "file_uploads",
+      "constraint_name": "file_uploads_entity_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((entity_type = ANY (ARRAY['user'::text, 'lead'::text, 'client'::text])))",
+      "column_name": "entity_type"
+    },
+    {
+      "table_name": "file_uploads",
+      "constraint_name": "file_uploads_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "file_uploads",
+      "constraint_name": "file_uploads_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "homes",
+      "constraint_name": "homes_address_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (address_id) REFERENCES addresses(id)",
+      "column_name": "address_id"
+    },
+    {
+      "table_name": "homes",
+      "constraint_name": "homes_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "homes",
+      "constraint_name": "homes_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "homes",
+      "constraint_name": "homes_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "homes",
+      "constraint_name": "homes_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "homes",
+      "constraint_name": "homes_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "insurance_types",
+      "constraint_name": "insurance_types_name_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (name)",
+      "column_name": "name"
+    },
+    {
+      "table_name": "insurance_types",
+      "constraint_name": "insurance_types_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_changed_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (changed_by) REFERENCES users(id)",
+      "column_name": "changed_by"
+    },
+    {
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_from_pipeline_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (from_pipeline_status_id) REFERENCES pipeline_statuses(id)",
+      "column_name": "from_pipeline_status_id"
+    },
+    {
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_to_pipeline_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (to_pipeline_status_id) REFERENCES pipeline_statuses(id)",
+      "column_name": "to_pipeline_status_id"
+    },
+    {
+      "table_name": "lead_statuses",
+      "constraint_name": "lead_statuses_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "lead_statuses",
+      "constraint_name": "lead_statuses_value_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (value)",
+      "column_name": "value"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_ai_conversion_probability_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((ai_conversion_probability >= (0)::numeric) AND (ai_conversion_probability <= (100)::numeric)))",
+      "column_name": "ai_conversion_probability"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((ai_follow_up_priority >= 1) AND (ai_follow_up_priority <= 10)))",
+      "column_name": "ai_follow_up_priority"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_assigned_to_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (assigned_to) REFERENCES users(id)",
+      "column_name": "assigned_to"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_converted_to_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (converted_to_client_id) REFERENCES clients(id) ON DELETE SET NULL",
+      "column_name": "converted_to_client_id"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_insurance_type_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (insurance_type_id) REFERENCES insurance_types(id)",
+      "column_name": "insurance_type_id"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_lead_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_status_id) REFERENCES lead_statuses(id)",
+      "column_name": "lead_status_id"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_lead_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((lead_type = ANY (ARRAY['Personal'::text, 'Business'::text])))",
+      "column_name": "lead_type"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_pipeline_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (pipeline_id) REFERENCES pipelines(id)",
+      "column_name": "pipeline_id"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_pipeline_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (pipeline_status_id) REFERENCES pipeline_statuses(id)",
+      "column_name": "pipeline_status_id"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_priority_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((priority = ANY (ARRAY['Low'::text, 'Medium'::text, 'High'::text, 'Urgent'::text])))",
+      "column_name": "priority"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['New'::text, 'Contacted'::text, 'Qualified'::text, 'Quoted'::text, 'Sold'::text, 'Lost'::text, 'Hibernated'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "leads",
+      "constraint_name": "leads_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "password_history",
+      "constraint_name": "password_history_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "password_history",
+      "constraint_name": "password_history_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "permissions",
+      "constraint_name": "permissions_name_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (name)",
+      "column_name": "name"
+    },
+    {
+      "table_name": "permissions",
+      "constraint_name": "permissions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_display_order_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (pipeline_id, display_order)",
+      "column_name": "display_order"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_display_order_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (pipeline_id, display_order)",
+      "column_name": "pipeline_id"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (pipeline_id) REFERENCES pipelines(id) ON DELETE CASCADE",
+      "column_name": "pipeline_id"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_name_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (pipeline_id, name)",
+      "column_name": "name"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_name_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (pipeline_id, name)",
+      "column_name": "pipeline_id"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_stage_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((stage_type = ANY (ARRAY['active'::text, 'waiting'::text, 'final'::text])))",
+      "column_name": "stage_type"
+    },
+    {
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_lead_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((lead_type = ANY (ARRAY['Personal'::text, 'Business'::text, 'Both'::text])))",
+      "column_name": "lead_type"
+    },
+    {
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "quotes",
+      "constraint_name": "quotes_contract_term_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((contract_term = ANY (ARRAY['6mo'::text, '12mo'::text, '24mo'::text])))",
+      "column_name": "contract_term"
+    },
+    {
+      "table_name": "quotes",
+      "constraint_name": "quotes_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "quotes",
+      "constraint_name": "quotes_insurance_type_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (insurance_type_id) REFERENCES insurance_types(id)",
+      "column_name": "insurance_type_id"
+    },
+    {
+      "table_name": "quotes",
+      "constraint_name": "quotes_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "quotes",
+      "constraint_name": "quotes_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Pending'::text, 'Approved'::text, 'Declined'::text, 'Expired'::text, 'Bound'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "quotes",
+      "constraint_name": "quotes_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "ringcentral_tokens",
+      "constraint_name": "ringcentral_tokens_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "ringcentral_tokens",
+      "constraint_name": "ringcentral_tokens_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "ringcentral_tokens",
+      "constraint_name": "ringcentral_tokens_user_id_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (user_id)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "schema_versions",
+      "constraint_name": "schema_versions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "schema_versions",
+      "constraint_name": "schema_versions_version_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (version)",
+      "column_name": "version"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_ai_sentiment_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))",
+      "column_name": "ai_sentiment"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_communication_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (communication_id) REFERENCES communications(id)",
+      "column_name": "communication_id"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_direction_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))",
+      "column_name": "direction"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_ringcentral_message_id_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (ringcentral_message_id)",
+      "column_name": "ringcentral_message_id"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Queued'::text, 'Sent'::text, 'Delivered'::text, 'DeliveryFailed'::text, 'SendingFailed'::text, 'Received'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    },
+    {
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_accepted_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (accepted_by) REFERENCES auth.users(id)",
+      "column_name": "accepted_by"
+    },
+    {
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_invitation_token_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (invitation_token)",
+      "column_name": "invitation_token"
+    },
+    {
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_invited_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (invited_by) REFERENCES auth.users(id)",
+      "column_name": "invited_by"
+    },
+    {
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_role_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['user'::text, 'agent'::text, 'manager'::text, 'admin'::text, 'owner'::text])))",
+      "column_name": "role"
+    },
+    {
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'expired'::text, 'cancelled'::text])))",
+      "column_name": "status"
+    },
+    {
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_phone_number_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((phone_number_type = ANY (ARRAY['Direct'::text, 'Main'::text, 'Toll-Free'::text, 'Local'::text])))",
+      "column_name": "phone_number_type"
+    },
+    {
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_user_id_selected_phone_number_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (user_id, selected_phone_number)",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_user_id_selected_phone_number_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (user_id, selected_phone_number)",
+      "column_name": "selected_phone_number"
+    },
+    {
+      "table_name": "user_sessions",
+      "constraint_name": "user_sessions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "user_sessions",
+      "constraint_name": "user_sessions_session_token_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (session_token)",
+      "column_name": "session_token"
+    },
+    {
+      "table_name": "user_sessions",
+      "constraint_name": "user_sessions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "column_name": "user_id"
+    },
+    {
+      "table_name": "users",
+      "constraint_name": "users_email_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (email)",
+      "column_name": "email"
+    },
+    {
+      "table_name": "users",
+      "constraint_name": "users_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "column_name": "id"
+    },
+    {
+      "table_name": "users",
+      "constraint_name": "users_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "users",
+      "constraint_name": "users_role_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['user'::text, 'admin'::text, 'agent'::text, 'manager'::text])))",
+      "column_name": "role"
+    },
+    {
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+      "column_name": "client_id"
+    },
+    {
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)",
+      "column_name": "created_by"
+    },
+    {
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE",
+      "column_name": "lead_id"
+    },
+    {
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)",
+      "column_name": "id"
+    },
+    {
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)",
+      "column_name": "updated_by"
+    }
+  ],
+  "validation_results": [
+    {
+      "table": "communications",
+      "field": "status",
+      "status": "MATCH",
+      "database_constraint": "Pending, Sent, Delivered, Opened, Clicked, Replied, Failed, Bounced",
+      "drizzle_constraint": "Pending, Sent, Delivered, Opened, Clicked, Replied, Failed, Bounced",
+      "severity": "LOW",
+      "recommendation": "Constraint matches expected values"
+    },
+    {
+      "table": "leads",
+      "field": "status",
+      "status": "MATCH",
+      "database_constraint": "New, Contacted, Qualified, Quoted, Sold, Lost, Hibernated",
+      "drizzle_constraint": "New, Contacted, Qualified, Quoted, Sold, Lost, Hibernated",
+      "severity": "LOW",
+      "recommendation": "Constraint matches expected values"
+    },
+    {
+      "table": "clients",
+      "field": "status",
+      "status": "MATCH",
+      "database_constraint": "Active, Inactive, Prospect, Lost",
+      "drizzle_constraint": "Active, Inactive, Prospect, Lost",
+      "severity": "LOW",
+      "recommendation": "Constraint matches expected values"
+    },
+    {
+      "table": "quotes",
+      "field": "status",
+      "status": "MATCH",
+      "database_constraint": "Draft, Pending, Approved, Declined, Expired, Bound",
+      "drizzle_constraint": "Draft, Pending, Approved, Declined, Expired, Bound",
+      "severity": "LOW",
+      "recommendation": "Constraint matches expected values"
+    }
+  ]
+}

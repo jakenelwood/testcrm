@@ -1,0 +1,5 @@
+{"generatedAt":"2025-08-18T00:06:53.391Z","category":"Accessibility","severity":"medium","page":"/dashboard/pipelines","issue":"Missing <main> or role=\"main\" landmark"}
+{"generatedAt":"2025-08-18T00:06:53.393Z","category":"Accessibility","severity":"low","page":"/dashboard/pipelines","issue":"Missing <header> or role=\"banner\" landmark"}
+{"generatedAt":"2025-08-18T00:06:53.402Z","category":"Accessibility","severity":"low","page":"/dashboard/pipelines","issue":"Missing <footer> or role=\"contentinfo\" landmark"}
+{"generatedAt":"2025-08-18T00:06:53.518Z","category":"Stability","severity":"high","issue":"Console error: Error getting user: Error","browser":"firefox"}
+{"generatedAt":"2025-08-18T00:06:57.019Z","category":"UX","severity":"medium","page":"/auth/signup","field":"Create account","issue":"Submit not enabled after valid inputs"}

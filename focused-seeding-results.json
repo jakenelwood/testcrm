@@ -1,0 +1,169 @@
+{
+  "generated_at": "2025-08-14T04:48:06.130Z",
+  "summary": {
+    "total_tables": 6,
+    "total_records_created": 14,
+    "total_records_failed": 23,
+    "total_execution_time_ms": 3584,
+    "success_rate": 37.83783783783784,
+    "existing_users_found": 1
+  },
+  "seeding_results": [
+    {
+      "table": "insurance_types",
+      "records_created": 4,
+      "records_failed": 0,
+      "execution_time_ms": 1055,
+      "errors": [],
+      "sample_records": [
+        {
+          "id": 34,
+          "name": "Test Auto Insurance",
+          "is_personal": true,
+          "is_commercial": false,
+          "description": "Test comprehensive auto insurance coverage",
+          "icon_name": null,
+          "form_schema": {},
+          "required_fields": [],
+          "optional_fields": [],
+          "ai_prompt_template": null,
+          "ai_risk_factors": {},
+          "display_order": null,
+          "is_active": true,
+          "created_at": "2025-08-14T04:48:03.114Z",
+          "updated_at": "2025-08-14T04:48:03.114Z"
+        },
+        {
+          "id": 35,
+          "name": "Test Home Insurance",
+          "is_personal": true,
+          "is_commercial": false,
+          "description": "Test comprehensive home insurance coverage",
+          "icon_name": null,
+          "form_schema": {},
+          "required_fields": [],
+          "optional_fields": [],
+          "ai_prompt_template": null,
+          "ai_risk_factors": {},
+          "display_order": null,
+          "is_active": true,
+          "created_at": "2025-08-14T04:48:03.219Z",
+          "updated_at": "2025-08-14T04:48:03.219Z"
+        }
+      ]
+    },
+    {
+      "table": "addresses",
+      "records_created": 10,
+      "records_failed": 0,
+      "execution_time_ms": 1210,
+      "errors": [],
+      "sample_records": [
+        {
+          "id": "659e385b-cc50-41bd-9bf4-45627fbd1e44",
+          "street": "429 Waelchi Groves Test St",
+          "street2": null,
+          "city": "Port Dwightmouth",
+          "state": "LA",
+          "zip_code": "65290",
+          "country": "US",
+          "type": "Mailing",
+          "is_verified": false,
+          "verification_source": null,
+          "verification_date": null,
+          "geocode_lat": null,
+          "geocode_lng": null,
+          "geocode_accuracy": null,
+          "geocode_source": null,
+          "geocode_date": null,
+          "formatted_address": "429 Waelchi Groves Test St, Port Dwightmouth, LA 65290",
+          "plus_code": null,
+          "place_id": null,
+          "metadata": {},
+          "notes": null,
+          "created_by": null,
+          "updated_by": null,
+          "created_at": "2025-08-14T04:48:03.607Z",
+          "updated_at": "2025-08-14T04:48:03.607Z"
+        },
+        {
+          "id": "a9394fa9-2a28-4ffd-ac8a-19df736ef73b",
+          "street": "71530 Price Creek Test St",
+          "street2": null,
+          "city": "Lake Jerel",
+          "state": "TN",
+          "zip_code": "82320-3533",
+          "country": "US",
+          "type": "Business",
+          "is_verified": false,
+          "verification_source": null,
+          "verification_date": null,
+          "geocode_lat": null,
+          "geocode_lng": null,
+          "geocode_accuracy": null,
+          "geocode_source": null,
+          "geocode_date": null,
+          "formatted_address": "71530 Price Creek Test St, Lake Jerel, TN 82320-3533",
+          "plus_code": null,
+          "place_id": null,
+          "metadata": {},
+          "notes": null,
+          "created_by": null,
+          "updated_by": null,
+          "created_at": "2025-08-14T04:48:03.719Z",
+          "updated_at": "2025-08-14T04:48:03.719Z"
+        }
+      ]
+    },
+    {
+      "table": "leads",
+      "records_created": 0,
+      "records_failed": 15,
+      "execution_time_ms": 870,
+      "errors": [
+        "Lead 0: PostgresError: column \"first_name\" of relation \"leads\" does not exist",
+        "Lead 1: PostgresError: column \"first_name\" of relation \"leads\" does not exist",
+        "Lead 2: PostgresError: column \"first_name\" of relation \"leads\" does not exist"
+      ],
+      "sample_records": []
+    },
+    {
+      "table": "clients",
+      "records_created": 0,
+      "records_failed": 8,
+      "execution_time_ms": 449,
+      "errors": [
+        "Client 0: PostgresError: column \"notes\" of relation \"clients\" does not exist",
+        "Client 1: PostgresError: column \"notes\" of relation \"clients\" does not exist",
+        "Client 2: PostgresError: column \"notes\" of relation \"clients\" does not exist"
+      ],
+      "sample_records": []
+    },
+    {
+      "table": "communications",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "sample_records": []
+    },
+    {
+      "table": "quotes",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "sample_records": []
+    }
+  ],
+  "created_data_summary": [
+    {
+      "table": "insurance_types",
+      "count": 4
+    },
+    {
+      "table": "addresses",
+      "count": 10
+    }
+  ]
+}

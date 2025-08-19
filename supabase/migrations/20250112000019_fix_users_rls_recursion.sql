@@ -36,7 +36,7 @@ SECURITY DEFINER
 STABLE
 AS $$
   SELECT COALESCE(
-    (auth.jwt() ->> 'user_metadata' ->> 'role' = 'admin'),
+    ((auth.jwt() ->> 'user_metadata')::jsonb ->> 'role' = 'admin'),
     false
   );
 $$;
@@ -49,7 +49,7 @@ SECURITY DEFINER
 STABLE
 AS $$
   SELECT COALESCE(
-    (auth.jwt() ->> 'user_metadata' ->> 'role' = required_role),
+    ((auth.jwt() ->> 'user_metadata')::jsonb ->> 'role' = required_role),
     false
   );
 $$;

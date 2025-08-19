@@ -1,0 +1,12 @@
+{"generatedAt":"2025-08-18T00:06:49.281Z","category":"Accessibility","severity":"medium","page":"/dashboard","issue":"Missing <main> or role=\"main\" landmark"}
+{"generatedAt":"2025-08-18T00:06:49.288Z","category":"Accessibility","severity":"low","page":"/dashboard","issue":"Missing <header> or role=\"banner\" landmark"}
+{"generatedAt":"2025-08-18T00:06:49.288Z","category":"Accessibility","severity":"low","page":"/dashboard","issue":"Missing <footer> or role=\"contentinfo\" landmark"}
+{"generatedAt":"2025-08-18T00:06:49.423Z","category":"Stability","severity":"high","issue":"Console error: Error getting user: Error","browser":"firefox"}
+{"generatedAt":"2025-08-18T00:06:53.292Z","category":"Accessibility","severity":"medium","page":"/dashboard/leads","issue":"Missing <main> or role=\"main\" landmark"}
+{"generatedAt":"2025-08-18T00:06:53.293Z","category":"Accessibility","severity":"low","page":"/dashboard/leads","issue":"Missing <header> or role=\"banner\" landmark"}
+{"generatedAt":"2025-08-18T00:06:53.293Z","category":"Accessibility","severity":"low","page":"/dashboard/leads","issue":"Missing <footer> or role=\"contentinfo\" landmark"}
+{"generatedAt":"2025-08-18T00:06:53.438Z","category":"Stability","severity":"high","issue":"Console error: Error getting user: Error","browser":"firefox"}
+{"generatedAt":"2025-08-18T00:06:54.219Z","category":"API","severity":"medium","issue":"HTTP 404 on GET http://localhost:3000/dashboard/opportunities"}
+{"generatedAt":"2025-08-18T00:06:55.759Z","category":"Accessibility","severity":"medium","page":"/dashboard/opportunities","issue":"Missing <main> or role=\"main\" landmark"}
+{"generatedAt":"2025-08-18T00:06:55.760Z","category":"Accessibility","severity":"low","page":"/dashboard/opportunities","issue":"Missing <header> or role=\"banner\" landmark"}
+{"generatedAt":"2025-08-18T00:06:55.761Z","category":"Accessibility","severity":"low","page":"/dashboard/opportunities","issue":"Missing <footer> or role=\"contentinfo\" landmark"}

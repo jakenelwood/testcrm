@@ -1,0 +1,619 @@
+{
+  "generated_at": "2025-08-14T04:32:05.623Z",
+  "summary": {
+    "total_enum_constraints": 42,
+    "total_check_constraints": 9,
+    "total_issues": 0,
+    "critical_issues": 0,
+    "high_issues": 0,
+    "medium_issues": 0,
+    "low_issues": 0
+  },
+  "enum_constraints": [
+    {
+      "table_name": "ab_tests",
+      "column_name": "status",
+      "constraint_name": "ab_tests_status_check",
+      "allowed_values": [
+        "Draft",
+        "Running",
+        "Completed",
+        "Cancelled"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Running'::text, 'Completed'::text, 'Cancelled'::text])))"
+    },
+    {
+      "table_name": "ab_tests",
+      "column_name": "test_type",
+      "constraint_name": "ab_tests_test_type_check",
+      "allowed_values": [
+        "Subject Line",
+        "Content",
+        "Send Time",
+        "Call Script",
+        "Landing Page",
+        "Offer",
+        "CTA"
+      ],
+      "constraint_definition": "CHECK ((test_type = ANY (ARRAY['Subject Line'::text, 'Content'::text, 'Send Time'::text, 'Call Script'::text, 'Landing Page'::text, 'Offer'::text, 'CTA'::text])))"
+    },
+    {
+      "table_name": "addresses",
+      "column_name": "type",
+      "constraint_name": "addresses_type_check",
+      "allowed_values": [
+        "Physical",
+        "Mailing",
+        "Business",
+        "Location",
+        "Billing",
+        "Shipping"
+      ],
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['Physical'::text, 'Mailing'::text, 'Business'::text, 'Location'::text, 'Billing'::text, 'Shipping'::text])))"
+    },
+    {
+      "table_name": "agent_memory",
+      "column_name": "entity_type",
+      "constraint_name": "agent_memory_entity_type_check",
+      "allowed_values": [
+        "client",
+        "lead",
+        "user",
+        "global",
+        "conversation",
+        "task"
+      ],
+      "constraint_definition": "CHECK ((entity_type = ANY (ARRAY['client'::text, 'lead'::text, 'user'::text, 'global'::text, 'conversation'::text, 'task'::text])))"
+    },
+    {
+      "table_name": "agent_memory",
+      "column_name": "memory_type",
+      "constraint_name": "agent_memory_memory_type_check",
+      "allowed_values": [
+        "conversation",
+        "insight",
+        "preference",
+        "fact",
+        "pattern",
+        "feedback"
+      ],
+      "constraint_definition": "CHECK ((memory_type = ANY (ARRAY['conversation'::text, 'insight'::text, 'preference'::text, 'fact'::text, 'pattern'::text, 'feedback'::text])))"
+    },
+    {
+      "table_name": "ai_agents",
+      "column_name": "agent_type",
+      "constraint_name": "ai_agents_agent_type_check",
+      "allowed_values": [
+        "assistant",
+        "workflow",
+        "analyzer",
+        "generator"
+      ],
+      "constraint_definition": "CHECK ((agent_type = ANY (ARRAY['assistant'::text, 'workflow'::text, 'analyzer'::text, 'generator'::text])))"
+    },
+    {
+      "table_name": "ai_agents",
+      "column_name": "model_provider",
+      "constraint_name": "ai_agents_model_provider_check",
+      "allowed_values": [
+        "openai",
+        "anthropic",
+        "deepinfra",
+        "local"
+      ],
+      "constraint_definition": "CHECK ((model_provider = ANY (ARRAY['openai'::text, 'anthropic'::text, 'deepinfra'::text, 'local'::text])))"
+    },
+    {
+      "table_name": "ai_agents",
+      "column_name": "role",
+      "constraint_name": "ai_agents_role_check",
+      "allowed_values": [
+        "follow_up",
+        "insight",
+        "design",
+        "support",
+        "marketing",
+        "sales",
+        "analysis"
+      ],
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['follow_up'::text, 'insight'::text, 'design'::text, 'support'::text, 'marketing'::text, 'sales'::text, 'analysis'::text])))"
+    },
+    {
+      "table_name": "ai_interactions",
+      "column_name": "source",
+      "constraint_name": "ai_interactions_source_check",
+      "allowed_values": [
+        "Agent UI",
+        "Marketing Automation",
+        "AI Assistant",
+        "Backend Middleware",
+        "API",
+        "Webhook"
+      ],
+      "constraint_definition": "CHECK ((source = ANY (ARRAY['Agent UI'::text, 'Marketing Automation'::text, 'AI Assistant'::text, 'Backend Middleware'::text, 'API'::text, 'Webhook'::text])))"
+    },
+    {
+      "table_name": "ai_interactions",
+      "column_name": "type",
+      "constraint_name": "ai_interactions_type_check",
+      "allowed_values": [
+        "Chat",
+        "Follow-Up",
+        "Summary",
+        "Prediction",
+        "PromptResponse",
+        "Analysis",
+        "Recommendation"
+      ],
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['Chat'::text, 'Follow-Up'::text, 'Summary'::text, 'Prediction'::text, 'PromptResponse'::text, 'Analysis'::text, 'Recommendation'::text])))"
+    },
+    {
+      "table_name": "ai_interactions",
+      "column_name": "user_feedback",
+      "constraint_name": "ai_interactions_user_feedback_check",
+      "allowed_values": [
+        "positive",
+        "negative",
+        "neutral"
+      ],
+      "constraint_definition": "CHECK ((user_feedback = ANY (ARRAY['positive'::text, 'negative'::text, 'neutral'::text])))"
+    },
+    {
+      "table_name": "call_logs",
+      "column_name": "ai_sentiment",
+      "constraint_name": "call_logs_ai_sentiment_check",
+      "allowed_values": [
+        "Positive",
+        "Neutral",
+        "Negative"
+      ],
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))"
+    },
+    {
+      "table_name": "call_logs",
+      "column_name": "direction",
+      "constraint_name": "call_logs_direction_check",
+      "allowed_values": [
+        "Inbound",
+        "Outbound"
+      ],
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))"
+    },
+    {
+      "table_name": "call_logs",
+      "column_name": "result",
+      "constraint_name": "call_logs_result_check",
+      "allowed_values": [
+        "Call connected",
+        "Voicemail",
+        "Busy",
+        "No Answer",
+        "Rejected",
+        "Failed"
+      ],
+      "constraint_definition": "CHECK ((result = ANY (ARRAY['Call connected'::text, 'Voicemail'::text, 'Busy'::text, 'No Answer'::text, 'Rejected'::text, 'Failed'::text])))"
+    },
+    {
+      "table_name": "call_logs",
+      "column_name": "status",
+      "constraint_name": "call_logs_status_check",
+      "allowed_values": [
+        "Ringing",
+        "Connected",
+        "Disconnected",
+        "Busy",
+        "NoAnswer",
+        "Rejected",
+        "VoiceMail"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Ringing'::text, 'Connected'::text, 'Disconnected'::text, 'Busy'::text, 'NoAnswer'::text, 'Rejected'::text, 'VoiceMail'::text])))"
+    },
+    {
+      "table_name": "campaigns",
+      "column_name": "campaign_type",
+      "constraint_name": "campaigns_campaign_type_check",
+      "allowed_values": [
+        "Email",
+        "SMS",
+        "Phone",
+        "Social",
+        "Direct Mail",
+        "Digital Ads",
+        "Webinar",
+        "Event"
+      ],
+      "constraint_definition": "CHECK ((campaign_type = ANY (ARRAY['Email'::text, 'SMS'::text, 'Phone'::text, 'Social'::text, 'Direct Mail'::text, 'Digital Ads'::text, 'Webinar'::text, 'Event'::text])))"
+    },
+    {
+      "table_name": "campaigns",
+      "column_name": "status",
+      "constraint_name": "campaigns_status_check",
+      "allowed_values": [
+        "Draft",
+        "Active",
+        "Paused",
+        "Completed",
+        "Cancelled"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Active'::text, 'Paused'::text, 'Completed'::text, 'Cancelled'::text])))"
+    },
+    {
+      "table_name": "clients",
+      "column_name": "client_type",
+      "constraint_name": "clients_client_type_check",
+      "allowed_values": [
+        "Individual",
+        "Business"
+      ],
+      "constraint_definition": "CHECK ((client_type = ANY (ARRAY['Individual'::text, 'Business'::text])))"
+    },
+    {
+      "table_name": "clients",
+      "column_name": "status",
+      "constraint_name": "clients_status_check",
+      "allowed_values": [
+        "Active",
+        "Inactive",
+        "Prospect",
+        "Lost"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Active'::text, 'Inactive'::text, 'Prospect'::text, 'Lost'::text])))"
+    },
+    {
+      "table_name": "communications",
+      "column_name": "ai_sentiment",
+      "constraint_name": "communications_ai_sentiment_check",
+      "allowed_values": [
+        "Positive",
+        "Neutral",
+        "Negative"
+      ],
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))"
+    },
+    {
+      "table_name": "communications",
+      "column_name": "direction",
+      "constraint_name": "communications_direction_check",
+      "allowed_values": [
+        "Inbound",
+        "Outbound"
+      ],
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))"
+    },
+    {
+      "table_name": "communications",
+      "column_name": "status",
+      "constraint_name": "communications_status_check",
+      "allowed_values": [
+        "Pending",
+        "Sent",
+        "Delivered",
+        "Opened",
+        "Clicked",
+        "Replied",
+        "Failed",
+        "Bounced"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Pending'::text, 'Sent'::text, 'Delivered'::text, 'Opened'::text, 'Clicked'::text, 'Replied'::text, 'Failed'::text, 'Bounced'::text])))"
+    },
+    {
+      "table_name": "communications",
+      "column_name": "type",
+      "constraint_name": "communications_type_check",
+      "allowed_values": [
+        "call",
+        "email",
+        "sms",
+        "meeting",
+        "note",
+        "voicemail",
+        "social",
+        "letter"
+      ],
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['call'::text, 'email'::text, 'sms'::text, 'meeting'::text, 'note'::text, 'voicemail'::text, 'social'::text, 'letter'::text])))"
+    },
+    {
+      "table_name": "content_templates",
+      "column_name": "template_type",
+      "constraint_name": "content_templates_template_type_check",
+      "allowed_values": [
+        "Email",
+        "SMS",
+        "Call Script",
+        "Social Post",
+        "Ad Copy",
+        "Letter",
+        "Proposal"
+      ],
+      "constraint_definition": "CHECK ((template_type = ANY (ARRAY['Email'::text, 'SMS'::text, 'Call Script'::text, 'Social Post'::text, 'Ad Copy'::text, 'Letter'::text, 'Proposal'::text])))"
+    },
+    {
+      "table_name": "conversation_sessions",
+      "column_name": "status",
+      "constraint_name": "conversation_sessions_status_check",
+      "allowed_values": [
+        "active",
+        "completed",
+        "paused",
+        "error"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['active'::text, 'completed'::text, 'paused'::text, 'error'::text])))"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "column_name": "attribution_model",
+      "constraint_name": "customer_touchpoints_attribution_model_check",
+      "allowed_values": [
+        "first_touch",
+        "last_touch",
+        "linear",
+        "time_decay",
+        "position_based"
+      ],
+      "constraint_definition": "CHECK ((attribution_model = ANY (ARRAY['first_touch'::text, 'last_touch'::text, 'linear'::text, 'time_decay'::text, 'position_based'::text])))"
+    },
+    {
+      "table_name": "customer_touchpoints",
+      "column_name": "touchpoint_type",
+      "constraint_name": "customer_touchpoints_touchpoint_type_check",
+      "allowed_values": [
+        "Email Open",
+        "Email Click",
+        "SMS Click",
+        "Phone Call",
+        "Website Visit",
+        "Form Submit",
+        "Ad Click",
+        "Social Engagement",
+        "Download",
+        "Purchase"
+      ],
+      "constraint_definition": "CHECK ((touchpoint_type = ANY (ARRAY['Email Open'::text, 'Email Click'::text, 'SMS Click'::text, 'Phone Call'::text, 'Website Visit'::text, 'Form Submit'::text, 'Ad Click'::text, 'Social Engagement'::text, 'Download'::text, 'Purchase'::text])))"
+    },
+    {
+      "table_name": "file_uploads",
+      "column_name": "entity_type",
+      "constraint_name": "file_uploads_entity_type_check",
+      "allowed_values": [
+        "user",
+        "lead",
+        "client"
+      ],
+      "constraint_definition": "CHECK ((entity_type = ANY (ARRAY['user'::text, 'lead'::text, 'client'::text])))"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "lead_type",
+      "constraint_name": "leads_lead_type_check",
+      "allowed_values": [
+        "Personal",
+        "Business"
+      ],
+      "constraint_definition": "CHECK ((lead_type = ANY (ARRAY['Personal'::text, 'Business'::text])))"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "priority",
+      "constraint_name": "leads_priority_check",
+      "allowed_values": [
+        "Low",
+        "Medium",
+        "High",
+        "Urgent"
+      ],
+      "constraint_definition": "CHECK ((priority = ANY (ARRAY['Low'::text, 'Medium'::text, 'High'::text, 'Urgent'::text])))"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "status",
+      "constraint_name": "leads_status_check",
+      "allowed_values": [
+        "New",
+        "Contacted",
+        "Qualified",
+        "Quoted",
+        "Sold",
+        "Lost",
+        "Hibernated"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['New'::text, 'Contacted'::text, 'Qualified'::text, 'Quoted'::text, 'Sold'::text, 'Lost'::text, 'Hibernated'::text])))"
+    },
+    {
+      "table_name": "pipeline_statuses",
+      "column_name": "stage_type",
+      "constraint_name": "pipeline_statuses_stage_type_check",
+      "allowed_values": [
+        "active",
+        "waiting",
+        "final"
+      ],
+      "constraint_definition": "CHECK ((stage_type = ANY (ARRAY['active'::text, 'waiting'::text, 'final'::text])))"
+    },
+    {
+      "table_name": "pipelines",
+      "column_name": "lead_type",
+      "constraint_name": "pipelines_lead_type_check",
+      "allowed_values": [
+        "Personal",
+        "Business",
+        "Both"
+      ],
+      "constraint_definition": "CHECK ((lead_type = ANY (ARRAY['Personal'::text, 'Business'::text, 'Both'::text])))"
+    },
+    {
+      "table_name": "quotes",
+      "column_name": "contract_term",
+      "constraint_name": "quotes_contract_term_check",
+      "allowed_values": [
+        "6mo",
+        "12mo",
+        "24mo"
+      ],
+      "constraint_definition": "CHECK ((contract_term = ANY (ARRAY['6mo'::text, '12mo'::text, '24mo'::text])))"
+    },
+    {
+      "table_name": "quotes",
+      "column_name": "status",
+      "constraint_name": "quotes_status_check",
+      "allowed_values": [
+        "Draft",
+        "Pending",
+        "Approved",
+        "Declined",
+        "Expired",
+        "Bound"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Pending'::text, 'Approved'::text, 'Declined'::text, 'Expired'::text, 'Bound'::text])))"
+    },
+    {
+      "table_name": "sms_logs",
+      "column_name": "ai_sentiment",
+      "constraint_name": "sms_logs_ai_sentiment_check",
+      "allowed_values": [
+        "Positive",
+        "Neutral",
+        "Negative"
+      ],
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))"
+    },
+    {
+      "table_name": "sms_logs",
+      "column_name": "direction",
+      "constraint_name": "sms_logs_direction_check",
+      "allowed_values": [
+        "Inbound",
+        "Outbound"
+      ],
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))"
+    },
+    {
+      "table_name": "sms_logs",
+      "column_name": "status",
+      "constraint_name": "sms_logs_status_check",
+      "allowed_values": [
+        "Queued",
+        "Sent",
+        "Delivered",
+        "DeliveryFailed",
+        "SendingFailed",
+        "Received"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Queued'::text, 'Sent'::text, 'Delivered'::text, 'DeliveryFailed'::text, 'SendingFailed'::text, 'Received'::text])))"
+    },
+    {
+      "table_name": "user_invitations",
+      "column_name": "role",
+      "constraint_name": "user_invitations_role_check",
+      "allowed_values": [
+        "user",
+        "agent",
+        "manager",
+        "admin",
+        "owner"
+      ],
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['user'::text, 'agent'::text, 'manager'::text, 'admin'::text, 'owner'::text])))"
+    },
+    {
+      "table_name": "user_invitations",
+      "column_name": "status",
+      "constraint_name": "user_invitations_status_check",
+      "allowed_values": [
+        "pending",
+        "accepted",
+        "expired",
+        "cancelled"
+      ],
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'expired'::text, 'cancelled'::text])))"
+    },
+    {
+      "table_name": "user_phone_preferences",
+      "column_name": "phone_number_type",
+      "constraint_name": "user_phone_preferences_phone_number_type_check",
+      "allowed_values": [
+        "Direct",
+        "Main",
+        "Toll-Free",
+        "Local"
+      ],
+      "constraint_definition": "CHECK ((phone_number_type = ANY (ARRAY['Direct'::text, 'Main'::text, 'Toll-Free'::text, 'Local'::text])))"
+    },
+    {
+      "table_name": "users",
+      "column_name": "role",
+      "constraint_name": "users_role_check",
+      "allowed_values": [
+        "user",
+        "admin",
+        "agent",
+        "manager"
+      ],
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['user'::text, 'admin'::text, 'agent'::text, 'manager'::text])))"
+    }
+  ],
+  "check_constraints": [
+    {
+      "table_name": "agent_memory",
+      "column_name": "confidence_score",
+      "constraint_name": "agent_memory_confidence_score_check",
+      "constraint_definition": "CHECK (((confidence_score >= (0)::numeric) AND (confidence_score <= (100)::numeric)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "agent_memory",
+      "column_name": "importance_score",
+      "constraint_name": "agent_memory_importance_score_check",
+      "constraint_definition": "CHECK (((importance_score >= 1) AND (importance_score <= 10)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "ai_agents",
+      "column_name": "temperature",
+      "constraint_name": "ai_agents_temperature_check",
+      "constraint_definition": "CHECK (((temperature >= (0)::numeric) AND (temperature <= (2)::numeric)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "ai_interactions",
+      "column_name": "quality_score",
+      "constraint_name": "ai_interactions_quality_score_check",
+      "constraint_definition": "CHECK (((quality_score >= (0)::numeric) AND (quality_score <= (5)::numeric)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "call_logs",
+      "column_name": "quality_score",
+      "constraint_name": "call_logs_quality_score_check",
+      "constraint_definition": "CHECK (((quality_score >= 1) AND (quality_score <= 5)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "clients",
+      "column_name": "ai_risk_score",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_definition": "CHECK (((ai_risk_score >= 0) AND (ai_risk_score <= 100)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "communications",
+      "column_name": "call_quality_score",
+      "constraint_name": "communications_call_quality_score_check",
+      "constraint_definition": "CHECK (((call_quality_score >= 1) AND (call_quality_score <= 5)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "ai_conversion_probability",
+      "constraint_name": "leads_ai_conversion_probability_check",
+      "constraint_definition": "CHECK (((ai_conversion_probability >= (0)::numeric) AND (ai_conversion_probability <= (100)::numeric)))",
+      "constraint_type": "RANGE"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "ai_follow_up_priority",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_definition": "CHECK (((ai_follow_up_priority >= 1) AND (ai_follow_up_priority <= 10)))",
+      "constraint_type": "RANGE"
+    }
+  ],
+  "validation_issues": []
+}

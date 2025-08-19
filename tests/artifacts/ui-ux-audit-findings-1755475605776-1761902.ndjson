@@ -1,0 +1,3 @@
+{"generatedAt":"2025-08-18T00:06:55.262Z","category":"Stability","severity":"high","issue":"Console error: Error getting user: Error","browser":"firefox"}
+{"generatedAt":"2025-08-18T00:06:56.915Z","category":"API","severity":"medium","issue":"HTTP 404 on GET http://localhost:3000/dashboard/opportunities"}
+{"generatedAt":"2025-08-18T00:06:56.940Z","category":"Stability","severity":"high","issue":"Console error: Error getting user: Error","browser":"firefox"}

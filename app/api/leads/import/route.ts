@@ -230,9 +230,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Create leads directly in leads_ins_info table
+    // Create leads directly in leads table
     const { data: createdLeads, error: leadError } = await supabase
-      .from('leads_ins_info')
+      .from('leads')
       .insert(leads)
       .select('id');
 

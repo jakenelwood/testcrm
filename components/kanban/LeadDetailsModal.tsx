@@ -575,7 +575,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
       // Try to get the RLS policies
       const { data: policyData, error: policyError } = await supabase
-        .from('leads_ins_info')
+        .from('leads')
         .select('*')
         .limit(1);
 
@@ -599,64 +599,52 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       // Convert premium to number if provided
       const premium = formData.premium ? parseFloat(formData.premium) : null;
 
-      // Get the status ID based on the status name
-      let statusId = 1; // Default to "New" (ID: 1)
+      // Get the status ID based on the status name (using lead_statuses table IDs)
+      let statusId = 17; // Default to "New" (ID: 17)
       switch (formData.status) {
-        case 'New': statusId = 1; break;
-        case 'Contacted': statusId = 2; break;
-        case 'Quoted': statusId = 3; break;
-        case 'Sold': statusId = 4; break;
-        case 'Lost': statusId = 5; break;
+        case 'New': statusId = 17; break;
+        case 'Contacted': statusId = 18; break;
+        case 'Qualified': statusId = 19; break;
+        case 'Quoted': statusId = 20; break;
+        case 'Negotiating': statusId = 21; break;
+        case 'Sold': statusId = 22; break;
+        case 'Lost': statusId = 23; break;
+        case 'Hibernated': statusId = 24; break;
       }
 
-      // Get the insurance type ID based on the insurance type name
-      let insuranceTypeId = 1; // Default to "Auto" (ID: 1)
+      // Get the insurance type ID based on the insurance type name (using insurance_types table IDs)
+      let insuranceTypeId = 17; // Default to "Auto" (ID: 17)
       switch (formData.insurance_type) {
-        case 'Auto': insuranceTypeId = 1; break;
-        case 'Home': insuranceTypeId = 2; break;
-        case 'Specialty': insuranceTypeId = 3; break;
-        case 'Commercial': insuranceTypeId = 4; break;
-        case 'Liability': insuranceTypeId = 5; break;
+        case 'Auto': insuranceTypeId = 17; break;
+        case 'Home': insuranceTypeId = 18; break;
+        case 'Renters': insuranceTypeId = 19; break;
+        case 'Specialty': insuranceTypeId = 20; break;
+        case 'Commercial Auto': insuranceTypeId = 21; break;
+        case 'General Liability': insuranceTypeId = 22; break;
+        case 'Commercial Property': insuranceTypeId = 23; break;
+        case 'Workers Compensation': insuranceTypeId = 24; break;
       }
 
-      // First, update the client record with the new name and contact information
+      // Update contact information in metadata
       const clientName = `${formData.first_name} ${formData.last_name}`.trim();
 
-      // Get the client ID from either client_id or legacy contact info field
-      let clientId = lead.client_id || (lead as any).leads_contact_info_id;
-
-      // If we still don't have it, try to get it from the client object
-      if (!clientId && lead.client?.id) {
-        clientId = lead.client.id;
-      }
-
-      if (!clientId) {
-        console.error('No client ID found for lead:', lead.id);
-        console.log('Lead object:', lead);
-        throw new Error('No client ID found for lead');
-      }
-
-      console.log('Updating client record:', {
-        client_id: clientId,
-        name: clientName,
-        email: formData.email,
-        phone_number: formData.phone_number
-      });
-
-      const { error: clientError } = await supabase
-        .from('leads_contact_info')
-        .update({
+      // Prepare the updated metadata with contact information
+      const currentMetadata = lead.metadata || {};
+      const updatedMetadata = {
+        ...currentMetadata,
+        contact: {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
           name: clientName,
           email: formData.email || null,
           phone_number: formData.phone_number || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', clientId);
+        }
+      };
 
-      if (clientError) {
-        console.error('Error updating client:', clientError);
-        throw clientError;
-      }
+      console.log('Updating lead with contact info in metadata:', {
+        lead_id: lead.id,
+        contact: updatedMetadata.contact
+      });
 
       console.log('Client record updated successfully');
 
@@ -717,14 +705,16 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
       // Then update lead in Supabase - only include fields that exist in the database
       const { data, error } = await supabase
-        .from('leads_ins_info')
+        .from('leads')
         .update({
-          status_id: statusId,
+          lead_status_id: statusId,
           insurance_type_id: insuranceTypeId,
           current_carrier: formData.current_carrier || null,
           premium: premium,
           notes: formData.notes || null,
           assigned_to: formData.assigned_to || null,
+          metadata: updatedMetadata,
+          status: formData.status, // Also update the text status field
           updated_at: new Date().toISOString(),
         })
         .eq('id', lead.id);
@@ -750,99 +740,67 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           variant: "destructive"
         });
       } else {
-        // Fetch the updated lead data from the lead_details view to get the latest address information
+        // Fetch the updated lead data from the leads table
         const { data: updatedLeadData, error: fetchError } = await supabase
-          .from('lead_details')
-          .select('*')
+          .from('leads')
+          .select(`
+            *,
+            lead_status:lead_statuses!lead_status_id(value),
+            insurance_type:insurance_types!insurance_type_id(name)
+          `)
           .eq('id', lead.id)
           .single();
 
         if (fetchError) {
           console.error('Error fetching updated lead data:', fetchError);
-
-          // Fallback to fetching from lead_details view
-          const { data: fallbackData, error: fallbackError } = await supabase
-            .from('lead_details')
-            .select('*')
-            .eq('id', lead.id)
-            .single();
-
-          if (fallbackError) {
-            console.error('Error fetching fallback lead data:', fallbackError);
-            toast({
-              title: "Warning",
-              description: "Lead updated but couldn't refresh the latest data.",
-              variant: "default"
-            });
-            return;
-          }
-
-          // Process the fallback data
-          const processedLead: Lead = {
-            ...fallbackData,
-            // Map joined fields to their expected properties
-            status: typeof fallbackData.status === 'object' && fallbackData.status?.value ? fallbackData.status.value : 'New',
-            insurance_type: typeof fallbackData.insurance_type === 'object' && fallbackData.insurance_type?.name ? fallbackData.insurance_type.name : 'Auto',
-
-            // Add legacy fields from client data for backward compatibility
-            first_name: typeof fallbackData.client === 'object' && fallbackData.client?.name ? fallbackData.client.name.split(' ')[0] : '',
-            last_name: typeof fallbackData.client === 'object' && fallbackData.client?.name ? fallbackData.client.name.split(' ').slice(1).join(' ') : '',
-            email: typeof fallbackData.client === 'object' ? fallbackData.client?.email || '' : '',
-            phone_number: typeof fallbackData.client === 'object' ? fallbackData.client?.phone_number || '' : '',
-
-            // Ensure we have status_legacy and insurance_type_legacy for compatibility
-            status_legacy: typeof fallbackData.status === 'object' && fallbackData.status?.value ? fallbackData.status.value as LeadStatus : 'New',
-            insurance_type_legacy: typeof fallbackData.insurance_type === 'object' && fallbackData.insurance_type?.name ? fallbackData.insurance_type.name as InsuranceType : 'Auto'
-          };
-
-          // Update the lead in the parent component
-          onLeadUpdated(processedLead);
-          setIsEditing(false);
           toast({
-            title: "Success",
-            description: `Lead and client information updated successfully. Name changed to ${clientName}.`,
+            title: "Warning",
+            description: "Lead updated but couldn't refresh the latest data.",
+            variant: "default"
           });
-
-        } else {
-          // Process the data from lead_details view
-          const processedLead: Lead = {
-            ...updatedLeadData,
-            // Status and insurance type are already direct properties in lead_details
-            status: updatedLeadData.status || 'New',
-            insurance_type: updatedLeadData.insurance_type || 'Auto',
-
-            // Contact information is now directly on the lead
-            first_name: updatedLeadData.first_name || '',
-            last_name: updatedLeadData.last_name || '',
-            email: updatedLeadData.email || '',
-            phone_number: updatedLeadData.phone_number || '',
-
-            // Ensure we have status_legacy and insurance_type_legacy for compatibility
-            status_legacy: updatedLeadData.status || 'New',
-            insurance_type_legacy: updatedLeadData.insurance_type || 'Auto'
-          };
-
-          // Update the lead in the parent component
-          onLeadUpdated(processedLead);
-          setIsEditing(false);
-
-          let successMessage = "Lead and client information updated successfully";
-
-          // Check if physical address was updated
-          if (formData.street_address || formData.city || formData.state || formData.zip_code) {
-            successMessage += " with updated physical address";
-          }
-
-          // Check if mailing address was updated
-          if (formData.mailing_street_address || formData.mailing_city || formData.mailing_state || formData.mailing_zip_code) {
-            successMessage += " and mailing address";
-          }
-
-          toast({
-            title: "Success",
-            description: successMessage,
-          });
+          return;
         }
+
+        // Process the updated lead data
+        const contactInfo = updatedLeadData.metadata?.contact || {};
+        const processedLead: Lead = {
+          ...updatedLeadData,
+          // Map contact information from metadata
+          name: contactInfo.name || 'Unknown',
+          first_name: contactInfo.first_name || '',
+          last_name: contactInfo.last_name || '',
+          email: contactInfo.email || '',
+          phone_number: contactInfo.phone_number || '',
+
+          // Map joined fields to their expected properties
+          status: typeof updatedLeadData.lead_status === 'object' && updatedLeadData.lead_status?.value ? updatedLeadData.lead_status.value : updatedLeadData.status || 'New',
+          insurance_type: typeof updatedLeadData.insurance_type === 'object' && updatedLeadData.insurance_type?.name ? updatedLeadData.insurance_type.name : 'Auto',
+
+          // Ensure we have status_legacy and insurance_type_legacy for compatibility
+          status_legacy: typeof updatedLeadData.lead_status === 'object' && updatedLeadData.lead_status?.value ? updatedLeadData.lead_status.value as LeadStatus : (updatedLeadData.status as LeadStatus) || 'New',
+          insurance_type_legacy: typeof updatedLeadData.insurance_type === 'object' && updatedLeadData.insurance_type?.name ? updatedLeadData.insurance_type.name as InsuranceType : 'Auto'
+        };
+
+        // Update the lead in the parent component
+        onLeadUpdated(processedLead);
+        setIsEditing(false);
+
+        let successMessage = `Lead updated successfully. Name changed to ${clientName}.`;
+
+        // Check if physical address was updated
+        if (formData.street_address || formData.city || formData.state || formData.zip_code) {
+          successMessage += " Physical address updated.";
+        }
+
+        // Check if mailing address was updated
+        if (formData.mailing_street_address || formData.mailing_city || formData.mailing_state || formData.mailing_zip_code) {
+          successMessage += " Mailing address updated.";
+        }
+
+        toast({
+          title: "Success",
+          description: successMessage,
+        });
       }
     } catch (error) {
       console.error('Error updating lead:', error);

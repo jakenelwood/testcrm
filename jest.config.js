@@ -41,6 +41,9 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
     '<rootDir>/_archive/',
   ],
+  // Ignore archived directories entirely to avoid jest-haste-map collisions
+  modulePathIgnorePatterns: ['<rootDir>/_archive/'],
+  watchPathIgnorePatterns: ['<rootDir>/_archive/'],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', {
       presets: [

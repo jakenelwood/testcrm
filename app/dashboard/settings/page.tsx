@@ -110,12 +110,20 @@ export default function SettingsPage() {
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Header section with consistent page padding */}
+      <div className="flex-shrink-0 p-2 sm:p-4">
+        <div className="max-w-screen-2xl mx-auto w-full">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          </div>
+        </div>
       </div>
 
-      <Tabs defaultValue="appearance" className="w-full" onValueChange={setActiveTab}>
+      {/* Content section with the same padding as Dashboard */}
+      <div className="flex-1 overflow-auto p-2 sm:p-4 pt-0">
+        <div className="max-w-screen-2xl mx-auto w-full">
+          <Tabs defaultValue="appearance" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
@@ -319,6 +327,8 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </>
+        </div>
+      </div>
+    </div>
   );
 }

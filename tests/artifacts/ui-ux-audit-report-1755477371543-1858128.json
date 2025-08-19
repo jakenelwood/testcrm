@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2025-08-18T00:36:34.606Z",
+  "findings": [
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/",
+      "issue": "Slow DOM load (6611ms)",
+      "browser": "webkit"
+    },
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Slow DOM load (4072ms)",
+      "browser": "webkit"
+    },
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Slow DOM load (3309ms)",
+      "browser": "webkit"
+    }
+  ]
+}

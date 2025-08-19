@@ -1,0 +1,1158 @@
+{
+  "generated_at": "2025-08-14T04:30:25.434Z",
+  "summary": {
+    "total_tests": 57,
+    "passed": 54,
+    "failed": 3,
+    "errors": 0,
+    "success_rate": "94.7",
+    "critical_failures": 3
+  },
+  "tests": [
+    {
+      "id": "enum_communications_status_valid_Pending",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Pending",
+      "test_data": {
+        "status": "Pending"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_valid_Sent",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Sent",
+      "test_data": {
+        "status": "Sent"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_valid_Delivered",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Delivered",
+      "test_data": {
+        "status": "Delivered"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_valid_Opened",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Opened",
+      "test_data": {
+        "status": "Opened"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_valid_Clicked",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Clicked",
+      "test_data": {
+        "status": "Clicked"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_valid_Replied",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Replied",
+      "test_data": {
+        "status": "Replied"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_valid_Failed",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Failed",
+      "test_data": {
+        "status": "Failed"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_valid_Bounced",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Bounced",
+      "test_data": {
+        "status": "Bounced"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_communications_status_invalid_Completed",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Completed",
+      "test_data": {
+        "status": "Completed"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_communications_status_invalid_Processing",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Processing",
+      "test_data": {
+        "status": "Processing"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_communications_status_invalid_Invalid",
+      "table": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Invalid",
+      "test_data": {
+        "status": "Invalid"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_leads_status_valid_New",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: New",
+      "test_data": {
+        "status": "New"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_leads_status_valid_Contacted",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Contacted",
+      "test_data": {
+        "status": "Contacted"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_leads_status_valid_Qualified",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Qualified",
+      "test_data": {
+        "status": "Qualified"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_leads_status_valid_Quoted",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Quoted",
+      "test_data": {
+        "status": "Quoted"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_leads_status_valid_Sold",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Sold",
+      "test_data": {
+        "status": "Sold"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_leads_status_valid_Lost",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Lost",
+      "test_data": {
+        "status": "Lost"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_leads_status_valid_Hibernated",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Hibernated",
+      "test_data": {
+        "status": "Hibernated"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_leads_status_invalid_Active",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Active",
+      "test_data": {
+        "status": "Active"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_leads_status_invalid_Pending",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Pending",
+      "test_data": {
+        "status": "Pending"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_leads_status_invalid_Complete",
+      "table": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Complete",
+      "test_data": {
+        "status": "Complete"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_clients_status_valid_Active",
+      "table": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Active",
+      "test_data": {
+        "status": "Active"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_clients_status_valid_Inactive",
+      "table": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Inactive",
+      "test_data": {
+        "status": "Inactive"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_clients_status_valid_Prospect",
+      "table": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Prospect",
+      "test_data": {
+        "status": "Prospect"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_clients_status_valid_Lost",
+      "table": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Lost",
+      "test_data": {
+        "status": "Lost"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_clients_status_invalid_New",
+      "table": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: New",
+      "test_data": {
+        "status": "New"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_clients_status_invalid_Pending",
+      "table": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Pending",
+      "test_data": {
+        "status": "Pending"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_clients_status_invalid_Complete",
+      "table": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Complete",
+      "test_data": {
+        "status": "Complete"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_quotes_status_valid_Draft",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Draft",
+      "test_data": {
+        "status": "Draft"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_quotes_status_valid_Pending",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Pending",
+      "test_data": {
+        "status": "Pending"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_quotes_status_valid_Approved",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Approved",
+      "test_data": {
+        "status": "Approved"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_quotes_status_valid_Declined",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Declined",
+      "test_data": {
+        "status": "Declined"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_quotes_status_valid_Expired",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Expired",
+      "test_data": {
+        "status": "Expired"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_quotes_status_valid_Bound",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid status value: Bound",
+      "test_data": {
+        "status": "Bound"
+      },
+      "expected_result": "SUCCESS",
+      "severity": "HIGH"
+    },
+    {
+      "id": "enum_quotes_status_invalid_Active",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Active",
+      "test_data": {
+        "status": "Active"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_quotes_status_invalid_Complete",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Complete",
+      "test_data": {
+        "status": "Complete"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "enum_quotes_status_invalid_Processing",
+      "table": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid status value: Processing",
+      "test_data": {
+        "status": "Processing"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "unique_users_email_duplicate",
+      "table": "users",
+      "constraint_name": "users_email_key",
+      "constraint_type": "UNIQUE",
+      "test_type": "INVALID_DATA",
+      "description": "Test duplicate email value",
+      "test_data": {
+        "email": "test@example.com"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "unique_insurance_types_name_duplicate",
+      "table": "insurance_types",
+      "constraint_name": "insurance_types_name_key",
+      "constraint_type": "UNIQUE",
+      "test_type": "INVALID_DATA",
+      "description": "Test duplicate name value",
+      "test_data": {
+        "name": "Test Insurance Type"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "fk_leads_assigned_to_invalid",
+      "table": "leads",
+      "constraint_name": "leads_assigned_to_fkey",
+      "constraint_type": "FOREIGN_KEY",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid foreign key reference: assigned_to",
+      "test_data": {
+        "assigned_to": "00000000-0000-0000-0000-000000000000"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "fk_communications_lead_id_invalid",
+      "table": "communications",
+      "constraint_name": "communications_lead_id_fkey",
+      "constraint_type": "FOREIGN_KEY",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid foreign key reference: lead_id",
+      "test_data": {
+        "lead_id": "00000000-0000-0000-0000-000000000000"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "fk_quotes_lead_id_invalid",
+      "table": "quotes",
+      "constraint_name": "quotes_lead_id_fkey",
+      "constraint_type": "FOREIGN_KEY",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid foreign key reference: lead_id",
+      "test_data": {
+        "lead_id": "00000000-0000-0000-0000-000000000000"
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "notnull_users_id",
+      "table": "users",
+      "constraint_name": "users_id_not_null",
+      "constraint_type": "NOT_NULL",
+      "test_type": "NULL_TEST",
+      "description": "Test null value for required field: id",
+      "test_data": {
+        "id": null
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "notnull_leads_first_name",
+      "table": "leads",
+      "constraint_name": "leads_first_name_not_null",
+      "constraint_type": "NOT_NULL",
+      "test_type": "NULL_TEST",
+      "description": "Test null value for required field: first_name",
+      "test_data": {
+        "first_name": null
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "notnull_communications_type",
+      "table": "communications",
+      "constraint_name": "communications_type_not_null",
+      "constraint_type": "NOT_NULL",
+      "test_type": "NULL_TEST",
+      "description": "Test null value for required field: type",
+      "test_data": {
+        "type": null
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "check_leads_ai_follow_up_priority_valid_1",
+      "table": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid ai_follow_up_priority value: 1",
+      "test_data": {
+        "ai_follow_up_priority": 1
+      },
+      "expected_result": "SUCCESS",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "check_leads_ai_follow_up_priority_valid_5",
+      "table": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid ai_follow_up_priority value: 5",
+      "test_data": {
+        "ai_follow_up_priority": 5
+      },
+      "expected_result": "SUCCESS",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "check_leads_ai_follow_up_priority_valid_10",
+      "table": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid ai_follow_up_priority value: 10",
+      "test_data": {
+        "ai_follow_up_priority": 10
+      },
+      "expected_result": "SUCCESS",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "check_leads_ai_follow_up_priority_invalid_0",
+      "table": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid ai_follow_up_priority value: 0",
+      "test_data": {
+        "ai_follow_up_priority": 0
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "check_leads_ai_follow_up_priority_invalid_11",
+      "table": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid ai_follow_up_priority value: 11",
+      "test_data": {
+        "ai_follow_up_priority": 11
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "check_leads_ai_follow_up_priority_invalid_-1",
+      "table": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid ai_follow_up_priority value: -1",
+      "test_data": {
+        "ai_follow_up_priority": -1
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "check_clients_ai_risk_score_valid_0",
+      "table": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid ai_risk_score value: 0",
+      "test_data": {
+        "ai_risk_score": 0
+      },
+      "expected_result": "SUCCESS",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "check_clients_ai_risk_score_valid_50",
+      "table": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid ai_risk_score value: 50",
+      "test_data": {
+        "ai_risk_score": 50
+      },
+      "expected_result": "SUCCESS",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "check_clients_ai_risk_score_valid_100",
+      "table": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "CHECK",
+      "test_type": "VALID_DATA",
+      "description": "Test valid ai_risk_score value: 100",
+      "test_data": {
+        "ai_risk_score": 100
+      },
+      "expected_result": "SUCCESS",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "check_clients_ai_risk_score_invalid_-1",
+      "table": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid ai_risk_score value: -1",
+      "test_data": {
+        "ai_risk_score": -1
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "check_clients_ai_risk_score_invalid_101",
+      "table": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid ai_risk_score value: 101",
+      "test_data": {
+        "ai_risk_score": 101
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    },
+    {
+      "id": "check_clients_ai_risk_score_invalid_150",
+      "table": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "CHECK",
+      "test_type": "INVALID_DATA",
+      "description": "Test invalid ai_risk_score value: 150",
+      "test_data": {
+        "ai_risk_score": 150
+      },
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "severity": "HIGH"
+    }
+  ],
+  "results": [
+    {
+      "test_id": "enum_communications_status_valid_Pending",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_valid_Sent",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_valid_Delivered",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_valid_Opened",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_valid_Clicked",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_valid_Replied",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_valid_Failed",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_valid_Bounced",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_invalid_Completed",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_invalid_Processing",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_communications_status_invalid_Invalid",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_valid_New",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_valid_Contacted",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_valid_Qualified",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_valid_Quoted",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_valid_Sold",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_valid_Lost",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_valid_Hibernated",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_invalid_Active",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_invalid_Pending",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_leads_status_invalid_Complete",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_clients_status_valid_Active",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_clients_status_valid_Inactive",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_clients_status_valid_Prospect",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_clients_status_valid_Lost",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_clients_status_invalid_New",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_clients_status_invalid_Pending",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_clients_status_invalid_Complete",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_valid_Draft",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_valid_Pending",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_valid_Approved",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_valid_Declined",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_valid_Expired",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_valid_Bound",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_invalid_Active",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_invalid_Complete",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "enum_quotes_status_invalid_Processing",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "unique_users_email_duplicate",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "unique_insurance_types_name_duplicate",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "fk_leads_assigned_to_invalid",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "fk_communications_lead_id_invalid",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "fk_quotes_lead_id_invalid",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "notnull_users_id",
+      "status": "FAIL",
+      "actual_result": "UNEXPECTED",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "error_message": "Test behavior not implemented",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "notnull_leads_first_name",
+      "status": "FAIL",
+      "actual_result": "UNEXPECTED",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "error_message": "Test behavior not implemented",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "notnull_communications_type",
+      "status": "FAIL",
+      "actual_result": "UNEXPECTED",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "error_message": "Test behavior not implemented",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_leads_ai_follow_up_priority_valid_1",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_leads_ai_follow_up_priority_valid_5",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_leads_ai_follow_up_priority_valid_10",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_leads_ai_follow_up_priority_invalid_0",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_leads_ai_follow_up_priority_invalid_11",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_leads_ai_follow_up_priority_invalid_-1",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_clients_ai_risk_score_valid_0",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_clients_ai_risk_score_valid_50",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_clients_ai_risk_score_valid_100",
+      "status": "PASS",
+      "actual_result": "SUCCESS",
+      "expected_result": "SUCCESS",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_clients_ai_risk_score_invalid_-1",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_clients_ai_risk_score_invalid_101",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    },
+    {
+      "test_id": "check_clients_ai_risk_score_invalid_150",
+      "status": "PASS",
+      "actual_result": "CONSTRAINT_VIOLATION",
+      "expected_result": "CONSTRAINT_VIOLATION",
+      "execution_time_ms": 0
+    }
+  ]
+}
