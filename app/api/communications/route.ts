@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/drizzle/client';
+import { db } from '@/lib/drizzle/db';
 import { interactions, contacts, users } from '@/lib/drizzle/schema';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
 
