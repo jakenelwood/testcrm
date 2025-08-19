@@ -1,0 +1,47 @@
+import { pgTable, uuid, text, integer, jsonb, timestamp } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+
+export const communications = pgTable('communications', {
+  id: uuid().notNull().primaryKey().default(sql`uuid_generate_v4()`),
+  client_id: uuid(),
+  lead_id: uuid(),
+  campaign_id: uuid(),
+  ab_test_id: uuid(),
+  content_template_id: uuid(),
+  type: text().notNull(),
+  direction: text(),
+  subject: text(),
+  content: text(),
+  attachments: text().array().default('{}'),
+  status: text().default('Pending'),
+  outcome: text(),
+  duration: integer(),
+  recording_url: text(),
+  call_quality_score: integer(),
+  email_provider: text(),
+  tracking_pixel_url: text(),
+  unsubscribe_url: text(),
+  ai_summary: text(),
+  ai_sentiment: text(),
+  ai_entities: jsonb().default('{}'),
+  ai_action_items: jsonb().default('[]'),
+  ai_follow_up_suggestions: jsonb().default('[]'),
+  personalization_data: jsonb().default('{}'),
+  targeting_data: jsonb().default('{}'),
+  metadata: jsonb().default('{}'),
+  tags: text().array().default('{}'),
+  created_by: uuid(),
+  updated_by: uuid(),
+  created_at: timestamp({ withTimezone: true }).default(sql`now()`),
+  updated_at: timestamp({ withTimezone: true }).default(sql`now()`),
+  scheduled_at: timestamp({ withTimezone: true }),
+  sent_at: timestamp({ withTimezone: true }),
+  delivered_at: timestamp({ withTimezone: true }),
+  opened_at: timestamp({ withTimezone: true }),
+  clicked_at: timestamp({ withTimezone: true }),
+  replied_at: timestamp({ withTimezone: true }),
+  completed_at: timestamp({ withTimezone: true }),
+});
+
+export type Communications = typeof communications.$inferSelect;
+export type NewCommunications = typeof communications.$inferInsert;

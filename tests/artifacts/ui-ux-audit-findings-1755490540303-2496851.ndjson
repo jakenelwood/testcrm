@@ -1,0 +1,1 @@
+{"generatedAt":"2025-08-18T04:15:42.947Z","category":"Stability","severity":"medium","issue":"Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.","browser":"firefox"}

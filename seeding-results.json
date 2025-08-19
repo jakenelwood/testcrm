@@ -1,0 +1,373 @@
+{
+  "generated_at": "2025-08-14T04:39:42.192Z",
+  "summary": {
+    "total_tables": 9,
+    "total_records_created": 0,
+    "total_records_failed": 284,
+    "total_execution_time_ms": 4627,
+    "success_rate": 0
+  },
+  "constraints_loaded": {
+    "users": {
+      "table_name": "users",
+      "enum_constraints": {
+        "role": [
+          "user",
+          "admin",
+          "agent",
+          "manager"
+        ]
+      },
+      "range_constraints": {},
+      "required_fields": [
+        "id"
+      ],
+      "unique_fields": [
+        "email"
+      ],
+      "foreign_keys": {}
+    },
+    "insurance_types": {
+      "table_name": "insurance_types",
+      "enum_constraints": {},
+      "range_constraints": {},
+      "required_fields": [
+        "name"
+      ],
+      "unique_fields": [
+        "name"
+      ],
+      "foreign_keys": {}
+    },
+    "addresses": {
+      "table_name": "addresses",
+      "enum_constraints": {
+        "type": [
+          "Physical",
+          "Mailing",
+          "Business",
+          "Location",
+          "Billing",
+          "Shipping"
+        ]
+      },
+      "range_constraints": {},
+      "required_fields": [],
+      "unique_fields": [],
+      "foreign_keys": {}
+    },
+    "leads": {
+      "table_name": "leads",
+      "enum_constraints": {
+        "lead_type": [
+          "Personal",
+          "Business"
+        ],
+        "priority": [
+          "Low",
+          "Medium",
+          "High",
+          "Urgent"
+        ],
+        "status": [
+          "New",
+          "Contacted",
+          "Qualified",
+          "Quoted",
+          "Sold",
+          "Lost",
+          "Hibernated"
+        ]
+      },
+      "range_constraints": {
+        "ai_follow_up_priority": {
+          "min": 1,
+          "max": 10
+        }
+      },
+      "required_fields": [],
+      "unique_fields": [],
+      "foreign_keys": {
+        "assigned_to": {
+          "table": "users",
+          "field": "id"
+        },
+        "created_by": {
+          "table": "users",
+          "field": "id"
+        },
+        "address_id": {
+          "table": "addresses",
+          "field": "id"
+        }
+      }
+    },
+    "clients": {
+      "table_name": "clients",
+      "enum_constraints": {
+        "client_type": [
+          "Individual",
+          "Business"
+        ],
+        "status": [
+          "Active",
+          "Inactive",
+          "Prospect",
+          "Lost"
+        ]
+      },
+      "range_constraints": {
+        "ai_risk_score": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      "required_fields": [
+        "client_type",
+        "name"
+      ],
+      "unique_fields": [],
+      "foreign_keys": {
+        "created_by": {
+          "table": "users",
+          "field": "id"
+        },
+        "address_id": {
+          "table": "addresses",
+          "field": "id"
+        }
+      }
+    },
+    "communications": {
+      "table_name": "communications",
+      "enum_constraints": {
+        "ai_sentiment": [
+          "Positive",
+          "Neutral",
+          "Negative"
+        ],
+        "direction": [
+          "Inbound",
+          "Outbound"
+        ],
+        "status": [
+          "Pending",
+          "Sent",
+          "Delivered",
+          "Opened",
+          "Clicked",
+          "Replied",
+          "Failed",
+          "Bounced"
+        ],
+        "type": [
+          "call",
+          "email",
+          "sms",
+          "meeting",
+          "note",
+          "voicemail",
+          "social",
+          "letter"
+        ]
+      },
+      "range_constraints": {
+        "call_quality_score": {
+          "min": 1,
+          "max": 5
+        }
+      },
+      "required_fields": [
+        "type"
+      ],
+      "unique_fields": [],
+      "foreign_keys": {
+        "lead_id": {
+          "table": "leads",
+          "field": "id"
+        },
+        "client_id": {
+          "table": "clients",
+          "field": "id"
+        },
+        "created_by": {
+          "table": "users",
+          "field": "id"
+        }
+      }
+    },
+    "quotes": {
+      "table_name": "quotes",
+      "enum_constraints": {
+        "contract_term": [
+          "6mo",
+          "12mo",
+          "24mo"
+        ],
+        "status": [
+          "Draft",
+          "Pending",
+          "Approved",
+          "Declined",
+          "Expired",
+          "Bound"
+        ]
+      },
+      "range_constraints": {},
+      "required_fields": [
+        "carrier",
+        "lead_id"
+      ],
+      "unique_fields": [],
+      "foreign_keys": {
+        "lead_id": {
+          "table": "leads",
+          "field": "id"
+        },
+        "insurance_type_id": {
+          "table": "insurance_types",
+          "field": "id"
+        },
+        "created_by": {
+          "table": "users",
+          "field": "id"
+        }
+      }
+    },
+    "pipelines": {
+      "table_name": "pipelines",
+      "enum_constraints": {
+        "lead_type": [
+          "Personal",
+          "Business",
+          "Both"
+        ]
+      },
+      "range_constraints": {},
+      "required_fields": [
+        "name"
+      ],
+      "unique_fields": [],
+      "foreign_keys": {}
+    },
+    "pipeline_statuses": {
+      "table_name": "pipeline_statuses",
+      "enum_constraints": {
+        "stage_type": [
+          "active",
+          "waiting",
+          "final"
+        ]
+      },
+      "range_constraints": {},
+      "required_fields": [
+        "display_order",
+        "name"
+      ],
+      "unique_fields": [],
+      "foreign_keys": {}
+    }
+  },
+  "seeding_results": [
+    {
+      "table": "users",
+      "records_created": 0,
+      "records_failed": 20,
+      "execution_time_ms": 1193,
+      "errors": [
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date"
+      ],
+      "sample_data": []
+    },
+    {
+      "table": "insurance_types",
+      "records_created": 0,
+      "records_failed": 16,
+      "execution_time_ms": 992,
+      "errors": [
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date",
+        "Record 0: TypeError [ERR_INVALID_ARG_TYPE]: The \"string\" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date"
+      ],
+      "sample_data": []
+    },
+    {
+      "table": "addresses",
+      "records_created": 0,
+      "records_failed": 40,
+      "execution_time_ms": 2440,
+      "errors": [
+        "Record 0: PostgresError: column \"line1\" of relation \"addresses\" does not exist",
+        "Record 0: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "Record 0: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "Record 0: PostgresError: current transaction is aborted, commands ignored until end of transaction block",
+        "Record 0: PostgresError: current transaction is aborted, commands ignored until end of transaction block"
+      ],
+      "sample_data": []
+    },
+    {
+      "table": "pipelines",
+      "records_created": 0,
+      "records_failed": 3,
+      "execution_time_ms": 0,
+      "errors": [
+        "Generation failed: Error: Cannot get value from empty dataset."
+      ],
+      "sample_data": []
+    },
+    {
+      "table": "pipeline_statuses",
+      "records_created": 0,
+      "records_failed": 0,
+      "execution_time_ms": 0,
+      "errors": [],
+      "sample_data": []
+    },
+    {
+      "table": "leads",
+      "records_created": 0,
+      "records_failed": 50,
+      "execution_time_ms": 1,
+      "errors": [
+        "Generation failed: Error: Cannot get value from empty dataset."
+      ],
+      "sample_data": []
+    },
+    {
+      "table": "clients",
+      "records_created": 0,
+      "records_failed": 25,
+      "execution_time_ms": 0,
+      "errors": [
+        "Generation failed: Error: Cannot get value from empty dataset."
+      ],
+      "sample_data": []
+    },
+    {
+      "table": "communications",
+      "records_created": 0,
+      "records_failed": 100,
+      "execution_time_ms": 0,
+      "errors": [
+        "Generation failed: Error: Cannot get value from empty dataset."
+      ],
+      "sample_data": []
+    },
+    {
+      "table": "quotes",
+      "records_created": 0,
+      "records_failed": 30,
+      "execution_time_ms": 1,
+      "errors": [
+        "Generation failed: Error: Cannot get value from empty dataset."
+      ],
+      "sample_data": []
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+hook.js:608 Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.
+overrideMethod @ hook.js:608
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 663ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 1007ms
+client.ts:37 Supabase client initialized with URL: Available
+:3001/auth/login:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input class=​"flex w-full border px-3 py-2 text-sm text-foreground duration-200 placeholder:​text-muted-foreground focus:​outline-none focus:​ring-2 disabled:​cursor-not-allowed disabled:​opacity-50 hover:​border-border pl-10 h-10 bg-background border-border rounded-lg focus:​border-primary focus:​ring-primary transition-all shadow-sm" id=​"password" placeholder=​"••••••••" required type=​"password" value=​"Elduderino12!">​
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 539ms
+bootstrap-autofill-overlay.js:16 Uncaught (in promise) NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node.
+    at Ha.Node.insertBefore (bootstrap-autofill-overlay.js:16:17235)
+    at AutofillInlineMenuContentService.<anonymous> (bootstrap-autofill-overlay.js:1681:30)
+    at Generator.next (<anonymous>)
+    at fulfilled (bootstrap-autofill-overlay.js:1552:58)
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 1533ms
+xyfpnlxwimjbgjloujxw.supabase.co/rest/v1/leads?select=id&limit=1:1  Failed to load resource: the server responded with a status of 404 ()
+xyfpnlxwimjbgjloujxw.supabase.co/rest/v1/leads?select=id&limit=1:1  Failed to load resource: the server responded with a status of 404 ()
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:608
+hook.js:600 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:600
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 810ms
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:608
+hook.js:600 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:600
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:608
+hook.js:600 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:600
+hook.js:608 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:608
+hook.js:600 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+overrideMethod @ hook.js:600
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608
+hook.js:608 @hello-pangea/dndDroppable: unsupported nested scroll container detected.A Droppable can only have one scroll parent (which can be itself)Nested scroll containers are currently not supported.We hope to support nested scroll containers soon: https://github.com/atlassian/react-beautiful-dnd/issues/131👷‍ This is a development only message. It will be removed in production builds.
+overrideMethod @ hook.js:608

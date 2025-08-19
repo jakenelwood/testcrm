@@ -7,16 +7,22 @@ import Link from "next/link";
 
 export default function TelephonyPage() {
   return (
-    <>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Telephony & SMS</h1>
-          <p className="text-muted-foreground">Manage calls, SMS, and telephony integrations</p>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 p-2 sm:p-4">
+        <div className="max-w-screen-2xl mx-auto w-full">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Telephony & SMS</h1>
+              <p className="text-muted-foreground">Manage calls, SMS, and telephony integrations</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="flex-1 overflow-auto p-2 sm:p-4 pt-0">
+        <div className="max-w-screen-2xl mx-auto w-full">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Calls</CardTitle>
@@ -132,19 +138,19 @@ export default function TelephonyPage() {
             </Button>
           </CardContent>
         </Card>
-      </div>
+          </div>
 
-      {/* Development Tools */}
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-foreground">Development & Testing Tools</CardTitle>
-          <CardDescription>
-            Tools for testing and debugging telephony integrations
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button asChild variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-border hover:bg-accent">
+          {/* Development Tools */}
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-foreground">Development & Testing Tools</CardTitle>
+              <CardDescription>
+                Tools for testing and debugging telephony integrations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Button asChild variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2 border-border hover:bg-accent">
               <Link href="/dashboard/settings/development/ringcentral-test-call">
                 <Phone className="h-6 w-6 text-primary" />
                 <span className="text-sm font-medium text-foreground">Test Call</span>
@@ -174,10 +180,12 @@ export default function TelephonyPage() {
                 <span className="text-sm font-medium text-foreground">Diagnostics</span>
                 <span className="text-xs text-muted-foreground text-center">Debug integration issues</span>
               </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 } 

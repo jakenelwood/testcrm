@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2025-08-18T00:06:54.843Z",
+  "findings": [
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    }
+  ]
+}

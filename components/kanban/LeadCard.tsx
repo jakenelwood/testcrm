@@ -21,44 +21,127 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
     client_id: lead.client_id
   });
 
-  // Track if we're in a click (not a drag) operation
-  const [isClicking, setIsClicking] = React.useState(false);
+  // State to track if we're in a potential drag operation
+  const [isDragReady, setIsDragReady] = React.useState(false);
 
-  // Track when the mouse was pressed down
-  const mouseDownTimeRef = React.useRef<number>(0);
+  // Reference to the timer that detects click-and-hold
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
+  // Track if we're currently dragging
+  const dragStartedRef = React.useRef(false);
+
+  // Track the initial position of the pointer
+  const initialPositionRef = React.useRef({ x: 0, y: 0 });
+
+  // 3D tilt while in drag-ready state
+  const [tilt, setTilt] = React.useState({ rx: 0, ry: 0 });
   // Integration with dnd-kit for drag-and-drop functionality
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
+    // Ensure the card is always draggable
     data: {
       type: 'lead',
       lead
     }
   });
 
-  // Apply the transform from dnd-kit to enable smooth dragging
+  // Apply dnd-kit transform and add 3D tilt when drag-ready (not yet dragging)
+  const baseTransform = CSS.Transform.toString(transform);
+  const tiltTransform =
+    isDragReady && !isDragging
+      ? ` perspective(700px) rotateX(${tilt.rx.toFixed(2)}deg) rotateY(${tilt.ry.toFixed(2)}deg)`
+      : '';
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: `${baseTransform}${tiltTransform}`,
     transition,
   };
 
-  // Handle mouse down - mark as clicking and record time
+  /**
+   * Handle mouse down on the card
+   * Start a timer to detect if this is a click-and-hold action
+   */
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Prevent text selection
+    // Only respond to left-click
+    if (e.button !== 0) return;
     e.preventDefault();
 
-    // Record when the mouse was pressed
-    mouseDownTimeRef.current = Date.now();
-    setIsClicking(true);
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Store the initial position
+    initialPositionRef.current = { x: e.clientX, y: e.clientY };
+
+    // Start a timer to detect click-and-hold
+    timerRef.current = setTimeout(() => {
+      // After holding for 150ms, enable dragging
+
+      setIsDragReady(true);
+
+      // Provide haptic feedback on mobile devices if available
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+      }
+
+      // Simulate pointerdown so dnd-kit captures it after listeners attach
+      setTimeout(() => {
+        const el = document.getElementById(`lead-card-${lead.id}`);
+        if (el) {
+          const evt = new PointerEvent('pointerdown', {
+            bubbles: true,
+            cancelable: true,
+            pointerType: 'mouse',
+            buttons: 1,
+            clientX: initialPositionRef.current.x,
+            clientY: initialPositionRef.current.y,
+          });
+          el.dispatchEvent(evt);
+        }
+      }, 0);
+    }, 150);
   };
 
-  // Handle mouse up - if it was a quick click (not a drag), open details
-  const handleMouseUp = (e: React.MouseEvent) => {
-    // Calculate how long the mouse was pressed
-    const clickDuration = Date.now() - mouseDownTimeRef.current;
+  /**
+   * Handle mouse move on the card
+   * If we're in drag-ready state, start the actual drag operation
+   */
+  const handleMouseMove = (e: React.MouseEvent) => {
+    // If we're ready to drag but haven't started dragging yet
+    if (isDragReady && !dragStartedRef.current) {
+      const card = e.currentTarget as HTMLDivElement;
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rx = (y - centerY) / 8; // tilt strength
+      const ry = (centerX - x) / 8;
+      setTilt({ rx, ry });
 
-    // If it was a quick click (less than 200ms) and not dragging, treat as a click
-    if (isClicking && clickDuration < 200 && !isDragging) {
+      // Calculate distance moved to optionally mark drag start
+      const dx = Math.abs(e.clientX - initialPositionRef.current.x);
+      const dy = Math.abs(e.clientY - initialPositionRef.current.y);
+      if (dx > 3 || dy > 3) {
+        dragStartedRef.current = true;
+      }
+    }
+  };
+
+  /**
+   * Handle mouse up on the card
+   * If the mouse is released quickly, treat it as a click
+   */
+  const handleMouseUp = (e: React.MouseEvent) => {
+    // Clear the timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // If we haven't started dragging and it was a quick click, open the details
+    if (!dragStartedRef.current && !isDragging) {
       // Check if Ctrl/Cmd key is pressed
       if (e.ctrlKey || e.metaKey) {
         // Open full lead details page in a new tab
@@ -69,8 +152,121 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       }
     }
 
-    setIsClicking(false);
+    // Reset states
+    setIsDragReady(false);
+    setTilt({ rx: 0, ry: 0 });
+    dragStartedRef.current = false;
   };
+
+  /**
+   * Handle touch start on the card (for mobile)
+   */
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Prevent default to avoid unwanted behaviors
+    e.preventDefault();
+
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Store the initial position
+    if (e.touches[0]) {
+      initialPositionRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+    }
+
+    // Start a timer to detect touch-and-hold
+    timerRef.current = setTimeout(() => {
+      setIsDragReady(true);
+
+      // Provide haptic feedback on mobile devices if available
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+      }
+    }, 150);
+  };
+
+  /**
+   * Handle touch move on the card (for mobile)
+   */
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragReady && !dragStartedRef.current && e.touches[0]) {
+      const card = e.currentTarget as HTMLDivElement;
+      const rect = card.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      const y = e.touches[0].clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rx = (y - centerY) / 8;
+      const ry = (centerX - x) / 8;
+      setTilt({ rx, ry });
+
+      const dx = Math.abs(e.touches[0].clientX - initialPositionRef.current.x);
+      const dy = Math.abs(e.touches[0].clientY - initialPositionRef.current.y);
+      if (dx > 3 || dy > 3) {
+        dragStartedRef.current = true;
+      }
+    }
+  };
+
+  /**
+   * Handle touch end on the card (for mobile)
+   */
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // Clear the timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // If we haven't started dragging and it was a quick tap, open the details
+    if (!dragStartedRef.current && !isDragging) {
+      // Check if Ctrl/Cmd key is pressed (for touch devices with keyboard)
+      if (e.ctrlKey || e.metaKey) {
+        // Open full lead details page in a new tab
+        window.open(`/dashboard/leads/${lead.id}`, '_blank');
+      } else {
+        // Open modal view
+        onClick();
+      }
+    }
+
+    // Reset states
+    setIsDragReady(false);
+    setTilt({ rx: 0, ry: 0 });
+    dragStartedRef.current = false;
+  };
+
+  /**
+   * Handle pointer cancel/leave events
+   * Clear the timer to prevent unexpected behavior
+   */
+  const handlePointerCancel = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Reset states
+    setIsDragReady(false);
+    setTilt({ rx: 0, ry: 0 });
+    dragStartedRef.current = false;
+  };
+
+  /**
+   * Clean up the timer when the component unmounts
+   */
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   // Format date for display using our utility function
   const formattedDate = formatDateMMDDYYYY(lead.created_at);
@@ -90,24 +286,39 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
 
   return (
     <div
+      id={`lead-card-${lead.id}`}
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
-      className={`bg-card text-card-foreground rounded-lg p-4 mb-3 cursor-pointer transition-all duration-200 select-none border min-h-[128px] flex flex-col justify-between ${
+      {...(isDragReady ? listeners : {})}
+      className={`relative bg-card text-card-foreground rounded-lg p-4 mb-3 cursor-pointer transition-all duration-200 select-none border min-h-[128px] flex flex-col justify-between ${
         isDragging
-          ? 'opacity-90 shadow-xl border-2 border-blue-500 scale-105'
-          : 'opacity-100 hover:shadow-md shadow-sm border-border hover:border-blue-300'
+          ? 'opacity-50 shadow-none'
+          : isDragReady
+            ? 'opacity-95 shadow-2xl scale-[1.03] -translate-y-0.5 border border-blue-500 rotate-1 z-20'
+            : 'opacity-100 hover:shadow-md shadow-sm border-border hover:border-blue-300'
       }`}
-      onClick={(e) => {
-        // Prevent the click from triggering drag
-        e.stopPropagation();
-        // Only handle click if not dragging
-        if (!isDragging) {
-          onClick();
-        }
-      }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handlePointerCancel}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handlePointerCancel}
     >
+      {/* Gloss overlay appears when armed to drag */}
+      {isDragReady && !isDragging && (
+        <div
+          className="pointer-events-none absolute inset-0 rounded-lg"
+          style={{
+            background:
+              "linear-gradient(120deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 35%, rgba(255,255,255,0.0) 60%)",
+            backdropFilter: "blur(0.5px)",
+          }}
+        />
+      )}
+
       {/* Top section with name and date */}
       <div className="flex-1">
         <div className="flex justify-between items-start mb-3 gap-2">

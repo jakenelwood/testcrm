@@ -162,7 +162,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background relative">
       {/* Top navigation */}
       <nav className="container mx-auto py-6 px-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" aria-label={`${brand.name} home`} className="flex items-center gap-2">
           <BrandLogo size="lg" className="h-10 flex items-center" />
         </Link>
         <div className="flex gap-4 items-center">

@@ -58,10 +58,38 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
   // Use provided pipeline statuses or fall back to default
   const statuses = pipelineStatuses?.map(s => s.name as LeadStatus) || defaultStatuses;
 
+  // Create a mapping between lead statuses and pipeline statuses
+  const statusMapping: Record<string, string> = {
+    // Lead Status -> Pipeline Status
+    'New': 'New Lead',
+    'Contacted': 'Initial Contact',
+    'Qualified': 'Needs Assessment',
+    'Quoted': 'Quote Presented', // Changed from Quote Preparation to Quote Presented
+    'Sold': 'Policy Sold',
+    'Lost': 'Lost',
+    'Hibernated': 'Lost' // Map hibernated to lost for now
+  };
+
+  // Reverse mapping for finding leads by pipeline status
+  const reverseMapping: Record<string, string[]> = {};
+  Object.entries(statusMapping).forEach(([leadStatus, pipelineStatus]) => {
+    if (!reverseMapping[pipelineStatus]) {
+      reverseMapping[pipelineStatus] = [];
+    }
+    reverseMapping[pipelineStatus].push(leadStatus);
+  });
+
   // Group leads by status for efficient rendering in columns
-  // This creates a dictionary where keys are statuses and values are arrays of leads
-  const leadsByStatus = statuses.reduce((acc, status) => {
-    acc[status] = leads.filter(lead => lead.status === status);
+  // This creates a dictionary where keys are pipeline statuses and values are arrays of leads
+  const leadsByStatus = statuses.reduce((acc, pipelineStatus) => {
+    // Find all lead statuses that map to this pipeline status
+    const mappedLeadStatuses = reverseMapping[pipelineStatus] || [pipelineStatus];
+
+    // Filter leads that have any of the mapped statuses
+    acc[pipelineStatus] = leads.filter(lead => {
+      const leadStatus = lead.status || lead.status_legacy || '';
+      return mappedLeadStatuses.includes(leadStatus);
+    });
     return acc;
   }, {} as Record<string, Lead[]>);
 
@@ -131,7 +159,7 @@ export function KanbanBoard({ leads, isLoading, onLeadSelect, statuses: pipeline
         <div className="flex gap-4 p-4 min-w-max">
           {/* Map through each status and create a column */}
           {statuses.map((status) => (
-            <div key={status} className="min-w-[280px] flex-shrink-0">
+            <div key={status} className="min-w-[280px] w-[280px] flex-shrink-0">
               <KanbanColumn
                 status={status}
                 leads={leadsByStatus[status] || []}

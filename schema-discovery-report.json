@@ -1,0 +1,1693 @@
+{
+  "generated_at": "2025-08-14T04:17:58.145Z",
+  "summary": {
+    "total_constraints": 187,
+    "total_triggers": 51,
+    "total_enums": 0,
+    "total_conflicts": 1,
+    "critical_conflicts": 1
+  },
+  "constraints": [
+    {
+      "schema_name": "public",
+      "table_name": "_version_info",
+      "constraint_name": "_version_info_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Running'::text, 'Completed'::text, 'Cancelled'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_test_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((test_type = ANY (ARRAY['Subject Line'::text, 'Content'::text, 'Send Time'::text, 'Call Script'::text, 'Landing Page'::text, 'Offer'::text, 'CTA'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_campaign_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "constraint_name": "ab_tests_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "addresses",
+      "constraint_name": "addresses_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['Physical'::text, 'Mailing'::text, 'Business'::text, 'Location'::text, 'Billing'::text, 'Shipping'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "addresses",
+      "constraint_name": "addresses_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "addresses",
+      "constraint_name": "addresses_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "addresses",
+      "constraint_name": "addresses_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_importance_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((importance_score >= 1) AND (importance_score <= 10)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_memory_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((memory_type = ANY (ARRAY['conversation'::text, 'insight'::text, 'preference'::text, 'fact'::text, 'pattern'::text, 'feedback'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_confidence_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((confidence_score >= (0)::numeric) AND (confidence_score <= (100)::numeric)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_entity_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((entity_type = ANY (ARRAY['client'::text, 'lead'::text, 'user'::text, 'global'::text, 'conversation'::text, 'task'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_agent_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (agent_id) REFERENCES ai_agents(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "agent_memory",
+      "constraint_name": "agent_memory_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_model_provider_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((model_provider = ANY (ARRAY['openai'::text, 'anthropic'::text, 'deepinfra'::text, 'local'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_agent_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((agent_type = ANY (ARRAY['assistant'::text, 'workflow'::text, 'analyzer'::text, 'generator'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_role_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['follow_up'::text, 'insight'::text, 'design'::text, 'support'::text, 'marketing'::text, 'sales'::text, 'analysis'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_temperature_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((temperature >= (0)::numeric) AND (temperature <= (2)::numeric)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "constraint_name": "ai_agents_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_user_feedback_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((user_feedback = ANY (ARRAY['positive'::text, 'negative'::text, 'neutral'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_source_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((source = ANY (ARRAY['Agent UI'::text, 'Marketing Automation'::text, 'AI Assistant'::text, 'Backend Middleware'::text, 'API'::text, 'Webhook'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['Chat'::text, 'Follow-Up'::text, 'Summary'::text, 'Prediction'::text, 'PromptResponse'::text, 'Analysis'::text, 'Recommendation'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_quality_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((quality_score >= (0)::numeric) AND (quality_score <= (5)::numeric)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_agent_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (agent_id) REFERENCES ai_agents(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "constraint_name": "ai_interactions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "api_rate_limits",
+      "constraint_name": "api_rate_limits_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "api_rate_limits",
+      "constraint_name": "api_rate_limits_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "audit_logs",
+      "constraint_name": "audit_logs_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "audit_logs",
+      "constraint_name": "audit_logs_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_direction_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_quality_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((quality_score >= 1) AND (quality_score <= 5)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_ai_sentiment_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_result_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((result = ANY (ARRAY['Call connected'::text, 'Voicemail'::text, 'Busy'::text, 'No Answer'::text, 'Rejected'::text, 'Failed'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Ringing'::text, 'Connected'::text, 'Disconnected'::text, 'Busy'::text, 'NoAnswer'::text, 'Rejected'::text, 'VoiceMail'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_communication_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (communication_id) REFERENCES communications(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "constraint_name": "call_logs_ringcentral_call_id_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (ringcentral_call_id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Active'::text, 'Paused'::text, 'Completed'::text, 'Cancelled'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_campaign_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((campaign_type = ANY (ARRAY['Email'::text, 'SMS'::text, 'Phone'::text, 'Social'::text, 'Direct Mail'::text, 'Digital Ads'::text, 'Webinar'::text, 'Event'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "campaigns",
+      "constraint_name": "campaigns_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Active'::text, 'Inactive'::text, 'Prospect'::text, 'Lost'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_client_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((client_type = ANY (ARRAY['Individual'::text, 'Business'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_ai_risk_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((ai_risk_score >= 0) AND (ai_risk_score <= 100)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_address_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (address_id) REFERENCES addresses(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_mailing_address_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (mailing_address_id) REFERENCES addresses(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "constraint_name": "clients_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_direction_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Pending'::text, 'Sent'::text, 'Delivered'::text, 'Opened'::text, 'Clicked'::text, 'Replied'::text, 'Failed'::text, 'Bounced'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_call_quality_score_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((call_quality_score >= 1) AND (call_quality_score <= 5)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_ai_sentiment_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((type = ANY (ARRAY['call'::text, 'email'::text, 'sms'::text, 'meeting'::text, 'note'::text, 'voicemail'::text, 'social'::text, 'letter'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_campaign_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (campaign_id) REFERENCES campaigns(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_ab_test_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (ab_test_id) REFERENCES ab_tests(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_content_template_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (content_template_id) REFERENCES content_templates(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "constraint_name": "communications_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_template_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((template_type = ANY (ARRAY['Email'::text, 'SMS'::text, 'Call Script'::text, 'Social Post'::text, 'Ad Copy'::text, 'Letter'::text, 'Proposal'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "content_templates",
+      "constraint_name": "content_templates_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['active'::text, 'completed'::text, 'paused'::text, 'error'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_agent_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (agent_id) REFERENCES ai_agents(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "conversation_sessions",
+      "constraint_name": "conversation_sessions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_touchpoint_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((touchpoint_type = ANY (ARRAY['Email Open'::text, 'Email Click'::text, 'SMS Click'::text, 'Phone Call'::text, 'Website Visit'::text, 'Form Submit'::text, 'Ad Click'::text, 'Social Engagement'::text, 'Download'::text, 'Purchase'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_attribution_model_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((attribution_model = ANY (ARRAY['first_touch'::text, 'last_touch'::text, 'linear'::text, 'time_decay'::text, 'position_based'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_campaign_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (campaign_id) REFERENCES campaigns(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_communication_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (communication_id) REFERENCES communications(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_ab_test_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (ab_test_id) REFERENCES ab_tests(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "customer_touchpoints",
+      "constraint_name": "customer_touchpoints_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "file_deletions",
+      "constraint_name": "file_deletions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "file_deletions",
+      "constraint_name": "file_deletions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "file_uploads",
+      "constraint_name": "file_uploads_entity_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((entity_type = ANY (ARRAY['user'::text, 'lead'::text, 'client'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "file_uploads",
+      "constraint_name": "file_uploads_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "file_uploads",
+      "constraint_name": "file_uploads_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "constraint_name": "homes_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "constraint_name": "homes_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "constraint_name": "homes_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "constraint_name": "homes_address_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (address_id) REFERENCES addresses(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "constraint_name": "homes_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "constraint_name": "homes_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "insurance_types",
+      "constraint_name": "insurance_types_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "insurance_types",
+      "constraint_name": "insurance_types_name_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (name)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_from_pipeline_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (from_pipeline_status_id) REFERENCES pipeline_statuses(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_to_pipeline_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (to_pipeline_status_id) REFERENCES pipeline_statuses(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_changed_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (changed_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "lead_status_history",
+      "constraint_name": "lead_status_history_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "lead_statuses",
+      "constraint_name": "lead_statuses_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "lead_statuses",
+      "constraint_name": "lead_statuses_value_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (value)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_ai_follow_up_priority_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((ai_follow_up_priority >= 1) AND (ai_follow_up_priority <= 10)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_ai_conversion_probability_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK (((ai_conversion_probability >= (0)::numeric) AND (ai_conversion_probability <= (100)::numeric)))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_priority_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((priority = ANY (ARRAY['Low'::text, 'Medium'::text, 'High'::text, 'Urgent'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['New'::text, 'Contacted'::text, 'Qualified'::text, 'Quoted'::text, 'Sold'::text, 'Lost'::text, 'Hibernated'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_lead_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((lead_type = ANY (ARRAY['Personal'::text, 'Business'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_converted_to_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (converted_to_client_id) REFERENCES clients(id) ON DELETE SET NULL"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_pipeline_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (pipeline_id) REFERENCES pipelines(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_pipeline_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (pipeline_status_id) REFERENCES pipeline_statuses(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_lead_status_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_status_id) REFERENCES lead_statuses(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_assigned_to_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (assigned_to) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_insurance_type_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (insurance_type_id) REFERENCES insurance_types(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "constraint_name": "leads_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "password_history",
+      "constraint_name": "password_history_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "password_history",
+      "constraint_name": "password_history_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "permissions",
+      "constraint_name": "permissions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "permissions",
+      "constraint_name": "permissions_name_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (name)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_stage_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((stage_type = ANY (ARRAY['active'::text, 'waiting'::text, 'final'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (pipeline_id) REFERENCES pipelines(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_name_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (pipeline_id, name)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipeline_statuses",
+      "constraint_name": "pipeline_statuses_pipeline_id_display_order_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (pipeline_id, display_order)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_lead_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((lead_type = ANY (ARRAY['Personal'::text, 'Business'::text, 'Both'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipelines",
+      "constraint_name": "pipelines_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "constraint_name": "quotes_contract_term_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((contract_term = ANY (ARRAY['6mo'::text, '12mo'::text, '24mo'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "constraint_name": "quotes_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Draft'::text, 'Pending'::text, 'Approved'::text, 'Declined'::text, 'Expired'::text, 'Bound'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "constraint_name": "quotes_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "constraint_name": "quotes_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "constraint_name": "quotes_insurance_type_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (insurance_type_id) REFERENCES insurance_types(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "constraint_name": "quotes_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "constraint_name": "quotes_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ringcentral_tokens",
+      "constraint_name": "ringcentral_tokens_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ringcentral_tokens",
+      "constraint_name": "ringcentral_tokens_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ringcentral_tokens",
+      "constraint_name": "ringcentral_tokens_user_id_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (user_id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "schema_versions",
+      "constraint_name": "schema_versions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "schema_versions",
+      "constraint_name": "schema_versions_version_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (version)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_ai_sentiment_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((ai_sentiment = ANY (ARRAY['Positive'::text, 'Neutral'::text, 'Negative'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['Queued'::text, 'Sent'::text, 'Delivered'::text, 'DeliveryFailed'::text, 'SendingFailed'::text, 'Received'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_direction_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((direction = ANY (ARRAY['Inbound'::text, 'Outbound'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_communication_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (communication_id) REFERENCES communications(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "constraint_name": "sms_logs_ringcentral_message_id_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (ringcentral_message_id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "constraint_name": "specialty_items_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_status_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'expired'::text, 'cancelled'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_role_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['user'::text, 'agent'::text, 'manager'::text, 'admin'::text, 'owner'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_invited_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (invited_by) REFERENCES auth.users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_accepted_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (accepted_by) REFERENCES auth.users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_invitations",
+      "constraint_name": "user_invitations_invitation_token_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (invitation_token)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_phone_number_type_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((phone_number_type = ANY (ARRAY['Direct'::text, 'Main'::text, 'Toll-Free'::text, 'Local'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_phone_preferences",
+      "constraint_name": "user_phone_preferences_user_id_selected_phone_number_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (user_id, selected_phone_number)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_sessions",
+      "constraint_name": "user_sessions_user_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_sessions",
+      "constraint_name": "user_sessions_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_sessions",
+      "constraint_name": "user_sessions_session_token_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (session_token)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "users",
+      "constraint_name": "users_role_check",
+      "constraint_type": "c",
+      "constraint_definition": "CHECK ((role = ANY (ARRAY['user'::text, 'admin'::text, 'agent'::text, 'manager'::text])))"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "users",
+      "constraint_name": "users_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "users",
+      "constraint_name": "users_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "users",
+      "constraint_name": "users_email_key",
+      "constraint_type": "u",
+      "constraint_definition": "UNIQUE (email)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_created_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (created_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_updated_by_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (updated_by) REFERENCES users(id)"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_lead_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_client_id_fkey",
+      "constraint_type": "f",
+      "constraint_definition": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "constraint_name": "vehicles_pkey",
+      "constraint_type": "p",
+      "constraint_definition": "PRIMARY KEY (id)"
+    }
+  ],
+  "triggers": [
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "trigger_name": "set_ab_tests_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ab_tests",
+      "trigger_name": "update_ab_tests_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "addresses",
+      "trigger_name": "set_addresses_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "addresses",
+      "trigger_name": "update_addresses_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "addresses",
+      "trigger_name": "update_addresses_formatted_address",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  NEW.formatted_address = public.format_address(\n    NEW.street, NEW.street2, NEW.city, NEW.state, NEW.zip_code, NEW.country\n  );\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "agent_memory",
+      "trigger_name": "update_agent_memory_updated_at",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "trigger_name": "set_ai_agents_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_agents",
+      "trigger_name": "update_ai_agents_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "trigger_name": "notify_ai_interactions_changes",
+      "tgtype": 21,
+      "trigger_function": "\nDECLARE\n  notification_payload JSONB;\n  channel_name TEXT;\nBEGIN\n  -- Only notify on INSERT and UPDATE for AI interactions\n  IF TG_OP = 'DELETE' THEN\n    RETURN OLD;\n  END IF;\n  \n  -- Build notification payload\n  notification_payload := jsonb_build_object(\n    'operation', TG_OP,\n    'table', 'ai_interactions',\n    'id', NEW.id,\n    'agent_id', NEW.agent_id,\n    'lead_id', NEW.lead_id,\n    'client_id', NEW.client_id,\n    'user_id', NEW.user_id,\n    'type', NEW.type,\n    'summary', NEW.summary\n  );\n  \n  -- Send to general AI interactions channel\n  PERFORM pg_notify('ai_interactions_changes', notification_payload::TEXT);\n  \n  -- Send to user-specific channel\n  IF NEW.user_id IS NOT NULL THEN\n    channel_name := 'user_' || NEW.user_id::TEXT || '_ai_interactions';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  -- Send to lead-specific channel\n  IF NEW.lead_id IS NOT NULL THEN\n    channel_name := 'lead_' || NEW.lead_id::TEXT || '_ai_interactions';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ai_interactions",
+      "trigger_name": "update_agent_performance_on_interaction",
+      "tgtype": 17,
+      "trigger_function": "\nBEGIN\n  -- Update agent statistics when interaction is completed\n  IF NEW.completed_at IS NOT NULL AND OLD.completed_at IS NULL THEN\n    UPDATE public.ai_agents\n    SET\n      total_interactions = total_interactions + 1,\n      successful_interactions = CASE\n        WHEN NEW.error_message IS NULL THEN successful_interactions + 1\n        ELSE successful_interactions\n      END,\n      last_used_at = NEW.completed_at,\n      updated_at = NOW()\n    WHERE id = NEW.agent_id;\n  END IF;\n\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "trigger_name": "create_communication_from_call_log",
+      "tgtype": 21,
+      "trigger_function": "\nBEGIN\n  -- Only create communication record if call was connected and has client/lead\n  IF NEW.status = 'Connected' AND (NEW.client_id IS NOT NULL OR NEW.lead_id IS NOT NULL) THEN\n    INSERT INTO public.communications (\n      client_id,\n      lead_id,\n      type,\n      direction,\n      content,\n      duration,\n      status,\n      ai_summary,\n      ai_sentiment,\n      created_at,\n      completed_at\n    ) VALUES (\n      NEW.client_id,\n      NEW.lead_id,\n      'call',\n      NEW.direction,\n      COALESCE(NEW.transcription, 'Call completed - duration: ' || NEW.duration || ' seconds'),\n      NEW.duration,\n      'Completed',\n      NEW.ai_summary,\n      NEW.ai_sentiment,\n      NEW.start_time,\n      NEW.end_time\n    );\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "trigger_name": "notify_call_logs_changes",
+      "tgtype": 21,
+      "trigger_function": "\nDECLARE\n  notification_payload JSONB;\n  channel_name TEXT;\nBEGIN\n  -- Build notification payload\n  notification_payload := jsonb_build_object(\n    'operation', TG_OP,\n    'table', 'call_logs',\n    'id', NEW.id,\n    'user_id', NEW.user_id,\n    'lead_id', NEW.lead_id,\n    'client_id', NEW.client_id,\n    'direction', NEW.direction,\n    'status', NEW.status,\n    'from_number', NEW.from_number,\n    'to_number', NEW.to_number,\n    'duration', NEW.duration\n  );\n  \n  -- Send to general call logs channel\n  PERFORM pg_notify('call_logs_changes', notification_payload::TEXT);\n  \n  -- Send to user-specific channel\n  IF NEW.user_id IS NOT NULL THEN\n    channel_name := 'user_' || NEW.user_id::TEXT || '_calls';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "call_logs",
+      "trigger_name": "update_call_logs_updated_at",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "campaigns",
+      "trigger_name": "set_campaigns_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "campaigns",
+      "trigger_name": "update_campaigns_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "trigger_name": "set_clients_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "clients",
+      "trigger_name": "update_clients_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "trigger_name": "increment_template_usage_on_communication",
+      "tgtype": 5,
+      "trigger_function": "\nBEGIN\n  IF NEW.content_template_id IS NOT NULL THEN\n    UPDATE public.content_templates\n    SET usage_count = usage_count + 1,\n        updated_at = NOW()\n    WHERE id = NEW.content_template_id;\n  END IF;\n\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "trigger_name": "notify_communications_changes",
+      "tgtype": 29,
+      "trigger_function": "\nDECLARE\n  notification_payload JSONB;\n  channel_name TEXT;\nBEGIN\n  -- Build notification payload\n  IF TG_OP = 'DELETE' THEN\n    notification_payload := jsonb_build_object(\n      'operation', 'DELETE',\n      'table', 'communications',\n      'id', OLD.id,\n      'lead_id', OLD.lead_id,\n      'client_id', OLD.client_id,\n      'old_record', row_to_json(OLD)\n    );\n  ELSE\n    notification_payload := jsonb_build_object(\n      'operation', TG_OP,\n      'table', 'communications',\n      'id', COALESCE(NEW.id, OLD.id),\n      'lead_id', COALESCE(NEW.lead_id, OLD.lead_id),\n      'client_id', COALESCE(NEW.client_id, OLD.client_id),\n      'new_record', CASE WHEN NEW IS NOT NULL THEN row_to_json(NEW) ELSE NULL END,\n      'old_record', CASE WHEN OLD IS NOT NULL THEN row_to_json(OLD) ELSE NULL END\n    );\n  END IF;\n  \n  -- Send to general communications channel\n  PERFORM pg_notify('communications_changes', notification_payload::TEXT);\n  \n  -- Send to lead-specific channel\n  IF COALESCE(NEW.lead_id, OLD.lead_id) IS NOT NULL THEN\n    channel_name := 'lead_' || COALESCE(NEW.lead_id, OLD.lead_id)::TEXT || '_communications';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  -- Send to client-specific channel\n  IF COALESCE(NEW.client_id, OLD.client_id) IS NOT NULL THEN\n    channel_name := 'client_' || COALESCE(NEW.client_id, OLD.client_id)::TEXT || '_communications';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  RETURN COALESCE(NEW, OLD);\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "trigger_name": "set_communications_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "trigger_name": "update_communications_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "trigger_name": "update_last_contact_on_communication",
+      "tgtype": 5,
+      "trigger_function": "\nBEGIN\n  IF NEW.lead_id IS NOT NULL THEN\n    UPDATE public.leads \n    SET last_contact_at = NEW.created_at\n    WHERE id = NEW.lead_id;\n  END IF;\n  \n  IF NEW.client_id IS NOT NULL THEN\n    UPDATE public.clients \n    SET last_contact_at = NEW.created_at\n    WHERE id = NEW.client_id;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "communications",
+      "trigger_name": "validate_communications_client_lead_relationship",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  -- Ensure that if both client_id and lead_id are provided, they are related\n  IF NEW.client_id IS NOT NULL AND NEW.lead_id IS NOT NULL THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM public.leads l \n      WHERE l.id = NEW.lead_id AND l.client_id = NEW.client_id\n    ) THEN\n      RAISE EXCEPTION 'Client and lead are not related';\n    END IF;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "content_templates",
+      "trigger_name": "set_content_templates_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "content_templates",
+      "trigger_name": "update_content_templates_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "conversation_sessions",
+      "trigger_name": "update_conversation_sessions_updated_at",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "trigger_name": "set_homes_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "trigger_name": "update_homes_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "homes",
+      "trigger_name": "validate_homes_client_lead_relationship",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  -- Ensure that if both client_id and lead_id are provided, they are related\n  IF NEW.client_id IS NOT NULL AND NEW.lead_id IS NOT NULL THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM public.leads l \n      WHERE l.id = NEW.lead_id AND l.client_id = NEW.client_id\n    ) THEN\n      RAISE EXCEPTION 'Client and lead are not related';\n    END IF;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "trigger_name": "notify_leads_changes",
+      "tgtype": 29,
+      "trigger_function": "\nDECLARE\n  notification_payload JSONB;\n  channel_name TEXT;\nBEGIN\n  -- Determine the operation type\n  IF TG_OP = 'DELETE' THEN\n    notification_payload := jsonb_build_object(\n      'operation', 'DELETE',\n      'table', 'leads',\n      'id', OLD.id,\n      'old_record', row_to_json(OLD)\n    );\n  ELSE\n    notification_payload := jsonb_build_object(\n      'operation', TG_OP,\n      'table', 'leads',\n      'id', COALESCE(NEW.id, OLD.id),\n      'new_record', CASE WHEN NEW IS NOT NULL THEN row_to_json(NEW) ELSE NULL END,\n      'old_record', CASE WHEN OLD IS NOT NULL THEN row_to_json(OLD) ELSE NULL END\n    );\n  END IF;\n  \n  -- Send notification to general leads channel\n  PERFORM pg_notify('leads_changes', notification_payload::TEXT);\n  \n  -- Send notification to user-specific channel if assigned\n  IF (TG_OP = 'DELETE' AND OLD.assigned_to IS NOT NULL) OR \n     (TG_OP != 'DELETE' AND NEW.assigned_to IS NOT NULL) THEN\n    channel_name := 'user_' || COALESCE(NEW.assigned_to, OLD.assigned_to)::TEXT || '_leads';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  -- Send notification to pipeline-specific channel\n  IF (TG_OP = 'DELETE' AND OLD.pipeline_id IS NOT NULL) OR \n     (TG_OP != 'DELETE' AND NEW.pipeline_id IS NOT NULL) THEN\n    channel_name := 'pipeline_' || COALESCE(NEW.pipeline_id, OLD.pipeline_id)::TEXT || '_leads';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  RETURN COALESCE(NEW, OLD);\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "trigger_name": "set_lead_next_contact_date",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  -- Set next contact date based on status\n  CASE NEW.status\n    WHEN 'New' THEN\n      NEW.next_contact_at := NOW() + INTERVAL '1 day';\n    WHEN 'Contacted' THEN\n      NEW.next_contact_at := NOW() + INTERVAL '3 days';\n    WHEN 'Qualified' THEN\n      NEW.next_contact_at := NOW() + INTERVAL '2 days';\n    WHEN 'Quoted' THEN\n      NEW.next_contact_at := NOW() + INTERVAL '7 days';\n    WHEN 'Sold', 'Lost' THEN\n      NEW.next_contact_at := NULL;\n    ELSE\n      -- Keep existing date if status doesn't change\n      IF OLD.status = NEW.status THEN\n        NEW.next_contact_at := OLD.next_contact_at;\n      END IF;\n  END CASE;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "trigger_name": "set_leads_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "trigger_name": "track_lead_status_changes",
+      "tgtype": 17,
+      "trigger_function": "\nDECLARE\n  duration_hours INTEGER;\n  previous_history RECORD;\nBEGIN\n  -- Calculate duration in previous status\n  SELECT changed_at INTO previous_history\n  FROM public.lead_status_history \n  WHERE lead_id = NEW.id \n  ORDER BY changed_at DESC \n  LIMIT 1;\n  \n  IF previous_history.changed_at IS NOT NULL THEN\n    duration_hours := EXTRACT(EPOCH FROM (NOW() - previous_history.changed_at)) / 3600;\n  ELSE\n    duration_hours := EXTRACT(EPOCH FROM (NOW() - NEW.created_at)) / 3600;\n  END IF;\n  \n  -- Insert status change record if status actually changed\n  IF OLD.status IS DISTINCT FROM NEW.status OR OLD.pipeline_status_id IS DISTINCT FROM NEW.pipeline_status_id THEN\n    INSERT INTO public.lead_status_history (\n      lead_id,\n      from_status,\n      to_status,\n      from_pipeline_status_id,\n      to_pipeline_status_id,\n      duration_in_previous_status,\n      changed_by,\n      automated\n    ) VALUES (\n      NEW.id,\n      OLD.status,\n      NEW.status,\n      OLD.pipeline_status_id,\n      NEW.pipeline_status_id,\n      duration_hours,\n      auth.uid(),\n      FALSE -- Assume manual unless specified otherwise\n    );\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "leads",
+      "trigger_name": "update_leads_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  \n  -- Update status_changed_at if status changed\n  IF OLD.status IS DISTINCT FROM NEW.status THEN\n    NEW.status_changed_at = NOW();\n    \n    -- Set specific timestamp fields based on status\n    CASE NEW.status\n      WHEN 'Sold' THEN NEW.sold_at = NOW();\n      WHEN 'Lost' THEN NEW.lost_at = NOW();\n      WHEN 'Hibernated' THEN NEW.hibernated_at = NOW();\n      ELSE NULL;\n    END CASE;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipelines",
+      "trigger_name": "ensure_single_default_pipeline",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  IF NEW.is_default = TRUE THEN\n    -- Remove default flag from other pipelines of the same lead type\n    UPDATE public.pipelines \n    SET is_default = FALSE \n    WHERE lead_type = NEW.lead_type \n    AND id != NEW.id \n    AND is_default = TRUE;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipelines",
+      "trigger_name": "set_pipelines_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "pipelines",
+      "trigger_name": "update_pipelines_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "trigger_name": "notify_quotes_changes",
+      "tgtype": 29,
+      "trigger_function": "\nDECLARE\n  notification_payload JSONB;\n  channel_name TEXT;\nBEGIN\n  -- Build notification payload\n  IF TG_OP = 'DELETE' THEN\n    notification_payload := jsonb_build_object(\n      'operation', 'DELETE',\n      'table', 'quotes',\n      'id', OLD.id,\n      'lead_id', OLD.lead_id,\n      'old_record', row_to_json(OLD)\n    );\n  ELSE\n    notification_payload := jsonb_build_object(\n      'operation', TG_OP,\n      'table', 'quotes',\n      'id', COALESCE(NEW.id, OLD.id),\n      'lead_id', COALESCE(NEW.lead_id, OLD.lead_id),\n      'new_record', CASE WHEN NEW IS NOT NULL THEN row_to_json(NEW) ELSE NULL END,\n      'old_record', CASE WHEN OLD IS NOT NULL THEN row_to_json(OLD) ELSE NULL END\n    );\n  END IF;\n  \n  -- Send to general quotes channel\n  PERFORM pg_notify('quotes_changes', notification_payload::TEXT);\n  \n  -- Send to lead-specific channel\n  IF COALESCE(NEW.lead_id, OLD.lead_id) IS NOT NULL THEN\n    channel_name := 'lead_' || COALESCE(NEW.lead_id, OLD.lead_id)::TEXT || '_quotes';\n    PERFORM pg_notify(channel_name, notification_payload::TEXT);\n  END IF;\n  \n  RETURN COALESCE(NEW, OLD);\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "trigger_name": "set_quotes_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "quotes",
+      "trigger_name": "update_quotes_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "ringcentral_tokens",
+      "trigger_name": "update_ringcentral_tokens_updated_at",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "sms_logs",
+      "trigger_name": "update_sms_logs_updated_at",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "trigger_name": "set_specialty_items_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "trigger_name": "update_specialty_items_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "specialty_items",
+      "trigger_name": "validate_specialty_items_client_lead_relationship",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  -- Ensure that if both client_id and lead_id are provided, they are related\n  IF NEW.client_id IS NOT NULL AND NEW.lead_id IS NOT NULL THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM public.leads l \n      WHERE l.id = NEW.lead_id AND l.client_id = NEW.client_id\n    ) THEN\n      RAISE EXCEPTION 'Client and lead are not related';\n    END IF;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_phone_preferences",
+      "trigger_name": "ensure_single_default_phone_preference",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  IF NEW.is_default = TRUE THEN\n    -- Remove default flag from other phone preferences for this user\n    UPDATE public.user_phone_preferences \n    SET is_default = FALSE \n    WHERE user_id = NEW.user_id \n    AND id != NEW.id \n    AND is_default = TRUE;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "user_phone_preferences",
+      "trigger_name": "update_user_phone_preferences_updated_at",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "users",
+      "trigger_name": "update_users_updated_at",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "trigger_name": "set_vehicles_created_by",
+      "tgtype": 7,
+      "trigger_function": "\nBEGIN\n  IF NEW.created_by IS NULL THEN\n    NEW.created_by = auth.uid();\n  END IF;\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "trigger_name": "update_vehicles_audit_fields",
+      "tgtype": 19,
+      "trigger_function": "\nBEGIN\n  NEW.updated_at = NOW();\n  NEW.updated_by = auth.uid();\n  RETURN NEW;\nEND;\n"
+    },
+    {
+      "schema_name": "public",
+      "table_name": "vehicles",
+      "trigger_name": "validate_vehicles_client_lead_relationship",
+      "tgtype": 23,
+      "trigger_function": "\nBEGIN\n  -- Ensure that if both client_id and lead_id are provided, they are related\n  IF NEW.client_id IS NOT NULL AND NEW.lead_id IS NOT NULL THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM public.leads l \n      WHERE l.id = NEW.lead_id AND l.client_id = NEW.client_id\n    ) THEN\n      RAISE EXCEPTION 'Client and lead are not related';\n    END IF;\n  END IF;\n  \n  RETURN NEW;\nEND;\n"
+    }
+  ],
+  "enums": [],
+  "conflicts": [
+    {
+      "type": "CRITICAL_TRIGGER_CONSTRAINT_CONFLICT",
+      "severity": "HIGH",
+      "table": "communications",
+      "trigger": "create_communication_from_call_log",
+      "constraint": "communications_status_check",
+      "issue": "Trigger sets status to 'Completed' but constraint only allows: Pending, Sent, Delivered, Opened, Clicked, Replied, Failed, Bounced",
+      "impact": "Data insertion failures when call logs create communication records",
+      "recommendation": "Either add 'Completed' to constraint or change trigger to use 'Delivered'"
+    }
+  ]
+}

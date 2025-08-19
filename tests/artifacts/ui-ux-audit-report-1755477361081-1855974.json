@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2025-08-18T00:36:19.992Z",
+  "findings": [
+    {
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: Error",
+      "browser": "firefox"
+    },
+    {
+      "category": "UX",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "field": "Create account",
+      "issue": "Submit not enabled after valid inputs"
+    }
+  ]
+}

@@ -11,25 +11,10 @@ export async function GET(
 
     const supabase = await createClient();
 
-    // Fetch pipeline with its statuses using Supabase
+    // Fetch pipeline - stages are stored as JSONB in the stages column
     const { data: pipeline, error: pipelineError } = await supabase
       .from('pipelines')
-      .select(`
-        *,
-        pipeline_statuses (
-          id,
-          pipeline_id,
-          name,
-          description,
-          is_final,
-          display_order,
-          color_hex,
-          icon_name,
-          ai_action_template,
-          created_at,
-          updated_at
-        )
-      `)
+      .select('*')
       .eq('id', pipelineId)
       .single();
 
@@ -43,10 +28,24 @@ export async function GET(
       throw pipelineError;
     }
 
-    // Transform the data to match the expected format
+    // Transform the JSONB stages to match the expected pipeline_statuses format
     const transformedPipeline = {
       ...pipeline,
-      statuses: pipeline.pipeline_statuses?.sort((a, b) => a.display_order - b.display_order) || []
+      pipeline_statuses: (pipeline.stages || [])
+        .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+        .map((stage: any, index: number) => ({
+          id: index + 1, // Generate sequential IDs for compatibility
+          pipeline_id: pipeline.id,
+          name: stage.name,
+          description: stage.description || null,
+          is_final: stage.is_final || false,
+          display_order: stage.order || index + 1,
+          color_hex: stage.color || '#3B82F6',
+          icon_name: stage.icon_name || null,
+          ai_action_template: stage.ai_action_template || null,
+          created_at: pipeline.created_at,
+          updated_at: pipeline.updated_at
+        }))
     };
 
     return NextResponse.json(transformedPipeline);

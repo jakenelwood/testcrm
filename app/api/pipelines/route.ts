@@ -1,51 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { z } from 'zod';
-import { validateRequestBody, addSecurityHeaders } from '@/lib/middleware/validation';
 
-// Pipeline validation schema
-const pipelineSchema = z.object({
-  name: z.string().min(1, 'Pipeline name is required').max(100, 'Pipeline name too long'),
-  description: z.string().max(500, 'Description too long').optional(),
-  lead_type: z.enum(['Personal', 'Business']).default('Personal'),
-  is_default: z.boolean().default(false),
-  display_order: z.number().int().min(0).max(9999).default(999),
-});
+/**
+ * PIPELINES API
+ *
+ * Fetches all pipelines from the database with their stages transformed
+ * to match the expected pipeline_statuses format.
+ */
+// Security headers helper
+function addSecurityHeaders(response: NextResponse) {
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  return response;
+}
 
-export async function GET() {
+// Transform pipeline stages to match expected format
+function transformPipelineStages(pipeline: any) {
+  return {
+    ...pipeline,
+    pipeline_statuses: (pipeline.stages || [])
+      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+      .map((stage: any, index: number) => ({
+        id: index + 1, // Generate sequential IDs for compatibility
+        pipeline_id: pipeline.id,
+        name: stage.name,
+        description: stage.description || null,
+        is_final: stage.is_final || false,
+        display_order: stage.order || index + 1,
+        color_hex: stage.color || '#3B82F6',
+        icon_name: stage.icon_name || null,
+        ai_action_template: stage.ai_action_template || null,
+        created_at: pipeline.created_at,
+        updated_at: pipeline.updated_at
+      }))
+  };
+}
+
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Fetch pipelines with their statuses
+    // Fetch all pipelines from the database
     const { data: pipelines, error: pipelinesError } = await supabase
       .from('pipelines')
-      .select(`
-        *,
-        pipeline_statuses (
-          id,
-          pipeline_id,
-          name,
-          description,
-          is_final,
-          display_order,
-          color_hex,
-          icon_name,
-          ai_action_template,
-          created_at,
-          updated_at
-        )
-      `)
-      .order('display_order', { ascending: true });
+      .select('*')
+      .order('created_at', { ascending: true });
 
     if (pipelinesError) {
+      console.error('Error fetching pipelines:', pipelinesError);
       throw pipelinesError;
     }
 
-    // Transform the data to match the expected format
-    const transformedPipelines = pipelines?.map(pipeline => ({
-      ...pipeline,
-      statuses: pipeline.pipeline_statuses?.sort((a, b) => a.display_order - b.display_order) || []
-    })) || [];
+    // Transform each pipeline to include pipeline_statuses format
+    const transformedPipelines = (pipelines || []).map(transformPipelineStages);
 
     const response = NextResponse.json(transformedPipelines);
     return addSecurityHeaders(response);
@@ -70,46 +78,31 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Validate and sanitize request body
-    const body = await request.json();
-    const validation = validateRequestBody(pipelineSchema, body);
-
-    // If validation returns a NextResponse, it means validation failed
-    if (validation instanceof NextResponse) {
-      return addSecurityHeaders(validation);
-    }
-
-    const { name, description, lead_type, is_default, display_order } = validation;
-
     const supabase = await createClient();
+    const body = await request.json();
 
-    // Insert new pipeline using Supabase
-    const { data: pipeline, error: insertError } = await supabase
+    // Create new pipeline
+    const { data: pipeline, error: pipelineError } = await supabase
       .from('pipelines')
-      .insert({
-        name,
-        description,
-        lead_type,
-        is_default,
-        display_order
-      })
+      .insert([body])
       .select()
       .single();
 
-    if (insertError) {
-      throw insertError;
+    if (pipelineError) {
+      console.error('Error creating pipeline:', pipelineError);
+      throw pipelineError;
     }
 
-    const response = NextResponse.json(pipeline);
+    const transformedPipeline = transformPipelineStages(pipeline);
+    const response = NextResponse.json(transformedPipeline, { status: 201 });
     return addSecurityHeaders(response);
   } catch (error) {
-    console.error('Error creating pipeline:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    });
-
+    console.error('Error creating pipeline:', error);
     const response = NextResponse.json(
-      { error: 'Failed to create pipeline' },
+      {
+        error: 'Failed to create pipeline',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
     return addSecurityHeaders(response);

@@ -1,0 +1,103 @@
+{
+  "generatedAt": "2025-08-18T00:06:44.152Z",
+  "findings": [
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard",
+      "issue": "Slow DOM load (8598ms)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/leads",
+      "issue": "Slow DOM load (6878ms)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/leads",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/leads",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/leads",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    },
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "category": "API",
+      "severity": "medium",
+      "issue": "HTTP 404 on GET http://localhost:3000/dashboard/opportunities"
+    },
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/dashboard/opportunities",
+      "issue": "Slow DOM load (3594ms)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/dashboard/opportunities",
+      "issue": "Missing <footer> or role=\"contentinfo\" landmark"
+    }
+  ]
+}

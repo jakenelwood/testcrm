@@ -147,6 +147,69 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
 }
 
+/* Stage badge CSS variables (default values; themes can override) */
+:root {
+  --stage-start-bg: color-mix(in oklch, var(--blue) 20%, white);
+  --stage-start-fg: var(--blue);
+  --stage-attempting_contact-bg: color-mix(in oklch, var(--yellow) 20%, white);
+  --stage-attempting_contact-fg: var(--yellow);
+  --stage-contacted_no_interest-bg: color-mix(in oklch, var(--red) 20%, white);
+  --stage-contacted_no_interest-fg: var(--red);
+  --stage-contacted_interested-bg: color-mix(in oklch, var(--green) 20%, white);
+  --stage-contacted_interested-fg: var(--green);
+  --stage-quoted-bg: color-mix(in oklch, var(--violet) 20%, white);
+  --stage-quoted-fg: var(--violet);
+  --stage-quote_yes-bg: color-mix(in oklch, var(--green) 25%, white);
+  --stage-quote_yes-fg: var(--green);
+  --stage-quote_no_followup_ok-bg: color-mix(in oklch, var(--orange) 20%, white);
+  --stage-quote_no_followup_ok-fg: var(--orange);
+  --stage-quote_no_dont_contact-bg: color-mix(in oklch, var(--red) 25%, white);
+  --stage-quote_no_dont_contact-fg: var(--red);
+  --stage-quote_maybe-bg: color-mix(in oklch, var(--yellow) 18%, white);
+  --stage-quote_maybe-fg: var(--yellow);
+  --stage-proposed-bg: color-mix(in oklch, var(--violet) 18%, white);
+  --stage-proposed-fg: var(--violet);
+  --stage-closed_won-bg: color-mix(in oklch, var(--green) 28%, white);
+  --stage-closed_won-fg: var(--green);
+  --stage-closed_lost-bg: color-mix(in oklch, var(--border) 60%, white);
+  --stage-closed_lost-fg: oklch(0.33 0 0);
+  --stage-paused-bg: color-mix(in oklch, var(--muted) 40%, white);
+  --stage-paused-fg: var(--muted-foreground);
+  --stage-future_follow_up_date-bg: color-mix(in oklch, var(--blue) 18%, white);
+  --stage-future_follow_up_date-fg: var(--blue);
+}
+
+:root.dark {
+  --stage-start-bg: color-mix(in oklch, var(--blue) 35%, black);
+  --stage-start-fg: var(--blue-foreground);
+  --stage-attempting_contact-bg: color-mix(in oklch, var(--yellow) 35%, black);
+  --stage-attempting_contact-fg: var(--yellow-foreground);
+  --stage-contacted_no_interest-bg: color-mix(in oklch, var(--red) 35%, black);
+  --stage-contacted_no_interest-fg: var(--red-foreground);
+  --stage-contacted_interested-bg: color-mix(in oklch, var(--green) 35%, black);
+  --stage-contacted_interested-fg: var(--green-foreground);
+  --stage-quoted-bg: color-mix(in oklch, var(--violet) 35%, black);
+  --stage-quoted-fg: var(--violet-foreground);
+  --stage-quote_yes-bg: color-mix(in oklch, var(--green) 40%, black);
+  --stage-quote_yes-fg: var(--green-foreground);
+  --stage-quote_no_followup_ok-bg: color-mix(in oklch, var(--orange) 35%, black);
+  --stage-quote_no_followup_ok-fg: var(--orange-foreground);
+  --stage-quote_no_dont_contact-bg: color-mix(in oklch, var(--red) 40%, black);
+  --stage-quote_no_dont_contact-fg: var(--red-foreground);
+  --stage-quote_maybe-bg: color-mix(in oklch, var(--yellow) 30%, black);
+  --stage-quote_maybe-fg: var(--yellow-foreground);
+  --stage-proposed-bg: color-mix(in oklch, var(--violet) 30%, black);
+  --stage-proposed-fg: var(--violet-foreground);
+  --stage-closed_won-bg: color-mix(in oklch, var(--green) 45%, black);
+  --stage-closed_won-fg: var(--green-foreground);
+  --stage-closed_lost-bg: color-mix(in oklch, var(--border) 40%, black);
+  --stage-closed_lost-fg: var(--foreground);
+  --stage-paused-bg: color-mix(in oklch, var(--muted) 45%, black);
+  --stage-paused-fg: var(--muted-foreground);
+  --stage-future_follow_up_date-bg: color-mix(in oklch, var(--blue) 30%, black);
+  --stage-future_follow_up_date-fg: var(--blue-foreground);
+}
+
 :root[data-theme="slate"].dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);

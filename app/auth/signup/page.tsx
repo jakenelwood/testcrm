@@ -249,6 +249,9 @@ export default function SignUpPage() {
                         required
                       />
                     </div>
+                    {email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && (
+                      <p className="text-xs text-red-500 mt-1">Please enter a valid email address</p>
+                    )}
                   </div>
 
                   <div className="space-y-3">
@@ -328,7 +331,8 @@ export default function SignUpPage() {
                   <Button
                     type="submit"
                     className="w-full h-12 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg mt-2"
-                    disabled={loading || passwordsMatch === false || passwordStrength === 'weak' || !displayName.trim()}
+                    aria-disabled={loading || passwordsMatch === false || passwordStrength === 'weak' || !displayName.trim() || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)}
+                    disabled={loading || passwordsMatch === false || passwordStrength === 'weak' || !displayName.trim() || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)}
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">

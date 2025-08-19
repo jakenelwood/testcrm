@@ -28,11 +28,22 @@ import supabase from '@/utils/supabase/client';
 import { ArrowLeft, Plus, Loader2, Edit } from 'lucide-react';
 import { getStatusStyles, statusBadgeStyles } from "@/utils/status-styles";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { OtherInsuredForm } from '@/components/forms/other-insured-form';
-import { HomeForm } from '@/components/forms/home-form';
-import { SpecialtyItemForm } from '@/components/forms/specialty-item-form';
 import { DevelopmentModeBanner } from "@/components/ui/development-mode-banner";
 import ClientDetails from "@/components/client/client-details";
+import dynamic from 'next/dynamic';
+
+// Dynamic imports for large form components to improve initial bundle size
+const OtherInsuredForm = dynamic(() => import('@/components/forms/other-insured-form').then(mod => ({ default: mod.OtherInsuredForm })), {
+  loading: () => <div className="flex items-center justify-center p-4"><Loader2 className="h-4 w-4 animate-spin" /></div>
+});
+
+const HomeForm = dynamic(() => import('@/components/forms/home-form').then(mod => ({ default: mod.HomeForm })), {
+  loading: () => <div className="flex items-center justify-center p-4"><Loader2 className="h-4 w-4 animate-spin" /></div>
+});
+
+const SpecialtyItemForm = dynamic(() => import('@/components/forms/specialty-item-form').then(mod => ({ default: mod.SpecialtyItemForm })), {
+  loading: () => <div className="flex items-center justify-center p-4"><Loader2 className="h-4 w-4 animate-spin" /></div>
+});
 
 export default function LeadDetailsPage() {
   const params = useParams();
@@ -1994,9 +2005,9 @@ export default function LeadDetailsPage() {
 
       // Then update lead in Supabase with all information including contact details
       const { data, error } = await supabase
-        .from('leads_ins_info')
+        .from('leads')
         .update({
-          status_id: statusId,
+          pipeline_status_id: statusId,
           insurance_type_id: insuranceTypeId,
           current_carrier: formData.current_carrier || null,
           premium: premium,
@@ -2038,11 +2049,11 @@ export default function LeadDetailsPage() {
 
         // Continue with the data we have from the update operation
         const { data: fallbackData, error: statusError } = await supabase
-          .from('leads_ins_info')
+          .from('leads')
           .select(`
             *,
-            status:lead_statuses!inner(value),
-            insurance_type:insurance_types!inner(name)
+            pipeline_status:pipeline_statuses!pipeline_status_id(name),
+            insurance_type:insurance_types!insurance_type_id(name)
           `)
           .eq('id', lead.id)
           .single();

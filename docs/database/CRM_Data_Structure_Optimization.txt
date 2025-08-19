@@ -1,0 +1,840 @@
+﻿Architecting a Unified B2B/B2C AI-Native CRM on PostgreSQL and pgvector
+
+
+________________
+
+
+Section 1: The Foundational Data Model - A Unified Approach for B2B and B2C
+
+
+The architecture of a Customer Relationship Management (CRM) system is its constitution. It defines the boundaries of what is possible, dictates the efficiency of every operation, and ultimately determines the platform's capacity to deliver on its promise. For an AI-native CRM designed to serve both Business-to-Business (B2B) and Business-to-Consumer (B2C) markets, the foundational data model is not merely a technical detail; it is the strategic cornerstone upon which all functionality—especially the intelligence layer—is built. This section outlines a unified architectural philosophy that elegantly accommodates the distinct dynamics of B2B and B2C sales cycles within a single, coherent, and scalable PostgreSQL schema.
+
+
+1.1 The Core Philosophy: Unifying B2B and B2C
+
+
+A common pitfall in designing a dual-purpose CRM is to create parallel, siloed structures for B2B and B2C data. This approach, while seemingly logical, inevitably leads to a brittle and complex system. The research is unequivocal: B2B and B2C sales motions are fundamentally different. B2B cycles are long, involve multiple decision-makers, and are relationship-driven, whereas B2C cycles are typically shorter, involve a single decider, and are more transactional.1 A naive schema might manifest this as separate
+b2b_leads and b2c_customers tables, forcing the application to perform costly and error-prone data migrations as an entity's status evolves. This creates data duplication, complicates reporting, and makes a true 360-degree view of the customer an elusive goal.3
+The superior approach is a unified model built on a simple yet profound principle: every record of a person, regardless of their context, is a contact. The fundamental unit of any CRM is the individual. Whether they are an anonymous website visitor, a lead in a marketing campaign, a B2C shopper, or the CEO of a target enterprise account, they are a person. By treating every individual as a contact from the moment they enter the system, we establish a single, permanent anchor for all related data. Their journey through the sales funnel is not tracked by moving their record between tables, but by updating a lifecycle_stage attribute on a single, persistent record. This design choice radically simplifies the database schema and the application logic built upon it. It ensures data integrity and makes analytics, reporting, and AI-driven analysis far more straightforward.
+The distinction between B2B and B2C is then modeled not by entity type, but by relationships. The schema will be centered around two primary entities: contacts (representing individuals) and accounts (representing organizations or companies). A contact's relationship to an account defines its context.
+* A contact linked to an account record is a B2B entity.
+* A contact with no account link is a B2C entity.
+This flexible, relationship-based approach, inspired by the robust data models of enterprise-grade platforms 4, creates a single source of truth for all customer data.5 It allows a B2C customer who later founds a company to seamlessly transition into a B2B lead without creating a duplicate, fragmented record. This architectural elegance is the key to building a CRM that is not just functional, but truly intelligent and adaptable.
+
+
+1.2 Multi-Tenancy and User Management: workspaces and users
+
+
+For any Software-as-a-Service (SaaS) application, multi-tenancy is the first and most critical architectural layer. It ensures that each of your customers' data is strictly isolated and secure. The entire schema must be designed with this in mind from the outset.
+The workspaces table will represent a single customer's instance of your CRM. Each workspace is a self-contained universe of data for one of your clients. The users table will store the login credentials and profile information for your customers' employees—the individuals who will be logging into and using the CRM platform. While it is highly recommended to leverage Supabase's built-in authentication (auth.users) for this purpose to handle security, password management, and JWTs, the logical structure remains the same.
+Crucially, every major table in the schema that contains customer-specific data will have a non-nullable workspace_id foreign key. This is the primary mechanism for data isolation. All queries executed by the application must be scoped to the currently authenticated user's workspace_id. This prevents any possibility of data leakage between tenants and is a non-negotiable requirement for a secure, enterprise-ready platform.
+
+
+SQL
+
+
+
+
+-- Represents a single customer's CRM instance (a tenant).
+CREATE TABLE workspaces (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   name TEXT NOT NULL,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   -- Additional workspace-level settings can be stored here.
+   -- e.g., subscription_plan, custom_branding_jsonb, etc.
+);
+
+-- Represents an end-user who can log in to the CRM.
+-- This logically maps to Supabase's auth.users table.
+CREATE TABLE users (
+   id UUID PRIMARY KEY, -- References auth.users.id
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   full_name TEXT,
+   avatar_url TEXT,
+   -- Role-based access control (RBAC) can be managed here.
+   role TEXT NOT NULL DEFAULT 'agent' CHECK (role IN ('admin', 'agent')),
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Index to efficiently find all users within a workspace.
+CREATE INDEX idx_users_workspace_id ON users(workspace_id);
+
+
+
+1.3 Core Entity Definitions: accounts and contacts
+
+
+With the multi-tenancy framework in place, we define the core entities that embody our unified B2B/B2C philosophy.
+The accounts table is designed to store information about organizations. This is the central entity for all B2B activities. It includes standard firmographic data such as the company name, website, and industry. A key feature is the inclusion of a custom_fields column of type JSONB. This provides the schema-on-read flexibility required by modern CRMs, allowing users to define their own data points without requiring database schema migrations, a feature that enhances adaptability to changing business needs.6
+The contacts table is the heart of the entire schema. It stores information about individual people. This table includes a nullable account_id foreign key, which is the linchpin of the unified model.
+* If account_id is NULL, the contact is treated as a B2C entity. All interactions and opportunities are associated directly with this individual.
+* If account_id is populated, the contact is part of a B2B context, associated with the specified organization.
+This table also introduces a lifecycle_stage column, defined as a PostgreSQL ENUM type. This field tracks where the contact is in the overall customer journey (e.g., 'lead', 'opportunity_contact', 'customer', 'churned'). This simple but powerful attribute eliminates the need for separate leads and customers tables, which is a common but inefficient design pattern.8 All information about an individual remains in one place throughout their entire relationship with the business, providing a truly longitudinal view.
+
+
+SQL
+
+
+
+
+-- Represents a company or organization (B2B).
+CREATE TABLE accounts (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   name TEXT NOT NULL,
+   website TEXT,
+   industry TEXT,
+   employee_count INT,
+   address TEXT,
+   custom_fields JSONB, -- For user-defined fields
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   owner_id UUID REFERENCES users(id) ON DELETE SET NULL -- The primary user responsible for this account
+);
+
+-- Create indexes for efficient querying.
+CREATE INDEX idx_accounts_workspace_id ON accounts(workspace_id);
+CREATE INDEX idx_accounts_owner_id ON accounts(owner_id);
+
+-- Define the lifecycle stages for a contact.
+CREATE TYPE contact_lifecycle_stage AS ENUM (
+   'lead',
+   'opportunity_contact',
+   'customer',
+   'churned'
+);
+
+-- Represents an individual person (B2B or B2C).
+CREATE TABLE contacts (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE SET NULL, -- If NULL, this is a B2C contact
+   first_name TEXT,
+   last_name TEXT,
+   email TEXT,
+   phone TEXT,
+   job_title TEXT,
+   lifecycle_stage contact_lifecycle_stage NOT NULL DEFAULT 'lead',
+   custom_fields JSONB,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   owner_id UUID REFERENCES users(id) ON DELETE SET NULL -- The primary user responsible for this contact
+);
+
+-- Create indexes for efficient querying.
+CREATE INDEX idx_contacts_workspace_id ON contacts(workspace_id);
+CREATE INDEX idx_contacts_account_id ON contacts(account_id); -- Crucial for B2B queries
+CREATE INDEX idx_contacts_owner_id ON contacts(owner_id);
+CREATE INDEX idx_contacts_lifecycle_stage ON contacts(lifecycle_stage);
+-- A unique constraint to prevent duplicate contacts within a workspace.
+-- This can be adjusted based on business rules (e.g., allow multiple contacts with same email).
+ALTER TABLE contacts ADD CONSTRAINT unique_contact_email_in_workspace UNIQUE (workspace_id, email);
+
+The relationship between these tables is simple and powerful. A LEFT JOIN from contacts to accounts allows the application to retrieve a complete profile for any individual, seamlessly pulling in company information for B2B contacts while returning NULL for B2C contacts.
+Table
+	Column
+	Type
+	Relationship
+	Description
+	workspaces
+	id
+	UUID
+	Primary Key
+	Unique identifier for a tenant.
+	users
+	id
+	UUID
+	Primary Key
+	Unique identifier for a user.
+	
+
+	workspace_id
+	UUID
+	Foreign Key -> workspaces(id)
+	Ensures user belongs to a single tenant.
+	accounts
+	id
+	UUID
+	Primary Key
+	Unique identifier for a company.
+	
+
+	workspace_id
+	UUID
+	Foreign Key -> workspaces(id)
+	Isolates account data to a specific tenant.
+	
+
+	owner_id
+	UUID
+	Foreign Key -> users(id)
+	Assigns a user as the primary owner of the account.
+	contacts
+	id
+	UUID
+	Primary Key
+	Unique identifier for an individual.
+	
+
+	workspace_id
+	UUID
+	Foreign Key -> workspaces(id)
+	Isolates contact data to a specific tenant.
+	
+
+	account_id
+	UUID
+	Nullable Foreign Key -> accounts(id)
+	The core of the unified model. Links a contact to a company for B2B context. If NULL, the contact is B2C.
+	
+
+	owner_id
+	UUID
+	Foreign Key -> users(id)
+	Assigns a user as the primary owner of the contact.
+	________________
+
+
+Section 2: Modeling the Customer Journey from Lead to Client
+
+
+With the core entities defined, the next layer of the schema must capture the dynamic activity that constitutes the customer relationship. This is where the CRM transitions from a static address book to a living record of the customer journey. These tables are designed to create a rich, chronological timeline of every touchpoint, providing the raw data for both human users and the AI partner to derive insights, drive action, and facilitate the "continual learning" central to the project's vision.
+
+
+2.1 The Unified Sales Pipeline: opportunities and opportunity_participants
+
+
+A flexible model for sales deals is essential. The opportunities table will track potential revenue-generating events, from a simple B2C product purchase to a complex, multi-year B2B enterprise contract. To maintain our unified approach, the opportunities table will feature both a nullable account_id and a nullable contact_id.
+* For a B2B deal, the account_id is the primary link, representing a deal with an entire organization.
+* For a B2C deal (e.g., a high-value purchase or a subscription), the contact_id is the primary link.
+However, a simple foreign key is insufficient to model the complexity of B2B sales. As noted in the research, B2B purchasing decisions often involve a complex buying committee with multiple players, from budget approvers to end-users.1 To accurately capture this reality, a many-to-many relationship between opportunities and contacts is required.
+This is achieved through a junction table: opportunity_participants. This table links a single opportunity_id to multiple contact_ids. This design provides a rich, accurate view of the B2B sales process. Furthermore, by adding a role column to this junction table (e.g., 'Decision Maker', 'Influencer', 'Technical Evaluator'), we provide critical context about the buying committee's structure. This allows the AI and users to understand who to engage, with what message, and at what stage of the sales cycle, dramatically increasing the CRM's strategic value.
+
+
+SQL
+
+
+
+
+-- Defines the stages of a sales pipeline.
+CREATE TYPE opportunity_stage AS ENUM (
+   'prospecting',
+   'qualification',
+   'proposal',
+   'negotiation',
+   'closed_won',
+   'closed_lost'
+);
+
+-- Represents a potential sales deal (B2B or B2C).
+CREATE TABLE opportunities (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   name TEXT NOT NULL,
+   -- For B2B deals, account_id is primary. For B2C, contact_id is primary.
+   -- A check constraint ensures at least one is NOT NULL.
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   stage opportunity_stage NOT NULL DEFAULT 'prospecting',
+   amount DECIMAL(12, 2),
+   close_date DATE,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
+   CONSTRAINT chk_opportunity_has_target CHECK (account_id IS NOT NULL OR contact_id IS NOT NULL)
+);
+
+CREATE INDEX idx_opportunities_workspace_id ON opportunities(workspace_id);
+CREATE INDEX idx_opportunities_account_id ON opportunities(account_id);
+CREATE INDEX idx_opportunities_contact_id ON opportunities(contact_id);
+CREATE INDEX idx_opportunities_owner_id ON opportunities(owner_id);
+
+-- Junction table for many-to-many relationship between opportunities and contacts (for B2B).
+CREATE TABLE opportunity_participants (
+   opportunity_id UUID NOT NULL REFERENCES opportunities(id) ON DELETE CASCADE,
+   contact_id UUID NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   role TEXT, -- e.g., 'Decision Maker', 'Influencer', 'Champion'
+   PRIMARY KEY (opportunity_id, contact_id)
+);
+
+CREATE INDEX idx_opp_participants_workspace_id ON opportunity_participants(workspace_id);
+
+
+
+2.2 The Activity Stream: The Engine of AI Learning
+
+
+The goal of "continual learning" requires a granular, time-series log of all activities. This activity stream is the primary data source for the AI, providing the raw material for semantic analysis, pattern recognition, and predictive insights.
+The interactions table will be the most active and fastest-growing table in the database. It is designed to be a chronological log of every touchpoint: emails, phone calls, meetings, text messages, and more. It will contain the raw text content of these communications, which will be the source material for generating vector embeddings. To maintain flexibility, it will have nullable foreign keys to both contacts and accounts, allowing an interaction to be logged against an individual, a company, or both simultaneously.
+Supporting the interactions table are several other activity-related tables:
+* notes: For unstructured, user-generated notes and observations related to contacts or accounts.
+* tasks: For actionable to-do items assigned to users, ensuring follow-ups and next steps are tracked.
+* documents: To store metadata about attached files such as proposals, contracts, or presentations. The files themselves should be stored in a dedicated object storage service like Supabase Storage for scalability and cost-effectiveness, with this table holding the link and relevant metadata.
+By joining these activity tables with contacts and accounts, the application can construct the comprehensive, chronological "360-degree view" that is the hallmark of an effective CRM.3 This unified stream of structured and unstructured data is precisely what an AI partner needs to understand context, sentiment, and intent over time.
+
+
+SQL
+
+
+
+
+-- Defines the type of interaction.
+CREATE TYPE interaction_type AS ENUM (
+   'email',
+   'call',
+   'meeting',
+   'note',
+   'task_completed'
+);
+
+-- The central log of all touchpoints and activities.
+CREATE TABLE interactions (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   -- An interaction can be linked to a contact, an account, or both.
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   user_id UUID REFERENCES users(id) ON DELETE SET NULL, -- User who logged the interaction
+   type interaction_type NOT NULL,
+   content TEXT, -- The body of the email, notes from the call, etc.
+   interacted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   metadata JSONB -- For storing email headers, call duration, etc.
+);
+
+CREATE INDEX idx_interactions_workspace_id ON interactions(workspace_id);
+CREATE INDEX idx_interactions_contact_id ON interactions(contact_id);
+CREATE INDEX idx_interactions_account_id ON interactions(account_id);
+
+-- Table for unstructured user notes.
+CREATE TABLE notes (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+   content TEXT NOT NULL,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   CONSTRAINT chk_note_has_target CHECK (contact_id IS NOT NULL OR account_id IS NOT NULL)
+);
+
+CREATE INDEX idx_notes_workspace_id ON notes(workspace_id);
+
+-- Table for tasks and to-do items.
+CREATE TABLE tasks (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   title TEXT NOT NULL,
+   due_date DATE,
+   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed')),
+   assigned_to_id UUID REFERENCES users(id) ON DELETE CASCADE,
+   -- A task can be related to a contact, account, or opportunity.
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   opportunity_id UUID REFERENCES opportunities(id) ON DELETE CASCADE,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_tasks_workspace_id ON tasks(workspace_id);
+CREATE INDEX idx_tasks_assigned_to_id ON tasks(assigned_to_id);
+
+-- Table for document metadata (files stored in Supabase Storage).
+CREATE TABLE documents (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   file_name TEXT NOT NULL,
+   file_path TEXT NOT NULL, -- Path in Supabase Storage
+   mime_type TEXT,
+   file_size_bytes BIGINT,
+   uploaded_by_id UUID REFERENCES users(id) ON DELETE SET NULL,
+   -- A document can be related to a contact, account, or opportunity.
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   opportunity_id UUID REFERENCES opportunities(id) ON DELETE CASCADE,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_documents_workspace_id ON documents(workspace_id);
+
+________________
+
+
+Section 3: Architecting for AI - Integrating Voyage Embeddings with pgvector
+
+
+This section forms the technical core of the AI integration. Here, we transition from purely relational data to the realm of high-dimensional vector data, which allows the AI to understand the semantic meaning and context of the unstructured text within the CRM. We will detail precisely how to store, index, and query these semantic representations using the pgvector extension for PostgreSQL.
+
+
+3.1 Choosing the Right Embedding Model and Parameters
+
+
+The choice of embedding model and its configuration has a direct and significant impact on the quality of the AI's understanding and the performance of the system.
+Model Selection: The specified model, voyage-3-large, is an excellent choice. It is a state-of-the-art, general-purpose model that consistently outperforms alternatives in retrieval quality.9 Its most compelling feature for a CRM application is its massive 32,000-token context window.10 This allows for the embedding of entire email threads, lengthy meeting transcripts, or detailed documents without truncation, preserving the full context necessary for nuanced semantic understanding.
+Embedding Dimension: The voyage-3-large model offers flexibility in its output dimension, with options including 256, 512, 1024, and 2048.9 For this CRM, the strong and opinionated recommendation is to standardize on
+1024 dimensions. Here is the rationale:
+1. Semantic Richness: While smaller dimensions (like 256 or 512) save storage space and can be marginally faster, they do so by compressing the semantic information, potentially losing subtle but important nuances in the data.11
+2. Diminishing Returns: Conversely, the 2048 dimension offers only marginal gains in retrieval quality for most general text applications, while doubling the storage footprint and significantly increasing the computational cost of similarity searches.
+3. The Goldilocks Zone: 1024 dimensions provide a robust and proven balance between semantic richness, storage cost, and query performance. It is the model's default and a well-supported industry standard, making it a solid, future-proof choice.
+Distance Metric: Voyage AI embeddings are normalized to a length of 1.12 This mathematical property is critically important for performance. It means that dot product similarity is mathematically equivalent to the more commonly known cosine similarity. However, dot product is computationally simpler and therefore faster to calculate. For maximum performance, all vector indexes and queries in
+pgvector should be configured to use the dot product operator, which is vector_ip_ops.
+
+
+3.2 Storing Vector Embeddings in PostgreSQL
+
+
+To integrate these embeddings, we will add a vector(1024) column to the relevant tables. However, a truly intelligent CRM requires the AI to operate at multiple levels of abstraction—understanding both the fine-grained details of a single conversation and the high-level health of an entire relationship. This necessitates a dual-embedding strategy.
+Level 1: Granular Content Embeddings. This is the foundation for semantic search and Retrieval-Augmented Generation (RAG). The AI needs to be able to find specific pieces of information within the vast sea of communications. To enable this, we will add an embedding vector(1024) column to the tables that store raw, unstructured text:
+* interactions: To embed the content of emails, call logs, and meeting notes.
+* notes: To embed the content of user-generated notes.
+* documents: To embed the textual content extracted from uploaded documents.
+Level 2: High-Level Summary Embeddings. The user's vision calls for "clarity" and "continual learning," which implies the AI must do more than just search. It needs to synthesize information to provide high-level insights. A single email vector cannot tell you if a customer is happy or at risk of churning. Therefore, we will implement a second, more abstract level of embeddings.
+This will be accomplished via an asynchronous process (e.g., a background worker) that periodically uses a Large Language Model (LLM) to:
+1. Read the recent interactions and notes for a specific contact or account.
+2. Generate a concise, natural-language summary of the current relationship status (e.g., "Contact is concerned about the recent price increase but is excited about the upcoming feature X. They have mentioned competitor Y twice in the last week.").
+3. Embed this generated summary using voyage-3-large.
+This summary vector acts as a compressed, semantic snapshot of the relationship's health and trajectory. It allows the AI to perform powerful high-level analyses, such as finding all accounts that are "showing signs of churn" or identifying contacts who are "strong champions for the product." To store these, we will add a summary_embedding vector(1024) column to the contacts and accounts tables.
+This dual-embedding strategy empowers the AI to perform both granular, fact-based retrieval and high-level, intuitive analysis, directly enabling the proactive insights that define an AI-native CRM.
+
+
+SQL
+
+
+
+
+-- First, enable the pgvector extension.
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Add embedding columns to the relevant tables.
+
+-- Level 1: Granular content embeddings
+ALTER TABLE interactions ADD COLUMN embedding VECTOR(1024);
+ALTER TABLE notes ADD COLUMN embedding VECTOR(1024);
+ALTER TABLE documents ADD COLUMN embedding VECTOR(1024);
+
+-- Level 2: High-level summary embeddings
+ALTER TABLE accounts ADD COLUMN summary_embedding VECTOR(1024);
+ALTER TABLE contacts ADD COLUMN summary_embedding VECTOR(1024);
+
+
+
+3.3 Indexing for Speed: An Opinionated Choice for HNSW
+
+
+Without an index, pgvector performs a sequential scan, comparing the query vector to every single row in the table. This is an exact search but is unacceptably slow for any non-trivial amount of data. An Approximate Nearest Neighbor (ANN) index is required to achieve interactive query speeds. pgvector offers two primary index types: IVFFlat and HNSW.
+The research clearly contrasts these two options. IVFFlat is faster to build and uses less memory. HNSW has slower build times and higher memory usage but offers significantly better query performance in terms of the speed-recall tradeoff.13
+For an interactive, AI-driven application where query latency is paramount, the choice is clear: Use HNSW. Period. A user or an AI agent waiting several seconds for a similarity search result creates a poor user experience and cripples the "real-time" feel of the AI partner. The slower build times of HNSW are a one-time or infrequent cost, and modern versions of pgvector (0.5.0+) dramatically mitigate this issue with parallel index builds, which can yield speedups of 30x or more.16 The higher memory usage is a worthwhile and necessary investment for the superior performance gained.
+The following CREATE INDEX statements demonstrate how to create HNSW indexes on our embedding columns, using the high-performance dot product operator (vector_ip_ops). The parameters m and ef_construction are tuned for high recall.
+* m = 32 (default is 16): This increases the number of connections per node in the graph, creating a more robust and accurate index.
+* ef_construction = 128 (default is 64): This increases the size of the candidate list during index construction, leading to a higher-quality graph at the cost of longer build times.
+These are aggressive starting points that prioritize the quality and accuracy of search results. They can be tuned down if build times or memory usage become a concern.
+
+
+SQL
+
+
+
+
+-- Create HNSW indexes on all embedding columns using the dot product operator.
+
+-- Indexes for granular content
+CREATE INDEX idx_interactions_embedding_hnsw ON interactions USING hnsw (embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+CREATE INDEX idx_notes_embedding_hnsw ON notes USING hnsw (embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+CREATE INDEX idx_documents_embedding_hnsw ON documents USING hnsw (embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+-- Indexes for summary embeddings
+CREATE INDEX idx_accounts_summary_embedding_hnsw ON accounts USING hnsw (summary_embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+CREATE INDEX idx_contacts_summary_embedding_hnsw ON contacts USING hnsw (summary_embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+At query time, the hnsw.ef_search parameter can be set at the session or transaction level to control the trade-off between search speed and accuracy. A higher value will explore more of the graph, increasing recall but also latency. A good starting point for high-accuracy searches is SET LOCAL hnsw.ef_search = 100;.
+Feature
+	HNSW (Hierarchical Navigable Small World)
+	IVFFlat (Inverted File with Flat quantization)
+	Recommendation
+	Query Performance
+	Excellent. Superior speed-recall tradeoff.
+	Good. Slower for equivalent recall compared to HNSW.
+	HNSW
+	Build Time
+	Slower. Can be mitigated with parallel builds.
+	Faster. Requires a training step on existing data.
+	HNSW
+	Memory Usage
+	Higher. The graph structure must be held in memory for best performance.
+	Lower. Stores quantized cluster centroids.
+	HNSW
+	Recall-Speed Tradeoff
+	Excellent. Fine-grained control via ef_search.
+	Good. Controlled by probes.
+	HNSW
+	Key Tuning Parameters
+	m (connections), ef_construction (build quality), ef_search (query quality)
+	lists (clusters), probes (lists to search)
+	HNSW
+	________________
+
+
+Section 4: High-Performance by Design - Advanced Optimization Strategies
+
+
+Building a high-performance database is not an afterthought; it is a series of deliberate design decisions made from the very beginning. While the AI-driven vector search capabilities are a core feature, the day-to-day usability and responsiveness of the CRM depend on the speed of traditional relational queries. This section details the advanced optimization strategies required to ensure the database remains fast and scalable as data volume grows into the millions and billions of rows.
+
+
+4.1 Scalar Indexing: The Foundation of Relational Performance
+
+
+Fast data retrieval is the bedrock of a good user experience. Loading a list of contacts, filtering opportunities by stage, or finding a user's open tasks must be instantaneous. This is achieved through a strategic and aggressive scalar indexing strategy.
+* Index All Foreign Keys: This is the most fundamental rule of relational database performance. Every column that serves as a foreign key (workspace_id, account_id, contact_id, owner_id, etc.) must have a B-tree index. This is non-negotiable, as it is essential for the performance of JOIN operations.18
+* Create Composite Indexes for Common Query Patterns: Many queries filter on multiple columns simultaneously. For example, a common query will be to fetch all contacts within a specific workspace that are in the 'lead' stage and order them by creation date. A composite index on (workspace_id, lifecycle_stage, created_at DESC) allows the database to satisfy this entire query directly from the index, avoiding a costly table scan and sort operation.
+* Use Partial Indexes for Targeted Queries: For columns with high cardinality where queries frequently target a specific subset of values, a partial index can be significantly smaller and more efficient than a full index. For instance, to quickly find a user's open tasks, a partial index that only includes non-completed tasks is ideal: CREATE INDEX ON tasks (assigned_to_id) WHERE status!= 'completed';. The query planner will only use this index if the query's WHERE clause matches the index's WHERE clause.18
+Table
+	Recommended Scalar Indexes
+	Rationale
+	contacts
+	(workspace_id, lifecycle_stage, created_at DESC)
+	Supports the primary contact list view, filtering by stage and sorting by creation date.
+	
+
+	(workspace_id, owner_id)
+	Efficiently retrieves all contacts assigned to a specific user.
+	accounts
+	(workspace_id, name)
+	Supports searching for accounts by name within a tenant.
+	opportunities
+	(workspace_id, stage, close_date)
+	Supports pipeline views, filtering by stage and sorting/filtering by close date.
+	tasks
+	(assigned_to_id) WHERE status = 'pending'
+	A partial index to quickly fetch all open tasks for a given user.
+	interactions
+	(workspace_id, interacted_at DESC)
+	Supports the main activity timeline view, sorted chronologically.
+	
+
+4.2 Taming Big Data: Partitioning the interactions Table
+
+
+The interactions table is designed to be an ever-growing, append-only log of all customer activity. Over time, it will become, by far, the largest table in the database. A single table containing billions of rows will eventually become an operational nightmare, leading to slow queries, painful index maintenance, long backup times, and general performance degradation.
+The solution is declarative range partitioning, a native feature of PostgreSQL.19 We will partition the
+interactions table by a date range, creating a new physical sub-table (a partition) for each month. For example, all interactions from May 2024 will go into a partition named interactions_y2024m05, and all interactions from June 2024 will go into interactions_y2024m06.
+When a query is executed with a date range in the WHERE clause (e.g., WHERE interacted_at >= '2024-06-01' AND interacted_at < '2024-07-01'), the PostgreSQL query planner uses a technique called "constraint exclusion" to scan only the relevant partitions. It completely ignores all other partitions, dramatically reducing the amount of data that needs to be processed.
+This partitioning strategy has a powerful and symbiotic relationship with vector indexing, which is critical for long-term AI performance. The primary bottleneck for vector search at scale is the size of the HNSW index and the ability to fit it into memory.17 A single, monolithic HNSW index on a billion-row table would be enormous, leading to constant disk I/O and killing performance.
+By partitioning the table, we can create a local HNSW index on each monthly partition. This has profound performance implications:
+1. When the AI searches for recent interactions (the most common use case), the query planner prunes the search to only the most recent partitions.
+2. This means only the small, efficient HNSW indexes for the recent, "hot" data need to be loaded into RAM.
+3. The massive indexes for older, "cold" data from previous years are never touched, and can even be moved to cheaper, slower storage tiers.
+This approach transforms an unmanageable, monolithic indexing problem into a series of small, highly efficient, and manageable ones. It is the single most important strategy for ensuring the long-term, scalable performance of the AI features.
+
+
+SQL
+
+
+
+
+-- Create the main partitioned table for interactions.
+CREATE TABLE interactions (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL,
+   contact_id UUID,
+   account_id UUID,
+   user_id UUID,
+   type interaction_type NOT NULL,
+   content TEXT,
+   interacted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   metadata JSONB,
+   embedding VECTOR(1024)
+) PARTITION BY RANGE (interacted_at);
+
+-- Create a partition for a specific month (this process would be automated).
+CREATE TABLE interactions_y2024m06 PARTITION OF interactions
+   FOR VALUES FROM ('2024-06-01') TO ('2024-07-01');
+
+-- Create a LOCAL index on the partition. This is crucial.
+CREATE INDEX idx_interactions_y2024m06_embedding_hnsw ON interactions_y2024m06
+   USING hnsw (embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+-- Also create standard indexes on the partition.
+CREATE INDEX idx_interactions_y2024m06_contact_id ON interactions_y2024m06(contact_id);
+CREATE INDEX idx_interactions_y2024m06_account_id ON interactions_y2024m06(account_id);
+
+
+
+4.3 Supabase and PostgreSQL Configuration Tuning
+
+
+The Supabase platform provides a well-optimized PostgreSQL environment, but for a high-performance application, specific tuning is still required.
+* Connection Pooling: It is absolutely critical to use Supavisor, Supabase's built-in connection pooler, for all application connections. This is especially true if the architecture involves serverless functions, which can rapidly scale up and exhaust the database's limited number of direct connections.20 Direct connections should be reserved for administrative tasks only.
+* Query Analysis: The development team must be proficient in using the EXPLAIN (ANALYZE, BUFFERS) command. This tool is the primary means of diagnosing slow queries. It provides a detailed execution plan showing exactly how PostgreSQL is retrieving the data, revealing missing indexes, inefficient joins, or large table scans that need optimization.21
+* Database Maintenance: PostgreSQL relies on a process called VACUUM to reclaim storage occupied by dead rows and an ANALYZE process to update statistics used by the query planner. While Supabase automates this to some extent, for high-write tables like interactions, it may be necessary to schedule more frequent and aggressive VACUUM and ANALYZE operations to prevent table bloat and ensure the query planner makes optimal decisions.16
+________________
+
+
+Section 5: The Complete Implementation Blueprint
+
+
+This final section consolidates the entire architectural design into actionable artifacts. It provides the complete SQL schema and narrative examples to illustrate how the data flows through the system, bridging the gap between abstract design and concrete implementation.
+
+
+5.1 Full Database Schema SQL
+
+
+The following is a comprehensive SQL script containing all CREATE TYPE, CREATE TABLE, and CREATE INDEX statements required to bootstrap the database. This script is designed to be executed in a PostgreSQL environment with the pgvector extension enabled.
+
+
+SQL
+
+
+
+
+----------------------------------------------------------------
+-- EXTENSIONS
+----------------------------------------------------------------
+CREATE EXTENSION IF NOT EXISTS vector;
+
+----------------------------------------------------------------
+-- MULTI-TENANCY & USERS
+----------------------------------------------------------------
+CREATE TABLE workspaces (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   name TEXT NOT NULL,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE users (
+   id UUID PRIMARY KEY, -- References auth.users.id
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   full_name TEXT,
+   avatar_url TEXT,
+   role TEXT NOT NULL DEFAULT 'agent' CHECK (role IN ('admin', 'agent')),
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_users_workspace_id ON users(workspace_id);
+
+----------------------------------------------------------------
+-- CORE ENTITIES: ACCOUNTS & CONTACTS
+----------------------------------------------------------------
+CREATE TABLE accounts (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   name TEXT NOT NULL,
+   website TEXT,
+   industry TEXT,
+   employee_count INT,
+   address TEXT,
+   custom_fields JSONB,
+   summary_embedding VECTOR(1024),
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   owner_id UUID REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_accounts_workspace_id ON accounts(workspace_id);
+CREATE INDEX idx_accounts_owner_id ON accounts(owner_id);
+CREATE INDEX idx_accounts_summary_embedding_hnsw ON accounts USING hnsw (summary_embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+
+CREATE TYPE contact_lifecycle_stage AS ENUM ('lead', 'opportunity_contact', 'customer', 'churned');
+
+CREATE TABLE contacts (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE SET NULL,
+   first_name TEXT,
+   last_name TEXT,
+   email TEXT,
+   phone TEXT,
+   job_title TEXT,
+   lifecycle_stage contact_lifecycle_stage NOT NULL DEFAULT 'lead',
+   custom_fields JSONB,
+   summary_embedding VECTOR(1024),
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   owner_id UUID REFERENCES users(id) ON DELETE SET NULL
+);
+ALTER TABLE contacts ADD CONSTRAINT unique_contact_email_in_workspace UNIQUE (workspace_id, email);
+CREATE INDEX idx_contacts_workspace_id ON contacts(workspace_id);
+CREATE INDEX idx_contacts_account_id ON contacts(account_id);
+CREATE INDEX idx_contacts_owner_id ON contacts(owner_id);
+CREATE INDEX idx_contacts_lifecycle_stage ON contacts(lifecycle_stage);
+CREATE INDEX idx_contacts_summary_embedding_hnsw ON contacts USING hnsw (summary_embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+
+----------------------------------------------------------------
+-- SALES PIPELINE
+----------------------------------------------------------------
+CREATE TYPE opportunity_stage AS ENUM ('prospecting', 'qualification', 'proposal', 'negotiation', 'closed_won', 'closed_lost');
+
+CREATE TABLE opportunities (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   name TEXT NOT NULL,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   stage opportunity_stage NOT NULL DEFAULT 'prospecting',
+   amount DECIMAL(12, 2),
+   close_date DATE,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
+   CONSTRAINT chk_opportunity_has_target CHECK (account_id IS NOT NULL OR contact_id IS NOT NULL)
+);
+CREATE INDEX idx_opportunities_workspace_id ON opportunities(workspace_id);
+CREATE INDEX idx_opportunities_account_id ON opportunities(account_id);
+CREATE INDEX idx_opportunities_contact_id ON opportunities(contact_id);
+CREATE INDEX idx_opportunities_owner_id ON opportunities(owner_id);
+
+CREATE TABLE opportunity_participants (
+   opportunity_id UUID NOT NULL REFERENCES opportunities(id) ON DELETE CASCADE,
+   contact_id UUID NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   role TEXT,
+   PRIMARY KEY (opportunity_id, contact_id)
+);
+CREATE INDEX idx_opp_participants_workspace_id ON opportunity_participants(workspace_id);
+
+----------------------------------------------------------------
+-- ACTIVITY STREAM
+----------------------------------------------------------------
+CREATE TYPE interaction_type AS ENUM ('email', 'call', 'meeting', 'note', 'task_completed');
+
+CREATE TABLE interactions (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL,
+   contact_id UUID,
+   account_id UUID,
+   user_id UUID,
+   type interaction_type NOT NULL,
+   content TEXT,
+   interacted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   metadata JSONB,
+   embedding VECTOR(1024)
+) PARTITION BY RANGE (interacted_at);
+-- NOTE: Partitions and local indexes must be created and managed by an automated process.
+-- Example for one month:
+-- CREATE TABLE interactions_y2024m06 PARTITION OF interactions FOR VALUES FROM ('2024-06-01') TO ('2024-07-01');
+-- CREATE INDEX ON interactions_y2024m06 USING hnsw (embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+CREATE TABLE notes (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+   content TEXT NOT NULL,
+   embedding VECTOR(1024),
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+   CONSTRAINT chk_note_has_target CHECK (contact_id IS NOT NULL OR account_id IS NOT NULL)
+);
+CREATE INDEX idx_notes_workspace_id ON notes(workspace_id);
+CREATE INDEX idx_notes_embedding_hnsw ON notes USING hnsw (embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+CREATE TABLE tasks (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   title TEXT NOT NULL,
+   due_date DATE,
+   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed')),
+   assigned_to_id UUID REFERENCES users(id) ON DELETE CASCADE,
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   opportunity_id UUID REFERENCES opportunities(id) ON DELETE CASCADE,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_tasks_workspace_id ON tasks(workspace_id);
+CREATE INDEX idx_tasks_assigned_to_id_pending ON tasks(assigned_to_id) WHERE status = 'pending';
+
+CREATE TABLE documents (
+   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+   workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+   file_name TEXT NOT NULL,
+   file_path TEXT NOT NULL,
+   mime_type TEXT,
+   file_size_bytes BIGINT,
+   uploaded_by_id UUID REFERENCES users(id) ON DELETE SET NULL,
+   contact_id UUID REFERENCES contacts(id) ON DELETE CASCADE,
+   account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+   opportunity_id UUID REFERENCES opportunities(id) ON DELETE CASCADE,
+   embedding VECTOR(1024),
+   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_documents_workspace_id ON documents(workspace_id);
+CREATE INDEX idx_documents_embedding_hnsw ON documents USING hnsw (embedding vector_ip_ops) WITH (m = 32, ef_construction = 128);
+
+
+
+5.2 Data Flow in Action: B2C and B2B Narrative Walkthroughs
+
+
+To make the abstract schema tangible, these narrative walkthroughs illustrate how data flows through the tables in two common scenarios.
+
+
+Scenario 1: A B2C Customer Journey
+
+
+1. Initial Contact: A new user, Jane Doe, signs up for a newsletter on an e-commerce site. A new record is created in the contacts table.
+   * first_name: 'Jane', last_name: 'Doe', email: 'jane.doe@email.com'
+   * lifecycle_stage: 'lead'
+   * account_id: NULL (This is the key B2C indicator)
+2. Marketing Engagement: Jane receives a series of automated marketing emails. Each email sent is logged as a new row in the interactions table.
+   * contact_id: (Jane's UUID)
+   * type: 'email'
+   * content: (The full HTML body of the email)
+   * The content is then passed to the Voyage AI API to generate a 1024-dimension vector, which is stored in the embedding column of the new interactions row.
+3. Purchase: Jane clicks a link in an email and purchases a product for $150.
+   * An opportunities record is created to track this sale.
+   * name: 'Product X Purchase - Jane Doe'
+   * contact_id: (Jane's UUID)
+   * account_id: NULL
+   * amount: 150.00
+   * stage: 'closed_won'
+   * Jane's record in the contacts table is updated: lifecycle_stage is changed from 'lead' to 'customer'.
+
+
+Scenario 2: A Complex B2B Sales Cycle
+
+
+1. Lead Generation: John Smith, a manager at "MegaCorp," fills out a demo request form.
+   * A new accounts record is created for "MegaCorp".
+   * A new contacts record is created for John Smith.
+   * first_name: 'John', last_name: 'Smith', job_title: 'Manager'
+   * account_id: (MegaCorp's UUID). This links John to the company.
+   * lifecycle_stage: 'lead'
+2. Opportunity Creation: A sales rep qualifies the lead and creates a deal.
+   * An opportunities record is created: name: 'MegaCorp - Q3 Enterprise Platform', account_id: (MegaCorp's UUID).
+   * A record is added to the opportunity_participants table linking the new opportunity to John Smith's contact record, with role = 'Initiator'.
+3. Sales Process: Over several weeks, the sales rep has meetings with three other people from MegaCorp: the Director (Mary), the CTO (David), and an end-user (Susan).
+   * New contacts records are created for Mary, David, and Susan, all linked to the same MegaCorp account_id.
+   * Each is added to the opportunity_participants table for the ongoing deal, with their respective roles: 'Decision Maker', 'Technical Evaluator', 'Influencer'.
+   * Every meeting, call, and email thread is logged in the interactions table, linked to the relevant contacts and the main account. Each interaction's content is embedded and stored.
+4. AI-Driven Insight: The sales rep is preparing for a final proposal meeting. They ask the AI partner: "Show me similar deals we've won and what the key concerns were."
+   * The AI uses the summary_embedding on the MegaCorp account record (which has been periodically updated by a background process) to find other accounts with similar semantic profiles.
+   * It performs a vector search against the interactions table for those similar won deals, looking for embeddings close to the query "concerns" or "pricing issues".
+   * The AI synthesizes the results and reports: "In three similar deals, the primary concern was integration time. Highlighting our new quick-start integration package was the key to winning."
+5. Deal Closed: The rep uses this insight to tailor the final proposal. The deal is won.
+   * The opportunities record stage is updated to 'closed_won'.
+   * The accounts record for MegaCorp is now a valued customer, and the lifecycle_stage for all associated contacts is updated to 'customer'.
+These scenarios demonstrate the flexibility and power of the unified data model. It handles the simplicity of B2C and the rich complexity of B2B within a single, elegant framework, providing a solid foundation for a truly intelligent, next-generation CRM.
+Works cited
+1. CRM for B2B And B2C: What it is & How is it Different? - FindMyCRM, accessed August 15, 2025, https://www.findmycrm.com/blog/crm-overview/crm-for-b2b-and-b2c-what-it-is-how-is-it-different
+2. B2B vs B2C CRM Practices - Bigworks, accessed August 15, 2025, https://bigworks.co/b2b-vs-b2c-crm-practices/
+3. SuiteCRM - Open Source CRM Software Application for Businesses, accessed August 15, 2025, https://suitecrm.com/
+4. B2B and D2C Commerce Data Model - Salesforce Developers, accessed August 15, 2025, https://developer.salesforce.com/docs/commerce/salesforce-commerce/guide/b2b-b2c-dev-data-model.html
+5. What Is a CRM Database? (A Comprehensive Guide) - Salesforce, accessed August 15, 2025, https://www.salesforce.com/ap/crm/database/
+6. Understanding CRM Database Schema: A Comprehensive Guide - Clarify, accessed August 15, 2025, https://www.clarify.ai/blog/understanding-crm-database-schema-a-comprehensive-guide
+7. Flexible CRM Solutions - Streamline Business Operations - Stacker, accessed August 15, 2025, https://stackerhq.com/solutions/flexible-crm
+8. CRM Database Schema Example (A Practical Guide) - Dragonfly, accessed August 15, 2025, https://www.dragonflydb.io/databases/schema/crm
+9. AWS Marketplace: voyage-3-large Embedding Model, accessed August 15, 2025, https://aws.amazon.com/marketplace/pp/prodview-bwfhiokkdhb76
+10. Text Embeddings - Introduction - Voyage AI, accessed August 15, 2025, https://docs.voyageai.com/docs/embeddings
+11. Text Embedding Models Compared: OpenAI, Voyage, Cohere & More - Document360, accessed August 15, 2025, https://document360.com/blog/text-embedding-model-analysis/
+12. Embeddings - Anthropic API, accessed August 15, 2025, https://docs.anthropic.com/en/docs/build-with-claude/embeddings
+13. medium.com, accessed August 15, 2025, https://medium.com/@bavalpreetsinghh/pgvector-hnsw-vs-ivfflat-a-comprehensive-study-21ce0aaab931#:~:text=Vector%20indexes%20are%20the%20unsung,and%20better%20handles%20changing%20data.
+14. pgvector/pgvector: Open-source vector similarity search for ... - GitHub, accessed August 15, 2025, https://github.com/pgvector/pgvector
+15. Understanding and Managing Indexes in pgvector | CodeSignal Learn, accessed August 15, 2025, https://codesignal.com/learn/courses/indexing-optimization-and-scaling-pgvector/lessons/understanding-and-managing-indexes-in-pgvector
+16. Performance Tips for Developers Using Postgres and pgvector ..., accessed August 15, 2025, https://dev.to/shiviyer/performance-tips-for-developers-using-postgres-and-pgvector-l7g
+17. Load vector embeddings up to 67x faster with pgvector and Amazon Aurora - AWS, accessed August 15, 2025, https://aws.amazon.com/blogs/database/load-vector-embeddings-up-to-67x-faster-with-pgvector-and-amazon-aurora/
+18. Query Optimization | Supabase Docs, accessed August 15, 2025, https://supabase.com/docs/guides/database/query-optimization
+19. Documentation: 17: 5.12. Table Partitioning - PostgreSQL, accessed August 15, 2025, https://www.postgresql.org/docs/current/ddl-partitioning.html
+20. Performance Tuning | Supabase Docs, accessed August 15, 2025, https://supabase.com/docs/guides/platform/performance
+21. Optimize performance when using pgvector in Azure Database for PostgreSQL flexible server - Microsoft Learn, accessed August 15, 2025, https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/how-to-optimize-performance-pgvector

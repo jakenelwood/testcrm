@@ -1,0 +1,5 @@
+{"generatedAt":"2025-08-18T00:06:44.660Z","category":"Stability","severity":"medium","issue":"Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.","browser":"firefox"}
+{"generatedAt":"2025-08-18T00:06:46.676Z","category":"Accessibility","severity":"medium","page":"/auth/login","issue":"Missing <main> or role=\"main\" landmark"}
+{"generatedAt":"2025-08-18T00:06:46.677Z","category":"Accessibility","severity":"low","page":"/auth/login","issue":"Missing <header> or role=\"banner\" landmark"}
+{"generatedAt":"2025-08-18T00:06:48.970Z","category":"Accessibility","severity":"medium","page":"/auth/signup","issue":"Missing <main> or role=\"main\" landmark"}
+{"generatedAt":"2025-08-18T00:06:48.971Z","category":"Accessibility","severity":"low","page":"/auth/signup","issue":"Missing <header> or role=\"banner\" landmark"}

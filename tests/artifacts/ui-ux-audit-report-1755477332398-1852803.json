@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2025-08-18T00:35:58.015Z",
+  "findings": [
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Stability",
+      "severity": "high",
+      "issue": "Console error: Error getting user: AuthSessionMissingError: Auth session missing!\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1103:59)\n    at SupabaseAuthClient._useSession (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:991:26)\n    at async SupabaseAuthClient._getUser (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1095:20)\n    at async eval (webpack-internal:///(app-pages-browser)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1082:20)",
+      "browser": "chromium"
+    }
+  ]
+}

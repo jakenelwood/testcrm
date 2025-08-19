@@ -1,0 +1,3 @@
+{"generatedAt":"2025-08-18T01:23:26.675Z","category":"Performance","severity":"medium","page":"/","issue":"Slow DOM load (5263ms)","browser":"webkit"}
+{"generatedAt":"2025-08-18T01:23:31.857Z","category":"Performance","severity":"medium","page":"/auth/login","issue":"Slow DOM load (3369ms)","browser":"webkit"}
+{"generatedAt":"2025-08-18T01:23:37.611Z","category":"Performance","severity":"medium","page":"/auth/signup","issue":"Slow DOM load (3840ms)","browser":"webkit"}

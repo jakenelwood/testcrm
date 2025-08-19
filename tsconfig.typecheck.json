@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "app/api/campaigns/**/*.ts",
+    "app/dashboard/campaigns/**/*.tsx",
+    "lib/drizzle/migrations/**/*.ts",
+    "lib/drizzle/db.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "_archive",
+    "archive",
+    "scripts",
+    "tests",
+    "types/**",
+    "lib/drizzle/schema/old",
+    "lib/drizzle/schema/old/**"
+  ]
+}
+

@@ -1,0 +1,2 @@
+DROP INDEX "idx_insurance_policies_policy_number";--> statement-breakpoint
+CREATE INDEX "idx_insurance_policies_policy_number" ON "insurance_policies" USING btree ("workspace_id" uuid_ops,"policy_number" text_ops);

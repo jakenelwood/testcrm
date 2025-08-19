@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2025-08-18T00:06:44.455Z",
+  "findings": [
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/",
+      "issue": "Slow DOM load (8658ms)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Stability",
+      "severity": "medium",
+      "issue": "Console warning: Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.",
+      "browser": "chromium"
+    },
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Slow DOM load (6345ms)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/login",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/auth/login",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    },
+    {
+      "category": "Performance",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Slow DOM load (3786ms)",
+      "browser": "chromium"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "medium",
+      "page": "/auth/signup",
+      "issue": "Missing <main> or role=\"main\" landmark"
+    },
+    {
+      "category": "Accessibility",
+      "severity": "low",
+      "page": "/auth/signup",
+      "issue": "Missing <header> or role=\"banner\" landmark"
+    }
+  ]
+}
