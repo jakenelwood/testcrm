@@ -5,7 +5,6 @@ import { ThemeProvider as ColorThemeProvider } from "@/lib/theme-context";
 import { OpportunityProvider } from "@/contexts/opportunity-context";
 import { QueryProvider } from "@/components/providers/query-provider";
 import React from "react";
-import { inter } from "./fonts";
 import { brand } from "@/lib/brand";
 
 export const metadata = {
@@ -24,8 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable}`}
-    >
+          >
       {/* Add suppressHydrationWarning to the head tag */}
       <head suppressHydrationWarning />
       {/* Add suppressHydrationWarning to the body tag */}
